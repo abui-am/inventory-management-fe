@@ -40,7 +40,6 @@ module.exports = {
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'simple-import-sort/sort': 'off',
-    'prettier/prettier': 'error',
     '@typescript-eslint/indent': [0],
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
@@ -62,6 +61,12 @@ module.exports = {
       },
     ],
     'no-shadow': 'off',
+    'prettier/prettier': [
+      'error',
+      {
+        usePrettierrc: true,
+      },
+    ],
   },
   globals: {
     React: true,

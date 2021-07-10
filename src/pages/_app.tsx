@@ -19,7 +19,9 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
   return (
     <QueryClientProvider client={queryClientRef.current}>
       <Hydrate state={dehydrateState}>
-        <Component {...pageProps} />
+        <main className="font-sans text-blueGray-900 bg-blueGray-50 transition-all duration-75">
+          <Component {...pageProps} />
+        </main>
       </Hydrate>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

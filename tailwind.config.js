@@ -4,10 +4,24 @@ module.exports = {
   purge: ['./src/pages/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ['Noto sans'],
+    },
+    extend: {
+      colors: {
+        blueGray: {
+          50: '#F8FAFC',
+          600: '#475569',
+          900: '#0F172A',
+        },
+      },
+    },
   },
   variants: {
-    extend: {},
+    extend: {
+      backgroundColor: ['checked'],
+      borderColor: ['checked'],
+    },
   },
   plugins: [],
 };
