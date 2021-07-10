@@ -1,7 +1,7 @@
 import '../styles/globals.css';
 import 'tailwindcss/tailwind.css';
 
-import AppProps from 'next/app';
+import { AppProps } from 'next/app';
 import { useRef } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
