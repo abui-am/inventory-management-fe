@@ -1,5 +1,4 @@
 import '../styles/globals.css';
-import 'tailwindcss/tailwind.css';
 
 import { AppProps } from 'next/app';
 import { useRef } from 'react';
@@ -19,7 +18,7 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
   return (
     <QueryClientProvider client={queryClientRef.current}>
       <Hydrate state={dehydrateState}>
-        <main className="font-sans text-blueGray-900 bg-blueGray-50 transition-all duration-75">
+        <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
           <Component {...pageProps} />
         </main>
       </Hydrate>
