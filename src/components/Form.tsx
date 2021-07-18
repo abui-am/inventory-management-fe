@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { InputHTMLAttributes, useState } from 'react';
+import React, { InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
 
 const TextField: React.FC<InputHTMLAttributes<unknown>> = ({ className, ...props }) => {
   return (
@@ -15,12 +15,33 @@ const TextField: React.FC<InputHTMLAttributes<unknown>> = ({ className, ...props
   );
 };
 
-const Button: React.FC<InputHTMLAttributes<unknown>> = ({ children, className, ...props }) => {
+const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...props }) => {
+  return (
+    <textarea
+      {...props}
+      rows={3}
+      className={clsx(
+        'resize-none w-full border-gray-300 border rounded-md px-3 py-2 outline-none',
+        'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+        'transition-all duration-150 ease-in',
+        className
+      )}
+    />
+  );
+};
+
+const Button: React.FC<InputHTMLAttributes<unknown> & { variant?: 'primary' | 'secondary' }> = ({
+  children,
+  className,
+  variant = 'primary',
+  ...props
+}) => {
+  const classes = { primary: 'bg-blue-600 shadow-md text-white', secondary: '' };
   return (
     <button
       {...props}
       type="button"
-      className={clsx('h-11 w-full rounded-md bg-blue-600 shadow-md text-white font-bold', className)}
+      className={clsx('h-11 w-full rounded-md font-bold whitespace-nowrap pl-4 pr-4', classes[variant], className)}
     >
       {children}
     </button>
@@ -45,4 +66,4 @@ const Checkbox: React.FC<InputHTMLAttributes<unknown>> = ({ children, ...props }
   );
 };
 
-export { Button, Checkbox, TextField };
+export { Button, Checkbox, TextArea, TextField };
