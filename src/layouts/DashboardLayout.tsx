@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/dist/client/router';
 import React, { useEffect, useState } from 'react';
-import { ChevronDown } from 'react-bootstrap-icons';
+import { ChevronDown, Link } from 'react-bootstrap-icons';
 
 import { RoundedButton } from '@/components/Button';
 import Avatar from '@/components/Image';
@@ -25,27 +25,29 @@ const DashboardLayout: React.FC<{ title: string }> = ({ title, children }) => {
           {MENU_LIST.map(({ displayName, icon, id, slug }, index) => {
             return (
               <div className="px-8 py-4 relative flex items-center" key={id}>
-                <a href={slug}>
-                  <button type="button" className="group flex items-center">
-                    <div className="mr-4">
-                      {icon({
-                        className: clsx(
-                          'group-hover:text-blue-600',
-                          activePage === index ? 'text-blue-600' : 'text-blueGray-400'
-                        ),
-                      })}
-                    </div>
-                    <div className="flex-1">
-                      <span
-                        className={`group-hover:text-blue-600 font-bold ${
-                          activePage === index ? 'text-white' : 'text-blueGray-400'
-                        }`}
-                      >
-                        {displayName}
-                      </span>
-                    </div>
-                  </button>
-                </a>
+                <Link href={slug}>
+                  <a>
+                    <button type="button" className="group flex items-center">
+                      <div className="mr-4">
+                        {icon({
+                          className: clsx(
+                            'group-hover:text-blue-600',
+                            activePage === index ? 'text-blue-600' : 'text-blueGray-400'
+                          ),
+                        })}
+                      </div>
+                      <div className="flex-1">
+                        <span
+                          className={`group-hover:text-blue-600 font-bold ${
+                            activePage === index ? 'text-white' : 'text-blueGray-400'
+                          }`}
+                        >
+                          {displayName}
+                        </span>
+                      </div>
+                    </button>
+                  </a>
+                </Link>
 
                 {activePage === index && <div className="w-2 bg-blue-600 h-full absolute right-0" />}
               </div>
