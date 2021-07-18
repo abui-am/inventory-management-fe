@@ -1,7 +1,8 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/dist/client/router';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Link } from 'react-bootstrap-icons';
+import { ChevronDown } from 'react-bootstrap-icons';
 
 import { RoundedButton } from '@/components/Button';
 import Avatar from '@/components/Image';
