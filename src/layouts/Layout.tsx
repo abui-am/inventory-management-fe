@@ -32,7 +32,7 @@ const Layout: React.FC = ({ children }) => {
 
   useEffect(() => {
     const index = MENU_LIST.findIndex(({ slug }) => pathname === slug);
-    setTitle(MENU_LIST[index].displayName);
+    setTitle(MENU_LIST[index]?.displayName);
   }, [pathname]);
 
   if (excluded.includes(pathname)) return <div>{children}</div>;
