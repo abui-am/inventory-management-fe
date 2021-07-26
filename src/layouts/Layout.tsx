@@ -8,7 +8,7 @@ import DashboardLayout from './DashboardLayout';
 
 const Layout: React.FC = ({ children }) => {
   const { pathname, events } = useRouter();
-  const excluded = ['/login'];
+  const excludedUrl = ['/login'];
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState('');
 
@@ -35,7 +35,7 @@ const Layout: React.FC = ({ children }) => {
     setTitle(MENU_LIST[index]?.displayName);
   }, [pathname]);
 
-  if (excluded.includes(pathname)) return <div>{children}</div>;
+  if (excludedUrl.includes(pathname)) return <div>{children}</div>;
 
   return (
     <div>

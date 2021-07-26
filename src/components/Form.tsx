@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import React, { InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
+import React, {
+  ButtonHTMLAttributes,
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  TextareaHTMLAttributes,
+  useState,
+} from 'react';
 
 const TextField: React.FC<InputHTMLAttributes<unknown>> = ({ className, ...props }) => {
   return (
@@ -30,18 +36,15 @@ const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...pro
   );
 };
 
-const Button: React.FC<InputHTMLAttributes<unknown> & { variant?: 'primary' | 'secondary' }> = ({
-  children,
-  className,
-  variant = 'primary',
-  ...props
-}) => {
+const Button: React.FC<
+  DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & { variant?: 'primary' | 'secondary' }
+> = ({ children, className, variant = 'primary', ...props }) => {
   const classes = { primary: 'bg-blue-600 shadow-md text-white', secondary: '' };
   return (
     <button
-      {...props}
       type="button"
       className={clsx('h-11 w-full rounded-md font-bold whitespace-nowrap pl-4 pr-4', classes[variant], className)}
+      {...props}
     >
       {children}
     </button>

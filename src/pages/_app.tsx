@@ -9,11 +9,15 @@ import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
 
 import Layout from '@/layouts/Layout';
 import parseCookies from '@/utils/cookies';
+import makeServer from '@/utils/server';
 
 type MyAppProps = AppProps & { dehydrateState: DehydratedState };
 
 function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Element {
   const queryClientRef = useRef<null | QueryClient>(null);
+
+  // Run mock server
+  makeServer();
 
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();
@@ -36,6 +40,7 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
 MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
   const cookie = parseCookies(ctx.req);
   const queryClient = new QueryClient();
+  console.log(ctx.pathname);
 
   const whitelistedPage = ['/login', '/forget-password', '/_error'];
 
