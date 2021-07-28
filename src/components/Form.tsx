@@ -51,21 +51,33 @@ const Button: React.FC<
   DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
     variant?: 'primary' | 'secondary';
     fullWidth?: boolean;
+    Icon?: JSX.Element;
   }
-> = ({ children, className, variant = 'primary', fullWidth, ...props }) => {
+> = ({ children, className, variant = 'primary', fullWidth, Icon, ...props }) => {
   const classes = { primary: 'bg-blue-600 shadow-md text-white', secondary: '' };
   return (
     <button
       type="button"
       className={clsx(
-        'h-11 rounded-md font-bold whitespace-nowrap pl-4 pr-4',
+        Icon ? 'pl-10' : '',
+        'h-11 rounded-md font-bold whitespace-nowrap pl-4 pr-4 relative',
         classes[variant],
         fullWidth ? 'w-full' : '',
         className
       )}
       {...props}
     >
-      {children}
+      {Icon && (
+        <div
+          className={clsx(
+            variant === 'primary' ? 'text-white' : '',
+            'absolute flex items-center left-3 top-0 bottom-0 m-auto'
+          )}
+        >
+          {Icon}
+        </div>
+      )}
+      <div>{children}</div>
     </button>
   );
 };

@@ -1,9 +1,9 @@
 import { NextPage } from 'next';
 import React from 'react';
-import { Search } from 'react-bootstrap-icons';
+import { PlusLg, Search } from 'react-bootstrap-icons';
 
 import { CardDashboard } from '@/components/Container';
-import { Button, TextArea, TextField } from '@/components/Form';
+import { Button, TextField } from '@/components/Form';
 
 const Home: NextPage<unknown> = () => {
   return (
@@ -12,7 +12,9 @@ const Home: NextPage<unknown> = () => {
       Action={
         <div className="flex">
           <TextField Icon={<Search />} variant="contained" placeholder="Cari nama karyawan" />
-          <Button>Tambah</Button>
+          <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
+            Tambah
+          </Button>
         </div>
       }
     />
