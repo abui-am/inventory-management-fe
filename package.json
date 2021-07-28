@@ -25,6 +25,7 @@
     "react-loader-spinner": "^4.0.0",
     "react-popper": "^2.2.5",
     "react-query": "^3.18.1",
+    "react-table": "^7.7.0",
     "tailwindcss": "^2.2.4",
     "yup": "^0.32.9"
   },
@@ -32,6 +33,7 @@
     "@types/cookie": "^0.4.1",
     "@types/js-cookie": "^2.2.7",
     "@types/react": "^17.0.5",
+    "@types/react-table": "^7.7.2",
     "@typescript-eslint/eslint-plugin": "4.23.0",
     "@typescript-eslint/parser": "4.23.0",
     "eslint": "^7.26.0",
