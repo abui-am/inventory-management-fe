@@ -7,19 +7,30 @@ import React, {
   useState,
 } from 'react';
 
-const TextField: React.FC<InputHTMLAttributes<unknown>> = ({ className, ...props }) => {
-  return (
-    <input
-      {...props}
-      className={clsx(
-        'h-11 w-full border-gray-300 border rounded-md px-3 outline-none',
-        'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-        'transition-all duration-150 ease-in',
-        className
-      )}
-    />
-  );
-};
+const TextField: React.FC<InputHTMLAttributes<unknown> & { variant?: 'outlined' | 'contained'; Icon?: JSX.Element }> =
+  ({ className, Icon, variant = 'outlined', ...props }) => {
+    const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
+
+    return (
+      <div className="relative">
+        {Icon && (
+          <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>
+        )}
+
+        <input
+          {...props}
+          className={clsx(
+            Icon ? 'pl-11' : '',
+            variation,
+            'h-11 w-full rounded-md px-3 outline-none',
+            'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+            'transition-all duration-150 ease-in',
+            className
+          )}
+        />
+      </div>
+    );
+  };
 
 const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...props }) => {
   return (
@@ -37,13 +48,21 @@ const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...pro
 };
 
 const Button: React.FC<
-  DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & { variant?: 'primary' | 'secondary' }
-> = ({ children, className, variant = 'primary', ...props }) => {
+  DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
+    variant?: 'primary' | 'secondary';
+    fullWidth?: boolean;
+  }
+> = ({ children, className, variant = 'primary', fullWidth, ...props }) => {
   const classes = { primary: 'bg-blue-600 shadow-md text-white', secondary: '' };
   return (
     <button
       type="button"
-      className={clsx('h-11 w-full rounded-md font-bold whitespace-nowrap pl-4 pr-4', classes[variant], className)}
+      className={clsx(
+        'h-11 rounded-md font-bold whitespace-nowrap pl-4 pr-4',
+        classes[variant],
+        fullWidth ? 'w-full' : '',
+        className
+      )}
       {...props}
     >
       {children}

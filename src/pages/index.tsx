@@ -6,7 +6,7 @@ import { Button, TextArea, TextField } from '@/components/Form';
 
 const Home: NextPage<unknown> = () => {
   return (
-    <CardDashboard title="Daftar Karyawan">
+    <CardDashboard title="Tambah Karyawan">
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
           <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>

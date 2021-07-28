@@ -57,7 +57,7 @@ const Layout: React.FC = ({ children }) => {
           transition: 'all 0.4s',
         }}
       >
-        <DashboardLayout title={title}>{children}</DashboardLayout>;
+        <DashboardLayout title={title}>{children}</DashboardLayout>
       </div>
     </div>
   );

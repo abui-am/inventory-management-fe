@@ -1,16 +1,36 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/dist/client/router';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'react-bootstrap-icons';
 
 import { RoundedButton } from '@/components/Button';
+import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
+import { removeCookie } from '@/utils/cookies';
 
 const DashboardLayout: React.FC<{ title: string }> = ({ title, children }) => {
   const [activePage, setActivePage] = useState(0);
   const { pathname } = useRouter();
+  const [showMenu, setShowMenu] = useState(false);
+  const refElement = useRef(null);
+  const { push } = useRouter();
+
+  function logout() {
+    removeCookie('INVT_TOKEN');
+    push('/login');
+  }
+
+  function keyHandler(event: KeyboardEvent<HTMLDivElement>): void {
+    switch (event.key) {
+      case 'Enter':
+        logout();
+        break;
+      default:
+    }
+  }
+
   useEffect(() => {
     const index = MENU_LIST.findIndex(({ slug }) => pathname === slug);
     setActivePage(index);
@@ -61,9 +81,30 @@ const DashboardLayout: React.FC<{ title: string }> = ({ title, children }) => {
           <h1 className="text-2xl font-bold">{title}</h1>
           <div className="flex items-center mb-8">
             <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" className="mr-2" onClick={(e) => e} />
-            <RoundedButton>
-              <ChevronDown />
-            </RoundedButton>
+            <div ref={refElement as LegacyRef<HTMLDivElement> | undefined}>
+              <RoundedButton type="button" onClick={() => setShowMenu(true)}>
+                <ChevronDown />
+              </RoundedButton>
+            </div>
+            <Popup
+              open={showMenu}
+              anchorRef={refElement.current}
+              onClickOutside={() => setShowMenu(false)}
+              placement="bottom-end"
+            >
+              <div className="flex flex-col divide-y w-40 py-1">
+                <div className="py-2 px-4">Akun</div>
+                <div
+                  className="py-2 px-4 hover:bg-blue-600 hover:text-white"
+                  tabIndex={0}
+                  role="button"
+                  onKeyUp={keyHandler}
+                  onClick={logout}
+                >
+                  Log out
+                </div>
+              </div>
+            </Popup>
           </div>
         </div>
         {children}
