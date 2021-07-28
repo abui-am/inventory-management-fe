@@ -58,7 +58,9 @@ export default function Home(): JSX.Element {
             <a>Lupa password</a>
           </div>
           <div>
-            <Button type="submit">Sign in</Button>
+            <Button fullWidth type="submit">
+              Sign in
+            </Button>
           </div>
         </div>
       </form>

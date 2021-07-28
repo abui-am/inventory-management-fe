@@ -59,8 +59,8 @@ const Button: React.FC<
     <button
       type="button"
       className={clsx(
-        Icon ? 'pl-10' : '',
-        'h-11 rounded-md font-bold whitespace-nowrap pl-4 pr-4 relative',
+        Icon ? 'pl-10' : 'pl-4',
+        'h-11 rounded-md font-bold whitespace-nowrap pr-4 relative',
         classes[variant],
         fullWidth ? 'w-full' : '',
         className
