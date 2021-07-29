@@ -48,6 +48,15 @@ MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
     ctx.res?.end();
     return {};
   }
+
+  // TODO : THIS IS TEMPORARY,
+  // delete when index page readt
+  if (cookie['INVT-TOKEN'] && ctx.pathname === '/') {
+    ctx.res?.writeHead(302, { Location: '/employee' });
+    ctx.res?.end();
+    return {};
+  }
+
   if (cookie['INVT-TOKEN'] && ctx.pathname === '/login') {
     ctx.res?.writeHead(302, { Location: '/' });
     ctx.res?.end();
