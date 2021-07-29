@@ -55,21 +55,20 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
     <>
       <div className="w-full">{search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
       <table {...getTableProps()} className="table-fixed w-full">
-        <thead className="border-b border-solid border-blue-600 mb-6">
+        <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column: PropsColumn) => (
                 <th {...column.getHeaderProps(column.getSortByToggleProps?.())} className="py-6 px-4 text-left">
-                  <div className="flex">
+                  <span className="flex">
                     {column.render('Header')}
                     <span style={{ marginLeft: 8 }}>{renderHead(column)}</span>
-                  </div>
+                  </span>
                 </th>
               ))}
             </tr>
           ))}
         </thead>
-        <div className="h-6" />
         <tbody {...getTableBodyProps()}>
           {rows.map((row, index) => {
             prepareRow(row);

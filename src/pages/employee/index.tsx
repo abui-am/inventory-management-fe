@@ -1,4 +1,5 @@
 import { NextPage } from 'next';
+import Link from 'next/link';
 import React from 'react';
 import { PlusLg, Search } from 'react-bootstrap-icons';
 
@@ -39,18 +40,31 @@ const Home: NextPage<unknown> = () => {
     []
   );
   return (
-    <CardDashboard
-      title="Daftar Karyawan"
-      Action={
-        <div className="flex">
-          <TextField Icon={<Search />} variant="contained" placeholder="Cari nama karyawan" />
-          <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
-            Tambah
-          </Button>
-        </div>
-      }
-    >
-      <Table columns={columns} data={data} search={() => <div />} />
+    <CardDashboard>
+      <Table
+        columns={columns}
+        data={data}
+        search={({ setGlobalFilter }) => (
+          <div className="mt-2 mb-10 flex justify-between">
+            <h2 className="text-2xl font-bold">Daftar Karyawan</h2>
+            <div className="flex">
+              <TextField
+                Icon={<Search />}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                variant="contained"
+                placeholder="Cari nama karyawan"
+              />
+              <Link href="/employee/add">
+                <a>
+                  <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
+                    Tambah
+                  </Button>
+                </a>
+              </Link>
+            </div>
+          </div>
+        )}
+      />
     </CardDashboard>
   );
 };

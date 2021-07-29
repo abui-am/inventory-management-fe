@@ -40,7 +40,6 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
 MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
   const cookie = parseCookies(ctx.req);
   const queryClient = new QueryClient();
-  console.log(ctx.pathname);
 
   const whitelistedPage = ['/login', '/forget-password', '/_error'];
 

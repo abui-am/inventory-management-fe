@@ -31,7 +31,9 @@ const Layout: React.FC = ({ children }) => {
   });
 
   useEffect(() => {
-    const index = MENU_LIST.findIndex(({ slug }) => pathname === slug);
+    const firstPath = pathname.split('/')[0];
+
+    const index = MENU_LIST.findIndex(({ slug }) => firstPath === slug.split('/')[0]);
     setTitle(MENU_LIST[index]?.displayName);
   }, [pathname]);
 
