@@ -1,4 +1,5 @@
 import { useRouter } from 'next/dist/client/router';
+import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import Loader from 'react-loader-spinner';
 
@@ -31,9 +32,8 @@ const Layout: React.FC = ({ children }) => {
   });
 
   useEffect(() => {
-    const firstPath = pathname.split('/')[0];
-
-    const index = MENU_LIST.findIndex(({ slug }) => firstPath === slug.split('/')[0]);
+    const firstPath = pathname.split('/')[1];
+    const index = MENU_LIST.findIndex(({ slug }) => firstPath === slug.split('/')[1]);
     setTitle(MENU_LIST[index]?.displayName);
   }, [pathname]);
 
@@ -41,6 +41,7 @@ const Layout: React.FC = ({ children }) => {
 
   return (
     <div>
+      <NextSeo title={`Dashboard | ${title}`} description="Dashboard" />
       <div
         className="backdrop"
         style={{

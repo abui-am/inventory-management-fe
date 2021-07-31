@@ -1,7 +1,8 @@
 import { useFormik } from 'formik';
 import { object } from 'yup';
 
-import { Button, Checkbox, TextField } from '@/components/Form';
+import { Button } from '@/components/Button';
+import { Checkbox, TextField } from '@/components/Form';
 import useAuthMutation from '@/hooks/mutation/useAuth';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {

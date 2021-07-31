@@ -80,9 +80,13 @@ const DashboardLayout: React.FC<{ title: string }> = ({ title, children }) => {
         <div className="flex justify-between">
           <h1 className="text-2xl font-bold">{title}</h1>
           <div className="flex items-center mb-8">
-            <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" className="mr-2" onClick={(e) => e} />
             <div ref={refElement as LegacyRef<HTMLDivElement> | undefined}>
-              <RoundedButton className="w-11 h-11" type="button" onClick={() => setShowMenu(true)}>
+              <RoundedButton
+                className={clsx('h-11 pl-0', showMenu ? 'bg-blueGray-400' : '')}
+                type="button"
+                onClick={() => setShowMenu(true)}
+              >
+                <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" className="mr-2" />
                 <ChevronDown />
               </RoundedButton>
             </div>

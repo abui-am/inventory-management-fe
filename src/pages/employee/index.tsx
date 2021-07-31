@@ -3,8 +3,9 @@ import Link from 'next/link';
 import React from 'react';
 import { PlusLg, Search } from 'react-bootstrap-icons';
 
+import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { Button, TextField } from '@/components/Form';
+import { TextField } from '@/components/Form';
 import Table from '@/components/Table';
 
 const Home: NextPage<unknown> = () => {

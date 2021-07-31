@@ -1,8 +1,9 @@
 import { NextPage } from 'next';
 import React from 'react';
 
+import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { Button, TextArea, TextField } from '@/components/Form';
+import { TextArea, TextField } from '@/components/Form';
 
 const Home: NextPage<unknown> = () => {
   return (
