@@ -1,4 +1,4 @@
-import { string } from 'yup';
+import { date, string } from 'yup';
 import { ObjectShape } from 'yup/lib/object';
 
 const schema = (type: string) => {
@@ -7,6 +7,9 @@ const schema = (type: string) => {
     case 'username':
     case 'password':
       return string().required();
+
+    case 'birthday':
+      return date().required();
 
     default:
       return undefined;

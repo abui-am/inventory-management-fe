@@ -66,6 +66,16 @@ export default function makeServer(): void {
         };
       });
 
+      this.put('employees', (_, request) => {
+        const attrs = JSON.parse(request.requestBody);
+        console.log('Mocking', attrs);
+
+        return {
+          status_code: 201,
+          message: 'Data berhasil ditambahkan',
+        };
+      });
+
       this.passthrough();
     },
   });
