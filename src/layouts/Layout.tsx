@@ -11,7 +11,7 @@ const Layout: React.FC = ({ children }) => {
   const { pathname, events } = useRouter();
   const excludedUrl = ['/login'];
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState({ displayName: '', slug: '' });
 
   const handleChangeStart = () => {
     setLoading(true);
@@ -34,14 +34,20 @@ const Layout: React.FC = ({ children }) => {
   useEffect(() => {
     const firstPath = pathname.split('/')[1];
     const index = MENU_LIST.findIndex(({ slug }) => firstPath === slug.split('/')[1]);
-    setTitle(MENU_LIST[index]?.displayName);
+    if (MENU_LIST[index]) setTitle(MENU_LIST[index]);
   }, [pathname]);
 
-  if (excludedUrl.includes(pathname)) return <div>{children}</div>;
+  if (excludedUrl.includes(pathname))
+    return (
+      <div>
+        <NextSeo title="Dashboard" description="Dashboard" />
+        {children}
+      </div>
+    );
 
   return (
     <div>
-      <NextSeo title={`Dashboard | ${title}`} description="Dashboard" />
+      <NextSeo title={`Dashboard | ${title.displayName}`} description="Dashboard" />
       <div
         className="backdrop"
         style={{
@@ -60,7 +66,9 @@ const Layout: React.FC = ({ children }) => {
           transition: 'all 0.4s',
         }}
       >
-        <DashboardLayout title={title}>{children}</DashboardLayout>
+        <DashboardLayout titleHref={title?.slug} title={title?.displayName}>
+          {children}
+        </DashboardLayout>
       </div>
     </div>
   );

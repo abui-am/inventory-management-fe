@@ -1,41 +1,51 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
-import { PlusLg, Search } from 'react-bootstrap-icons';
+import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
 import Table from '@/components/Table';
+import useFetchEmployee from '@/hooks/query/useFetchEmployee';
 
 const Home: NextPage<unknown> = () => {
-  const data = React.useMemo(
-    () => [
-      {
-        col1: 'Hello',
-        col2: 'World',
-      },
-      {
-        col1: 'react-table',
-        col2: 'rocks',
-      },
-      {
-        col1: 'whatever',
-        col2: 'you want',
-      },
-    ],
-    []
-  );
+  const { data: dataEmployee, isFetching } = useFetchEmployee();
+
+  const dataRes = dataEmployee?.data?.employees?.data ?? [];
+  const data = dataRes.map(({ firstName, lastName, position, id, hasDashboardAccount }) => ({
+    col1: `${firstName} ${lastName}`,
+    col2: position,
+    col3: hasDashboardAccount ? (
+      <span className="text-blue-600 bold">Aktif</span>
+    ) : (
+      <span className="bold">Tidak Aktif</span>
+    ),
+    col4: (
+      <div className="flex">
+        <Eye />
+        <Pencil />
+      </div>
+    ),
+  }));
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Column 1',
+        Header: 'Nama Karyawan',
         accessor: 'col1', // accessor is the "key" in the data
       },
       {
-        Header: 'Column 2',
+        Header: 'Jabatan',
         accessor: 'col2',
+      },
+      {
+        Header: 'Akun Dashboard',
+        accessor: 'col3',
+      },
+      {
+        Header: 'Aksi',
+        accessor: 'col4',
       },
     ],
     []

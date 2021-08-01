@@ -39,7 +39,7 @@ const Popup = ({
           {...attributes.popper}
         >
           <div style={stylesPopper.arrow} ref={setArrowElement as LegacyRef<HTMLDivElement> | undefined} id="arrow" />
-          <div ref={closeRef} className="shadow-md bg-white rounded-md" style={{ transform: 'translate(10px,8px)' }}>
+          <div ref={closeRef} className="shadow-lg bg-white rounded-md" style={{ transform: 'translate(10px,8px)' }}>
             {children}
           </div>
         </div>
