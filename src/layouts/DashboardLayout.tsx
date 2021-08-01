@@ -2,9 +2,7 @@ import clsx from 'clsx';
 import { useRouter } from 'next/dist/client/router';
 import Link from 'next/link';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
-import { ChevronDown } from 'react-bootstrap-icons';
 
-import { RoundedButton } from '@/components/Button';
 import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';

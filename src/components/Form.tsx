@@ -1,31 +1,33 @@
 import clsx from 'clsx';
-import React, { InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
+import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
 import { Calendar } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
-const TextField: React.FC<InputHTMLAttributes<unknown> & { variant?: 'outlined' | 'contained'; Icon?: JSX.Element }> =
-  ({ className, Icon, variant = 'outlined', ...props }) => {
-    const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
+const TextField: React.FC<
+  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+    variant?: 'outlined' | 'contained';
+    Icon?: JSX.Element;
+  }
+> = ({ className, Icon, variant = 'outlined', ...props }) => {
+  const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
 
-    return (
-      <div className="relative">
-        {Icon && (
-          <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>
+  return (
+    <div className="relative">
+      {Icon && <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>}
+
+      <input
+        {...props}
+        className={clsx(
+          Icon ? 'pl-11' : '',
+          variation,
+          'h-11 w-full rounded-md px-3 outline-none',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in',
+          className
         )}
-
-        <input
-          {...props}
-          className={clsx(
-            Icon ? 'pl-11' : '',
-            variation,
-            'h-11 w-full rounded-md px-3 outline-none',
-            'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-            'transition-all duration-150 ease-in',
-            className
-          )}
-        />
-      </div>
-    );
-  };
+      />
+    </div>
+  );
+};
 
 const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...props }) => {
   return (

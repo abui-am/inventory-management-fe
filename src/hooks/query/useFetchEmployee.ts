@@ -16,7 +16,12 @@ const useFetchEmployee = (
   return fetcher;
 };
 
-const useCreateEmployee = (): UseMutationResult<unknown, unknown, Record<string, unknown>, unknown> => {
+const useCreateEmployee = (): UseMutationResult<
+  Omit<BackendRes<unknown>, 'data'>,
+  unknown,
+  Record<string, unknown>,
+  unknown
+> => {
   const mutator = useMutation(['createEmplotee'], async (data: Record<string, unknown>) => {
     const res = await apiInstance().put('/employees', data);
     return res.data;

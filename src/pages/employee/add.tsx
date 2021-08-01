@@ -2,6 +2,7 @@ import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React from 'react';
+import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { object } from 'yup';
 
@@ -14,6 +15,7 @@ import createSchema from '@/utils/validation/formik';
 
 const Home: NextPage<unknown> = () => {
   const { mutateAsync } = useCreateEmployee();
+  const { push } = useRouter();
 
   const initialValues = {
     firstName: '',
@@ -30,13 +32,15 @@ const Home: NextPage<unknown> = () => {
     village: '',
   };
 
-  const { values, handleChange, isSubmitting, setSubmitting, handleSubmit, setFieldValue } = useFormik({
+  const { values, handleChange, setSubmitting, handleSubmit, setFieldValue } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
       setSubmitting(true);
-      await mutateAsync(values);
+      const res = await mutateAsync(values);
       setSubmitting(false);
+      toast(res.message);
+      push('/employee');
     },
   });
 

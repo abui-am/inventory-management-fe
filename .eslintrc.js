@@ -43,6 +43,7 @@ module.exports = {
     '@typescript-eslint/indent': [0],
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/camelcase': 'off',
     'react/jsx-filename-extension': [0],
     'react/jsx-props-no-spreading': [0],
     'react/prop-types': [0],
