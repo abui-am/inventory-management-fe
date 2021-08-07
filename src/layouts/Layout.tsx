@@ -1,4 +1,5 @@
 import { useRouter } from 'next/dist/client/router';
+import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import Loader from 'react-loader-spinner';
 
@@ -8,9 +9,9 @@ import DashboardLayout from './DashboardLayout';
 
 const Layout: React.FC = ({ children }) => {
   const { pathname, events } = useRouter();
-  const excluded = ['/login'];
+  const excludedUrl = ['/login'];
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState({ displayName: '', slug: '' });
 
   const handleChangeStart = () => {
     setLoading(true);
@@ -31,14 +32,22 @@ const Layout: React.FC = ({ children }) => {
   });
 
   useEffect(() => {
-    const index = MENU_LIST.findIndex(({ slug }) => pathname === slug);
-    setTitle(MENU_LIST[index]?.displayName);
+    const firstPath = pathname.split('/')[1];
+    const index = MENU_LIST.findIndex(({ slug }) => firstPath === slug.split('/')[1]);
+    if (MENU_LIST[index]) setTitle(MENU_LIST[index]);
   }, [pathname]);
 
-  if (excluded.includes(pathname)) return <div>{children}</div>;
+  if (excludedUrl.includes(pathname))
+    return (
+      <div>
+        <NextSeo title="Dashboard" description="Dashboard" />
+        {children}
+      </div>
+    );
 
   return (
     <div>
+      <NextSeo title={`Dashboard | ${title.displayName}`} description="Dashboard" />
       <div
         className="backdrop"
         style={{
@@ -57,7 +66,9 @@ const Layout: React.FC = ({ children }) => {
           transition: 'all 0.4s',
         }}
       >
-        <DashboardLayout title={title}>{children}</DashboardLayout>;
+        <DashboardLayout titleHref={title?.slug} title={title?.displayName}>
+          {children}
+        </DashboardLayout>
       </div>
     </div>
   );

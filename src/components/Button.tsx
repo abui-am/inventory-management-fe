@@ -1,14 +1,69 @@
-import React from 'react';
+import clsx from 'clsx';
+import React, { ButtonHTMLAttributes, DetailedHTMLProps } from 'react';
 
-const RoundedButton: React.FC = ({ children }) => {
+const RoundedButton: React.FC<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>> = ({
+  children,
+  className,
+  ...props
+}) => {
   return (
     <button
       type="button"
-      className="p-2 hover:bg-blueGray-400 rounded-full cursor-pointer transition-color duration-75 ease-out"
+      {...props}
+      className={clsx(
+        'p-2 hover:bg-blueGray-400 rounded-full flex items-center justify-center cursor-pointer transition-color duration-75 ease-out',
+        className
+      )}
     >
       {children}
     </button>
   );
 };
 
-export { RoundedButton };
+const Button: React.FC<
+  DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
+    variant?: 'primary' | 'secondary' | 'gray';
+    fullWidth?: boolean;
+    Icon?: JSX.Element;
+  }
+> = ({ children, className, variant = 'primary', fullWidth, Icon, ...props }) => {
+  const classes = {
+    primary: 'bg-blue-600 hover:bg-blue-700 shadow-md text-white',
+    secondary: 'hover:text-blue-600',
+    gray: 'bg-blueGray-200 hover:text-white hover:bg-blue-600',
+  };
+
+  const classesDisabled = {
+    primary: 'disabled:bg-blue-400 disabled:cursor-auto',
+    secondary: 'disabled:cursor-auto',
+    gray: 'disabled:cursor-auto',
+  };
+  return (
+    <button
+      type="button"
+      className={clsx(
+        Icon ? 'pl-10' : 'pl-4',
+        'h-11 rounded-md font-bold whitespace-nowrap pr-4 relative transition-colors',
+        classes[variant],
+        classesDisabled[variant],
+        fullWidth ? 'w-full' : '',
+        className
+      )}
+      {...props}
+    >
+      {Icon && (
+        <div
+          className={clsx(
+            variant === 'primary' ? 'text-white' : '',
+            'absolute flex items-center left-3 top-0 bottom-0 m-auto'
+          )}
+        >
+          {Icon}
+        </div>
+      )}
+      <div>{children}</div>
+    </button>
+  );
+};
+
+export { Button, RoundedButton };

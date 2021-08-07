@@ -1,8 +1,10 @@
 import '../styles/globals.css';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import { AppProps } from 'next/app';
 import { AppContextType } from 'next/dist/next-server/lib/utils';
 import { useRef } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
@@ -24,6 +26,8 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
       <Hydrate state={dehydrateState}>
         <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
           <Layout>
+            <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
+
             <Component {...pageProps} />
           </Layout>
         </main>
@@ -44,6 +48,15 @@ MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
     ctx.res?.end();
     return {};
   }
+
+  // TODO : THIS IS TEMPORARY,
+  // delete when index page readt
+  if (cookie['INVT-TOKEN'] && ctx.pathname === '/') {
+    ctx.res?.writeHead(302, { Location: '/employee' });
+    ctx.res?.end();
+    return {};
+  }
+
   if (cookie['INVT-TOKEN'] && ctx.pathname === '/login') {
     ctx.res?.writeHead(302, { Location: '/' });
     ctx.res?.end();
@@ -55,17 +68,17 @@ MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
   try {
     // const idToken = cookie['INVT-TOKEN'];
 
-    await queryClient.prefetchQuery('auth', async () => {
-      // const { data } = await axios.get('/api/v1/user', {
-      //   headers: {
-      //     authorization: `Bearer ${idToken}`,
-      //   },
-      // });
+    // await queryClient.prefetchQuery('auth', async () => {
+    //   const { data } = await apiInstance.get('/auth/login', {
+    //     headers: {
+    //       authorization: `Bearer ${idToken}`,
+    //     },
+    //   });
 
-      const data = {};
+    //   const data = {};
 
-      return data;
-    });
+    //   return data;
+    // });
 
     return {
       dehydrateState: dehydrate(queryClient),

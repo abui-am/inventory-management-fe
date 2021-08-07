@@ -2,7 +2,7 @@ import { ArchiveFill, PeopleFill } from 'react-bootstrap-icons';
 const MENU_LIST = [
   {
     id: 'karyawan',
-    slug: '/',
+    slug: '/employee',
     displayName: 'Karyawan',
     icon: (props = {}): JSX.Element => <PeopleFill {...props} />,
   },

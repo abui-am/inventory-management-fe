@@ -1,17 +1,33 @@
 import clsx from 'clsx';
-import React, { InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
-
-const TextField: React.FC<InputHTMLAttributes<unknown>> = ({ className, ...props }) => {
+import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
+import { Calendar } from 'react-bootstrap-icons';
+import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
+const TextField: React.FC<
+  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+    variant?: 'outlined' | 'contained';
+    hasError?: boolean;
+    Icon?: JSX.Element;
+  }
+> = ({ className, hasError, Icon, variant = 'outlined', ...props }) => {
+  const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
+  const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
   return (
-    <input
-      {...props}
-      className={clsx(
-        'h-11 w-full border-gray-300 border rounded-md px-3 outline-none',
-        'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-        'transition-all duration-150 ease-in',
-        className
-      )}
-    />
+    <div className="relative">
+      {Icon && <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>}
+
+      <input
+        {...props}
+        className={clsx(
+          Icon ? 'pl-11' : '',
+          errorStyle,
+          variation,
+          'h-11 w-full rounded-md px-3 outline-none',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in',
+          className
+        )}
+      />
+    </div>
   );
 };
 
@@ -27,24 +43,6 @@ const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...pro
         className
       )}
     />
-  );
-};
-
-const Button: React.FC<InputHTMLAttributes<unknown> & { variant?: 'primary' | 'secondary' }> = ({
-  children,
-  className,
-  variant = 'primary',
-  ...props
-}) => {
-  const classes = { primary: 'bg-blue-600 shadow-md text-white', secondary: '' };
-  return (
-    <button
-      {...props}
-      type="button"
-      className={clsx('h-11 w-full rounded-md font-bold whitespace-nowrap pl-4 pr-4', classes[variant], className)}
-    >
-      {children}
-    </button>
   );
 };
 
@@ -66,4 +64,24 @@ const Checkbox: React.FC<InputHTMLAttributes<unknown>> = ({ children, ...props }
   );
 };
 
-export { Button, Checkbox, TextArea, TextField };
+const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...props }) => {
+  return (
+    <div className="relative customDatePickerWidth">
+      <DatePicker
+        {...props}
+        className={clsx(
+          'pl-11 border border-gray-300',
+          'h-11 w-full rounded-md px-3 outline-none',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in',
+          className
+        )}
+      />
+      <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">
+        <Calendar />
+      </div>
+    </div>
+  );
+};
+
+export { Checkbox, DatePickerComponent, TextArea, TextField };
