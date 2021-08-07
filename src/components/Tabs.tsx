@@ -1,7 +1,11 @@
 import clsx from 'clsx';
 import React, { KeyboardEvent } from 'react';
 
-const Tabs = ({ menus, activeIndex = 0, onClickTab }) => {
+const Tabs: React.FC<{
+  menus: string[];
+  activeIndex: number;
+  onClickTab: (index: number) => void;
+}> = ({ menus, activeIndex = 0, onClickTab }) => {
   function keyHandler(event: KeyboardEvent<HTMLDivElement>, index: number): void {
     switch (event.key) {
       case 'Enter':
