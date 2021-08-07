@@ -8,9 +8,11 @@ import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
 import Table from '@/components/Table';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
+import { makeServerEmployee } from '@/utils/server';
 
 const Home: NextPage<unknown> = () => {
   const { data: dataEmployee } = useFetchEmployee();
+  makeServerEmployee();
 
   const dataRes = dataEmployee?.data?.employees?.data ?? [];
   const data = dataRes.map(({ firstName, lastName, position, id, hasDashboardAccount }) => ({

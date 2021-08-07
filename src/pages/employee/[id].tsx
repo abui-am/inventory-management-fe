@@ -7,8 +7,10 @@ import { CardDashboard } from '@/components/Container';
 import Tabs from '@/components/Tabs';
 import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
 import { EmployeeDetailRes } from '@/typings/request';
+import { makeServerEmployee } from '@/utils/server';
 
 const EmployeeDetails = () => {
+  makeServerEmployee();
   const [activeTab, setActive] = useState(0);
   const { query = {} } = useRouter();
   const { data } = useFetchEmployeeById(query.id as string);
