@@ -32,6 +32,12 @@ const Button: React.FC<
     secondary: 'hover:text-blue-600',
     gray: 'bg-blueGray-200 hover:text-white hover:bg-blue-600',
   };
+
+  const classesDisabled = {
+    primary: 'disabled:bg-blue-400 disabled:cursor-auto',
+    secondary: 'disabled:cursor-auto',
+    gray: 'disabled:cursor-auto',
+  };
   return (
     <button
       type="button"
@@ -39,6 +45,7 @@ const Button: React.FC<
         Icon ? 'pl-10' : 'pl-4',
         'h-11 rounded-md font-bold whitespace-nowrap pr-4 relative transition-colors',
         classes[variant],
+        classesDisabled[variant],
         fullWidth ? 'w-full' : '',
         className
       )}

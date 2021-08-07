@@ -6,7 +6,7 @@ import { Checkbox, TextField } from '@/components/Form';
 import useAuthMutation from '@/hooks/mutation/useAuth';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {
-  const { mutateAsync } = useAuthMutation('login');
+  const { mutateAsync, isLoading } = useAuthMutation('login');
   const initialValues = {
     email: '',
     password: '',
@@ -63,7 +63,7 @@ export default function Home(): JSX.Element {
             <a>Lupa password</a>
           </div>
           <div>
-            <Button fullWidth type="submit">
+            <Button fullWidth type="submit" disabled={isLoading}>
               Sign in
             </Button>
           </div>
