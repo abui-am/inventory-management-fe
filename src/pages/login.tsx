@@ -11,7 +11,7 @@ export default function Home(): JSX.Element {
     email: '',
     password: '',
   };
-  const { values, handleChange, isSubmitting, handleSubmit } = useFormik({
+  const { values, handleChange, errors, isSubmitting, handleSubmit } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
@@ -39,7 +39,9 @@ export default function Home(): JSX.Element {
               autoComplete="invt-email"
               disabled={isSubmitting}
               onChange={handleChange}
+              hasError={!!errors.email}
             />
+            {errors.email && <span className="text-xs text-red-500">{errors.email}</span>}
           </div>
           <div className="mb-3">
             <label className="mb-1 inline-block">Password</label>
@@ -52,7 +54,9 @@ export default function Home(): JSX.Element {
               autoComplete="invt-password"
               disabled={isSubmitting}
               onChange={handleChange}
+              hasError={!!errors.password}
             />
+            {errors.password && <span className="text-xs text-red-500">{errors.password}</span>}
           </div>
           <div className="flex mb-4 justify-between">
             <Checkbox>Remember me</Checkbox>

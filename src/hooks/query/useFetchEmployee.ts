@@ -1,6 +1,7 @@
+/* eslint-disable camelcase */
 import { useMutation, UseMutationResult, UseQueryResult } from 'react-query';
 
-import { BackendRes, EmployeeRes } from '@/typings/request';
+import { BackendRes, EmployeeDetailRes, EmployeeRes } from '@/typings/request';
 import apiInstance from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
@@ -10,6 +11,15 @@ const useFetchEmployee = (
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const fetcher = useMyQuery(['employee', data], async () => {
     const res = await apiInstance().post('/employees', data);
+    return res.data;
+  });
+
+  return fetcher;
+};
+
+const useFetchEmployeeById = (id: string): UseQueryResult<BackendRes<EmployeeDetailRes>> => {
+  const fetcher = useMyQuery(['employee', id], async () => {
+    const res = await apiInstance().get(`/employees/${id}`);
     return res.data;
   });
 
@@ -31,4 +41,4 @@ const useCreateEmployee = (): UseMutationResult<
 };
 
 export default useFetchEmployee;
-export { useCreateEmployee };
+export { useCreateEmployee, useFetchEmployeeById };

@@ -11,15 +11,11 @@ import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
 
 import Layout from '@/layouts/Layout';
 import parseCookies from '@/utils/cookies';
-import makeServer from '@/utils/server';
 
 type MyAppProps = AppProps & { dehydrateState: DehydratedState };
 
 function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Element {
   const queryClientRef = useRef<null | QueryClient>(null);
-
-  // Run mock server
-  makeServer();
 
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();
@@ -72,17 +68,17 @@ MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
   try {
     // const idToken = cookie['INVT-TOKEN'];
 
-    await queryClient.prefetchQuery('auth', async () => {
-      // const { data } = await axios.get('/api/v1/user', {
-      //   headers: {
-      //     authorization: `Bearer ${idToken}`,
-      //   },
-      // });
+    // await queryClient.prefetchQuery('auth', async () => {
+    //   const { data } = await apiInstance.get('/auth/login', {
+    //     headers: {
+    //       authorization: `Bearer ${idToken}`,
+    //     },
+    //   });
 
-      const data = {};
+    //   const data = {};
 
-      return data;
-    });
+    //   return data;
+    // });
 
     return {
       dehydrateState: dehydrate(queryClient),

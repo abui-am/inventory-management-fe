@@ -3,8 +3,9 @@ import axios, { AxiosInstance } from 'axios';
 import { getCookie } from './cookies';
 
 function apiInstance({ token }: { token?: string } = {}): AxiosInstance {
+  console.log(process.env);
   return axios.create({
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
     },

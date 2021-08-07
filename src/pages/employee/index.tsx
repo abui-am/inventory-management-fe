@@ -10,7 +10,7 @@ import Table from '@/components/Table';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
 
 const Home: NextPage<unknown> = () => {
-  const { data: dataEmployee, isFetching } = useFetchEmployee();
+  const { data: dataEmployee } = useFetchEmployee();
 
   const dataRes = dataEmployee?.data?.employees?.data ?? [];
   const data = dataRes.map(({ firstName, lastName, position, id, hasDashboardAccount }) => ({
@@ -23,8 +23,16 @@ const Home: NextPage<unknown> = () => {
     ),
     col4: (
       <div className="flex">
-        <Eye />
-        <Pencil />
+        <Link href={`/employee/${id}`}>
+          <a>
+            <Button>
+              <Eye width={24} height={24} />
+            </Button>
+          </a>
+        </Link>
+        <Button variant="secondary">
+          <Pencil width={24} height={24} />
+        </Button>
       </div>
     ),
   }));

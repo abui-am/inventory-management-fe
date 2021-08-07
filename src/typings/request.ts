@@ -29,3 +29,15 @@ export type EmployeeData = {
   position: string;
   hasDashboardAccount: boolean;
 };
+
+export type EmployeeDetailRes = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  position: string;
+  gender: string;
+  email: string;
+  handphoneNumber: string;
+  address: string;
+  birthday: Date;
+};

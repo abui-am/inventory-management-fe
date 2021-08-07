@@ -1,24 +1,10 @@
 import { createServer } from 'miragejs';
-const { BASE_URL } = process.env;
+const { NEXT_PUBLIC_BASE_URL } = process.env;
 
-export default function makeServer(): void {
+export function makeServerEmployee(): void {
   createServer({
-    urlPrefix: BASE_URL,
+    urlPrefix: NEXT_PUBLIC_BASE_URL,
     routes() {
-      this.post('auth/login', (schema, request) => {
-        const attrs = JSON.parse(request.requestBody);
-        if (attrs.email === 'super_admin' && attrs.password === 'SuperAdmin') {
-          return {
-            data: {
-              user: {},
-              token: 'random-token',
-            },
-          };
-        }
-
-        return {};
-      });
-
       this.post('employees', (schema, request) => {
         const attrs = JSON.parse(request.requestBody);
         console.log('Mocking', attrs);
@@ -76,7 +62,50 @@ export default function makeServer(): void {
         };
       });
 
+      this.get('employees/:id', (schema, request) => {
+        const attrs = JSON.parse(request.requestBody);
+        console.log('Mocking', attrs);
+        const { id } = request.params;
+
+        return {
+          status_code: 200,
+          message: 'Data berhasil ditampilkan',
+          data: {
+            id,
+            firstName: 'Muhammad',
+            lastName: 'Iskandar',
+            birthday: '2002-06-25T08:36:51.775Z',
+            position: 'Management Gudang',
+            gender: 'male',
+            email: 'adjiem31@gmail.com',
+            handphoneNumber: '089614292529',
+            address: 'Pondok Cibaligo',
+          },
+        };
+      });
+
       this.passthrough();
+    },
+  });
+}
+
+export function makeServerAuth(): void {
+  createServer({
+    urlPrefix: NEXT_PUBLIC_BASE_URL,
+    routes() {
+      this.post('auth/login', (schema, request) => {
+        const attrs = JSON.parse(request.requestBody);
+        if (attrs.email === 'super_admin' && attrs.password === 'SuperAdmin') {
+          return {
+            data: {
+              user: {},
+              access_token: 'random-token',
+            },
+          };
+        }
+
+        return {};
+      });
     },
   });
 }

@@ -4,9 +4,9 @@ import { ObjectShape } from 'yup/lib/object';
 const schema = (type: string) => {
   switch (type) {
     // Login :
-    case 'username':
+    case 'email':
     case 'password':
-      return string().required();
+      return string().required('Wajib diisi');
 
     case 'birthday':
       return date().required();

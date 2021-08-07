@@ -1,5 +1,6 @@
 import cookie from 'js-cookie';
 import { useRouter } from 'next/router';
+import toast from 'react-hot-toast';
 import { useMutation } from 'react-query';
 
 import apiInstance from '@/utils/api';
@@ -24,13 +25,17 @@ const useAuthMutation = (type: 'login' | 'register') => {
       }
     },
     {
-      onSuccess: async ({ data }) => {
-        if (type === 'login') {
-          cookie.set('INVT-TOKEN', data?.token, {
-            expires: 2 / 48,
+      onSuccess: async ({ data, status_code, message }) => {
+        if (type === 'login' && data.access_token && status_code === 200) {
+          cookie.set('INVT-TOKEN', data.access_token, {
+            expires: 30,
           });
           router.push('/');
+          toast.success(message);
         }
+      },
+      onError: ({ message }) => {
+        toast.error(message);
       },
     }
   );
