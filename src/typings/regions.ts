@@ -69,6 +69,29 @@ export interface RegionSubdistrictResData {
   type: string;
 }
 
+export interface RegionVilageRes {
+  villages: {
+    current_page: number;
+    data: RegionVillageResData[];
+    first_page_url: string;
+    from?: number;
+    last_page: number;
+    last_page_url: string;
+    links: Link[];
+    next_page_url?: string;
+    path: string;
+    per_page: number;
+    prev_page_url?: string;
+    to?: number;
+    total: number;
+  };
+}
+
+export interface RegionVillageResData {
+  id: number;
+  name: string;
+}
+
 interface Link {
   url: string;
   label: string;

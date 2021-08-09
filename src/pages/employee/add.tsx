@@ -13,6 +13,7 @@ import {
   SelectCity,
   SelectProvince,
   SelectSubdistrict,
+  SelectVillage,
   TextArea,
   TextField,
 } from '@/components/Form';
@@ -36,7 +37,7 @@ const Home: NextPage<unknown> = () => {
     province: {},
     city: {},
     subdistrict: {},
-    village: '',
+    village: {},
   };
 
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue } = useFormik({
@@ -149,7 +150,12 @@ const Home: NextPage<unknown> = () => {
               </div>
               <div>
                 <label className="mb-1 inline-block">Kelurahan</label>
-                <TextField value={values.village} name="village" onChange={handleChange} />
+                <SelectVillage
+                  subdistrictId={values.subdistrict?.value}
+                  value={values.village}
+                  name="village"
+                  onChange={(val) => setFieldValue('village', val)}
+                />
               </div>
             </div>
           </div>
