@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
+import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
@@ -34,10 +35,10 @@ const Home: NextPage<unknown> = () => {
     email: '',
     handphoneNumber: '',
     address: '',
-    province: {},
-    city: {},
-    subdistrict: {},
-    village: {},
+    province: {} as Partial<Option>,
+    city: {} as Partial<Option>,
+    subdistrict: {} as Partial<Option>,
+    village: {} as Partial<Option>,
   };
 
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue } = useFormik({
@@ -118,10 +119,6 @@ const Home: NextPage<unknown> = () => {
           <div className="mb-4">
             <h6 className="mb-3 text-lg font-bold">Tempat Tinggal</h6>
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="mb-1 inline-block">Alamat</label>
-                <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
-              </div>
               <div>
                 <label className="mb-1 inline-block">Provinsi</label>
                 <SelectProvince
@@ -133,7 +130,7 @@ const Home: NextPage<unknown> = () => {
               <div>
                 <label className="mb-1 inline-block">Kota / Kabupaten</label>
                 <SelectCity
-                  provinceId={values.province?.value}
+                  provinceId={values.province?.value as string}
                   value={values.city}
                   name="city"
                   onChange={(val) => setFieldValue('city', val)}
@@ -142,7 +139,7 @@ const Home: NextPage<unknown> = () => {
               <div>
                 <label className="mb-1 inline-block">Kecamatan</label>
                 <SelectSubdistrict
-                  cityId={values.city?.value}
+                  cityId={values.city?.value as string}
                   value={values.subdistrict}
                   name="subdistrict"
                   onChange={(val) => setFieldValue('subdistrict', val)}
@@ -151,11 +148,15 @@ const Home: NextPage<unknown> = () => {
               <div>
                 <label className="mb-1 inline-block">Kelurahan</label>
                 <SelectVillage
-                  subdistrictId={values.subdistrict?.value}
+                  subdistrictId={values.subdistrict?.value as string}
                   value={values.village}
                   name="village"
                   onChange={(val) => setFieldValue('village', val)}
                 />
+              </div>
+              <div className="col-span-2">
+                <label className="mb-1 inline-block">Alamat</label>
+                <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
               </div>
             </div>
           </div>
