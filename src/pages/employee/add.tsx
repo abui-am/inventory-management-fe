@@ -8,7 +8,14 @@ import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent, TextArea, TextField } from '@/components/Form';
+import {
+  DatePickerComponent,
+  SelectCity,
+  SelectProvince,
+  SelectSubdistrict,
+  TextArea,
+  TextField,
+} from '@/components/Form';
 import { genderOptions } from '@/constants/options';
 import { useCreateEmployee } from '@/hooks/query/useFetchEmployee';
 import createSchema from '@/utils/validation/formik';
@@ -26,9 +33,9 @@ const Home: NextPage<unknown> = () => {
     email: '',
     handphoneNumber: '',
     address: '',
-    province: '',
-    city: '',
-    district: '',
+    province: {},
+    city: {},
+    subdistrict: {},
     village: '',
   };
 
@@ -116,15 +123,29 @@ const Home: NextPage<unknown> = () => {
               </div>
               <div>
                 <label className="mb-1 inline-block">Provinsi</label>
-                <TextField value={values.province} name="province" onChange={handleChange} />
+                <SelectProvince
+                  value={values.province}
+                  name="province"
+                  onChange={(val) => setFieldValue('province', val)}
+                />
               </div>
               <div>
                 <label className="mb-1 inline-block">Kota / Kabupaten</label>
-                <TextField value={values.city} name="city" onChange={handleChange} />
+                <SelectCity
+                  provinceId={values.province?.value}
+                  value={values.city}
+                  name="city"
+                  onChange={(val) => setFieldValue('city', val)}
+                />
               </div>
               <div>
                 <label className="mb-1 inline-block">Kecamatan</label>
-                <TextField value={values.district} name="district" onChange={handleChange} />
+                <SelectSubdistrict
+                  cityId={values.city?.value}
+                  value={values.subdistrict}
+                  name="subdistrict"
+                  onChange={(val) => setFieldValue('subdistrict', val)}
+                />
               </div>
               <div>
                 <label className="mb-1 inline-block">Kelurahan</label>
