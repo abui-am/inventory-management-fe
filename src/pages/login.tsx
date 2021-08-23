@@ -4,8 +4,11 @@ import { object } from 'yup';
 import { Button } from '@/components/Button';
 import { Checkbox, TextField } from '@/components/Form';
 import useAuthMutation from '@/hooks/mutation/useAuth';
+import { makeServerAuth } from '@/utils/server';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {
+  makeServerAuth();
+
   const { mutateAsync, isLoading } = useAuthMutation('login');
   const initialValues = {
     email: '',

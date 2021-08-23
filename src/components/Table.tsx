@@ -54,7 +54,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   return (
     <>
       <div className="w-full">{search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
-      <table {...getTableProps()} className="table-fixed w-full">
+      <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
