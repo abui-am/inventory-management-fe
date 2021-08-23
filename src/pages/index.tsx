@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { CardDashboard } from '@/components/Container';
+import SimpleList from '@/components/List';
 import { formatToIDR } from '@/utils/format';
 type CardProps = {
   label: string;
@@ -13,23 +14,44 @@ const index = () => {
     { label: 'pemasukan', value: formatToIDR(120000) },
     { label: 'Jumlah transaksi', value: 20 },
   ];
+
+  const topSales = [
+    { label: 'Minyak', value: formatToIDR(25000) },
+    { label: 'Minyak', value: formatToIDR(25000) },
+    { label: 'Minyak', value: formatToIDR(25000) },
+    { label: 'Minyak', value: formatToIDR(25000) },
+    { label: 'Minyak', value: formatToIDR(25000) },
+    { label: 'Minyak', value: formatToIDR(25000) },
+    { label: 'Minyak', value: formatToIDR(25000) },
+  ];
   return (
     <div>
       <section id="head" className="flex">
-        <div className="flex-1 mb-8">Overview</div>
+        <div className="flex-1 text-2xl font-bold mb-8">Overview</div>
         <div className="flex-1 max-w-sm" />
       </section>
-      <section id="body" className="grid grid-flow-col grid-cols-3 gap-6">
-        <div className="col-span-2 grid grid-cols-3 gap-6">
-          {cardValues.map(({ label, value }) => {
-            return <Card key={label} label={label} value={value} />;
-          })}
-          <div className="col-span-3">
-            <CardDashboard title="Penjualan terbanyLaporan penjualan" />
+      <section id="body" className="flex -m-3">
+        <div className="w-8/12">
+          <div className="w-full flex">
+            {cardValues.map(({ label, value }) => {
+              return (
+                <div className="h-32 flex-1 p-3" key={label}>
+                  <Card label={label} value={value} />
+                </div>
+              );
+            })}
+          </div>
+          <div className="w-full p-3">
+            <CardDashboard title="Laporan penjualan" />
           </div>
         </div>
-        <div>
-          <CardDashboard title="Penjualan terbanyak" />
+        <div className="w-4/12  p-3">
+          <CardDashboard title="Penjualan terbanyak">
+            {topSales.map(({ label, value }, index) => {
+              // eslint-disable-next-line react/no-array-index-key
+              return <SimpleList key={`${label}-${index}`} label={label} value={value} withTopDivider />;
+            })}
+          </CardDashboard>
         </div>
       </section>
     </div>
