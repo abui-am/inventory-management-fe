@@ -128,7 +128,7 @@ const StoragePage: NextPage<unknown> = () => {
                 variant="contained"
                 placeholder="Cari nama barang"
               />
-              <Link href="/employee/add">
+              <Link href="/storage/add">
                 <a>
                   <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
                     Tambah
