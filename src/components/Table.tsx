@@ -22,7 +22,7 @@ type PropsColumn<
 type PropsReturn = TableInstance<Record<string, unknown>> & UseGlobalFiltersInstanceProps<Record<string, unknown>>;
 
 type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
-  search: (arg: {
+  search?: (arg: {
     state: TableState<Record<string, unknown>>;
     preGlobalFilteredRows: Row<Record<string, unknown>>[];
     setGlobalFilter: (filterValue: unknown) => void;
@@ -53,7 +53,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
 
   return (
     <>
-      <div className="w-full">{search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
+      <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
       <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup) => (
