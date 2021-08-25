@@ -7,16 +7,16 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <House {...props} />,
   },
   {
+    id: 'stock',
+    slug: '/storage',
+    displayName: 'Stock Gudang',
+    icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
+  },
+  {
     id: 'karyawan',
     slug: '/employee',
     displayName: 'Karyawan',
     icon: (props = {}): JSX.Element => <PeopleFill {...props} />,
-  },
-  {
-    id: 'inventory',
-    slug: '/inventory',
-    displayName: 'Inventory',
-    icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
   },
 ];
 
