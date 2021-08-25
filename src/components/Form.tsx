@@ -2,6 +2,11 @@ import clsx from 'clsx';
 import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
 import { Calendar } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
+import { OptionTypeBase } from 'react-select';
+import Select, { Async, Props } from 'react-select/async';
+
+import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
+
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
     variant?: 'outlined' | 'contained';
@@ -84,4 +89,77 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
   );
 };
 
-export { Checkbox, DatePickerComponent, TextArea, TextField };
+const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
+  const { mutateAsync } = useSearchProvince();
+
+  return (
+    <Select
+      {...props}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val });
+        return data.provinces.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { provinceId: string }> = (
+  props
+) => {
+  const { mutateAsync } = useSearchCity();
+  const { provinceId } = props;
+  return (
+    <Select
+      {...props}
+      isDisabled={!provinceId}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val, where: { province_id: provinceId } });
+        return data.cities.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const SelectSubdistrict: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { cityId: string }> =
+  (props) => {
+    const { mutateAsync } = useSearchSubdistrict();
+    const { cityId } = props;
+    return (
+      <Select
+        {...props}
+        isDisabled={!cityId}
+        loadOptions={async (val) => {
+          const { data } = await mutateAsync({ search: val, where: { city_id: cityId } });
+          return data.subdistricts.data.map(({ id, name }) => ({ value: id, label: name }));
+        }}
+      />
+    );
+  };
+
+const SelectVillage: React.FC<
+  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { subdistrictId: string }
+> = (props) => {
+  const { mutateAsync } = useSearchVillage();
+  const { subdistrictId } = props;
+  return (
+    <Select
+      {...props}
+      isDisabled={!subdistrictId}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val, where: { subdistrict_id: subdistrictId } });
+        return data.villages.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+export {
+  Checkbox,
+  DatePickerComponent,
+  SelectCity,
+  SelectProvince,
+  SelectSubdistrict,
+  SelectVillage,
+  TextArea,
+  TextField,
+};

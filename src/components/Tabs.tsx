@@ -26,9 +26,7 @@ const Tabs: React.FC<{
             onClick={() => onClickTab(index)}
             className={clsx(
               'px-8 pb-3 pt-3 border-b-2 font-bold',
-              activeIndex !== index
-                ? 'border-blueGray-100 text-blueGray-600'
-                : 'border-blue-600 border-blue-600 text-blue-600'
+              activeIndex !== index ? 'border-blueGray-100 text-blueGray-600' : 'border-blue-600 text-blue-600'
             )}
           >
             {text}

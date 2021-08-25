@@ -4,11 +4,20 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
+import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent, TextArea, TextField } from '@/components/Form';
+import {
+  DatePickerComponent,
+  SelectCity,
+  SelectProvince,
+  SelectSubdistrict,
+  SelectVillage,
+  TextArea,
+  TextField,
+} from '@/components/Form';
 import { genderOptions } from '@/constants/options';
 import { useCreateEmployee } from '@/hooks/query/useFetchEmployee';
 import createSchema from '@/utils/validation/formik';
@@ -26,10 +35,10 @@ const Home: NextPage<unknown> = () => {
     email: '',
     handphoneNumber: '',
     address: '',
-    province: '',
-    city: '',
-    district: '',
-    village: '',
+    province: {} as Partial<Option>,
+    city: {} as Partial<Option>,
+    subdistrict: {} as Partial<Option>,
+    village: {} as Partial<Option>,
   };
 
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue } = useFormik({
@@ -110,25 +119,44 @@ const Home: NextPage<unknown> = () => {
           <div className="mb-4">
             <h6 className="mb-3 text-lg font-bold">Tempat Tinggal</h6>
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="mb-1 inline-block">Alamat</label>
-                <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
-              </div>
               <div>
                 <label className="mb-1 inline-block">Provinsi</label>
-                <TextField value={values.province} name="province" onChange={handleChange} />
+                <SelectProvince
+                  value={values.province}
+                  name="province"
+                  onChange={(val) => setFieldValue('province', val)}
+                />
               </div>
               <div>
                 <label className="mb-1 inline-block">Kota / Kabupaten</label>
-                <TextField value={values.city} name="city" onChange={handleChange} />
+                <SelectCity
+                  provinceId={values.province?.value as string}
+                  value={values.city}
+                  name="city"
+                  onChange={(val) => setFieldValue('city', val)}
+                />
               </div>
               <div>
                 <label className="mb-1 inline-block">Kecamatan</label>
-                <TextField value={values.district} name="district" onChange={handleChange} />
+                <SelectSubdistrict
+                  cityId={values.city?.value as string}
+                  value={values.subdistrict}
+                  name="subdistrict"
+                  onChange={(val) => setFieldValue('subdistrict', val)}
+                />
               </div>
               <div>
                 <label className="mb-1 inline-block">Kelurahan</label>
-                <TextField value={values.village} name="village" onChange={handleChange} />
+                <SelectVillage
+                  subdistrictId={values.subdistrict?.value as string}
+                  value={values.village}
+                  name="village"
+                  onChange={(val) => setFieldValue('village', val)}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="mb-1 inline-block">Alamat</label>
+                <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
               </div>
             </div>
           </div>

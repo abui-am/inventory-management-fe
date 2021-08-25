@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "npx typesync"
   },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
@@ -30,16 +31,22 @@
     "react-query": "^3.18.1",
     "react-select": "^4.3.1",
     "react-table": "^7.7.0",
+    "recharts": "^2.1.2",
     "tailwindcss": "^2.2.4",
     "yup": "^0.32.9"
   },
   "devDependencies": {
     "@types/cookie": "^0.4.1",
+    "@types/eslint": "^7.28.0",
+    "@types/eslint-plugin-prettier": "^3.1.0",
     "@types/js-cookie": "^2.2.7",
+    "@types/prettier": "^2.3.2",
     "@types/react": "^17.0.5",
     "@types/react-datepicker": "^4.1.4",
+    "@types/react-dom": "17.0.2",
     "@types/react-select": "^4.0.17",
     "@types/react-table": "^7.7.2",
+    "@types/yup": "^0.29.13",
     "@typescript-eslint/eslint-plugin": "4.23.0",
     "@typescript-eslint/parser": "4.23.0",
     "eslint": "^7.26.0",
