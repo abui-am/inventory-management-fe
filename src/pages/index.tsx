@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { NextPage } from 'next';
 import React, { useMemo } from 'react';
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';

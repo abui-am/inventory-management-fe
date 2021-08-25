@@ -12,7 +12,12 @@ const Paper: React.FC<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElemen
   );
 };
 
-const CardDashboard: React.FC<{ title?: string; Action?: JSX.Element }> = ({ title, Action, children, ...props }) => {
+const CardDashboard: React.FC<
+  React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+    title?: string;
+    Action?: JSX.Element;
+  }
+> = ({ title, Action, children, ...props }) => {
   return (
     <Paper {...props}>
       {(title || Action) && (
