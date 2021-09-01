@@ -6,6 +6,7 @@ import { OptionTypeBase } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
 
 import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
+import { getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
@@ -153,6 +154,12 @@ const SelectVillage: React.FC<
   );
 };
 
+const ThemedSelect: React.FC<
+  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { variant: SelectVariant }
+> = ({ variant, ...props }) => {
+  return <Select isSearchable={false} {...props} styles={getThemedSelectStyle(variant)} />;
+};
+
 export {
   Checkbox,
   DatePickerComponent,
@@ -162,4 +169,5 @@ export {
   SelectVillage,
   TextArea,
   TextField,
+  ThemedSelect,
 };
