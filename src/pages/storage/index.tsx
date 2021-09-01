@@ -117,7 +117,7 @@ const StoragePage: NextPage<unknown> = () => {
                 variant="contained"
                 placeholder="Cari nama barang"
               />
-              <Link href="/storage/add">
+              <Link href="/storage/adjust">
                 <a>
                   <Button className="ml-3" Icon={<Calculator className="w-4" />}>
                     Sesuaikan

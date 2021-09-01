@@ -8,3 +8,14 @@ export const genderOptions = [
     value: 'female',
   },
 ];
+
+export const INVOICE_TYPE_OPTIONS = [
+  {
+    label: 'Manual',
+    value: 'manual',
+  },
+  {
+    label: 'Otomatis',
+    value: 'automatic',
+  },
+];

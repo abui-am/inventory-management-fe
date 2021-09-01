@@ -2,11 +2,11 @@ import clsx from 'clsx';
 import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
 import { Calendar } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
-import { OptionTypeBase } from 'react-select';
+import NormalSelect, { OptionTypeBase } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
 
 import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
-import { getThemedSelectStyle, SelectVariant } from '@/utils/style';
+import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
@@ -155,9 +155,10 @@ const SelectVillage: React.FC<
 };
 
 const ThemedSelect: React.FC<
-  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { variant: SelectVariant }
-> = ({ variant, ...props }) => {
-  return <Select isSearchable={false} {...props} styles={getThemedSelectStyle(variant)} />;
+  Partial<Async<OptionTypeBase>> &
+    Props<OptionTypeBase, false> & { variant: SelectVariant; additionalStyle?: AdditionalStyle }
+> = ({ variant, additionalStyle = {}, ...props }) => {
+  return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
 
 export {
