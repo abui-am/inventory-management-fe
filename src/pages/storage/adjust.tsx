@@ -128,7 +128,7 @@ const AdjustStockPage: NextPage = () => {
             name="dateIn"
             selected={values.dateIn}
             disabled={isSubmitting}
-            onChange={handleChange}
+            onChange={(date) => setFieldValue('dateIn', date)}
           />
           {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn}</span>}
         </div>
