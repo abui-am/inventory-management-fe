@@ -11,8 +11,8 @@ import useFetchEmployee from '@/hooks/query/useFetchEmployee';
 import { makeServerEmployee } from '@/utils/server';
 
 const Home: NextPage<unknown> = () => {
-  const { data: dataEmployee } = useFetchEmployee();
   makeServerEmployee();
+  const { data: dataEmployee } = useFetchEmployee();
 
   const dataRes = dataEmployee?.data?.employees?.data ?? [];
   const data = dataRes.map(({ firstName, lastName, position, id, hasDashboardAccount }) => ({
