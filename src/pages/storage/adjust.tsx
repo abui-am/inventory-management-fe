@@ -1,12 +1,14 @@
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useState } from 'react';
+import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent, TextField, ThemedSelect } from '@/components/Form';
+import { DatePickerComponent, TextArea, TextField, ThemedSelect } from '@/components/Form';
+import Modal from '@/components/Modal';
 import Table from '@/components/Table';
 import { INVOICE_TYPE_OPTIONS } from '@/constants/options';
 import createSchema from '@/utils/validation/formik';
@@ -150,9 +152,7 @@ const AdjustStockPage: NextPage = () => {
           <div className="mb-4">
             <Table columns={columns} data={data} />
           </div>
-          <Button fullWidth variant="outlined">
-            Tambah Penyesuaian
-          </Button>
+          <ButtonWithModal />
         </div>
       </div>
 
@@ -165,6 +165,83 @@ const AdjustStockPage: NextPage = () => {
         </div>
       </div>
     </CardDashboard>
+  );
+};
+
+const ButtonWithModal = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const initialValues: Omit<AdjustStockTableValue, 'name' | 'buyPrice' | 'discount' | 'qty'> & {
+    buyPrice: number | string;
+    discount: number | string;
+    name: Partial<Option>;
+    qty: number | string;
+  } = {
+    name: {},
+    buyPrice: '',
+    discount: '',
+    qty: '',
+    unit: '',
+    memo: '',
+  };
+
+  const { values, handleChange, setSubmitting, handleSubmit, setFieldValue } = useFormik({
+    validationSchema: object().shape(createSchema(initialValues)),
+    initialValues,
+    onSubmit: async (values) => {},
+  });
+
+  return (
+    <>
+      <Button fullWidth variant="outlined" onClick={() => setIsOpen(true)}>
+        Tambah Penyesuaian
+      </Button>
+      <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)}>
+        <form onSubmit={handleSubmit}>
+          <section className="max-w-4xl mr-auto ml-auto">
+            <div className="mb-4">
+              <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>
+              <div className="flex -mx-2 flex-wrap mb-1">
+                <div className="w-full mb-3 px-2">
+                  <label className="mb-1 inline-block">Nomor faktur</label>
+                  <ThemedSelect
+                    variant="outlined"
+                    options={[{ label: 'Minyak', value: 'minyak' }]}
+                    value={values.name}
+                  />
+                </div>
+                <div className="w-8/12 mb-3 px-2">
+                  <label className="mb-1 inline-block">Harga beli</label>
+                  <TextField name="buyPrice" value={values.buyPrice} onChange={handleChange} />
+                </div>
+                <div className="w-4/12 mb-3 px-2">
+                  <label className="mb-1 inline-block">Diskon</label>
+                  <TextField name="discount" value={values.discount} onChange={handleChange} />
+                </div>
+                <div className="w-8/12 mb-3 px-2">
+                  <label className="mb-1 inline-block">Qty</label>
+                  <TextField name="qty" value={values.qty} onChange={handleChange} />
+                </div>
+                <div className="w-4/12 mb-3 px-2">
+                  <label className="mb-1 inline-block">Unit satuan</label>
+                  <TextField name="unit" value={values.unit} onChange={handleChange} />
+                </div>
+                <div className="w-full mb-3 px-2">
+                  <label className="mb-1 inline-block">Keterangan</label>
+                  <TextArea name="memo" value={values.memo} onChange={handleChange} />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button variant="secondary" className="mr-3">
+                  Batalkan
+                </Button>
+                <Button variant="primary">Tambah Penyesuaian</Button>
+              </div>
+            </div>
+          </section>
+        </form>
+      </Modal>
+    </>
   );
 };
 
