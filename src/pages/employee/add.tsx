@@ -29,7 +29,7 @@ const Home: NextPage<unknown> = () => {
   const initialValues = {
     firstName: '',
     lastName: '',
-    noKTP: '',
+    nik: '',
     birthday: new Date(),
     gender: genderOptions[0],
     email: '',
@@ -72,7 +72,7 @@ const Home: NextPage<unknown> = () => {
               </div>
               <div>
                 <label className="mb-1 inline-block">Nomor KTP</label>
-                <TextField placeholder="Nomor KTP" />
+                <TextField placeholder="Nomor KTP" value={values.nik} />
               </div>
               <div>
                 <label className="mb-1 inline-block">Tanggal Lahir</label>

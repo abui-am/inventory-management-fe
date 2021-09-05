@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
 import { useMutation, UseMutationResult, UseQueryResult } from 'react-query';
 
-import { BackendRes, EmployeeDetailRes, EmployeeRes } from '@/typings/request';
+import { EmployeeDetailRes, EmployeeRes } from '@/typings/employee';
+import { BackendRes } from '@/typings/request';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
@@ -32,7 +33,7 @@ const useCreateEmployee = (): UseMutationResult<
   Record<string, unknown>,
   unknown
 > => {
-  const mutator = useMutation(['createEmplotee'], async (data: Record<string, unknown>) => {
+  const mutator = useMutation<>(['createEmplotee'], async (data: Record<string, unknown>) => {
     const res = await apiInstance().put('/employees', data);
     return res.data;
   });

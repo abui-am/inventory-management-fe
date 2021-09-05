@@ -6,7 +6,7 @@ import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import Tabs from '@/components/Tabs';
 import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
-import { EmployeeDetailRes } from '@/typings/request';
+import { EmployeeDetailRes } from '@/typings/employee';
 import { makeServerEmployee } from '@/utils/server';
 
 const EmployeeDetails = () => {
