@@ -14,12 +14,14 @@ import { INVOICE_TYPE_OPTIONS } from '@/constants/options';
 import createSchema from '@/utils/validation/formik';
 
 export type AdjustStockTableValue = {
-  name: string;
+  item_name: string;
   qty: number;
   buyPrice: number;
   discount: number;
   unit: string;
   memo: string;
+  paymentMethod: string;
+  paymentDue: Date;
 };
 
 const AdjustStockPage: NextPage = () => {
@@ -29,6 +31,8 @@ const AdjustStockPage: NextPage = () => {
     invoiceType: INVOICE_TYPE_OPTIONS[0],
     dateIn: new Date(),
     memo: '',
+    paymentMethod: { label: 'Cash', value: 'cash' },
+    paymentDue: new Date(),
   };
   const { values, handleChange, errors, isSubmitting, setFieldValue } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
@@ -40,16 +44,18 @@ const AdjustStockPage: NextPage = () => {
 
   const dataRes: AdjustStockTableValue[] = [
     {
-      name: 'Minyak',
+      item_name: 'Minyak',
       qty: 100,
       buyPrice: 100,
       discount: 0,
       unit: 'Dus',
       memo: '',
+      paymentMethod: 'cash',
+      paymentDue: new Date(),
     },
   ];
-  const data = dataRes.map(({ name, qty, buyPrice, discount, unit, memo }) => ({
-    col1: name,
+  const data = dataRes.map(({ item_name, qty, buyPrice, discount, unit, memo }) => ({
+    col1: item_name,
     col2: qty,
     col3: buyPrice,
     col4: discount,
@@ -156,8 +162,35 @@ const AdjustStockPage: NextPage = () => {
         </div>
       </div>
 
-      <div className="mt-8 flex justify-end">
-        <div className="flex">
+      <div className="mt-8 flex justify-between">
+        <div className="mr-4">
+          <label className="mb-1 block">Metode pembayaran</label>
+          <div className="flex">
+            <ThemedSelect
+              className="mr-4"
+              variant="contained"
+              name="paymentMethod"
+              value={values.paymentMethod}
+              additionalStyle={{
+                control: (provided) => ({ ...provided, minWidth: 240 }),
+              }}
+              options={[
+                { label: 'Cash', value: 'cash' },
+                {
+                  label: 'Bond',
+                  value: 'bond',
+                },
+              ]}
+            />
+            <DatePickerComponent
+              name="paymentDue"
+              selected={values.paymentDue}
+              onChange={(date) => setFieldValue('paymentDue', date)}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-end">
           <Button onClick={() => back()} variant="secondary" className="mr-4">
             Batalkan
           </Button>
@@ -171,13 +204,16 @@ const AdjustStockPage: NextPage = () => {
 const ButtonWithModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const initialValues: Omit<AdjustStockTableValue, 'name' | 'buyPrice' | 'discount' | 'qty'> & {
+  const initialValues: Omit<
+    AdjustStockTableValue,
+    'paymentDue' | 'paymentMethod' | 'item_name' | 'buyPrice' | 'discount' | 'qty'
+  > & {
     buyPrice: number | string;
     discount: number | string;
-    name: Partial<Option>;
+    itemName: Partial<Option>;
     qty: number | string;
   } = {
-    name: {},
+    itemName: {},
     buyPrice: '',
     discount: '',
     qty: '',
@@ -199,15 +235,15 @@ const ButtonWithModal = () => {
       <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)}>
         <form onSubmit={handleSubmit}>
           <section className="max-w-4xl mr-auto ml-auto">
-            <div className="mb-4">
-              <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>
+            <div>
+              <h6 className="mb-4 mt-2 text-2xl font-bold">Informasi Umum</h6>
               <div className="flex -mx-2 flex-wrap mb-1">
                 <div className="w-full mb-3 px-2">
                   <label className="mb-1 inline-block">Nomor faktur</label>
                   <ThemedSelect
                     variant="outlined"
                     options={[{ label: 'Minyak', value: 'minyak' }]}
-                    value={values.name}
+                    value={values.itemName}
                   />
                 </div>
                 <div className="w-8/12 mb-3 px-2">
@@ -223,7 +259,7 @@ const ButtonWithModal = () => {
                   <TextField name="qty" value={values.qty} onChange={handleChange} />
                 </div>
                 <div className="w-4/12 mb-3 px-2">
-                  <label className="mb-1 inline-block">Unit satuan</label>
+                  <label className="mb-1 inline-block"> Unit satuan</label>
                   <TextField name="unit" value={values.unit} onChange={handleChange} />
                 </div>
                 <div className="w-full mb-3 px-2">
@@ -231,6 +267,7 @@ const ButtonWithModal = () => {
                   <TextArea name="memo" value={values.memo} onChange={handleChange} />
                 </div>
               </div>
+
               <div className="flex justify-end">
                 <Button variant="secondary" className="mr-3">
                   Batalkan
