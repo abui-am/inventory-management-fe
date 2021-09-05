@@ -24,10 +24,12 @@ export type EmployeeRes = {
 
 export type EmployeeData = {
   id: string;
-  firstName: string;
-  lastName: string;
-  position: string;
-  hasDashboardAccount: boolean;
+  first_name: string;
+  last_name?: string;
+  position?: string;
+  has_dashboard_account: boolean;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type EmployeeDetailRes = {

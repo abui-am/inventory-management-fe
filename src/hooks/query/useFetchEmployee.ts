@@ -2,7 +2,7 @@
 import { useMutation, UseMutationResult, UseQueryResult } from 'react-query';
 
 import { BackendRes, EmployeeDetailRes, EmployeeRes } from '@/typings/request';
-import apiInstance from '@/utils/api';
+import apiInstance, { apiInstanceAdmin } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
 
@@ -10,7 +10,7 @@ const useFetchEmployee = (
   data: Partial<{ paginated: boolean; per_page: number }> = {}
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const fetcher = useMyQuery(['employee', data], async () => {
-    const res = await apiInstance().post('/employees', data);
+    const res = await apiInstanceAdmin().post('/employees', data);
     return res.data;
   });
 
@@ -19,7 +19,7 @@ const useFetchEmployee = (
 
 const useFetchEmployeeById = (id: string): UseQueryResult<BackendRes<EmployeeDetailRes>> => {
   const fetcher = useMyQuery(['employee', id], async () => {
-    const res = await apiInstance().get(`/employees/${id}`);
+    const res = await apiInstanceAdmin().get(`/employees/${id}`);
     return res.data;
   });
 

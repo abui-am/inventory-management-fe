@@ -8,17 +8,14 @@ import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
 import Table from '@/components/Table';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
-import { makeServerEmployee } from '@/utils/server';
-
 const Home: NextPage<unknown> = () => {
-  makeServerEmployee();
   const { data: dataEmployee } = useFetchEmployee();
 
   const dataRes = dataEmployee?.data?.employees?.data ?? [];
-  const data = dataRes.map(({ firstName, lastName, position, id, hasDashboardAccount }) => ({
-    col1: `${firstName} ${lastName}`,
+  const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
+    col1: `${first_name ?? ''} ${last_name ?? ''}`,
     col2: position,
-    col3: hasDashboardAccount ? (
+    col3: has_dashboard_account ? (
       <span className="text-blue-600 bold">Aktif</span>
     ) : (
       <span className="bold">Tidak Aktif</span>
