@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 import { useMutation, UseMutationResult, UseQueryResult } from 'react-query';
 
-import { EmployeeDetailRes, EmployeeRes } from '@/typings/employee';
+import { CreateEmployeePutBody, EmployeeDetailRes, EmployeeRes } from '@/typings/employee';
 import { BackendRes } from '@/typings/request';
-import apiInstance, { apiInstanceAdmin } from '@/utils/api';
+import { apiInstanceAdmin } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
 
@@ -30,11 +30,11 @@ const useFetchEmployeeById = (id: string): UseQueryResult<BackendRes<EmployeeDet
 const useCreateEmployee = (): UseMutationResult<
   Omit<BackendRes<unknown>, 'data'>,
   unknown,
-  Record<string, unknown>,
+  CreateEmployeePutBody,
   unknown
 > => {
-  const mutator = useMutation<>(['createEmplotee'], async (data: Record<string, unknown>) => {
-    const res = await apiInstance().put('/employees', data);
+  const mutator = useMutation(['createEmplotee'], async (data: CreateEmployeePutBody) => {
+    const res = await apiInstanceAdmin().put('/employees', data);
     return res.data;
   });
 

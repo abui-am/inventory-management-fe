@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -20,6 +21,7 @@ import {
 } from '@/components/Form';
 import { genderOptions } from '@/constants/options';
 import { useCreateEmployee } from '@/hooks/query/useFetchEmployee';
+import { CreateEmployeePutBody } from '@/typings/employee';
 import createSchema from '@/utils/validation/formik';
 
 const Home: NextPage<unknown> = () => {
@@ -35,6 +37,7 @@ const Home: NextPage<unknown> = () => {
     email: '',
     handphoneNumber: '',
     address: '',
+    position: '',
     province: {} as Partial<Option>,
     city: {} as Partial<Option>,
     subdistrict: {} as Partial<Option>,
@@ -45,8 +48,28 @@ const Home: NextPage<unknown> = () => {
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
+      const { firstName, lastName, nik, birthday, gender, email, handphoneNumber, position, village, address } = values;
       setSubmitting(true);
-      const res = await mutateAsync(values);
+
+      const jsonBody: CreateEmployeePutBody = {
+        first_name: firstName,
+        last_name: lastName,
+        nik,
+        birth_date: dayjs(birthday).format('YYYY-MM-DD'),
+        gender: gender.value,
+        email,
+        phone_number: handphoneNumber,
+        position,
+        addresses: [
+          {
+            village_id: +(village?.value ?? 0),
+            title: 'Alamat Rumah',
+            complete_address: address,
+          },
+        ],
+      };
+
+      const res = await mutateAsync(jsonBody);
       setSubmitting(false);
       toast(res.message);
       push('/employee');
@@ -68,11 +91,11 @@ const Home: NextPage<unknown> = () => {
               </div>
               <div>
                 <label className="mb-1 inline-block">Nama Akhir</label>
-                <TextField placeholder="Nama Akhir" value={values.firstName} name="firstName" onChange={handleChange} />
+                <TextField placeholder="Nama Akhir" value={values.lastName} name="lastName" onChange={handleChange} />
               </div>
               <div>
                 <label className="mb-1 inline-block">Nomor KTP</label>
-                <TextField placeholder="Nomor KTP" value={values.nik} />
+                <TextField placeholder="Nomor KTP" name="nik" value={values.nik} />
               </div>
               <div>
                 <label className="mb-1 inline-block">Tanggal Lahir</label>
@@ -95,6 +118,10 @@ const Home: NextPage<unknown> = () => {
                     }),
                   }}
                 />
+              </div>
+              <div>
+                <label className="mb-1 inline-block">Jabatan</label>
+                <TextField placeholder="Jabatan" onChange={handleChange} name="position" value={values.position} />
               </div>
             </div>
           </div>

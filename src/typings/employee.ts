@@ -36,3 +36,21 @@ export type EmployeeDetailRes = {
   address: string;
   birthday: Date;
 };
+
+export type CreateEmployeePutBody = {
+  first_name: string;
+  last_name: string;
+  nik: string;
+  birth_date: string;
+  gender: string;
+  email: string;
+  phone_number: string;
+  position: string;
+  addresses: Address[];
+};
+
+export interface Address {
+  village_id: number;
+  title: string;
+  complete_address: string;
+}
