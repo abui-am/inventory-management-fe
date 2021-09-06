@@ -25,18 +25,6 @@ export type EmployeeData = {
   updated_at: Date;
 };
 
-export type EmployeeDetailRes = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  position: string;
-  gender: string;
-  email: string;
-  handphoneNumber: string;
-  address: string;
-  birthday: Date;
-};
-
 export type CreateEmployeePutBody = {
   first_name: string;
   last_name: string;
@@ -53,4 +41,53 @@ export interface Address {
   village_id: number;
   title: string;
   complete_address: string;
+}
+
+export interface AddressDetail {
+  id: string;
+  title: string;
+  complete_address: string;
+  main: boolean;
+  village: Village;
+}
+
+export interface Province {
+  id: number;
+  name: string;
+}
+
+export interface City {
+  id: number;
+  type: string;
+  name: string;
+  province: Province;
+}
+
+export interface Subdistrict {
+  id: number;
+  name: string;
+  city: City;
+}
+
+export interface Village {
+  id: number;
+  name: string;
+  subdistrict: Subdistrict;
+}
+
+export interface Employee {
+  id: string;
+  first_name: string;
+  last_name: string;
+  nik: string;
+  birth_date: string;
+  gender: string;
+  email: string;
+  phone_number: string;
+  position: string;
+  addresses: AddressDetail[];
+}
+
+export interface EmployeeDetailRes {
+  employee: Employee;
 }
