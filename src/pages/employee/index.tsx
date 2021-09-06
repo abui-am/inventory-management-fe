@@ -1,5 +1,6 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React from 'react';
 import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
 
@@ -12,6 +13,7 @@ const Home: NextPage<unknown> = () => {
   const { data: dataEmployee } = useFetchEmployee();
 
   const dataRes = dataEmployee?.data?.employees?.data ?? [];
+  const { push } = useRouter();
   const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
     col1: `${first_name ?? ''} ${last_name ?? ''}`,
     col2: position,
@@ -29,7 +31,7 @@ const Home: NextPage<unknown> = () => {
             </Button>
           </a>
         </Link>
-        <Button variant="secondary">
+        <Button variant="secondary" onClick={() => push(`/employee/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
       </div>
