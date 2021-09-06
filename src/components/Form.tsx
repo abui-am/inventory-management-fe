@@ -90,6 +90,39 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
   );
 };
 
+const PhoneNumberTextField: React.FC<
+  Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
+    hasError: boolean;
+    onChange: (phoneNumber: string) => void;
+  }
+> = ({ onChange, className, hasError, value, ...props }) => {
+  const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
+  return (
+    <div className="flex">
+      <div className="flex items-center top-0 bottom-0 m-auto text-blueGray-400 px-3 border h-11 border-r-0 border-gray-300 rounded-tl-md rounded-bl-md">
+        +62
+      </div>
+
+      <input
+        {...props}
+        onChange={(e) => {
+          if (onChange) {
+            onChange(`62${e.target.value}`);
+          }
+        }}
+        value={value?.toString().slice(2)}
+        className={clsx(
+          errorStyle,
+          'h-11 w-full px-3 outline-none rounded-tr-md rounded-br-md border-gray-300 border',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in',
+          className
+        )}
+      />
+    </div>
+  );
+};
+
 const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
   const { mutateAsync } = useSearchProvince();
 
@@ -164,6 +197,7 @@ const ThemedSelect: React.FC<
 export {
   Checkbox,
   DatePickerComponent,
+  PhoneNumberTextField,
   SelectCity,
   SelectProvince,
   SelectSubdistrict,
