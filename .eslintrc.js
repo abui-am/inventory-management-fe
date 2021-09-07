@@ -37,6 +37,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier', 'simple-import-sort'],
   ignorePatterns: ['*.d.ts'],
   rules: {
+    camelcase: 'off',
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'simple-import-sort/sort': 'off',

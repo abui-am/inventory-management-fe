@@ -83,8 +83,6 @@ export function makeServerEmployee(): void {
           },
         };
       });
-
-      this.passthrough();
     },
   });
 }
@@ -93,10 +91,13 @@ export function makeServerAuth(): void {
   createServer({
     urlPrefix: NEXT_PUBLIC_BASE_URL,
     routes() {
+      this.passthrough('/_next/static/development/_devPagesManifest.json');
       this.post('auth/login', (schema, request) => {
         const attrs = JSON.parse(request.requestBody);
+        console.log(attrs);
         if (attrs.email === 'super_admin' && attrs.password === 'SuperAdmin') {
           return {
+            status_code: 200,
             data: {
               user: {},
               access_token: 'random-token',
@@ -106,6 +107,9 @@ export function makeServerAuth(): void {
 
         return {};
       });
+
+      this.urlPrefix = ''; // or this.namespace = "/"
+      this.passthrough(); // now this will pass through everything not handled to the current domain (e.g. localhost:3000)
     },
   });
 }

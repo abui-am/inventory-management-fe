@@ -2,6 +2,12 @@ import clsx from 'clsx';
 import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
 import { Calendar } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
+import NormalSelect, { OptionTypeBase } from 'react-select';
+import Select, { Async, Props } from 'react-select/async';
+
+import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
+import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
+
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
     variant?: 'outlined' | 'contained';
@@ -84,4 +90,119 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
   );
 };
 
-export { Checkbox, DatePickerComponent, TextArea, TextField };
+const PhoneNumberTextField: React.FC<
+  Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
+    hasError: boolean;
+    onChange: (phoneNumber: string) => void;
+  }
+> = ({ onChange, className, hasError, value, ...props }) => {
+  const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
+  return (
+    <div className="flex">
+      <div className="flex items-center top-0 bottom-0 m-auto text-blueGray-400 px-3 border h-11 border-r-0 border-gray-300 rounded-tl-md rounded-bl-md">
+        +62
+      </div>
+
+      <input
+        {...props}
+        onChange={(e) => {
+          if (onChange) {
+            onChange(`62${e.target.value}`);
+          }
+        }}
+        value={value?.toString().slice(2)}
+        className={clsx(
+          errorStyle,
+          'h-11 w-full px-3 outline-none rounded-tr-md rounded-br-md border-gray-300 border',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in',
+          className
+        )}
+      />
+    </div>
+  );
+};
+
+const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
+  const { mutateAsync } = useSearchProvince();
+
+  return (
+    <Select
+      {...props}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val });
+        return data.provinces.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { provinceId: string }> = (
+  props
+) => {
+  const { mutateAsync } = useSearchCity();
+  const { provinceId } = props;
+  return (
+    <Select
+      {...props}
+      isDisabled={!provinceId}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val, where: { province_id: provinceId } });
+        return data.cities.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const SelectSubdistrict: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { cityId: string }> =
+  (props) => {
+    const { mutateAsync } = useSearchSubdistrict();
+    const { cityId } = props;
+    return (
+      <Select
+        {...props}
+        isDisabled={!cityId}
+        loadOptions={async (val) => {
+          const { data } = await mutateAsync({ search: val, where: { city_id: cityId } });
+          return data.subdistricts.data.map(({ id, name }) => ({ value: id, label: name }));
+        }}
+      />
+    );
+  };
+
+const SelectVillage: React.FC<
+  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { subdistrictId: string }
+> = (props) => {
+  const { mutateAsync } = useSearchVillage();
+  const { subdistrictId } = props;
+  return (
+    <Select
+      {...props}
+      isDisabled={!subdistrictId}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val, where: { subdistrict_id: subdistrictId } });
+        return data.villages.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const ThemedSelect: React.FC<
+  Partial<Async<OptionTypeBase>> &
+    Props<OptionTypeBase, false> & { variant: SelectVariant; additionalStyle?: AdditionalStyle }
+> = ({ variant, additionalStyle = {}, ...props }) => {
+  return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
+};
+
+export {
+  Checkbox,
+  DatePickerComponent,
+  PhoneNumberTextField,
+  SelectCity,
+  SelectProvince,
+  SelectSubdistrict,
+  SelectVillage,
+  TextArea,
+  TextField,
+  ThemedSelect,
+};

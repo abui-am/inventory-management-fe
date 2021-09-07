@@ -22,7 +22,8 @@ type PropsColumn<
 type PropsReturn = TableInstance<Record<string, unknown>> & UseGlobalFiltersInstanceProps<Record<string, unknown>>;
 
 type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
-  search: (arg: {
+  // eslint-disable-next-line react/require-default-props
+  search?: (arg: {
     state: TableState<Record<string, unknown>>;
     preGlobalFilteredRows: Row<Record<string, unknown>>[];
     setGlobalFilter: (filterValue: unknown) => void;
@@ -32,7 +33,7 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
 function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   columns,
   data,
-  search,
+  search = () => <div />,
 }: TableProps<Record<string, unknown>>): JSX.Element {
   const {
     getTableProps,
@@ -53,8 +54,8 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
 
   return (
     <>
-      <div className="w-full">{search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
-      <table {...getTableProps()} className="table-fixed w-full">
+      <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
+      <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>

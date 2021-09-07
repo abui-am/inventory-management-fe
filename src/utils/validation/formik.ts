@@ -1,4 +1,4 @@
-import { date, string } from 'yup';
+import { date, mixed, object, string } from 'yup';
 import { ObjectShape } from 'yup/lib/object';
 
 const schema = (type: string) => {
@@ -10,6 +10,12 @@ const schema = (type: string) => {
 
     case 'birthday':
       return date().required();
+
+    case 'province':
+    case 'city':
+    case 'subdistrict':
+    case 'village':
+      return object().shape({ label: string(), value: mixed() });
 
     default:
       return undefined;

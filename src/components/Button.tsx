@@ -22,7 +22,7 @@ const RoundedButton: React.FC<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonE
 
 const Button: React.FC<
   DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
-    variant?: 'primary' | 'secondary' | 'gray';
+    variant?: 'primary' | 'secondary' | 'gray' | 'outlined';
     fullWidth?: boolean;
     Icon?: JSX.Element;
   }
@@ -31,12 +31,14 @@ const Button: React.FC<
     primary: 'bg-blue-600 hover:bg-blue-700 shadow-md text-white',
     secondary: 'hover:text-blue-600',
     gray: 'bg-blueGray-200 hover:text-white hover:bg-blue-600',
+    outlined: 'border border-blue-600 rounded-md text-blue-600 hover:bg-blue-600 hover:text-white',
   };
 
   const classesDisabled = {
     primary: 'disabled:bg-blue-400 disabled:cursor-auto',
     secondary: 'disabled:cursor-auto',
     gray: 'disabled:cursor-auto',
+    outlined: 'disabled:border-gray-600 disabled:text-gray-600',
   };
   return (
     <button

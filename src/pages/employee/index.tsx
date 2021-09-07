@@ -1,5 +1,6 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React from 'react';
 import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
 
@@ -8,17 +9,15 @@ import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
 import Table from '@/components/Table';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
-import { makeServerEmployee } from '@/utils/server';
-
 const Home: NextPage<unknown> = () => {
   const { data: dataEmployee } = useFetchEmployee();
-  makeServerEmployee();
 
   const dataRes = dataEmployee?.data?.employees?.data ?? [];
-  const data = dataRes.map(({ firstName, lastName, position, id, hasDashboardAccount }) => ({
-    col1: `${firstName} ${lastName}`,
+  const { push } = useRouter();
+  const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
+    col1: `${first_name ?? ''} ${last_name ?? ''}`,
     col2: position,
-    col3: hasDashboardAccount ? (
+    col3: has_dashboard_account ? (
       <span className="text-blue-600 bold">Aktif</span>
     ) : (
       <span className="bold">Tidak Aktif</span>
@@ -32,7 +31,7 @@ const Home: NextPage<unknown> = () => {
             </Button>
           </a>
         </Link>
-        <Button variant="secondary">
+        <Button variant="secondary" onClick={() => push(`/employee/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
       </div>

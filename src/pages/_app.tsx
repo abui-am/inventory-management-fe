@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import dayjs from 'dayjs';
 import { AppProps } from 'next/app';
 import { AppContextType } from 'next/dist/next-server/lib/utils';
 import { useRef } from 'react';
@@ -11,6 +12,8 @@ import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
 
 import Layout from '@/layouts/Layout';
 import parseCookies from '@/utils/cookies';
+require('dayjs/locale/id');
+dayjs.locale('id');
 
 type MyAppProps = AppProps & { dehydrateState: DehydratedState };
 
@@ -45,14 +48,6 @@ MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
 
   if (!cookie['INVT-TOKEN'] && !whitelistedPage.includes(ctx.pathname)) {
     ctx.res?.writeHead(302, { Location: '/login' });
-    ctx.res?.end();
-    return {};
-  }
-
-  // TODO : THIS IS TEMPORARY,
-  // delete when index page readt
-  if (cookie['INVT-TOKEN'] && ctx.pathname === '/') {
-    ctx.res?.writeHead(302, { Location: '/employee' });
     ctx.res?.end();
     return {};
   }
