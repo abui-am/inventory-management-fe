@@ -35,8 +35,6 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
   const city = subdistrict?.city;
   const province = city?.province;
 
-  const { push } = useRouter();
-
   const initialValues = isEdit
     ? {
         firstName: editingEmployee?.first_name ?? '',
@@ -98,11 +96,10 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           },
         ],
       };
-      console.log('onSubmit', jsonBody);
       const res = isEdit ? await editEmployee(jsonBody) : await mutateAsync(jsonBody);
       setSubmitting(false);
       toast(res.message);
-      push('/employee');
+      back();
     },
   });
 
