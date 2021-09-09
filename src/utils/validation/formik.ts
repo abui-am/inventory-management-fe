@@ -5,7 +5,9 @@ const schema = (type: string) => {
   switch (type) {
     // Login :
     case 'email':
+    case 'username':
     case 'password':
+    case 'passwordConfirmation':
       return string().required('Wajib diisi');
 
     case 'birthday':

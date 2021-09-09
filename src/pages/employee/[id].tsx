@@ -1,10 +1,12 @@
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { KeyboardEvent, useState } from 'react';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
+import CreateAccountForm from '@/components/form/CreateAccountForm';
+import Modal from '@/components/Modal';
 import Tabs from '@/components/Tabs';
 import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
 import { Employee } from '@/typings/employee';
@@ -13,7 +15,18 @@ const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
   const { query = {}, push } = useRouter();
   const { data, isLoading } = useFetchEmployeeById(query.id as string);
-  const { first_name, last_name, position, ...rest } = data?.data.employee ?? {};
+  const { first_name, last_name, position, id, ...rest } = data?.data.employee ?? {};
+
+  const renderView = () => {
+    switch (activeTab) {
+      case 0:
+        return <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />;
+      case 1:
+        return <EmployeeAccount employeeId={id ?? ''} hasDashboardAccount={false} />;
+      default:
+        return <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />;
+    }
+  };
 
   return (
     <CardDashboard>
@@ -32,7 +45,7 @@ const EmployeeDetails: NextPage = () => {
       <div className="flex mb-6">
         <Tabs menus={['Tentang', 'Akun Dashboard']} onClickTab={setActive} activeIndex={activeTab} />
       </div>
-      <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />
+      {renderView()}
     </CardDashboard>
   );
 };
@@ -90,6 +103,58 @@ const EmployeeInfo = ({
             province?.name ?? ''
           }`}</div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: string }> = ({
+  hasDashboardAccount = true,
+  employeeId,
+}) => {
+  const [isOpen, setOpen] = useState(false);
+  function keyHandler(event: KeyboardEvent<HTMLDivElement>): void {
+    switch (event.key) {
+      case 'Enter':
+        setOpen(true);
+        break;
+      default:
+    }
+  }
+  if (!hasDashboardAccount) {
+    return (
+      <>
+        <Modal isOpen={isOpen} onRequestClose={() => setOpen(false)}>
+          <CreateAccountForm
+            isEdit={false}
+            onSuccess={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+            employeeId={employeeId}
+          />
+        </Modal>
+        <div>
+          Akun belum diaktifkan,{' '}
+          <span
+            className="cursor-pointer text-blue-600"
+            role="button"
+            tabIndex={0}
+            onKeyUp={keyHandler}
+            onClick={() => setOpen(true)}
+          >
+            Aktifkan sekarang
+          </span>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex mb-4">
+        <div className="flex flex-shrink-0 font-bold" style={{ flexBasis: 200 }}>
+          Account Username :
+        </div>
+        <div className="flex">adjiemuliadi</div>
       </div>
     </div>
   );
