@@ -32,9 +32,10 @@ const schema = (type: string) => {
       );
 
     case 'buyPrice':
-    case 'discount':
     case 'qty':
       return number().required('Wajib diisi');
+    case 'discount':
+      return number();
 
     case 'handphoneNumber':
       return string().min(9, 'Minimal 9 nomor').max(16, 'Maximal 16 character').required('Wajib diisi');
