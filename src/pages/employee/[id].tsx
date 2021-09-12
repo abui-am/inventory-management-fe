@@ -33,7 +33,7 @@ const EmployeeDetails: NextPage = () => {
       <div className="flex mb-7">
         <img className="w-60 h-60" alt="profile" src="https://randomuser.me/api/portraits/women/44.jpg" />
         <div className="mt-2 ml-10">
-          <h1 className="text-2xl font-bold mb-2">{`${first_name} ${last_name}`}</h1>
+          <h1 className="text-2xl font-bold mb-2">{`${first_name ?? ''} ${last_name ?? ''}`}</h1>
           <span className="text-blue-600 font-bold mb-6">{position}</span>
           <div className="flex mt-6">
             <Button variant="gray" onClick={() => push(`/employee/${query.id}/edit`)}>
@@ -98,10 +98,14 @@ const EmployeeInfo = ({
           {address?.title}
         </div>
         <div>
-          <div>{address?.complete_address ?? ''}</div>
-          <div>{`Kelurahan ${village?.name ?? ''}, Kecamatan ${subdistrict?.name ?? ''}, ${city?.name}, ${
-            province?.name ?? ''
-          }`}</div>
+          {province && address && (
+            <>
+              <div>{address?.complete_address ?? ''}</div>
+              <div>{`Kelurahan ${village?.name ?? ''}, Kecamatan ${subdistrict?.name ?? ''}, ${city?.name ?? ''}, ${
+                province?.name ?? ''
+              }`}</div>
+            </>
+          )}
         </div>
       </div>
     </div>

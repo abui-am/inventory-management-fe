@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { Option } from 'react-select/src/filters';
@@ -24,7 +24,7 @@ import { CreateEmployeePutBody } from '@/typings/employee';
 import { createOption, getOptionByValue } from '@/utils/options';
 import createSchema from '@/utils/validation/formik';
 
-const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ editId, isEdit }) => {
+const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ editId, isEdit = false }) => {
   const { mutateAsync } = useCreateEmployee();
   const { mutateAsync: editEmployee } = useEditEmployee(editId ?? '');
   const { data, isLoading } = useFetchEmployeeById(editId ?? '', { enabled: isEdit });
@@ -71,8 +71,11 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
         village: {} as Partial<Option>,
       };
 
-  const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors } = useFormik({
-    validationSchema: object().shape(createSchema(initialValues)),
+  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
+  const { back } = useRouter();
+
+  const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
+    validationSchema,
     initialValues,
     enableReinitialize: isEdit,
     onSubmit: async (values) => {
@@ -103,14 +106,12 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
     },
   });
 
-  const { back } = useRouter();
-
   if (isLoading && isEdit) {
     return <div>Loading...</div>;
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
           <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>
@@ -118,14 +119,19 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
             <div>
               <label className="mb-1 inline-block">Nama Awal</label>
               <TextField placeholder="Nama Awal" value={values.firstName} name="firstName" onChange={handleChange} />
+              {errors.firstName && touched.firstName && (
+                <span className="text-xs text-red-500">{errors.firstName}</span>
+              )}
             </div>
             <div>
               <label className="mb-1 inline-block">Nama Akhir</label>
               <TextField placeholder="Nama Akhir" value={values.lastName} name="lastName" onChange={handleChange} />
+              {errors.lastName && touched.lastName && <span className="text-xs text-red-500">{errors.lastName}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Nomor KTP</label>
               <TextField placeholder="Nomor KTP" name="nik" onChange={handleChange} value={values.nik} />
+              {errors.nik && touched.nik && <span className="text-xs text-red-500">{errors.nik}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Tanggal Lahir</label>
@@ -135,6 +141,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                   setFieldValue('birthday', val);
                 }}
               />
+              {errors.birthday && touched.birthday && <span className="text-xs text-red-500">{errors.birthday}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Jenis Kelamin</label>
@@ -149,10 +156,12 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                   }),
                 }}
               />
+              {errors.gender && touched.gender && <span className="text-xs text-red-500">{errors.gender}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Jabatan</label>
               <TextField placeholder="Jabatan" onChange={handleChange} name="position" value={values.position} />
+              {errors.position && touched.position && <span className="text-xs text-red-500">{errors.position}</span>}
             </div>
           </div>
         </div>
@@ -162,6 +171,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
             <div>
               <label className="mb-1 inline-block">Email</label>
               <TextField placeholder="Email" value={values.email} name="email" onChange={handleChange} />
+              {errors.email && touched.email && <span className="text-xs text-red-500">{errors.email}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Nomor HP</label>
@@ -172,6 +182,9 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                 hasError={!!errors.handphoneNumber}
                 onChange={(handphoneNumber) => setFieldValue('handphoneNumber', handphoneNumber)}
               />
+              {errors.handphoneNumber && touched.handphoneNumber && (
+                <span className="text-xs text-red-500">{errors.handphoneNumber}</span>
+              )}
             </div>
           </div>
         </div>
@@ -182,9 +195,15 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
               <label className="mb-1 inline-block">Provinsi</label>
               <SelectProvince
                 value={values.province}
-                name="province"
-                onChange={(val) => setFieldValue('province', val)}
+                name=""
+                onChange={(val) => {
+                  setFieldValue('province', val);
+                  setFieldValue('city', {});
+                  setFieldValue('subdistrict', {});
+                  setFieldValue('village', {});
+                }}
               />
+              {errors.province && touched.province && <span className="text-xs text-red-500">{errors.province}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Kota / Kabupaten</label>
@@ -192,8 +211,13 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                 provinceId={values.province?.value as string}
                 value={values.city}
                 name="city"
-                onChange={(val) => setFieldValue('city', val)}
+                onChange={(val) => {
+                  setFieldValue('city', val);
+                  setFieldValue('subdistrict', {});
+                  setFieldValue('village', {});
+                }}
               />
+              {errors.city && touched.city && <span className="text-xs text-red-500">{errors.city}</span>}
             </div>
             <div>
               <label className="mb-1 inline-block">Kecamatan</label>
@@ -201,8 +225,14 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                 cityId={values.city?.value as string}
                 value={values.subdistrict}
                 name="subdistrict"
-                onChange={(val) => setFieldValue('subdistrict', val)}
+                onChange={(val) => {
+                  setFieldValue('subdistrict', val);
+                  setFieldValue('village', {});
+                }}
               />
+              {errors.subdistrict && touched.subdistrict && (
+                <span className="text-xs text-red-500">{errors.subdistrict}</span>
+              )}
             </div>
             <div>
               <label className="mb-1 inline-block">Kelurahan</label>
@@ -212,10 +242,12 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                 name="village"
                 onChange={(val) => setFieldValue('village', val)}
               />
+              {errors.village && touched.village && <span className="text-xs text-red-500">{errors.village}</span>}
             </div>
             <div className="col-span-2">
               <label className="mb-1 inline-block">Alamat</label>
               <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
+              {errors.address && touched.address && <span className="text-xs text-red-500">{errors.address}</span>}
             </div>
           </div>
         </div>

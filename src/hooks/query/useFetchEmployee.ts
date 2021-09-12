@@ -1,9 +1,11 @@
 /* eslint-disable camelcase */
+import { AxiosError, AxiosResponse } from 'axios';
+import toast from 'react-hot-toast';
 import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
 
-import { CreateEmployeePutBody, EmployeeDetailRes, EmployeeRes } from '@/typings/employee';
-import { BackendRes } from '@/typings/request';
-import { apiInstanceAdmin } from '@/utils/api';
+import { CreateEmployeePutBody, EmployeeDetailRes, EmployeeRes, UserRes } from '@/typings/employee';
+import { BackendRes, BackendResError } from '@/typings/request';
+import { apiInstanceAdmin, apiInstanceGeneral } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
 
@@ -40,10 +42,30 @@ const useCreateEmployee = (): UseMutationResult<
   CreateEmployeePutBody,
   unknown
 > => {
-  const mutator = useMutation(['createEmployee'], async (data: CreateEmployeePutBody) => {
-    const res = await apiInstanceAdmin().put('/employees', data);
-    return res.data;
-  });
+  const mutator = useMutation(
+    ['createEmployee'],
+    async (data: CreateEmployeePutBody) => {
+      try {
+        const res = await apiInstanceAdmin().put<CreateEmployeePutBody, AxiosResponse<BackendRes<unknown>>>(
+          '/employees',
+          data
+        );
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message);
+      },
+      onError: (data: AxiosError<BackendResError<unknown>>) => {
+        console.log(data);
+        toast.error(data.response?.data.message ?? '');
+      },
+    }
+  );
 
   return mutator;
 };
@@ -62,5 +84,23 @@ const useEditEmployee = (
   return mutator;
 };
 
+const useFetchMyself = (
+  options?: UseQueryOptions<unknown, unknown, BackendRes<UserRes>>
+): UseQueryResult<BackendRes<UserRes>> => {
+  const fetcher = useMyQuery(
+    ['myself'],
+    async () => {
+      const res = await apiInstanceGeneral().post('/auth/self');
+      return res.data;
+    },
+    {
+      staleTime: Infinity,
+      ...options,
+    }
+  );
+
+  return fetcher;
+};
+
 export default useFetchEmployee;
-export { useCreateEmployee, useEditEmployee, useFetchEmployeeById };
+export { useCreateEmployee, useEditEmployee, useFetchEmployeeById, useFetchMyself };

@@ -35,9 +35,14 @@ const useAuthMutation = (type: 'login' | 'register') => {
     },
     {
       onSuccess: async ({ data, status_code, message }) => {
-        console.log(data, status_code);
         if (type === 'login' && data.access_token && status_code === 200) {
           cookie.set('INVT-TOKEN', data.access_token, {
+            expires: 30,
+          });
+          cookie.set('INVT-USERID', data.user.id, {
+            expires: 30,
+          });
+          cookie.set('INVT-USERNAME', data.user.username, {
             expires: 30,
           });
           router.push('/');

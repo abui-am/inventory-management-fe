@@ -91,3 +91,26 @@ export interface Employee {
 export interface EmployeeDetailRes {
   employee: Employee;
 }
+
+export interface Pivot {
+  model_id: string;
+  role_id: number;
+  model_type: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  guard_name: string;
+  created_at?: string;
+  updated_at?: string;
+  pivot: Pivot;
+}
+
+export interface UserRes {
+  user: {
+    id: string;
+    username: string;
+    roles: Role[];
+  };
+}

@@ -6,6 +6,7 @@ import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 're
 import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
+import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { removeCookie } from '@/utils/cookies';
 
 const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title, titleHref, children }) => {
@@ -15,8 +16,13 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const refElement = useRef(null);
   const { push } = useRouter();
 
+  const { data } = useFetchMyself();
+  const { data: dataUser } = data ?? {};
   function logout() {
     removeCookie('INVT_TOKEN');
+    removeCookie('INVT_USERID');
+    removeCookie('INVT_USERNAME');
+
     push('/login');
   }
 
@@ -30,7 +36,8 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   }
 
   useEffect(() => {
-    const index = MENU_LIST.findIndex(({ slug }) => pathname === slug);
+    console.log(pathname.split('/')[0]);
+    const index = MENU_LIST.findIndex(({ slug }) => `${pathname.split('/')[1]}` === slug.split('/')[1]);
     setActivePage(index);
   }, [pathname]);
 
@@ -96,12 +103,22 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                 onClickOutside={() => setShowMenu(false)}
                 placement="bottom-end"
               >
-                <div className="flex flex-col divide-y w-40 py-1">
-                  <div className="py-2 px-4 hover:bg-blue-600 hover:text-white" tabIndex={0} role="button">
+                <div className="flex flex-col divide-y w-72 py-1">
+                  <div className="py-6 px-6">
+                    <span className="font-bold pb-3 block">Signed as</span>
+                    <div className="flex">
+                      <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" />
+                      <div className="pl-3">
+                        <span className="text-base block">Hi, {dataUser?.user.username}</span>
+                        <span className="text-sm text-blueGray-600 block">Admin</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="py-2 px-6 hover:bg-blue-600 hover:text-white" tabIndex={0} role="button">
                     Akun
                   </div>
                   <div
-                    className="py-2 px-4 hover:bg-blue-600 hover:text-white"
+                    className="py-2 px-6 hover:bg-blue-600 hover:text-white"
                     tabIndex={0}
                     role="button"
                     onKeyUp={keyHandler}

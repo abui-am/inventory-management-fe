@@ -26,5 +26,16 @@ function apiInstanceAdmin({ token }: { token?: string } = {}): AxiosInstance {
   });
 }
 
-export { apiInstanceAdmin };
+function apiInstanceGeneral({ token }: { token?: string } = {}): AxiosInstance {
+  console.log(getCookie('INVT-TOKEN'));
+  return axios.create({
+    baseURL: process.env.NEXT_PUBLIC_GENERAL_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token ?? getCookie('INVT-TOKEN')}`,
+    },
+  });
+}
+
+export { apiInstanceAdmin, apiInstanceGeneral };
 export default apiInstance;

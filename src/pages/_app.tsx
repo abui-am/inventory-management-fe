@@ -46,19 +46,22 @@ MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
 
   const whitelistedPage = ['/login', '/forget-password', '/_error'];
 
-  if (!cookie['INVT-TOKEN'] && !whitelistedPage.includes(ctx.pathname)) {
+  if (
+    (!cookie['INVT-TOKEN'] || !cookie['INVT-USERNAME'] || !cookie['INVT-USERID']) &&
+    !whitelistedPage.includes(ctx.pathname)
+  ) {
     ctx.res?.writeHead(302, { Location: '/login' });
     ctx.res?.end();
     return {};
   }
 
-  if (cookie['INVT-TOKEN'] && ctx.pathname === '/login') {
+  if (cookie['INVT-TOKEN'] && cookie['INVT-USERNAME'] && cookie['INVT-USERID'] && ctx.pathname === '/login') {
     ctx.res?.writeHead(302, { Location: '/' });
     ctx.res?.end();
     return {};
   }
 
-  if (!cookie['INVT-TOKEN']) return {};
+  if (!cookie['INVT-TOKEN'] || !cookie['INVT-USERNAME'] || !cookie['INVT-USERID']) return {};
 
   try {
     // const idToken = cookie['INVT-TOKEN'];
