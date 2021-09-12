@@ -2,6 +2,7 @@ import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
+import { Pencil, Trash } from 'react-bootstrap-icons';
 import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
@@ -50,6 +51,36 @@ const AdjustStockPage: NextPage = () => {
     col4: discount,
     col5: unit,
     col6: memo,
+    action: (
+      <div className="flex">
+        <ButtonWithModal
+          initialValues={{ item, qty, buyPrice, discount, unit, memo }}
+          withEditButton
+          onSave={(val) => {
+            // replace data
+            const newValues = values.stockAdjustment.map((stock) => {
+              if (stock.item.value === item.value) {
+                return val;
+              }
+              return stock;
+            });
+
+            setFieldValue('stockAdjustment', newValues);
+          }}
+        />
+        <Button
+          variant="secondary"
+          onClick={() =>
+            setFieldValue(
+              'stockAdjustment',
+              values.stockAdjustment.filter((stock) => stock.item.value !== item.value)
+            )
+          }
+        >
+          <Trash width={24} height={24} />
+        </Button>
+      </div>
+    ),
   }));
 
   const columns = React.useMemo(
@@ -77,6 +108,10 @@ const AdjustStockPage: NextPage = () => {
       {
         Header: 'Catatan',
         accessor: 'col6',
+      },
+      {
+        Header: 'Aksi',
+        accessor: 'action',
       },
     ],
     []
@@ -200,10 +235,14 @@ type ButtonWithModalFormValues = Omit<
   qty: number | string;
 };
 
-const ButtonWithModal: React.FC<{ onSave: (values: ButtonWithModalFormValues) => void }> = ({ onSave }) => {
+const ButtonWithModal: React.FC<{
+  onSave: (values: ButtonWithModalFormValues) => void;
+  initialValues?: ButtonWithModalFormValues;
+  withEditButton?: boolean;
+}> = ({ onSave, initialValues: initVal, withEditButton }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const initialValues: ButtonWithModalFormValues = {
+  const initialValues: ButtonWithModalFormValues = initVal || {
     item: {},
     buyPrice: '',
     discount: '',
@@ -215,6 +254,7 @@ const ButtonWithModal: React.FC<{ onSave: (values: ButtonWithModalFormValues) =>
   const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
+    enableReinitialize: !!initVal,
     onSubmit: async (values, { resetForm }) => {
       if (onSave) {
         onSave(values);
@@ -226,9 +266,15 @@ const ButtonWithModal: React.FC<{ onSave: (values: ButtonWithModalFormValues) =>
 
   return (
     <>
-      <Button fullWidth variant="outlined" onClick={() => setIsOpen(true)}>
-        Tambah Penyesuaian
-      </Button>
+      {withEditButton ? (
+        <Button variant="secondary" onClick={() => setIsOpen(true)}>
+          <Pencil width={24} height={24} />
+        </Button>
+      ) : (
+        <Button fullWidth variant="outlined" onClick={() => setIsOpen(true)}>
+          Tambah Penyesuaian
+        </Button>
+      )}
       <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)}>
         <form onSubmit={handleSubmit}>
           <section className="max-w-4xl mr-auto ml-auto">
@@ -239,7 +285,10 @@ const ButtonWithModal: React.FC<{ onSave: (values: ButtonWithModalFormValues) =>
                   <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
                     <ThemedSelect
                       variant="outlined"
-                      options={[{ label: 'Minyak', value: 'minyak' }]}
+                      options={[
+                        { label: 'Minyak', value: 'minyak' },
+                        { label: 'Telur', value: 'telur' },
+                      ]}
                       value={values.item}
                       onChange={(value) => setFieldValue('item', value)}
                     />
@@ -277,7 +326,7 @@ const ButtonWithModal: React.FC<{ onSave: (values: ButtonWithModalFormValues) =>
                   Batalkan
                 </Button>
                 <Button variant="primary" type="submit">
-                  Tambah Penyesuaian
+                  {withEditButton ? 'Tambah Penyesuaian' : 'Edit Penyesuaian'}
                 </Button>
               </div>
             </div>
