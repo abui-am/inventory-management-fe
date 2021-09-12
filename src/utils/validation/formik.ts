@@ -23,12 +23,18 @@ const schema = (type: string) => {
     case 'subdistrict':
     case 'village':
     case 'gender':
-      return object().shape({ label: string(), value: mixed() });
+    case 'item':
+      return object().shape({ label: string(), value: mixed() }).required('Wajib diisi');
 
     case 'email':
       return string().matches(
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
+
+    case 'buyPrice':
+    case 'discount':
+    case 'qty':
+      return number().required('Wajib diisi');
 
     case 'handphoneNumber':
       return string().min(9, 'Minimal 9 nomor').max(16, 'Maximal 16 character').required('Wajib diisi');

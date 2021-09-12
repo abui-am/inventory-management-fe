@@ -110,6 +110,7 @@ const PhoneNumberTextField: React.FC<
             onChange(`62${e.target.value}`);
           }
         }}
+        type="number"
         value={value?.toString().slice(2)}
         className={clsx(
           errorStyle,
@@ -194,6 +195,21 @@ const ThemedSelect: React.FC<
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
 
+const WithLabelAndError: React.FC<{
+  label: string;
+  errors: Record<string, unknown>;
+  touched: Record<string, unknown>;
+  name: string;
+}> = ({ label, children, errors, touched, name }) => {
+  return (
+    <>
+      <label className="mb-1 inline-block">{label}</label>
+      {children}
+      {errors[name] && touched[name] && <span className="text-xs text-red-500">{errors[name] as string}</span>}
+    </>
+  );
+};
+
 export {
   Checkbox,
   DatePickerComponent,
@@ -205,4 +221,5 @@ export {
   TextArea,
   TextField,
   ThemedSelect,
+  WithLabelAndError,
 };

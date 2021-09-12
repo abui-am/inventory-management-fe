@@ -7,7 +7,7 @@ import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent, TextArea, TextField, ThemedSelect } from '@/components/Form';
+import { DatePickerComponent, TextArea, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
 import Modal from '@/components/Modal';
 import Table from '@/components/Table';
 import { INVOICE_TYPE_OPTIONS } from '@/constants/options';
@@ -30,6 +30,7 @@ const AdjustStockPage: NextPage = () => {
     invoiceNumber: '',
     invoiceType: INVOICE_TYPE_OPTIONS[0],
     dateIn: new Date(),
+    stockAdjustment: [] as ButtonWithModalFormValues[],
     memo: '',
     paymentMethod: { label: 'Cash', value: 'cash' },
     paymentDue: new Date(),
@@ -42,20 +43,8 @@ const AdjustStockPage: NextPage = () => {
     },
   });
 
-  const dataRes: AdjustStockTableValue[] = [
-    {
-      item_name: 'Minyak',
-      qty: 100,
-      buyPrice: 100,
-      discount: 0,
-      unit: 'Dus',
-      memo: '',
-      paymentMethod: 'cash',
-      paymentDue: new Date(),
-    },
-  ];
-  const data = dataRes.map(({ item_name, qty, buyPrice, discount, unit, memo }) => ({
-    col1: item_name,
+  const data = values.stockAdjustment.map(({ item, qty, buyPrice, discount, unit, memo }) => ({
+    col1: item?.label ?? '',
     col2: qty,
     col3: buyPrice,
     col4: discount,
@@ -158,7 +147,7 @@ const AdjustStockPage: NextPage = () => {
           <div className="mb-4">
             <Table columns={columns} data={data} />
           </div>
-          <ButtonWithModal />
+          <ButtonWithModal onSave={(data) => setFieldValue('stockAdjustment', [...values.stockAdjustment, data])} />
         </div>
       </div>
 
@@ -201,19 +190,21 @@ const AdjustStockPage: NextPage = () => {
   );
 };
 
-const ButtonWithModal = () => {
+type ButtonWithModalFormValues = Omit<
+  AdjustStockTableValue,
+  'paymentDue' | 'paymentMethod' | 'item_name' | 'buyPrice' | 'discount' | 'qty'
+> & {
+  buyPrice: number | string;
+  discount: number | string;
+  item: Partial<Option>;
+  qty: number | string;
+};
+
+const ButtonWithModal: React.FC<{ onSave: (values: ButtonWithModalFormValues) => void }> = ({ onSave }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const initialValues: Omit<
-    AdjustStockTableValue,
-    'paymentDue' | 'paymentMethod' | 'item_name' | 'buyPrice' | 'discount' | 'qty'
-  > & {
-    buyPrice: number | string;
-    discount: number | string;
-    itemName: Partial<Option>;
-    qty: number | string;
-  } = {
-    itemName: {},
+  const initialValues: ButtonWithModalFormValues = {
+    item: {},
     buyPrice: '',
     discount: '',
     qty: '',
@@ -221,10 +212,16 @@ const ButtonWithModal = () => {
     memo: '',
   };
 
-  const { values, handleChange, setSubmitting, handleSubmit, setFieldValue } = useFormik({
+  const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
-    onSubmit: async (values) => {},
+    onSubmit: async (values, { resetForm }) => {
+      if (onSave) {
+        onSave(values);
+      }
+      resetForm();
+      setIsOpen(false);
+    },
   });
 
   return (
@@ -239,32 +236,39 @@ const ButtonWithModal = () => {
               <h6 className="mb-4 mt-2 text-2xl font-bold">Informasi Umum</h6>
               <div className="flex -mx-2 flex-wrap mb-1">
                 <div className="w-full mb-3 px-2">
-                  <label className="mb-1 inline-block">Nomor faktur</label>
-                  <ThemedSelect
-                    variant="outlined"
-                    options={[{ label: 'Minyak', value: 'minyak' }]}
-                    value={values.itemName}
-                  />
+                  <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
+                    <ThemedSelect
+                      variant="outlined"
+                      options={[{ label: 'Minyak', value: 'minyak' }]}
+                      value={values.item}
+                      onChange={(value) => setFieldValue('item', value)}
+                    />
+                  </WithLabelAndError>
                 </div>
                 <div className="w-8/12 mb-3 px-2">
-                  <label className="mb-1 inline-block">Harga beli</label>
-                  <TextField name="buyPrice" value={values.buyPrice} onChange={handleChange} />
+                  <WithLabelAndError label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
+                    <TextField name="buyPrice" value={values.buyPrice} onChange={handleChange} type="number" />
+                  </WithLabelAndError>
                 </div>
                 <div className="w-4/12 mb-3 px-2">
-                  <label className="mb-1 inline-block">Diskon</label>
-                  <TextField name="discount" value={values.discount} onChange={handleChange} />
+                  <WithLabelAndError label="Diskon" name="discount" errors={errors} touched={touched}>
+                    <TextField name="discount" value={values.discount} onChange={handleChange} type="number" />
+                  </WithLabelAndError>
                 </div>
                 <div className="w-8/12 mb-3 px-2">
-                  <label className="mb-1 inline-block">Qty</label>
-                  <TextField name="qty" value={values.qty} onChange={handleChange} />
+                  <WithLabelAndError label="Qty" name="qty" errors={errors} touched={touched}>
+                    <TextField name="qty" value={values.qty} onChange={handleChange} type="number" />
+                  </WithLabelAndError>
                 </div>
                 <div className="w-4/12 mb-3 px-2">
-                  <label className="mb-1 inline-block"> Unit satuan</label>
-                  <TextField name="unit" value={values.unit} onChange={handleChange} />
+                  <WithLabelAndError label="Unit satuan" name="unit" errors={errors} touched={touched}>
+                    <TextField name="unit" value={values.unit} onChange={handleChange} />
+                  </WithLabelAndError>
                 </div>
                 <div className="w-full mb-3 px-2">
-                  <label className="mb-1 inline-block">Keterangan</label>
-                  <TextArea name="memo" value={values.memo} onChange={handleChange} />
+                  <WithLabelAndError label="Keterangan" name="memo" errors={errors} touched={touched}>
+                    <TextArea name="memo" value={values.memo} onChange={handleChange} />
+                  </WithLabelAndError>
                 </div>
               </div>
 
@@ -272,7 +276,9 @@ const ButtonWithModal = () => {
                 <Button variant="secondary" className="mr-3">
                   Batalkan
                 </Button>
-                <Button variant="primary">Tambah Penyesuaian</Button>
+                <Button variant="primary" type="submit">
+                  Tambah Penyesuaian
+                </Button>
               </div>
             </div>
           </section>
