@@ -6,7 +6,11 @@ import NormalSelect, { OptionTypeBase } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
 
 import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
+import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
+
+type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
+  Props<OptionTypeBase, false | true> & { variant?: SelectVariant; additionalStyle?: AdditionalStyle };
 
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
@@ -188,10 +192,13 @@ const SelectVillage: React.FC<
   );
 };
 
-const ThemedSelect: React.FC<
-  Partial<Async<OptionTypeBase>> &
-    Props<OptionTypeBase, false> & { variant: SelectVariant; additionalStyle?: AdditionalStyle }
-> = ({ variant, additionalStyle = {}, ...props }) => {
+const SelectRole: React.FC<ThemedSelectProps> = (props) => {
+  const { data } = useFetchAllRoles();
+  const options = data?.data?.roles?.map(({ name }) => ({ label: name, value: name })) ?? [];
+  return <ThemedSelect {...props} options={options} />;
+};
+
+const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
 
@@ -216,6 +223,7 @@ export {
   PhoneNumberTextField,
   SelectCity,
   SelectProvince,
+  SelectRole,
   SelectSubdistrict,
   SelectVillage,
   TextArea,

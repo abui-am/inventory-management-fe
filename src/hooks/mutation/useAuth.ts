@@ -17,6 +17,7 @@ export type CreateAccountReqBody = {
   username: string;
   password: string;
   password_confirmation: string;
+  roles: (string | undefined)[];
 };
 
 const useAuthMutation = (type: 'login' | 'register') => {
@@ -64,7 +65,8 @@ const useCreateAccount = () => {
         const { data } = await apiInstanceAdmin().put(`users`, formik);
         return data;
       } catch (e) {
-        return e;
+        console.error(e);
+        throw e;
       }
     },
     {

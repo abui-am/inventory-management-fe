@@ -10,12 +10,15 @@ const schema = (type: string) => {
     case 'password':
     case 'address':
     case 'passwordConfirmation':
+    case 'invoiceNumber':
       return string().required('Wajib diisi');
 
     case 'nik':
       return string().min(16, 'Harus 16 character').max(16, 'Harus 16 character').required('Wajib diisi');
 
+    case 'paymentDue':
     case 'birthday':
+    case 'dateIn':
       return date().required();
 
     case 'province':
@@ -24,6 +27,7 @@ const schema = (type: string) => {
     case 'village':
     case 'gender':
     case 'item':
+    case 'paymentMethod':
       return object().shape({ label: string(), value: mixed() }).required('Wajib diisi');
 
     case 'email':
