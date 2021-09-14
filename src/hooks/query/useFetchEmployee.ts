@@ -61,7 +61,6 @@ const useCreateEmployee = (): UseMutationResult<
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
-        console.log(data);
         toast.error(data.response?.data.message ?? '');
       },
     }
