@@ -65,8 +65,8 @@ const Home: NextPage<unknown> = () => {
         columns={columns}
         data={data}
         search={({ setGlobalFilter }) => (
-          <div className="mt-2 mb-6 flex justify-between">
-            <h2 className="text-2xl font-bold">Daftar Karyawan</h2>
+          <div className="mt-2 mb-6 justify-between sm:flex">
+            <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Karyawan</h2>
             <div className="flex">
               <TextField
                 Icon={<Search />}

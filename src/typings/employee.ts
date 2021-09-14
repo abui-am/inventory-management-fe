@@ -112,5 +112,6 @@ export interface UserRes {
     id: string;
     username: string;
     roles: Role[];
+    employee: EmployeeData;
   };
 }

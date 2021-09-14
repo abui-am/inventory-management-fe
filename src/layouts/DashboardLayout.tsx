@@ -9,6 +9,7 @@ import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { removeCookie } from '@/utils/cookies';
 
 const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title, titleHref, children }) => {
@@ -21,11 +22,12 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
 
   const { data } = useFetchMyself();
   const { data: dataUser } = data ?? {};
+  const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
   function logout() {
+    setShowMenu(false);
     removeCookie('INVT_TOKEN');
     removeCookie('INVT_USERID');
     removeCookie('INVT_USERNAME');
-
     push('/login');
   }
 
@@ -37,6 +39,12 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
       default:
     }
   }
+
+  const keyHandlerAccount = useKeyPressEnter(() => {
+    setShowMenu(false);
+    push(`/employee/${id}`);
+  });
+  const handleKeyUp = useKeyPressEnter(() => setShowMenu((show) => !show));
 
   useEffect(() => {
     const index = MENU_LIST.findIndex(({ slug }) => `${pathname.split('/')[1]}` === slug.split('/')[1]);
@@ -52,72 +60,87 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
           <List width={24} height={24} className="text-white" />
         </Button>
       </div>
-      {showNavbar && (
-        <section id="MenuSmall" className="sm:hidden">
-          <Menu activePage={activePage} />
-        </section>
-      )}
-      <div className="flex min-h-screen max-h-screen">
-        <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
-          <div className="p-8 pb-7">
-            <h3 className="text-2xl font-bold text-white">Dashboard</h3>
-          </div>
-          <section id="menu">
+
+      <div className="min-h-screen max-w-screen overflow-hidden">
+        {showNavbar && (
+          <section id="MenuSmall" className="sm:hidden">
             <Menu activePage={activePage} />
           </section>
-        </div>
+        )}
+        <div className="flex min-h-screen max-w-screen">
+          <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
+            <div className="p-8 pb-7">
+              <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+            </div>
+            <section id="menu">
+              <Menu activePage={activePage} />
+            </section>
+          </div>
 
-        <div className="flex-1 p-8 overflow-scroll">
-          <div className="flex justify-between mb-6">
-            <Link href={titleHref}>
-              <a>
-                <h1 className="text-2xl font-bold hover:underline">{title}</h1>
-              </a>
-            </Link>
+          <div className="flex-1 p-0 sm:p-8">
+            <div className="p-6 flex justify-between mb-0 sm:p-0 sm:mb-6 max-w-screen">
+              <Link href={titleHref}>
+                <a>
+                  <h1 className="text-2xl font-bold hover:underline">{title}</h1>
+                </a>
+              </Link>
 
-            <div className="flex items-center">
-              <div onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
-                <div
-                  className={clsx('h-11 pl-0 flex items-center')}
-                  ref={refElement as LegacyRef<HTMLDivElement> | undefined}
-                >
-                  <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" className="mr-2" />
-                </div>
-                <Popup
-                  open={showMenu}
-                  anchorRef={refElement.current}
-                  onClickOutside={() => setShowMenu(false)}
-                  placement="bottom-end"
-                >
-                  <div className="flex flex-col divide-y w-72 py-1">
-                    <div className="py-6 px-6">
-                      <span className="font-bold pb-3 block">Signed as</span>
-                      <div className="flex">
-                        <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" />
-                        <div className="pl-3">
-                          <span className="text-base block">Hi, {dataUser?.user.username}</span>
-                          <span className="text-sm text-blueGray-600 block">Admin</span>
+              <div className="flex items-center">
+                <div>
+                  <div
+                    className={clsx('h-11 pl-0 flex items-center')}
+                    ref={refElement as LegacyRef<HTMLDivElement> | undefined}
+                    onClick={() => setShowMenu(true)}
+                    tabIndex={0}
+                    onKeyUp={handleKeyUp}
+                    role="button"
+                  >
+                    <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" className="mr-2" />
+                  </div>
+                  <Popup
+                    open={showMenu}
+                    anchorRef={refElement.current}
+                    onClickOutside={() => setShowMenu(false)}
+                    placement="bottom-end"
+                  >
+                    <div className="flex flex-col divide-y w-72 py-1">
+                      <div className="py-6 px-6">
+                        <span className="font-bold pb-3 block">Signed as</span>
+                        <div className="flex">
+                          <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" />
+                          <div className="pl-3">
+                            <span className="text-base block">{`${first_name} ${last_name}`}</span>
+                            <span className="text-sm text-blueGray-600 block">{`${(
+                              dataUser?.user?.roles.map(({ name }) => name) ?? []
+                            ).toString()}`}</span>
+                          </div>
                         </div>
                       </div>
+                      <div
+                        className="py-2 px-6 hover:bg-blue-600 hover:text-white"
+                        onClick={() => push(`/employee/${id}`)}
+                        onKeyUp={keyHandlerAccount}
+                        tabIndex={0}
+                        role="button"
+                      >
+                        Akun
+                      </div>
+                      <div
+                        className="py-2 px-6 hover:bg-blue-600 hover:text-white"
+                        tabIndex={0}
+                        role="button"
+                        onKeyUp={keyHandler}
+                        onClick={logout}
+                      >
+                        Log out
+                      </div>
                     </div>
-                    <div className="py-2 px-6 hover:bg-blue-600 hover:text-white" tabIndex={0} role="button">
-                      Akun
-                    </div>
-                    <div
-                      className="py-2 px-6 hover:bg-blue-600 hover:text-white"
-                      tabIndex={0}
-                      role="button"
-                      onKeyUp={keyHandler}
-                      onClick={logout}
-                    >
-                      Log out
-                    </div>
-                  </div>
-                </Popup>
+                  </Popup>
+                </div>
               </div>
             </div>
+            {children}
           </div>
-          {children}
         </div>
       </div>
     </>
