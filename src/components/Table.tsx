@@ -114,7 +114,7 @@ const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({ columns, da
   return (
     <div>
       <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
-      {rows.map((row, index) => {
+      {rows.map((row) => {
         prepareRow(row);
         const { headers } = headerGroups[0];
 
