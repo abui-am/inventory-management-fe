@@ -2,6 +2,7 @@
 import clsx from 'clsx';
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
+import { useMediaQuery } from 'react-responsive';
 import {
   HeaderGroup,
   Row,
@@ -19,6 +20,7 @@ type PropsColumn<
   T extends Record<string, unknown> = Record<string, unknown>,
   TSort extends Record<string, unknown> = Record<string, unknown>
 > = HeaderGroup<T> & Partial<UseSortByColumnProps<TSort>>;
+
 type PropsReturn = TableInstance<Record<string, unknown>> & UseGlobalFiltersInstanceProps<Record<string, unknown>>;
 
 type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
@@ -28,6 +30,11 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
     preGlobalFilteredRows: Row<Record<string, unknown>>[];
     setGlobalFilter: (filterValue: unknown) => void;
   }) => JSX.Element;
+};
+
+const ResponsiveTable: React.FC<TableProps<Record<string, unknown>>> = (props) => {
+  const isMd = useMediaQuery({ query: '(min-width: 448px)' });
+  return isMd ? <Table {...props} /> : <TableSmall {...props} />;
 };
 
 function Table<T extends UseGlobalFiltersInstanceProps<T>>({
@@ -91,4 +98,41 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   );
 }
 
-export default Table;
+const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({ columns, data, search = () => <div /> }) => {
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state,
+    preGlobalFilteredRows,
+    setGlobalFilter,
+  } = useTable({ columns, data }, useGlobalFilter, useSortBy) as PropsReturn;
+
+  console.log(rows, headerGroups);
+  return (
+    <div>
+      <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
+      {rows.map((row, index) => {
+        prepareRow(row);
+        const { headers } = headerGroups[0];
+
+        return (
+          <div className="p-6 border rounded-md border-gray-300 mb-6">
+            {row.cells.map((cell, index) => {
+              return (
+                <div className="flex my-3">
+                  <div className="flex-1 text-blueGray-600">{headers[index].render('Header')}:</div>
+                  <div className="flex-1">{cell.render('Cell')}</div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default ResponsiveTable;
