@@ -16,6 +16,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const [activePage, setActivePage] = useState(0);
   const { pathname } = useRouter();
   const [showMenu, setShowMenu] = useState(false);
+  const [onHover, setOnHover] = useState(false);
   const [showNavbar, setShowNavbar] = useState(false);
   const refElement = useRef(null);
   const { push } = useRouter();
@@ -90,8 +91,14 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                   <div
                     className={clsx('h-11 pl-0 flex items-center')}
                     ref={refElement as LegacyRef<HTMLDivElement> | undefined}
-                    onClick={() => setShowMenu(true)}
+                    onClick={() => setShowMenu((show) => !show)}
                     tabIndex={0}
+                    onMouseEnter={() => {
+                      setOnHover(true);
+                    }}
+                    onMouseLeave={() => {
+                      setOnHover(false);
+                    }}
                     onKeyUp={handleKeyUp}
                     role="button"
                   >
@@ -100,12 +107,16 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                   <Popup
                     open={showMenu}
                     anchorRef={refElement.current}
-                    onClickOutside={() => setShowMenu(false)}
+                    onClickOutside={() => {
+                      // Prevent it to trigger on closing menu by clicking
+                      if (!onHover) {
+                        setShowMenu(false);
+                      }
+                    }}
                     placement="bottom-end"
                   >
                     <div className="flex flex-col divide-y w-72 py-1">
                       <div className="py-6 px-6">
-                        <span className="font-bold pb-3 block">Signed as</span>
                         <div className="flex">
                           <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" />
                           <div className="pl-3">
