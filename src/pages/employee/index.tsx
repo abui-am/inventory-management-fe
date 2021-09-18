@@ -9,6 +9,7 @@ import { Option } from 'react-select/src/filters';
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { TextField, ThemedSelect } from '@/components/Form';
+import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
 
@@ -63,6 +64,7 @@ const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupT
 
 const Home: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(sortByOptions[0]);
   const [sortType, setSortType] = useState<Option | null>(sortTypeOptions[0]);
 
@@ -71,6 +73,8 @@ const Home: NextPage<unknown> = () => {
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
+    paginated: true,
+    forceUrl: paginationUrl || undefined,
   });
 
   const styles = {
@@ -80,7 +84,15 @@ const Home: NextPage<unknown> = () => {
     }),
   };
 
-  const dataRes = dataEmployee?.data?.employees?.data ?? [];
+  const {
+    data: dataRes = [],
+    prev_page_url,
+    next_page_url,
+    links,
+    from,
+    to,
+    total,
+  } = dataEmployee?.data?.employees ?? {};
   const { push } = useRouter();
   const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
     col1: `${first_name ?? ''} ${last_name ?? ''}`,
@@ -177,6 +189,23 @@ const Home: NextPage<unknown> = () => {
         </div>
       </div>
       <Table columns={columns} data={data} />
+      <Pagination
+        stats={{
+          from: `${from ?? '0'}`,
+          to: `${to ?? '0'}`,
+          total: `${total ?? '0'}`,
+        }}
+        onClickPageButton={(url) => {
+          setPaginationUrl(url);
+        }}
+        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        onClickNext={() => {
+          setPaginationUrl(next_page_url ?? '');
+        }}
+        onClickPrevious={() => {
+          setPaginationUrl(prev_page_url ?? '');
+        }}
+      />
     </CardDashboard>
   );
 };

@@ -5,15 +5,23 @@ import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQue
 
 import { CreateEmployeePutBody, EmployeeDetailRes, EmployeeRes, UserRes } from '@/typings/employee';
 import { BackendRes, BackendResError } from '@/typings/request';
-import { apiInstanceAdmin, apiInstanceGeneral } from '@/utils/api';
+import { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
 
 const useFetchEmployee = (
-  data: Partial<{ paginated: boolean; per_page: number; search: string; order_by: Record<string, string> }> = {}
+  data: Partial<{
+    forceUrl: string;
+    paginated: boolean;
+    per_page: number;
+    search: string;
+    order_by: Record<string, string>;
+  }> = {}
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const fetcher = useMyQuery(['employee', data], async () => {
-    const res = await apiInstanceAdmin().post('/employees', data);
+    const res = data.forceUrl
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+      : await apiInstanceAdmin().post('/employees', data);
     return res.data;
   });
 

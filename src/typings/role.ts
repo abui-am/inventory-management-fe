@@ -1,13 +1,9 @@
+import { Link } from './common';
+
 export interface RolesData {
   id: number;
   name: string;
   guard_name: string;
-}
-
-export interface Link {
-  url: string;
-  label: string;
-  active: boolean;
 }
 
 export interface RolesRespond {

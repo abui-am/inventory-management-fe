@@ -1,3 +1,5 @@
+import { Link } from './common';
+
 export type EmployeeRes = {
   employees: {
     current_page: number;
@@ -8,6 +10,7 @@ export type EmployeeRes = {
     last_page_url: string;
     next_page_url: string;
     path: string;
+    links?: Link[];
     per_page: number;
     prev_page_url?: string;
     to: number;

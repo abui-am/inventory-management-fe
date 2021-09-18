@@ -16,7 +16,6 @@ function apiInstance({ token }: { token?: string } = {}): AxiosInstance {
 }
 
 function apiInstanceAdmin({ token }: { token?: string } = {}): AxiosInstance {
-  console.log(getCookie('INVT-TOKEN'));
   return axios.create({
     baseURL: process.env.NEXT_PUBLIC_SUPERADMIN_URL,
     headers: {
@@ -27,7 +26,6 @@ function apiInstanceAdmin({ token }: { token?: string } = {}): AxiosInstance {
 }
 
 function apiInstanceGeneral({ token }: { token?: string } = {}): AxiosInstance {
-  console.log(getCookie('INVT-TOKEN'));
   return axios.create({
     baseURL: process.env.NEXT_PUBLIC_GENERAL_URL,
     headers: {
@@ -37,5 +35,14 @@ function apiInstanceGeneral({ token }: { token?: string } = {}): AxiosInstance {
   });
 }
 
-export { apiInstanceAdmin, apiInstanceGeneral };
+function apiInstanceWithoutBaseUrl({ token }: { token?: string } = {}): AxiosInstance {
+  return axios.create({
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token ?? getCookie('INVT-TOKEN')}`,
+    },
+  });
+}
+
+export { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl };
 export default apiInstance;
