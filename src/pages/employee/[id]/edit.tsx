@@ -7,7 +7,7 @@ import CreateEmployeeForm from '@/components/form/CreateEmployeeForm';
 const Home: NextPage<unknown> = () => {
   const { query } = useRouter();
   return (
-    <CardDashboard title="Tambah Karyawan">
+    <CardDashboard title="Edit Karyawan">
       <CreateEmployeeForm editId={query.id as string} isEdit />
     </CardDashboard>
   );

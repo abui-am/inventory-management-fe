@@ -29,7 +29,7 @@ export interface RolesRespond {
 }
 
 export interface RolesRespondUnpaginated {
-  roles: RolesData;
+  roles: RolesData[];
 }
 
 export type FetchRolesBody = { paginated: boolean; per_page: number };

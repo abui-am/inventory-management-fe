@@ -117,7 +117,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
           <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 inline-block">Nama Awal</label>
               <TextField placeholder="Nama Awal" value={values.firstName} name="firstName" onChange={handleChange} />
@@ -169,7 +169,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
         </div>
         <div className="mb-4">
           <h6 className="mb-3 text-lg font-bold">Kontak Pribadi</h6>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 inline-block">Email</label>
               <TextField placeholder="Email" value={values.email} name="email" onChange={handleChange} />
@@ -192,7 +192,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
         </div>
         <div className="mb-4">
           <h6 className="mb-3 text-lg font-bold">Tempat Tinggal</h6>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 inline-block">Provinsi</label>
               <SelectProvince
@@ -246,7 +246,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
               />
               {errors.village && touched.village && <span className="text-xs text-red-500">{errors.village}</span>}
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <label className="mb-1 inline-block">Alamat</label>
               <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
               {errors.address && touched.address && <span className="text-xs text-red-500">{errors.address}</span>}

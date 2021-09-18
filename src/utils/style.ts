@@ -10,14 +10,21 @@ export const getThemedSelectStyle = (
   switch (variant) {
     case 'outlined':
       return {
+        ...additionalStyle,
+        indicatorSeparator: () => ({}),
         control: (provided, ctrl) => ({
           ...provided,
           height: 44,
           ...(additionalStyle?.control?.(provided, ctrl) ?? {}),
         }),
+        valueContainer: (provided, ctrl) => ({
+          ...provided,
+          ...(additionalStyle?.valueContainer?.(provided, ctrl) ?? {}),
+        }),
       };
     case 'contained':
       return {
+        ...additionalStyle,
         control: (provided, ctrl) => ({
           ...provided,
           height: 44,

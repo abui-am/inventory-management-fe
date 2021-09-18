@@ -1,6 +1,7 @@
+/* eslint-disable react/require-default-props */
 /* eslint-disable react/jsx-key */
 import clsx from 'clsx';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
 import { useMediaQuery } from 'react-responsive';
 import {
@@ -13,6 +14,7 @@ import {
   UseGlobalFiltersInstanceProps,
   useSortBy,
   UseSortByColumnProps,
+  UseSortByInstanceProps,
   useTable,
 } from 'react-table';
 
@@ -21,10 +23,12 @@ type PropsColumn<
   TSort extends Record<string, unknown> = Record<string, unknown>
 > = HeaderGroup<T> & Partial<UseSortByColumnProps<TSort>>;
 
-type PropsReturn = TableInstance<Record<string, unknown>> & UseGlobalFiltersInstanceProps<Record<string, unknown>>;
+type PropsReturn = TableInstance<Record<string, unknown>> &
+  UseGlobalFiltersInstanceProps<Record<string, unknown>> &
+  UseSortByInstanceProps<Record<string, unknown>>;
 
 type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
-  // eslint-disable-next-line react/require-default-props
+  enableAutoSort?: boolean;
   search?: (arg: {
     state: TableState<Record<string, unknown>>;
     preGlobalFilteredRows: Row<Record<string, unknown>>[];
@@ -33,14 +37,22 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
 };
 
 const ResponsiveTable: React.FC<TableProps<Record<string, unknown>>> = (props) => {
-  const isMd = useMediaQuery({ query: '(min-width: 448px)' });
-  return isMd ? <Table {...props} /> : <TableSmall {...props} />;
+  const [isMd, setIsMd] = useState(false);
+
+  const query = useMediaQuery({ query: '(min-width: 768px)' });
+  useEffect(() => {
+    setIsMd(query);
+  }, [query]);
+
+  if (!isMd) return <TableSmall {...props} />;
+  return <Table {...props} />;
 };
 
 function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   columns,
   data,
   search = () => <div />,
+  enableAutoSort = false,
 }: TableProps<Record<string, unknown>>): JSX.Element {
   const {
     getTableProps,
@@ -67,7 +79,10 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column: PropsColumn) => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps?.())} className="py-6 px-4 text-left">
+                <th
+                  {...column.getHeaderProps(enableAutoSort ? column.getSortByToggleProps?.() : undefined)}
+                  className="py-6 px-4 text-left"
+                >
                   <span className="flex">
                     {column.render('Header')}
                     <span style={{ marginLeft: 8 }}>{renderHead(column)}</span>
@@ -99,31 +114,22 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
 }
 
 const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({ columns, data, search = () => <div /> }) => {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    state,
-    preGlobalFilteredRows,
-    setGlobalFilter,
-  } = useTable({ columns, data }, useGlobalFilter, useSortBy) as PropsReturn;
+  const { rows, prepareRow, state, setGlobalFilter, preGlobalFilteredRows } = useTable(
+    { columns, data },
+    useGlobalFilter
+  ) as PropsReturn;
 
-  console.log(rows, headerGroups);
   return (
     <div>
       <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
       {rows.map((row) => {
         prepareRow(row);
-        const { headers } = headerGroups[0];
-
         return (
-          <div className="p-6 border rounded-md border-gray-300 mb-6">
+          <div className="px-6 py-2 border rounded-md border-gray-300 mb-6">
             {row.cells.map((cell, index) => {
               return (
-                <div className="flex my-3">
-                  <div className="flex-1 text-blueGray-600">{headers[index].render('Header')}:</div>
+                <div className="flex my-6">
+                  <div className="flex-1 text-blueGray-600">{columns[index].Header}:</div>
                   <div className="flex-1">{cell.render('Cell')}</div>
                 </div>
               );

@@ -10,7 +10,10 @@ import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
 type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
-  Props<OptionTypeBase, false | true> & { variant?: SelectVariant; additionalStyle?: AdditionalStyle };
+  Props<OptionTypeBase, false | true> & {
+    variant?: SelectVariant;
+    additionalStyle?: AdditionalStyle;
+  };
 
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {

@@ -55,7 +55,9 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   return (
     <>
       <div className="h-16 flex items-center bg-blueGray-900 justify-between px-6 py-4 sm:hidden">
-        <h3 className="font-bold text-white">Dashboard</h3>
+        <Link href="/">
+          <h3 className="font-bold text-white">Dashboard</h3>
+        </Link>
 
         <Button variant="secondary" onClick={() => setShowNavbar((val) => !val)}>
           <List width={24} height={24} className="text-white" />
@@ -71,7 +73,9 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
         <div className="flex min-h-screen max-w-screen">
           <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
             <div className="p-8 pb-7">
-              <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+              <Link href="/">
+                <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+              </Link>
             </div>
             <section id="menu">
               <Menu activePage={activePage} />

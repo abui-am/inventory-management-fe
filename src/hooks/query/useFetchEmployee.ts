@@ -10,7 +10,7 @@ import { apiInstanceAdmin, apiInstanceGeneral } from '@/utils/api';
 import useMyQuery from './useMyQuery';
 
 const useFetchEmployee = (
-  data: Partial<{ paginated: boolean; per_page: number }> = {}
+  data: Partial<{ paginated: boolean; per_page: number; search: string; order_by: Record<string, string> }> = {}
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const fetcher = useMyQuery(['employee', data], async () => {
     const res = await apiInstanceAdmin().post('/employees', data);
