@@ -33,6 +33,19 @@ export const EMPLOYEE_SORT_BY_OPTIONS = [
   },
 ];
 
+export const SUPPLIER_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan nama',
+    value: 'name',
+    data: ['name'],
+  },
+  {
+    label: 'Sortir berdasarkan alamat',
+    value: 'address',
+    data: ['address'],
+  },
+];
+
 export const SORT_TYPE_OPTIONS = [
   {
     label: 'Sortir naik',

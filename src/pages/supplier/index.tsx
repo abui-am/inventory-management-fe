@@ -2,50 +2,21 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { Eye, Pencil, PlusLg, Search, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
-import { CommonProps, components, GroupTypeBase, OptionTypeBase } from 'react-select';
+import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
 import { Option } from 'react-select/src/filters';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { TextField, ThemedSelect } from '@/components/Form';
+import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { EMPLOYEE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { SORT_TYPE_OPTIONS, SUPPLIER_SORT_BY_OPTIONS } from '@/constants/options';
 import { useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
-
-const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
-  children,
-  ...props
-}) => {
-  return (
-    components.ValueContainer && (
-      <components.ValueContainer {...props}>
-        {!!children && <SortDown className="absolute left-3 opacity-80" />}
-        {children}
-      </components.ValueContainer>
-    )
-  );
-};
-
-const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
-  children,
-  ...props
-}) => {
-  return (
-    components.ValueContainer && (
-      <components.ValueContainer {...props}>
-        {!!children && <SortAlphaDownAlt className="absolute left-3 opacity-80" />}
-        {children}
-      </components.ValueContainer>
-    )
-  );
-};
 
 const Home: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [paginationUrl, setPaginationUrl] = useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(EMPLOYEE_SORT_BY_OPTIONS[0]);
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(SUPPLIER_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
 
   const { data: dataSupplier } = useFetchSuppliers({
@@ -57,13 +28,6 @@ const Home: NextPage<unknown> = () => {
     forceUrl: paginationUrl || undefined,
   });
 
-  const styles = {
-    valueContainer: (base: Record<string, unknown>) => ({
-      ...base,
-      paddingLeft: 32,
-    }),
-  };
-
   const {
     data: dataRes = [],
     prev_page_url,
@@ -72,26 +36,23 @@ const Home: NextPage<unknown> = () => {
     from,
     to,
     total,
-  } = dataSupplier?.data?.employees ?? {};
+  } = dataSupplier?.data?.suppliers ?? {};
   const { push } = useRouter();
-  const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
-    col1: `${first_name ?? ''} ${last_name ?? ''}`,
-    col2: position,
-    col3: has_dashboard_account ? (
-      <span className="text-blue-600 bold">Aktif</span>
-    ) : (
-      <span className="bold">Tidak Aktif</span>
-    ),
-    col4: (
+
+  const data = dataRes.map(({ address, phone_number, name, id }) => ({
+    name: `${name ?? ''}`,
+    phone_number,
+    address,
+    action: (
       <div className="flex">
-        <Link href={`/employee/${id}`}>
+        <Link href={`/suppliers/${id}`}>
           <a>
             <Button>
               <Eye width={24} height={24} />
             </Button>
           </a>
         </Link>
-        <Button variant="secondary" onClick={() => push(`/employee/${id}/edit`)}>
+        <Button variant="secondary" onClick={() => push(`/suppliers/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
       </div>
@@ -101,20 +62,20 @@ const Home: NextPage<unknown> = () => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Nama Karyawan',
-        accessor: 'col1', // accessor is the "key" in the data
+        Header: 'Nama Supplier',
+        accessor: 'name', // accessor is the "key" in the data
       },
       {
-        Header: 'Jabatan',
-        accessor: 'col2',
+        Header: 'Nomor Telepon',
+        accessor: 'phone_number',
       },
       {
-        Header: 'Akun Dashboard',
-        accessor: 'col3',
+        Header: 'Alamat',
+        accessor: 'address',
       },
       {
         Header: 'Aksi',
-        accessor: 'col4',
+        accessor: 'action',
       },
     ],
     []
@@ -122,27 +83,18 @@ const Home: NextPage<unknown> = () => {
   return (
     <CardDashboard>
       <div className="mt-2 mb-6 justify-between sm:flex">
-        <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Karyawan</h2>
+        <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Supplier</h2>
         <div className="flex sm:flex-row flex-col-reverse">
           <div className="flex flex-wrap">
-            <ThemedSelect
-              variant="outlined"
-              additionalStyle={styles}
-              components={{ ValueContainer }}
-              className="w-full sm:w-72 sm:mr-4 mb-4"
-              options={EMPLOYEE_SORT_BY_OPTIONS}
+            <SelectSortBy
+              options={SUPPLIER_SORT_BY_OPTIONS}
               value={sortBy}
               onChange={(val) => {
                 setSortBy(val as Option<string[]>);
               }}
             />
-            <ThemedSelect
-              variant="outlined"
-              additionalStyle={styles}
-              components={{ ValueContainer: ValueContainerSortBy }}
-              className="w-full sm:w-48 sm:mr-4 mb-4"
+            <SelectSortType
               value={sortType}
-              options={SORT_TYPE_OPTIONS}
               onChange={(val) => {
                 setSortType(val as Option);
               }}
@@ -155,10 +107,10 @@ const Home: NextPage<unknown> = () => {
                 Icon={<Search />}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 variant="contained"
-                placeholder="Cari nama karyawan"
+                placeholder="Cari nama supplier"
               />
             </div>
-            <Link href="/employee/add">
+            <Link href="/useFetchSuppliers/add">
               <a>
                 <Button className="mb-4" Icon={<PlusLg className="w-4" />}>
                   Tambah
