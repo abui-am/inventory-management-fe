@@ -1,68 +1,57 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
-import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
+import { Calculator, Eye, Pencil, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
 import Table from '@/components/Table';
+import Tag from '@/components/Tag';
 
 const StoragePage: NextPage<unknown> = () => {
   const dataRes = [
     {
       name: 'Minyak',
-      type: 'Sembako',
       stock: 100,
-      price: 1000,
+      sellPrice: 1000,
       lastUpdate: '16 Nov 21, 16:45',
       id: '01',
       unit: 'KG',
+      status: 'pending',
     },
     {
-      name: 'Beras',
-      type: 'Sembako',
-      stock: 1000,
-      price: 500,
+      name: 'Minyak',
+      stock: 100,
+      sellPrice: 1000,
       lastUpdate: '16 Nov 21, 16:45',
       id: '01',
       unit: 'KG',
+      status: 'pending',
     },
     {
-      name: 'Tepung',
-      type: 'Sembako',
-      stock: 50,
-      price: 2000,
+      name: 'Minyak',
+      stock: 100,
+      sellPrice: 1000,
       lastUpdate: '16 Nov 21, 16:45',
       id: '01',
       unit: 'KG',
-    },
-    {
-      name: 'Gas',
-      type: 'Sembako',
-      stock: 900,
-      price: 10000,
-      lastUpdate: '16 Nov 21, 16:45',
-      id: '01',
-      unit: 'KG',
-    },
-    {
-      name: 'Roti',
-      type: 'Sembako',
-      stock: 500,
-      price: 500,
-      lastUpdate: '16 Nov 21, 16:45',
-      id: '01',
-      unit: 'KG',
+      status: 'pending',
     },
   ];
-  const data = dataRes.map(({ name, type, stock, unit, price, lastUpdate, id }) => ({
-    col1: name,
-    col2: type,
+  const data = dataRes.map(({ name, stock, unit, sellPrice, lastUpdate, id, status }) => ({
+    col1: lastUpdate,
+    col2: name,
     col3: stock,
     col4: unit,
-    col5: price,
-    col6: lastUpdate,
+    col5: sellPrice,
+    col6: (
+      <div>
+        <Tag variant={status === 'pending' ? 'secondary' : 'primary'}>
+          {status === 'pending' ? 'Menunggu' : 'Diterima'}
+        </Tag>
+      </div>
+    ),
     col7: (
       <div className="flex">
         <Link href={`/employee/${id}`}>
@@ -82,11 +71,11 @@ const StoragePage: NextPage<unknown> = () => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Nama barang',
+        Header: 'Tanggal',
         accessor: 'col1', // accessor is the "key" in the data
       },
       {
-        Header: 'Jenis',
+        Header: 'Nama barang',
         accessor: 'col2',
       },
       {
@@ -98,12 +87,12 @@ const StoragePage: NextPage<unknown> = () => {
         accessor: 'col4',
       },
       {
-        Header: 'Harga',
+        Header: 'Harga jual',
         accessor: 'col5',
       },
 
       {
-        Header: 'Pembaharuan terakhir',
+        Header: 'Status',
         accessor: 'col6',
       },
       {
@@ -128,10 +117,10 @@ const StoragePage: NextPage<unknown> = () => {
                 variant="contained"
                 placeholder="Cari nama barang"
               />
-              <Link href="/storage/add">
+              <Link href="/storage/adjust">
                 <a>
-                  <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
-                    Tambah
+                  <Button className="ml-3" Icon={<Calculator className="w-4" />}>
+                    Sesuaikan
                   </Button>
                 </a>
               </Link>

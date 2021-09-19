@@ -24,6 +24,18 @@ input:checked + div svg {
   }
 }
 
+@layer components {
+  .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.4);
+    inset: 0px;
+    position: fixed;
+  }
+
+  .table-themed .collapse {
+    width: 180px;
+  }
+}
+
 #arrow,
 #arrow::before {
   position: absolute;

@@ -1,11 +1,56 @@
 import clsx from 'clsx';
 import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
-import { Calendar } from 'react-bootstrap-icons';
+import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
-import { OptionTypeBase } from 'react-select';
+import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
+import CreatableAsyncSelect from 'react-select/async-creatable';
 
-import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
+import { SORT_TYPE_OPTIONS } from '@/constants/options';
+import {
+  useSearchCity,
+  useSearchItems,
+  useSearchProvince,
+  useSearchSubdistrict,
+  useSearchSuppliers,
+  useSearchVillage,
+} from '@/hooks/mutation/useSearch';
+import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
+import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
+
+const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    components.ValueContainer && (
+      <components.ValueContainer {...props}>
+        {!!children && <SortAlphaDownAlt className="absolute left-3 opacity-80" />}
+        {children}
+      </components.ValueContainer>
+    )
+  );
+};
+
+const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    components.ValueContainer && (
+      <components.ValueContainer {...props}>
+        {!!children && <SortDown className="absolute left-3 opacity-80" />}
+        {children}
+      </components.ValueContainer>
+    )
+  );
+};
+
+type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
+  Props<OptionTypeBase, false | true> & {
+    variant?: SelectVariant;
+    additionalStyle?: AdditionalStyle;
+  };
 
 const TextField: React.FC<
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
@@ -89,6 +134,40 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
   );
 };
 
+const PhoneNumberTextField: React.FC<
+  Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
+    hasError: boolean;
+    onChange: (phoneNumber: string) => void;
+  }
+> = ({ onChange, className, hasError, value, ...props }) => {
+  const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
+  return (
+    <div className="flex">
+      <div className="flex items-center top-0 bottom-0 m-auto text-blueGray-400 px-3 border h-11 border-r-0 border-gray-300 rounded-tl-md rounded-bl-md">
+        +62
+      </div>
+
+      <input
+        {...props}
+        onChange={(e) => {
+          if (onChange) {
+            onChange(`62${e.target.value}`);
+          }
+        }}
+        type="number"
+        value={value?.toString().slice(2)}
+        className={clsx(
+          errorStyle,
+          'h-11 w-full px-3 outline-none rounded-tr-md rounded-br-md border-gray-300 border',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in',
+          className
+        )}
+      />
+    </div>
+  );
+};
+
 const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
   const { mutateAsync } = useSearchProvince();
 
@@ -153,13 +232,111 @@ const SelectVillage: React.FC<
   );
 };
 
+const SelectRole: React.FC<ThemedSelectProps> = (props) => {
+  const { data } = useFetchAllRoles();
+  const options = data?.data?.roles?.map(({ name }) => ({ label: name, value: name })) ?? [];
+  return <ThemedSelect {...props} options={options} />;
+};
+
+const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
+  const { mutateAsync: search } = useSearchItems();
+  return (
+    <CreatableAsyncSelect
+      {...props}
+      loadOptions={async (val) => {
+        const { data } = await search({ search: val });
+        return data.items.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const SelectSupplier: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
+  const { mutateAsync: search } = useSearchSuppliers();
+  return (
+    <CreatableAsyncSelect
+      {...props}
+      styles={getThemedSelectStyle(variant, additionalStyle)}
+      loadOptions={async (val) => {
+        const { data } = await search({ search: val });
+        return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
+  return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
+};
+
+const SelectSortBy: React.FC<ThemedSelectProps> = (props) => {
+  const styles = {
+    valueContainer: (base: Record<string, unknown>) => ({
+      ...base,
+      paddingLeft: 32,
+    }),
+  };
+
+  return (
+    <ThemedSelect
+      variant="outlined"
+      additionalStyle={styles}
+      components={{ ValueContainer }}
+      className="w-full sm:w-72 sm:mr-4 mb-4"
+      {...props}
+    />
+  );
+};
+
+const SelectSortType: React.FC<ThemedSelectProps> = (props) => {
+  const styles = {
+    valueContainer: (base: Record<string, unknown>) => ({
+      ...base,
+      paddingLeft: 32,
+    }),
+  };
+  return (
+    <ThemedSelect
+      variant="outlined"
+      additionalStyle={styles}
+      components={{ ValueContainer: ValueContainerSortBy }}
+      className="w-full sm:w-48 sm:mr-4 mb-4"
+      options={SORT_TYPE_OPTIONS}
+      {...props}
+    />
+  );
+};
+
+const WithLabelAndError: React.FC<{
+  label: string;
+  errors: Record<string, unknown>;
+  touched: Record<string, unknown>;
+  name: string;
+}> = ({ label, children, errors, touched, name }) => {
+  return (
+    <>
+      <label className="mb-1 inline-block">{label}</label>
+      {children}
+      {errors[name] && touched[name] && <span className="text-xs text-red-500">{errors[name] as string}</span>}
+    </>
+  );
+};
+
 export {
   Checkbox,
   DatePickerComponent,
+  PhoneNumberTextField,
   SelectCity,
+  SelectItems,
   SelectProvince,
+  SelectRole,
+  SelectSortBy,
+  SelectSortType,
   SelectSubdistrict,
+  SelectSupplier,
   SelectVillage,
   TextArea,
   TextField,
+  ThemedSelect,
+  WithLabelAndError,
 };

@@ -4,21 +4,21 @@ import { object } from 'yup';
 import { Button } from '@/components/Button';
 import { Checkbox, TextField } from '@/components/Form';
 import useAuthMutation from '@/hooks/mutation/useAuth';
-import { makeServerAuth } from '@/utils/server';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {
-  makeServerAuth();
-
   const { mutateAsync, isLoading } = useAuthMutation('login');
   const initialValues = {
-    email: '',
+    usernameEmail: '',
     password: '',
   };
   const { values, handleChange, errors, isSubmitting, handleSubmit } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
-      await mutateAsync(values);
+      await mutateAsync({
+        email: values.usernameEmail,
+        password: values.password,
+      });
     },
   });
 
@@ -35,16 +35,16 @@ export default function Home(): JSX.Element {
           <div className="mb-3">
             <label className="mb-1 inline-block">Username / Email</label>
             <TextField
-              id="email"
-              name="email"
-              value={values.email}
+              id="usernameEmail"
+              name="usernameEmail"
+              value={values.usernameEmail}
               placeholder="Email"
               autoComplete="invt-email"
               disabled={isSubmitting}
               onChange={handleChange}
-              hasError={!!errors.email}
+              hasError={!!errors.usernameEmail}
             />
-            {errors.email && <span className="text-xs text-red-500">{errors.email}</span>}
+            {errors.usernameEmail && <span className="text-xs text-red-500">{errors.usernameEmail}</span>}
           </div>
           <div className="mb-3">
             <label className="mb-1 inline-block">Password</label>

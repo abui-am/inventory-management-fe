@@ -1,8 +1,11 @@
 import { useMutation } from 'react-query';
 
+import { ItemsResponse } from '@/typings/item';
 import { RegionCitiesRes, RegionProvincesRes, RegionSubdistrictRes, RegionVilageRes } from '@/typings/regions';
 import { BackendRes } from '@/typings/request';
-import apiInstance from '@/utils/api';
+import { RolesResponse } from '@/typings/role';
+import { SuppliersResponse } from '@/typings/supplier';
+import apiInstance, { apiInstanceAdmin } from '@/utils/api';
 export type SearchParam = { search: string; where?: { [k: string]: string } };
 
 export const useSearchProvince = () => {
@@ -29,6 +32,27 @@ export const useSearchSubdistrict = () => {
 export const useSearchVillage = () => {
   return useMutation<BackendRes<RegionVilageRes>, void, SearchParam>(['village'], async (jsonBody) => {
     const { data } = await apiInstance().post('/regions/villages', jsonBody);
+    return data;
+  });
+};
+
+export const useSearchRoles = () => {
+  return useMutation<BackendRes<RolesResponse>, void, SearchParam>(['roles'], async (jsonBody) => {
+    const { data } = await apiInstanceAdmin().post('/roles', jsonBody);
+    return data;
+  });
+};
+
+export const useSearchItems = () => {
+  return useMutation<BackendRes<ItemsResponse>, void, SearchParam>(['items'], async (jsonBody) => {
+    const { data } = await apiInstanceAdmin().post('/items', jsonBody);
+    return data;
+  });
+};
+
+export const useSearchSuppliers = () => {
+  return useMutation<BackendRes<SuppliersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
+    const { data } = await apiInstanceAdmin().post('/suppliers', jsonBody);
     return data;
   });
 };

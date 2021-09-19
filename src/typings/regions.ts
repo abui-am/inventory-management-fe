@@ -1,3 +1,5 @@
+import { Link } from './common';
+
 export interface RegionProvincesRes {
   provinces: {
     current_page: number;
@@ -90,10 +92,4 @@ export interface RegionVilageRes {
 export interface RegionVillageResData {
   id: number;
   name: string;
-}
-
-interface Link {
-  url: string;
-  label: string;
-  active: boolean;
 }
