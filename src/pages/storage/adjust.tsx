@@ -36,7 +36,7 @@ const AdjustStockPage: NextPage = () => {
     paymentMethod: { label: 'Cash', value: 'cash' },
     paymentDue: new Date(),
   };
-  const { values, handleChange, errors, isSubmitting, setFieldValue } = useFormik({
+  const { values, handleChange, errors, isSubmitting, setFieldValue, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async () => {
@@ -145,12 +145,14 @@ const AdjustStockPage: NextPage = () => {
                 autoComplete="invoiceNumber"
                 disabled={isSubmitting}
                 onChange={handleChange}
-                hasError={!!errors.invoiceNumber}
+                hasError={!!errors.invoiceNumber && touched.invoiceNumber}
               />
             </div>
           </div>
 
-          {errors.invoiceNumber && <span className="text-xs text-red-500">{errors.invoiceNumber}</span>}
+          {errors.invoiceNumber && touched.invoiceNumber && (
+            <span className="text-xs text-red-500">{errors.invoiceNumber}</span>
+          )}
         </div>
 
         <div className="w-3/12 px-2 mb-3">
@@ -175,7 +177,7 @@ const AdjustStockPage: NextPage = () => {
             onChange={handleChange}
             hasError={!!errors.memo}
           />
-          {errors.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
+          {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
         </div>
 
         <div className="w-full px-2 mb-3">

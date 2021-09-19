@@ -15,14 +15,14 @@ const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
   const { query = {}, push } = useRouter();
   const { data, isLoading } = useFetchEmployeeById(query.id as string);
-  const { first_name, last_name, position, id, ...rest } = data?.data.employee ?? {};
+  const { first_name, last_name, position, id, has_dashboard_account, ...rest } = data?.data.employee ?? {};
 
   const renderView = () => {
     switch (activeTab) {
       case 0:
         return <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />;
       case 1:
-        return <EmployeeAccount employeeId={id ?? ''} hasDashboardAccount={false} />;
+        return <EmployeeAccount employeeId={id ?? ''} hasDashboardAccount={has_dashboard_account ?? false} />;
       default:
         return <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />;
     }
@@ -150,9 +150,8 @@ const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: stri
     <div>
       <div className="flex mb-4">
         <div className="flex flex-shrink-0 font-bold" style={{ flexBasis: 200 }}>
-          Account Username :
+          Akun telah diaktifkan
         </div>
-        <div className="flex">adjiemuliadi</div>
       </div>
     </div>
   );

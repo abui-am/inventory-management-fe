@@ -89,6 +89,7 @@ export interface Employee {
   phone_number: string;
   position: string;
   addresses: AddressDetail[];
+  has_dashboard_account: boolean;
 }
 
 export interface EmployeeDetailRes {

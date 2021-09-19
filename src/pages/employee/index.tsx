@@ -11,28 +11,8 @@ import { CardDashboard } from '@/components/Container';
 import { TextField, ThemedSelect } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
+import { EMPLOYEE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
-
-const sortByOptions = [
-  {
-    label: 'Sortir berdasarkan nama',
-    value: 'name',
-    data: ['first_name', 'last_name'],
-  },
-  {
-    label: 'Sortir berdasarkan jabatan',
-    value: 'position',
-    data: ['position'],
-  },
-];
-
-const sortTypeOptions = [
-  {
-    label: 'Sortir naik',
-    value: 'asc',
-  },
-  { label: 'Sortir menurun', value: 'desc' },
-];
 
 const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
   children,
@@ -65,8 +45,8 @@ const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupT
 const Home: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [paginationUrl, setPaginationUrl] = useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(sortByOptions[0]);
-  const [sortType, setSortType] = useState<Option | null>(sortTypeOptions[0]);
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(EMPLOYEE_SORT_BY_OPTIONS[0]);
+  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
 
   const { data: dataEmployee } = useFetchEmployee({
     search: searchQuery,
@@ -150,7 +130,7 @@ const Home: NextPage<unknown> = () => {
               additionalStyle={styles}
               components={{ ValueContainer }}
               className="w-full sm:w-72 sm:mr-4 mb-4"
-              options={sortByOptions}
+              options={EMPLOYEE_SORT_BY_OPTIONS}
               value={sortBy}
               onChange={(val) => {
                 setSortBy(val as Option<string[]>);
@@ -162,7 +142,7 @@ const Home: NextPage<unknown> = () => {
               components={{ ValueContainer: ValueContainerSortBy }}
               className="w-full sm:w-48 sm:mr-4 mb-4"
               value={sortType}
-              options={sortTypeOptions}
+              options={SORT_TYPE_OPTIONS}
               onChange={(val) => {
                 setSortType(val as Option);
               }}
