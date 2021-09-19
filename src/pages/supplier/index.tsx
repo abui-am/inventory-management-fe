@@ -45,14 +45,14 @@ const Home: NextPage<unknown> = () => {
     address,
     action: (
       <div className="flex">
-        <Link href={`/suppliers/${id}`}>
+        <Link href={`/supplier/${id}`}>
           <a>
             <Button>
               <Eye width={24} height={24} />
             </Button>
           </a>
         </Link>
-        <Button variant="secondary" onClick={() => push(`/suppliers/${id}/edit`)}>
+        <Button variant="secondary" onClick={() => push(`/supplier/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
       </div>
@@ -110,7 +110,7 @@ const Home: NextPage<unknown> = () => {
                 placeholder="Cari nama supplier"
               />
             </div>
-            <Link href="/useFetchSuppliers/add">
+            <Link href="/supplier/add">
               <a>
                 <Button className="mb-4" Icon={<PlusLg className="w-4" />}>
                   Tambah

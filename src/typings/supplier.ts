@@ -23,6 +23,21 @@ export interface Suppliers {
   total: number;
 }
 
+export interface SupplierDetail {
+  id: string;
+  name: string;
+  address?: string;
+  phone_number?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface SuppliersResponse {
   suppliers: Suppliers;
 }
+
+export interface SupplierDetailResponse {
+  supplier: SupplierDetail;
+}
+
+export type CreateSupplierBody = Omit<SupplierData, 'id'>;
