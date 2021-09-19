@@ -2,7 +2,7 @@ import { useMutation } from 'react-query';
 
 import { RegionCitiesRes, RegionProvincesRes, RegionSubdistrictRes, RegionVilageRes } from '@/typings/regions';
 import { BackendRes } from '@/typings/request';
-import { RolesRespond } from '@/typings/role';
+import { RolesResponse } from '@/typings/role';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
 export type SearchParam = { search: string; where?: { [k: string]: string } };
 
@@ -35,7 +35,7 @@ export const useSearchVillage = () => {
 };
 
 export const useSearchRoles = () => {
-  return useMutation<BackendRes<RolesRespond>, void, SearchParam>(['roles'], async (jsonBody) => {
+  return useMutation<BackendRes<RolesResponse>, void, SearchParam>(['roles'], async (jsonBody) => {
     const { data } = await apiInstanceAdmin().post('/roles', jsonBody);
     return data;
   });

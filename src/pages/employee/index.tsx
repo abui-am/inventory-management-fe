@@ -2,45 +2,16 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { Eye, Pencil, PlusLg, Search, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
-import { CommonProps, components, GroupTypeBase, OptionTypeBase } from 'react-select';
+import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
 import { Option } from 'react-select/src/filters';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { TextField, ThemedSelect } from '@/components/Form';
+import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { EMPLOYEE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
-
-const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
-  children,
-  ...props
-}) => {
-  return (
-    components.ValueContainer && (
-      <components.ValueContainer {...props}>
-        {!!children && <SortDown className="absolute left-3 opacity-80" />}
-        {children}
-      </components.ValueContainer>
-    )
-  );
-};
-
-const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
-  children,
-  ...props
-}) => {
-  return (
-    components.ValueContainer && (
-      <components.ValueContainer {...props}>
-        {!!children && <SortAlphaDownAlt className="absolute left-3 opacity-80" />}
-        {children}
-      </components.ValueContainer>
-    )
-  );
-};
 
 const Home: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,13 +27,6 @@ const Home: NextPage<unknown> = () => {
     paginated: true,
     forceUrl: paginationUrl || undefined,
   });
-
-  const styles = {
-    valueContainer: (base: Record<string, unknown>) => ({
-      ...base,
-      paddingLeft: 32,
-    }),
-  };
 
   const {
     data: dataRes = [],
@@ -125,24 +89,16 @@ const Home: NextPage<unknown> = () => {
         <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Karyawan</h2>
         <div className="flex sm:flex-row flex-col-reverse">
           <div className="flex flex-wrap">
-            <ThemedSelect
-              variant="outlined"
-              additionalStyle={styles}
-              components={{ ValueContainer }}
-              className="w-full sm:w-72 sm:mr-4 mb-4"
-              options={EMPLOYEE_SORT_BY_OPTIONS}
+            <SelectSortBy
               value={sortBy}
               onChange={(val) => {
                 setSortBy(val as Option<string[]>);
               }}
+              options={EMPLOYEE_SORT_BY_OPTIONS}
             />
-            <ThemedSelect
-              variant="outlined"
-              additionalStyle={styles}
-              components={{ ValueContainer: ValueContainerSortBy }}
-              className="w-full sm:w-48 sm:mr-4 mb-4"
+
+            <SelectSortType
               value={sortType}
-              options={SORT_TYPE_OPTIONS}
               onChange={(val) => {
                 setSortType(val as Option);
               }}

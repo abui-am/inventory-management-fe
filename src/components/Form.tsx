@@ -1,13 +1,42 @@
 import clsx from 'clsx';
 import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
-import { Calendar } from 'react-bootstrap-icons';
+import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
-import NormalSelect, { OptionTypeBase } from 'react-select';
+import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
 
+import { SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
+
+const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    components.ValueContainer && (
+      <components.ValueContainer {...props}>
+        {!!children && <SortAlphaDownAlt className="absolute left-3 opacity-80" />}
+        {children}
+      </components.ValueContainer>
+    )
+  );
+};
+
+const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    components.ValueContainer && (
+      <components.ValueContainer {...props}>
+        {!!children && <SortDown className="absolute left-3 opacity-80" />}
+        {children}
+      </components.ValueContainer>
+    )
+  );
+};
 
 type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
   Props<OptionTypeBase, false | true> & {
@@ -205,6 +234,44 @@ const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', addit
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
 
+const SelectSortBy: React.FC<ThemedSelectProps> = (props) => {
+  const styles = {
+    valueContainer: (base: Record<string, unknown>) => ({
+      ...base,
+      paddingLeft: 32,
+    }),
+  };
+
+  return (
+    <ThemedSelect
+      variant="outlined"
+      additionalStyle={styles}
+      components={{ ValueContainer }}
+      className="w-full sm:w-72 sm:mr-4 mb-4"
+      {...props}
+    />
+  );
+};
+
+const SelectSortType: React.FC<ThemedSelectProps> = (props) => {
+  const styles = {
+    valueContainer: (base: Record<string, unknown>) => ({
+      ...base,
+      paddingLeft: 32,
+    }),
+  };
+  return (
+    <ThemedSelect
+      variant="outlined"
+      additionalStyle={styles}
+      components={{ ValueContainer: ValueContainerSortBy }}
+      className="w-full sm:w-48 sm:mr-4 mb-4"
+      options={SORT_TYPE_OPTIONS}
+      {...props}
+    />
+  );
+};
+
 const WithLabelAndError: React.FC<{
   label: string;
   errors: Record<string, unknown>;
@@ -227,6 +294,8 @@ export {
   SelectCity,
   SelectProvince,
   SelectRole,
+  SelectSortBy,
+  SelectSortType,
   SelectSubdistrict,
   SelectVillage,
   TextArea,

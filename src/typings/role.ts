@@ -6,7 +6,7 @@ export interface RolesData {
   guard_name: string;
 }
 
-export interface RolesRespond {
+export interface RolesResponse {
   roles: {
     current_page: number;
     data: RolesData[];
@@ -24,7 +24,7 @@ export interface RolesRespond {
   };
 }
 
-export interface RolesRespondUnpaginated {
+export interface RolesResponseUnpaginated {
   roles: RolesData[];
 }
 
