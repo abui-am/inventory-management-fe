@@ -71,7 +71,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           province: {} as Partial<Option>,
           city: {} as Partial<Option>,
           subdistrict: {} as Partial<Option>,
-          village: {} as Partial<Optionn>,
+          village: {} as Partial<Option>,
         };
 
   const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
