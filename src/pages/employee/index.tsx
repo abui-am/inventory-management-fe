@@ -47,7 +47,7 @@ const Home: NextPage<unknown> = () => {
       <span className="bold">Tidak Aktif</span>
     ),
     col4: (
-      <div className="flex">
+      <div className="flex" style={{ minWidth: 150 }}>
         <Link href={`/employee/${id}`}>
           <a>
             <Button>
@@ -79,6 +79,7 @@ const Home: NextPage<unknown> = () => {
       {
         Header: 'Aksi',
         accessor: 'col4',
+        collapse: true,
       },
     ],
     []

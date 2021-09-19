@@ -4,9 +4,17 @@ import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
+import CreatableAsyncSelect from 'react-select/async-creatable';
 
 import { SORT_TYPE_OPTIONS } from '@/constants/options';
-import { useSearchCity, useSearchProvince, useSearchSubdistrict, useSearchVillage } from '@/hooks/mutation/useSearch';
+import {
+  useSearchCity,
+  useSearchItems,
+  useSearchProvince,
+  useSearchSubdistrict,
+  useSearchSuppliers,
+  useSearchVillage,
+} from '@/hooks/mutation/useSearch';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
@@ -230,6 +238,33 @@ const SelectRole: React.FC<ThemedSelectProps> = (props) => {
   return <ThemedSelect {...props} options={options} />;
 };
 
+const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
+  const { mutateAsync: search } = useSearchItems();
+  return (
+    <CreatableAsyncSelect
+      {...props}
+      loadOptions={async (val) => {
+        const { data } = await search({ search: val });
+        return data.items.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
+const SelectSupplier: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
+  const { mutateAsync: search } = useSearchSuppliers();
+  return (
+    <CreatableAsyncSelect
+      {...props}
+      styles={getThemedSelectStyle(variant, additionalStyle)}
+      loadOptions={async (val) => {
+        const { data } = await search({ search: val });
+        return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+    />
+  );
+};
+
 const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
@@ -292,11 +327,13 @@ export {
   DatePickerComponent,
   PhoneNumberTextField,
   SelectCity,
+  SelectItems,
   SelectProvince,
   SelectRole,
   SelectSortBy,
   SelectSortType,
   SelectSubdistrict,
+  SelectSupplier,
   SelectVillage,
   TextArea,
   TextField,

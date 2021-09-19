@@ -8,10 +8,18 @@ import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent, TextArea, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
+import {
+  DatePickerComponent,
+  SelectItems,
+  SelectSupplier,
+  TextArea,
+  TextField,
+  ThemedSelect,
+  WithLabelAndError,
+} from '@/components/Form';
 import Modal from '@/components/Modal';
 import Table from '@/components/Table';
-import { INVOICE_TYPE_OPTIONS } from '@/constants/options';
+import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import createSchema from '@/utils/validation/formik';
 
 export type AdjustStockTableValue = {
@@ -23,6 +31,7 @@ export type AdjustStockTableValue = {
   memo: string;
   paymentMethod: string;
   paymentDue: Date;
+  supplier: Option;
 };
 
 const AdjustStockPage: NextPage = () => {
@@ -35,6 +44,7 @@ const AdjustStockPage: NextPage = () => {
     memo: '',
     paymentMethod: { label: 'Cash', value: 'cash' },
     paymentDue: new Date(),
+    supplier: {},
   };
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
@@ -140,10 +150,14 @@ const AdjustStockPage: NextPage = () => {
               <TextField
                 id="invoiceNumber"
                 name="invoiceNumber"
-                value={values.invoiceNumber}
-                placeholder="Masukan nomor faktur"
+                value={values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value ? '' : values.invoiceNumber}
+                placeholder={
+                  values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value
+                    ? '(Generate otomatis)'
+                    : 'Masukan nomor faktur'
+                }
                 autoComplete="invoiceNumber"
-                disabled={isSubmitting}
+                disabled={isSubmitting || values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value}
                 onChange={handleChange}
                 hasError={!!errors.invoiceNumber && touched.invoiceNumber}
               />
@@ -153,6 +167,12 @@ const AdjustStockPage: NextPage = () => {
           {errors.invoiceNumber && touched.invoiceNumber && (
             <span className="text-xs text-red-500">{errors.invoiceNumber}</span>
           )}
+        </div>
+        <div className="w-6/12 px-2 mb-3" />
+        <div className="w-6/12 px-2 mb-3">
+          <WithLabelAndError touched={touched} errors={errors} name="supplier" label="Nama Supplier">
+            <SelectSupplier onChange={(val) => setFieldValue('supplier', val)} value={values.supplier} />
+          </WithLabelAndError>
         </div>
 
         <div className="w-3/12 px-2 mb-3">
@@ -196,23 +216,22 @@ const AdjustStockPage: NextPage = () => {
               className="mr-4"
               variant="contained"
               name="paymentMethod"
+              onChange={(val) => {
+                setFieldValue('paymentMethod', val);
+              }}
               value={values.paymentMethod}
               additionalStyle={{
                 control: (provided) => ({ ...provided, minWidth: 240 }),
               }}
-              options={[
-                { label: 'Cash', value: 'cash' },
-                {
-                  label: 'Bond',
-                  value: 'bond',
-                },
-              ]}
+              options={PAYMENT_METHOD_OPTIONS}
             />
-            <DatePickerComponent
-              name="paymentDue"
-              selected={values.paymentDue}
-              onChange={(date) => setFieldValue('paymentDue', date)}
-            />
+            {values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value && (
+              <DatePickerComponent
+                name="paymentDue"
+                selected={values.paymentDue}
+                onChange={(date) => setFieldValue('paymentDue', date)}
+              />
+            )}
           </div>
         </div>
 
@@ -229,7 +248,7 @@ const AdjustStockPage: NextPage = () => {
 
 type ButtonWithModalFormValues = Omit<
   AdjustStockTableValue,
-  'paymentDue' | 'paymentMethod' | 'item_name' | 'buyPrice' | 'discount' | 'qty'
+  'paymentDue' | 'paymentMethod' | 'item_name' | 'buyPrice' | 'discount' | 'qty' | 'supplier'
 > & {
   buyPrice: number | string;
   discount: number | string;
@@ -285,14 +304,11 @@ const ButtonWithModal: React.FC<{
               <div className="flex -mx-2 flex-wrap mb-1">
                 <div className="w-full mb-3 px-2">
                   <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
-                    <ThemedSelect
-                      variant="outlined"
-                      options={[
-                        { label: 'Minyak', value: 'minyak' },
-                        { label: 'Telur', value: 'telur' },
-                      ]}
+                    <SelectItems
+                      onChange={(val) => {
+                        setFieldValue('item', val);
+                      }}
                       value={values.item}
-                      onChange={(value) => setFieldValue('item', value)}
                     />
                   </WithLabelAndError>
                 </div>

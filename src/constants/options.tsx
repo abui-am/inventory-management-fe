@@ -53,3 +53,11 @@ export const SORT_TYPE_OPTIONS = [
   },
   { label: 'Sortir menurun', value: 'desc' },
 ];
+
+export const PAYMENT_METHOD_OPTIONS = [
+  { label: 'Cash', value: 'cash' },
+  {
+    label: 'Utang',
+    value: 'bond',
+  },
+];
