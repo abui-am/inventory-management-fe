@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
-import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
@@ -21,6 +20,7 @@ import {
 } from '@/components/Form';
 import { genderOptions } from '@/constants/options';
 import { useCreateEmployee, useEditEmployee, useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
+import { Option } from '@/typings/common';
 import { CreateEmployeePutBody } from '@/typings/employee';
 import { createOption, getOptionByValue } from '@/utils/options';
 import createSchema from '@/utils/validation/formik';
@@ -71,7 +71,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           province: {} as Partial<Option>,
           city: {} as Partial<Option>,
           subdistrict: {} as Partial<Option>,
-          village: {} as Partial<Option>,
+          village: {} as Partial<Optionn>,
         };
 
   const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);

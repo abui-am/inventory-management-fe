@@ -1,9 +1,9 @@
 import { useFormik } from 'formik';
 import React from 'react';
-import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
 import { CreateAccountReqBody, useCreateAccount } from '@/hooks/mutation/useAuth';
+import { Option } from '@/typings/common';
 import createSchema from '@/utils/validation/formik';
 
 import { Button } from '../Button';

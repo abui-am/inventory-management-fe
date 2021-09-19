@@ -3,7 +3,6 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Pencil, Trash } from 'react-bootstrap-icons';
-import { Option } from 'react-select/src/filters';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
@@ -20,6 +19,7 @@ import {
 import Modal from '@/components/Modal';
 import Table from '@/components/Table';
 import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
+import { Option } from '@/typings/common';
 import createSchema from '@/utils/validation/formik';
 
 export type AdjustStockTableValue = {

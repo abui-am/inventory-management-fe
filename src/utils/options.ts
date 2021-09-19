@@ -1,4 +1,4 @@
-import { Option } from 'react-select/src/filters';
+import { Option } from '@/typings/common';
 
 const getOptionByValue = (options: Omit<Option, 'data'>[], value: unknown): Omit<Option, 'data'> => {
   return options.filter((val) => val.value === value)[0];
