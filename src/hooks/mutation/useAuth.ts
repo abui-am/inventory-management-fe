@@ -1,14 +1,24 @@
+import { AxiosError } from 'axios';
 import cookie from 'js-cookie';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useMutation } from 'react-query';
 
-import apiInstance from '@/utils/api';
+import { BackendResError } from '@/typings/request';
+import apiInstance, { apiInstanceAdmin } from '@/utils/api';
 
 interface UseAuthMutationMutateProps {
   email: string;
   password: string;
 }
+
+export type CreateAccountReqBody = {
+  employee_id: string;
+  username: string;
+  password: string;
+  password_confirmation: string;
+  roles: (string | undefined)[];
+};
 
 const useAuthMutation = (type: 'login' | 'register') => {
   const mutationKey = type === 'login' ? 'loginUser' : 'registerUser';
@@ -21,25 +31,54 @@ const useAuthMutation = (type: 'login' | 'register') => {
         const { data } = await apiInstance().post(`auth/login`, formik);
         return data;
       } catch (e) {
-        throw new Error(e.response.data.message);
+        return e;
       }
     },
     {
       onSuccess: async ({ data, status_code, message }) => {
-        console.log(data, status_code);
         if (type === 'login' && data.access_token && status_code === 200) {
           cookie.set('INVT-TOKEN', data.access_token, {
+            expires: 30,
+          });
+          cookie.set('INVT-USERID', data.user.id, {
+            expires: 30,
+          });
+          cookie.set('INVT-USERNAME', data.user.username, {
             expires: 30,
           });
           router.push('/');
           toast.success(message);
         }
       },
-      onError: ({ message }) => {
-        toast.error(message);
+      onError: (e: AxiosError<BackendResError<unknown>>) => {
+        toast.error(e.response?.data.message ?? '');
       },
     }
   );
 };
 
+const useCreateAccount = () => {
+  return useMutation(
+    ['createUser'],
+    async (formik: CreateAccountReqBody) => {
+      try {
+        const { data } = await apiInstanceAdmin().put(`users`, formik);
+        return data;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    {
+      onSuccess: async ({ message }) => {
+        toast.success(message);
+      },
+      onError: (e: AxiosError<BackendResError<unknown>>) => {
+        toast.error(e.response?.data.message ?? '');
+      },
+    }
+  );
+};
+
+export { useCreateAccount };
 export default useAuthMutation;

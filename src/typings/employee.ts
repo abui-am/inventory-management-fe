@@ -1,3 +1,5 @@
+import { Link } from './common';
+
 export type EmployeeRes = {
   employees: {
     current_page: number;
@@ -8,6 +10,7 @@ export type EmployeeRes = {
     last_page_url: string;
     next_page_url: string;
     path: string;
+    links?: Link[];
     per_page: number;
     prev_page_url?: string;
     to: number;
@@ -86,8 +89,33 @@ export interface Employee {
   phone_number: string;
   position: string;
   addresses: AddressDetail[];
+  has_dashboard_account: boolean;
 }
 
 export interface EmployeeDetailRes {
   employee: Employee;
+}
+
+export interface Pivot {
+  model_id: string;
+  role_id: number;
+  model_type: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  guard_name: string;
+  created_at?: string;
+  updated_at?: string;
+  pivot: Pivot;
+}
+
+export interface UserRes {
+  user: {
+    id: string;
+    username: string;
+    roles: Role[];
+    employee: EmployeeData;
+  };
 }

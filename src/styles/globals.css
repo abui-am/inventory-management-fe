@@ -30,6 +30,10 @@ input:checked + div svg {
     inset: 0px;
     position: fixed;
   }
+
+  .table-themed .collapse {
+    width: 180px;
+  }
 }
 
 #arrow,

@@ -1,4 +1,4 @@
-import { ArchiveFill, House, Pen, PeopleFill } from 'react-bootstrap-icons';
+import { ArchiveFill, House, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
 const MENU_LIST = [
   {
     id: 'home',
@@ -13,17 +13,22 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <PeopleFill {...props} />,
   },
   {
+    id: 'transaction',
+    slug: '/transaction',
+    displayName: 'Transaksi',
+    icon: (props = {}): JSX.Element => <Pen {...props} />,
+  },
+  {
     id: 'stock',
     slug: '/storage',
     displayName: 'Stock Gudang',
     icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
   },
-
   {
-    id: 'transaction',
-    slug: '/transaction',
-    displayName: 'Transaksi',
-    icon: (props = {}): JSX.Element => <Pen {...props} />,
+    id: 'supplier',
+    slug: '/supplier',
+    displayName: 'Supplier',
+    icon: (props = {}): JSX.Element => <Person {...props} />,
   },
 ];
 
