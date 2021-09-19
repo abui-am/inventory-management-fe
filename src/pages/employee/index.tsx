@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
-import { Option } from 'react-select/src/filters';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -12,6 +11,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { EMPLOYEE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
+import { Option } from '@/typings/common';
 
 const Home: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
