@@ -117,12 +117,12 @@ const Home: NextPage = () => {
   return (
     <div>
       <section id="head" className="flex">
-        <div className="flex-1 text-2xl font-bold mb-8">Overview</div>
+        <div className="flex-1 text-2xl font-bold mb-8 sm:mx-0 mx-6">Overview</div>
         <div className="flex-1 max-w-sm" />
       </section>
       <section id="body" className="flex flex-wrap -m-3">
-        <div className="w-8/12">
-          <div className="w-full flex">
+        <div className="w-full sm:w-8/12">
+          <div className="w-full flex-col flex sm:flex-row">
             {cardValues.map(({ label, value }) => {
               return (
                 <div className="h-32 flex-1 p-3" key={label}>
@@ -144,7 +144,7 @@ const Home: NextPage = () => {
             </CardDashboard>
           </div>
         </div>
-        <div className="w-4/12 p-3">
+        <div className="w-full sm:w-4/12 p-3">
           <CardDashboard title="Penjualan terbanyak">
             {topSales.map(({ label, value }, index) => {
               // eslint-disable-next-line react/no-array-index-key
@@ -152,12 +152,12 @@ const Home: NextPage = () => {
             })}
           </CardDashboard>
         </div>
-        <div className="w-8/12 p-3">
+        <div className="w-full sm:w-8/12 p-3">
           <CardDashboard title="Transaksi terakhir">
             <Table columns={columns} data={dataTable} />
           </CardDashboard>
         </div>
-        <div className="w-4/12 p-3">
+        <div className="w-full sm:w-4/12 p-3">
           <CardDashboard title="Kategori terpopuler" style={{ height: 489 }}>
             <ResponsiveContainer width="100%" height={308}>
               <PieChart className="mx-auto">
