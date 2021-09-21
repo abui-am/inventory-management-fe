@@ -27,16 +27,12 @@ const useAuthMutation = (type: 'login' | 'register') => {
   return useMutation(
     [mutationKey],
     async (formik: UseAuthMutationMutateProps) => {
-      try {
-        const { data } = await apiInstance().post(`auth/login`, formik);
-        return data;
-      } catch (e) {
-        return e;
-      }
+      const { data } = await apiInstance().post(`auth/login`, formik);
+      return data;
     },
     {
       onSuccess: async ({ data, status_code, message }) => {
-        if (type === 'login' && data.access_token && status_code === 200) {
+        if (type === 'login' && status_code === 200 && data.access_token) {
           cookie.set('INVT-TOKEN', data.access_token, {
             expires: 30,
           });
@@ -46,11 +42,12 @@ const useAuthMutation = (type: 'login' | 'register') => {
           cookie.set('INVT-USERNAME', data.user.username, {
             expires: 30,
           });
-          router.push('/');
           toast.success(message);
+          router.push('/');
         }
       },
       onError: (e: AxiosError<BackendResError<unknown>>) => {
+        console.error(e, 'ERROR');
         toast.error(e.response?.data.message ?? '');
       },
     }
