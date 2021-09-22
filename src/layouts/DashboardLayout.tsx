@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
 import { List } from 'react-bootstrap-icons';
 import useCollapse from 'react-collapsed';
+import { useQueryClient } from 'react-query';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
@@ -20,6 +21,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const [showMenu, setShowMenu] = useState(false);
   const [onHover, setOnHover] = useState(false);
   const [showNavbar, setShowNavbar] = useState(false);
+  const query = useQueryClient();
   const refElement = useRef(null);
   const { push } = useRouter();
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showNavbar });
@@ -28,9 +30,10 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
   function logout() {
     setShowMenu(false);
-    removeCookie('INVT_TOKEN');
-    removeCookie('INVT_USERID');
-    removeCookie('INVT_USERNAME');
+    removeCookie('INVT-TOKEN');
+    removeCookie('INVT-USERID');
+    removeCookie('INVT-USERNAME');
+    query.invalidateQueries('myself');
     push('/login');
   }
 

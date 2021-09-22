@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { RolesData } from '@/typings/role';
+import { getCookie } from '@/utils/cookies';
 
 type State = { permission: PermissionList[] };
 export type PermissionList = 'control:profile' | 'control:transaction' | 'control:stock' | 'control:supplier';
@@ -28,7 +29,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
 };
 
 const PermissionProvider: React.FC = ({ children }) => {
-  const { data } = useFetchMyself();
+  const { data } = useFetchMyself({ enabled: !!getCookie('INVT-TOKEN') });
   const permissionList = getPermission(data?.data.user.roles ?? []);
   const permission = permissionList;
 
