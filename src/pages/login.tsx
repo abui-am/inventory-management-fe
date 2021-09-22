@@ -10,6 +10,7 @@ export default function Home(): JSX.Element {
   const initialValues = {
     usernameEmail: '',
     password: '',
+    rememberMe: false,
   };
   const { values, handleChange, errors, isSubmitting, handleSubmit, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
@@ -18,6 +19,7 @@ export default function Home(): JSX.Element {
       await mutateAsync({
         email: values.usernameEmail,
         password: values.password,
+        rememberMe: values.rememberMe,
       });
     },
   });
@@ -62,7 +64,9 @@ export default function Home(): JSX.Element {
             </WithLabelAndError>
           </div>
           <div className="flex mb-4 justify-between">
-            <Checkbox>Remember me</Checkbox>
+            <Checkbox name="rememberMe" onChange={handleChange}>
+              Remember me
+            </Checkbox>
             <a>Lupa password</a>
           </div>
           <div>

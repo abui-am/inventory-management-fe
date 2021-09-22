@@ -8,6 +8,7 @@ import { CardDashboard } from '@/components/Container';
 import CreateAccountForm from '@/components/form/CreateAccountForm';
 import Modal from '@/components/Modal';
 import Tabs from '@/components/Tabs';
+import { usePermission } from '@/context/permission-context';
 import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
 import { Employee } from '@/typings/employee';
 
@@ -16,7 +17,7 @@ const EmployeeDetails: NextPage = () => {
   const { query = {}, push } = useRouter();
   const { data, isLoading } = useFetchEmployeeById(query.id as string);
   const { first_name, last_name, position, id, has_dashboard_account, ...rest } = data?.data.employee ?? {};
-
+  const { state } = usePermission();
   const renderView = () => {
     switch (activeTab) {
       case 0:
@@ -40,9 +41,11 @@ const EmployeeDetails: NextPage = () => {
           <h1 className="text-2xl font-bold mb-2">{`${first_name ?? ''} ${last_name ?? ''}`}</h1>
           <span className="text-blue-600 font-bold mb-6">{position}</span>
           <div className="flex mt-6">
-            <Button variant="gray" onClick={() => push(`/employee/${query.id}/edit`)}>
-              Edit Profile
-            </Button>
+            {state.permission.includes('control:all_profile') && (
+              <Button variant="gray" onClick={() => push(`/employee/${query.id}/edit`)}>
+                Edit Profile
+              </Button>
+            )}
           </div>
         </div>
       </div>

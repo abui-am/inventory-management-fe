@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
 
+import { PermissionProvider } from '@/context/permission-context';
 import Layout from '@/layouts/Layout';
 import parseCookies from '@/utils/cookies';
 require('dayjs/locale/id');
@@ -30,8 +31,9 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
         <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
           <Layout>
             <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
-
-            <Component {...pageProps} />
+            <PermissionProvider>
+              <Component {...pageProps} />
+            </PermissionProvider>
           </Layout>
         </main>
       </Hydrate>

@@ -3,6 +3,7 @@ import { useRouter } from 'next/dist/client/router';
 import Link from 'next/link';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
 import { List } from 'react-bootstrap-icons';
+import useCollapse from 'react-collapsed';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
@@ -20,7 +21,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const [showNavbar, setShowNavbar] = useState(false);
   const refElement = useRef(null);
   const { push } = useRouter();
-
+  const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showNavbar });
   const { data } = useFetchMyself();
   const { data: dataUser } = data ?? {};
   const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
@@ -56,25 +57,31 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
     <>
       <div className="h-16 flex items-center bg-blueGray-900 justify-between px-6 py-4 sm:hidden">
         <Link href="/">
-          <h3 className="font-bold text-white">Dashboard</h3>
+          <h3 className="font-bold text-white cursor-pointer">Dashboard</h3>
         </Link>
 
-        <Button variant="secondary" onClick={() => setShowNavbar((val) => !val)}>
+        <Button
+          variant="secondary"
+          {...getToggleProps({
+            onClick: () => setShowNavbar((val) => !val),
+          })}
+        >
           <List width={24} height={24} className="text-white" />
         </Button>
       </div>
 
       <div className="min-h-screen max-w-screen overflow-hidden">
-        {showNavbar && (
-          <section id="MenuSmall" className="sm:hidden">
+        <section id="MenuSmall" className="sm:hidden">
+          <div {...getCollapseProps()}>
             <Menu activePage={activePage} />
-          </section>
-        )}
+          </div>
+        </section>
+
         <div className="flex min-h-screen max-w-screen">
           <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
             <div className="p-8 pb-7">
               <Link href="/">
-                <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+                <h3 className="text-2xl font-bold text-white cursor-pointer">Dashboard</h3>
               </Link>
             </div>
             <section id="menu">
