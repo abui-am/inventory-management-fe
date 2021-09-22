@@ -9,7 +9,7 @@ import CreateAccountForm from '@/components/form/CreateAccountForm';
 import Modal from '@/components/Modal';
 import Tabs from '@/components/Tabs';
 import { usePermission } from '@/context/permission-context';
-import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
+import { useFetchEmployeeById, useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { Employee } from '@/typings/employee';
 
 const EmployeeDetails: NextPage = () => {
@@ -18,6 +18,9 @@ const EmployeeDetails: NextPage = () => {
   const { data, isLoading } = useFetchEmployeeById(query.id as string);
   const { first_name, last_name, position, id, has_dashboard_account, ...rest } = data?.data.employee ?? {};
   const { state } = usePermission();
+
+  const { data: dataUser } = useFetchMyself();
+  const isSelf = id === dataUser?.data?.user?.employee.id;
   const renderView = () => {
     switch (activeTab) {
       case 0:
@@ -41,7 +44,7 @@ const EmployeeDetails: NextPage = () => {
           <h1 className="text-2xl font-bold mb-2">{`${first_name ?? ''} ${last_name ?? ''}`}</h1>
           <span className="text-blue-600 font-bold mb-6">{position}</span>
           <div className="flex mt-6">
-            {state.permission.includes('control:all_profile') && (
+            {(state.permission.includes('control:profile') || isSelf) && (
               <Button variant="gray" onClick={() => push(`/employee/${query.id}/edit`)}>
                 Edit Profile
               </Button>

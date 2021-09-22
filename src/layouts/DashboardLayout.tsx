@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
+import { PermissionList, usePermission } from '@/context/permission-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { removeCookie } from '@/utils/cookies';
@@ -170,9 +171,13 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
 };
 
 const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
+  const { state } = usePermission();
   return (
     <div className="bg-blueGray-900 pb-4">
-      {MENU_LIST.map(({ displayName, icon, id, slug }, index) => {
+      {MENU_LIST.map(({ displayName, icon, id, slug, permission }, index) => {
+        if (permission && !state.permission.includes(permission as PermissionList)) {
+          return <div />;
+        }
         return (
           <div className="px-8 py-4 relative flex items-center" key={id}>
             <Link href={slug}>

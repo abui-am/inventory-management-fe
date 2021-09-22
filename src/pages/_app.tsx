@@ -28,14 +28,14 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
   return (
     <QueryClientProvider client={queryClientRef.current}>
       <Hydrate state={dehydrateState}>
-        <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
-          <Layout>
-            <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
-            <PermissionProvider>
+        <PermissionProvider>
+          <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
+            <Layout>
+              <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
               <Component {...pageProps} />
-            </PermissionProvider>
-          </Layout>
-        </main>
+            </Layout>
+          </main>
+        </PermissionProvider>
       </Hydrate>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

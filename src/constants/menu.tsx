@@ -11,24 +11,28 @@ const MENU_LIST = [
     slug: '/employee',
     displayName: 'Karyawan',
     icon: (props = {}): JSX.Element => <PeopleFill {...props} />,
+    permission: 'control:profile',
   },
   {
     id: 'transaction',
     slug: '/transaction',
     displayName: 'Transaksi',
     icon: (props = {}): JSX.Element => <Pen {...props} />,
+    permission: 'control:transaction',
   },
   {
     id: 'stock',
     slug: '/storage',
     displayName: 'Stock Gudang',
     icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
+    permission: 'control:stock',
   },
   {
     id: 'supplier',
     slug: '/supplier',
     displayName: 'Supplier',
     icon: (props = {}): JSX.Element => <Person {...props} />,
+    permission: 'control:supplier',
   },
 ];
 

@@ -4,7 +4,7 @@ import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { RolesData } from '@/typings/role';
 
 type State = { permission: PermissionList[] };
-type PermissionList = 'control:all_profile';
+export type PermissionList = 'control:profile' | 'control:transaction' | 'control:stock' | 'control:supplier';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -16,7 +16,10 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
     switch (role.id) {
       // super_admin
       case 1:
-        permission = [...permission, 'control:all_profile'];
+        permission = [...permission, 'control:profile', 'control:transaction', 'control:stock', 'control:supplier'];
+        break;
+      case 4:
+        permission = [...permission, 'control:stock'];
         break;
     }
   });
@@ -43,4 +46,5 @@ function usePermission() {
   }
   return context;
 }
+
 export { PermissionProvider, usePermission };
