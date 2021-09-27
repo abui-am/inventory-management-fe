@@ -89,6 +89,7 @@ export interface Employee {
   phone_number: string;
   position: string;
   addresses: AddressDetail[];
+  user: EmployeeUser;
   has_dashboard_account: boolean;
 }
 
@@ -118,4 +119,11 @@ export interface UserRes {
     roles: Role[];
     employee: EmployeeData;
   };
+}
+
+export interface EmployeeUser {
+  id: string;
+  username: string;
+  created_at: Date;
+  updated_at: Date;
 }

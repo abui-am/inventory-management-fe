@@ -8,15 +8,17 @@ import { CardDashboard } from '@/components/Container';
 import CreateAccountForm from '@/components/form/CreateAccountForm';
 import Modal from '@/components/Modal';
 import Tabs from '@/components/Tabs';
+import Tag from '@/components/Tag';
 import { usePermission } from '@/context/permission-context';
 import { useFetchEmployeeById, useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import { useFetchUserById } from '@/hooks/query/useFetchUser';
 import { Employee } from '@/typings/employee';
 
 const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
   const { query = {}, push } = useRouter();
   const { data, isLoading } = useFetchEmployeeById(query.id as string);
-  const { first_name, last_name, position, id, has_dashboard_account, ...rest } = data?.data.employee ?? {};
+  const { first_name, last_name, position, id, has_dashboard_account, user, ...rest } = data?.data.employee ?? {};
   const { state } = usePermission();
 
   const { data: dataUser } = useFetchMyself();
@@ -26,7 +28,13 @@ const EmployeeDetails: NextPage = () => {
       case 0:
         return <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />;
       case 1:
-        return <EmployeeAccount employeeId={id ?? ''} hasDashboardAccount={has_dashboard_account ?? false} />;
+        return (
+          <EmployeeAccount
+            employeeId={id ?? ''}
+            userId={user?.id ?? ''}
+            hasDashboardAccount={has_dashboard_account ?? false}
+          />
+        );
       default:
         return <EmployeeInfo isLoading={isLoading} data={rest as Omit<Employee, 'first_name' | 'last_name'>} />;
     }
@@ -112,11 +120,13 @@ const EmployeeInfo = ({
   );
 };
 
-const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: string }> = ({
+const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: string; userId: string }> = ({
   hasDashboardAccount = true,
   employeeId,
+  userId,
 }) => {
   const [isOpen, setOpen] = useState(false);
+  const { data } = useFetchUserById(userId, { enabled: !!userId });
   function keyHandler(event: KeyboardEvent<HTMLDivElement>): void {
     switch (event.key) {
       case 'Enter':
@@ -155,8 +165,17 @@ const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: stri
   return (
     <div>
       <div className="flex mb-4">
-        <div className="flex flex-shrink-0 font-bold" style={{ flexBasis: 200 }}>
-          Akun telah diaktifkan
+        <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Username:</div>
+        <div className="flex-1">{data?.data.user.username}</div>
+      </div>
+      <div className="flex mb-4">
+        <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Roles:</div>
+        <div className="flex-1">
+          {data?.data.user.roles.map(({ name, id }) => (
+            <Tag variant="secondary" key={id}>
+              {name}
+            </Tag>
+          ))}
         </div>
       </div>
     </div>
