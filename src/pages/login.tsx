@@ -40,7 +40,7 @@ export default function Home(): JSX.Element {
                 id="usernameEmail"
                 name="usernameEmail"
                 value={values.usernameEmail}
-                placeholder="Email"
+                placeholder="Username / Email"
                 autoComplete="invt-email"
                 disabled={isSubmitting}
                 onChange={handleChange}

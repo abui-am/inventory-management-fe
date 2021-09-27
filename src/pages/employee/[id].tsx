@@ -13,6 +13,7 @@ import { usePermission } from '@/context/permission-context';
 import { useFetchEmployeeById, useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useFetchUserById } from '@/hooks/query/useFetchUser';
 import { Employee } from '@/typings/employee';
+import { formatDate } from '@/utils/format';
 
 const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
@@ -167,6 +168,10 @@ const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: stri
       <div className="flex mb-4">
         <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Username:</div>
         <div className="flex-1">{data?.data.user.username}</div>
+      </div>
+      <div className="flex mb-4">
+        <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Tanggal dibuat:</div>
+        <div className="flex-1">{formatDate(data?.data.user.created_at ?? new Date())}</div>
       </div>
       <div className="flex mb-4">
         <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Roles:</div>
