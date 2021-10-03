@@ -22,8 +22,8 @@ const MENU_LIST = [
   },
   {
     id: 'stock',
-    slug: '/storage',
-    displayName: 'Stock Gudang',
+    slug: '/stock-in',
+    displayName: 'Stock In',
     icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
     permission: 'control:stock',
   },
