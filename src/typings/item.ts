@@ -28,3 +28,15 @@ export interface Items {
 export interface ItemsResponse {
   items: Items;
 }
+
+export interface CreateItemsBody {
+  name: string;
+  unit: string;
+}
+
+export interface CreateItemsResponse {
+  item: {
+    id: string;
+    name: string;
+  };
+}

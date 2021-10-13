@@ -40,4 +40,11 @@ export interface SupplierDetailResponse {
   supplier: SupplierDetail;
 }
 
-export type CreateSupplierBody = Omit<SupplierData, 'id'>;
+export interface CreateSupplierResponse {
+  supplier: {
+    id: string;
+    name: string;
+  };
+}
+
+export type CreateSupplierBody = Partial<Omit<SupplierData, 'id'>>;

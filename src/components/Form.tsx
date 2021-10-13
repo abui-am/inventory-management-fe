@@ -16,6 +16,7 @@ import {
   useSearchVillage,
 } from '@/hooks/mutation/useSearch';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
+import debounce from '@/utils/decounce';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
 const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
@@ -238,15 +239,20 @@ const SelectRole: React.FC<ThemedSelectProps> = (props) => {
   return <ThemedSelect {...props} options={options} />;
 };
 
-const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
+const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = ({
+  variant = 'outlined',
+  additionalStyle,
+  ...props
+}) => {
   const { mutateAsync: search } = useSearchItems();
   return (
     <CreatableAsyncSelect
       {...props}
-      loadOptions={async (val) => {
+      styles={getThemedSelectStyle(variant, additionalStyle)}
+      loadOptions={debounce(async (val) => {
         const { data } = await search({ search: val });
-        return data.items.data.map(({ id, name }) => ({ value: id, label: name }));
-      }}
+        return data.items.data.map(({ id, name, ...rest }) => ({ value: id, label: name, data: rest }));
+      }, 300)}
     />
   );
 };

@@ -58,6 +58,10 @@ export const PAYMENT_METHOD_OPTIONS = [
   { label: 'Cash', value: 'cash' },
   {
     label: 'Utang',
-    value: 'bond',
+    value: 'debt',
+  },
+  {
+    label: 'Giro',
+    value: 'current_account',
   },
 ];

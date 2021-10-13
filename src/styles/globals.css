@@ -84,3 +84,19 @@ input:checked + div svg {
   input {
   width: 100%;
 }
+
+.ReactModal__Content {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 200ms ease-in-out;
+}
+
+.ReactModal__Content--after-open {
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+.ReactModal__Content--before-close {
+  opacity: 0;
+  transform: translateY(50px);
+}

@@ -10,8 +10,10 @@ const schema = (type: string) => {
     case 'password':
     case 'address':
     case 'passwordConfirmation':
-    case 'invoiceNumber':
       return string().required('Wajib diisi');
+
+    case 'invoiceNumber':
+      return string();
 
     case 'nik':
       return string().min(16, 'Harus 16 character').max(16, 'Harus 16 character').required('Wajib diisi');
