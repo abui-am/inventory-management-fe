@@ -13,6 +13,7 @@ const useFetchTransactions = (
     per_page: number;
     search: string;
     order_by: Record<string, string>;
+    where: Record<string, unknown>;
   }> = {}
 ): UseQueryResult<BackendRes<TransactionsResponse>> => {
   const fetcher = useMyQuery(['transactions', data], async () => {

@@ -1,15 +1,14 @@
-import { NextPage } from 'next';
 import React from 'react';
 
 import { CardDashboard } from '@/components/Container';
 import TableStockIn from '@/components/table/TableStockIn';
 
-const StoragePage: NextPage<unknown> = () => {
+const ConfirmationPage: React.FC = () => {
   return (
     <CardDashboard>
-      <TableStockIn variant="all" withCreateButton />
+      <TableStockIn variant="pending" />
     </CardDashboard>
   );
 };
 
-export default StoragePage;
+export default ConfirmationPage;
