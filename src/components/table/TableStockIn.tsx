@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import React from 'react';
-import { Calculator, Eye, Pencil, Search } from 'react-bootstrap-icons';
+import { Calculator, Check, Eye, Pencil, Search, X } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
 import Tag from '@/components/Tag';
+import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
+import { Status } from '@/typings/common';
 import { TransactionData } from '@/typings/stock-in';
 import { formatDate, formatToIDR } from '@/utils/format';
 
@@ -18,6 +20,63 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all'; withCreateButton?: bo
   withCreateButton,
 }) => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
+  const { mutateAsync: updateStockIn } = useUpdateStockIn();
+
+  const getAction = (transaction: TransactionData) => {
+    switch (variant) {
+      case 'all':
+        return (
+          <div className="flex">
+            <Button variant="secondary" className="mr-2">
+              <Pencil width={24} height={24} />
+            </Button>
+            <DetailStockIn transactions={transaction} />
+          </div>
+        );
+      case 'pending':
+        return (
+          <div className="flex">
+            <Button
+              className="mr-2"
+              onClick={() =>
+                updateStockIn({
+                  transactionId: transaction.id,
+                  data: {
+                    status: 'on-review',
+                  },
+                })
+              }
+            >
+              <Check width={24} height={24} />
+            </Button>
+            <DetailStockIn transactions={transaction} />
+            <Button variant="outlined" className="ml-2">
+              <X
+                onClick={() => {
+                  updateStockIn({
+                    transactionId: transaction.id,
+                    data: {
+                      status: 'declined',
+                    },
+                  });
+                }}
+                width={24}
+                height={24}
+              />
+            </Button>
+          </div>
+        );
+      default:
+        return (
+          <div className="flex">
+            <Button variant="secondary" className="mr-2">
+              <Pencil width={24} height={24} />
+            </Button>
+            <DetailStockIn transactions={transaction} />
+          </div>
+        );
+    }
+  };
   const queryVariant =
     variant === 'pending'
       ? {
@@ -31,6 +90,18 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all'; withCreateButton?: bo
     forceUrl: paginationUrl,
     ...queryVariant,
   });
+  const getTagValue = (status: Status) => {
+    if (status === 'pending') {
+      return 'Menunggu';
+    }
+    if (status === 'on-review') {
+      return 'Sedang ditinjau';
+    }
+    if (status === 'declined') {
+      return 'Ditolak';
+    }
+    return 'Diterima';
+  };
   const {
     data: dataRes = [],
     from,
@@ -50,21 +121,10 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all'; withCreateButton?: bo
       col6: `${pic.employee.first_name} ${pic.employee.last_name}`,
       col7: (
         <div>
-          <Tag variant={status === 'pending' ? 'secondary' : 'primary'}>
-            {status === 'pending' ? 'Menunggu' : 'Diterima'}
-          </Tag>
+          <Tag variant={status === 'accepted' ? 'primary' : 'secondary'}>{getTagValue(status)}</Tag>
         </div>
       ),
-      col8: (
-        <div className="flex">
-          <Button variant="secondary" className="mr-2">
-            <Pencil width={24} height={24} />
-          </Button>
-          <DetailStockIn
-            transactions={{ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }}
-          />
-        </div>
-      ),
+      col8: getAction({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }),
     })
   );
 
@@ -114,7 +174,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all'; withCreateButton?: bo
         data={data}
         search={({ setGlobalFilter }) => (
           <div className="mt-2 mb-6 flex justify-between">
-            <h2 className="text-2xl font-bold">Riwayat Stock In</h2>
+            <h2 className="text-2xl font-bold">{variant === 'pending' ? 'Konfirmasi Stock In' : 'Riwayat Stock In'}</h2>
 
             {withCreateButton && (
               <>

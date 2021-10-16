@@ -185,7 +185,7 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
           <div className="px-8 py-4 relative flex items-center" key={id}>
             <Link href={slug}>
               <a>
-                <button type="button" className="group flex items-center">
+                <button type="button" className="group flex items-center text-left">
                   <div className="mr-4">
                     {icon({
                       className: clsx(
@@ -194,15 +194,14 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
                       ),
                     })}
                   </div>
-                  <div className="flex-1">
-                    <span
-                      className={`group-hover:text-blue-600 font-bold ${
-                        activePage === index ? 'text-white' : 'text-blueGray-400'
-                      }`}
-                    >
-                      {displayName}
-                    </span>
-                  </div>
+
+                  <span
+                    className={`group-hover:text-blue-600 font-bold ${
+                      activePage === index ? 'text-white' : 'text-blueGray-400'
+                    }`}
+                  >
+                    {displayName}
+                  </span>
                 </button>
               </a>
             </Link>

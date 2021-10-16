@@ -5,7 +5,12 @@ import { RolesData } from '@/typings/role';
 import { getCookie } from '@/utils/cookies';
 
 type State = { permission: PermissionList[] };
-export type PermissionList = 'control:profile' | 'control:transaction' | 'control:stock' | 'control:supplier';
+export type PermissionList =
+  | 'control:profile'
+  | 'control:transaction'
+  | 'control:stock'
+  | 'control:supplier'
+  | 'control:stock.confirmation';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -17,7 +22,14 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
     switch (role.id) {
       // super_admin
       case 1:
-        permission = [...permission, 'control:profile', 'control:transaction', 'control:stock', 'control:supplier'];
+        permission = [
+          ...permission,
+          'control:profile',
+          'control:transaction',
+          'control:stock',
+          'control:supplier',
+          'control:stock.confirmation',
+        ];
         break;
 
       // admin
@@ -25,7 +37,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
         permission = [...permission, 'control:transaction', 'control:supplier'];
         break;
       case 4:
-        permission = [...permission, 'control:stock'];
+        permission = [...permission, 'control:stock', 'control:stock.confirmation'];
         break;
     }
   });

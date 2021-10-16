@@ -28,6 +28,13 @@ const MENU_LIST = [
     permission: 'control:stock',
   },
   {
+    id: 'stock.confirmation',
+    slug: '/stock-in-confirmation',
+    displayName: 'Konfirmasi Stock in',
+    icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
+    permission: 'control:stock.confirmation',
+  },
+  {
     id: 'supplier',
     slug: '/supplier',
     displayName: 'Supplier',

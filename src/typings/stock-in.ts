@@ -1,4 +1,4 @@
-import { Link } from './common';
+import { Link, Status } from './common';
 
 export interface Item {
   id: string;
@@ -91,7 +91,7 @@ export interface TransactionData {
   transaction_code: string;
   purchase_date: string;
   payment_method: string;
-  status: string;
+  status: Status;
   note: string;
   created_at: Date;
   updated_at: Date;
