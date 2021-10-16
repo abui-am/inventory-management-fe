@@ -12,6 +12,7 @@ import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
 import { PermissionList, usePermission } from '@/context/permission-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import useFetchTransactions from '@/hooks/query/useFetchStockIn';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { removeCookie } from '@/utils/cookies';
 
@@ -85,7 +86,10 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
           <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
             <div className="p-8 pb-7">
               <Link href="/">
-                <h3 className="text-2xl font-bold text-white cursor-pointer">Dashboard</h3>
+                <div className="flex -ml-5 cursor-pointer">
+                  <img src="/logo.png" className="w-9 h-9 mr-2" alt="logo" />
+                  <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+                </div>
               </Link>
             </div>
             <section id="menu">
@@ -175,6 +179,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
 
 const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
   const { state } = usePermission();
+
   return (
     <div className="bg-blueGray-900 pb-4">
       {MENU_LIST.map(({ displayName, icon, id, slug, permission }, index) => {
@@ -196,11 +201,16 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
                   </div>
 
                   <span
-                    className={`group-hover:text-blue-600 font-bold ${
+                    className={`group-hover:text-blue-600 font-bold relative ${
                       activePage === index ? 'text-white' : 'text-blueGray-400'
                     }`}
                   >
                     {displayName}
+                    {id === 'stock.confirmation' && (
+                      <div className="absolute -top-1 -right-1">
+                        <ConfirmationStockBubble />
+                      </div>
+                    )}
                   </span>
                 </button>
               </a>
@@ -210,6 +220,26 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
           </div>
         );
       })}
+    </div>
+  );
+};
+
+const ConfirmationStockBubble: React.FC = () => {
+  const { data: dataTrasaction } = useFetchTransactions(
+    {
+      order_by: { created_at: 'desc' },
+
+      where: {
+        status: 'pending',
+      },
+    },
+    {
+      refetchInterval: 10000, // 10 sec
+    }
+  );
+  return (
+    <div className="bg-red-600 text-white rounded-full w-6 h-6 flex align-middle justify-center">
+      {dataTrasaction?.data.transactions.total}
     </div>
   );
 };

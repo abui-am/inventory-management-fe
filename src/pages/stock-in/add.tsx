@@ -45,6 +45,7 @@ const AddStockPage: NextPage = () => {
   const { mutateAsync } = useCreateStockIn();
   const { mutateAsync: createItem } = useCreateItems();
   const { mutateAsync: createSupplier } = useCreateSupplier();
+  const { push } = useRouter();
 
   const initialValues = {
     invoiceNumber: '',
@@ -109,6 +110,7 @@ const AddStockPage: NextPage = () => {
       };
 
       mutateAsync(jsonBody);
+      push('/stock-in');
     },
   });
 

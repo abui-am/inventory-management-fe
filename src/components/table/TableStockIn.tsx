@@ -226,9 +226,9 @@ const DetailStockIn: React.FC<{ transactions: TransactionData }> = ({ transactio
     col1: name,
     col15: unit,
     col2: pivot.quantity,
-    col3: pivot.purchase_price,
-    col4: pivot.discount,
-    col5: pivot.total_price,
+    col3: formatToIDR(pivot.purchase_price),
+    col4: formatToIDR(pivot.discount as number),
+    col5: formatToIDR(pivot.total_price),
   }));
   const columns = React.useMemo(
     () => [
@@ -264,7 +264,7 @@ const DetailStockIn: React.FC<{ transactions: TransactionData }> = ({ transactio
       <Button onClick={() => setOpen((open) => !open)}>
         <Eye width={24} height={24} />
       </Button>
-      <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="big">
+      <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Stock In</h2>
         <div className="flex">
           <div className="flex-1">

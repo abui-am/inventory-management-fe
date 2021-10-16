@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactModal, { Props } from 'react-modal';
 
-const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'normal' }> = ({
+const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'normal' | 'large' }> = ({
   children,
   variant = 'normal',
   style,
@@ -18,7 +18,7 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'no
       background: 'transparent',
       border: 0,
       position: 'relative',
-      maxWidth: variant === 'big' ? '48rem' : '32rem',
+      maxWidth: variant === 'big' ? '48rem' : variant === 'large' ? '56rem' : '32rem',
     },
   } as ReactModal.Styles;
 
@@ -28,7 +28,9 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'no
         style={{
           border: 0,
           width: '100%',
-          maxWidth: variant === 'big' ? '48rem' : '32rem',
+          display: 'flex',
+          justifyContent: 'center',
+          maxWidth: variant === 'big' ? '48rem' : variant === 'large' ? '56rem' : '32rem',
         }}
       >
         <div className="w-full rounded-2xl ml-auto mr-auto bg-white p-6 drop-shadow-lg 100h">{children}</div>
