@@ -1,9 +1,7 @@
 import dayjs from 'dayjs';
 
 export function formatToIDR(number: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
-    number
-  );
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
 }
 
 export function formatDate(date: Date, { withHour = false }: { withHour?: boolean } = {}) {

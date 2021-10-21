@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateStockInBody, TransactionData } from '@/typings/stock-in';
@@ -41,12 +41,27 @@ export const useCreateStockIn = (): UseMutationResult<
 export const useUpdateStockIn = (): UseMutationResult<
   Omit<BackendRes<unknown>, 'data'>,
   unknown,
-  { transactionId: string; data: Partial<TransactionData> },
+  {
+    transactionId: string;
+    data: Partial<
+      Pick<TransactionData, 'status'> & {
+        items?: { id: string; sell_price: number }[];
+      }
+    >;
+  },
   unknown
 > => {
+  const queryClient = useQueryClient();
   const mutator = useMutation(
     ['createStockin'],
-    async (data: { transactionId: string; data: Partial<TransactionData> }) => {
+    async (data: {
+      transactionId: string;
+      data: Partial<
+        Pick<TransactionData, 'status'> & {
+          items?: { id: string; sell_price: number }[];
+        }
+      >;
+    }) => {
       try {
         const res = await apiInstanceAdmin().patch<CreateStockInBody, AxiosResponse<BackendRes<unknown>>>(
           `/transactions/${data.transactionId}`,
@@ -61,6 +76,7 @@ export const useUpdateStockIn = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
+        queryClient.invalidateQueries('transcations');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

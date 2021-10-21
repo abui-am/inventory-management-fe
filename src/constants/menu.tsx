@@ -1,4 +1,4 @@
-import { ArchiveFill, House, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
+import { ArchiveFill, Box, Calculator, House, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
 const MENU_LIST = [
   {
     id: 'home',
@@ -33,6 +33,20 @@ const MENU_LIST = [
     displayName: 'Konfirmasi Stock in',
     icon: (props = {}): JSX.Element => <ArchiveFill {...props} />,
     permission: 'control:stock.confirmation',
+  },
+  {
+    id: 'sellprice.adjustment',
+    slug: '/sell-price-adjustment',
+    displayName: 'Konfirmasi Stock in',
+    icon: (props = {}): JSX.Element => <Calculator {...props} />,
+    permission: 'control:stock.adjust-sell-price',
+  },
+  {
+    id: 'items',
+    slug: '/items',
+    displayName: 'Barang',
+    icon: (props = {}): JSX.Element => <Box {...props} />,
+    permission: 'control:item',
   },
   {
     id: 'supplier',

@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import ReactModal, { Props } from 'react-modal';
 
@@ -23,7 +24,7 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'no
   } as ReactModal.Styles;
 
   return (
-    <ReactModal {...props} style={{ ...customStyles, ...style }}>
+    <ReactModal {...props} style={{ ...customStyles, ...style }} overlayClassName="modal-overlay">
       <div
         style={{
           border: 0,

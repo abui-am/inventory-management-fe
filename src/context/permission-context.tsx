@@ -10,7 +10,9 @@ export type PermissionList =
   | 'control:transaction'
   | 'control:stock'
   | 'control:supplier'
-  | 'control:stock.confirmation';
+  | 'control:stock.confirmation'
+  | 'control:stock.adjust-sell-price'
+  | 'control:item';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -29,6 +31,8 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:stock',
           'control:supplier',
           'control:stock.confirmation',
+          'control:stock.adjust-sell-price',
+          'control:item',
         ];
         break;
 

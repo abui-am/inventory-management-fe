@@ -34,69 +34,69 @@ input:checked + div svg {
   .table-themed .collapse {
     width: 180px;
   }
-}
 
-#arrow,
-#arrow::before {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: inherit;
-}
+  #arrow,
+  #arrow::before {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: inherit;
+  }
 
-#arrow {
-  visibility: hidden;
-  background: white;
-}
+  #arrow {
+    visibility: hidden;
+    background: white;
+  }
 
-#arrow::before {
-  visibility: visible;
-  content: '';
-  transform: rotate(45deg);
-}
+  #arrow::before {
+    visibility: visible;
+    content: '';
+    transform: rotate(45deg);
+  }
 
-#tooltip[data-popper-placement^='top'] > #arrow {
-  bottom: -4px;
-}
+  #tooltip[data-popper-placement^='top'] > #arrow {
+    bottom: -4px;
+  }
 
-#tooltip[data-popper-placement^='bottom'] > #arrow {
-  top: -4px;
-}
+  #tooltip[data-popper-placement^='bottom'] > #arrow {
+    top: -4px;
+  }
 
-#tooltip[data-popper-placement^='left'] > #arrow {
-  right: -4px;
-}
+  #tooltip[data-popper-placement^='left'] > #arrow {
+    right: -4px;
+  }
 
-#tooltip[data-popper-placement^='right'] > #arrow {
-  left: -4px;
-}
+  #tooltip[data-popper-placement^='right'] > #arrow {
+    left: -4px;
+  }
 
-/* OVERRIDE */
+  /* OVERRIDE */
 
-.customDatePickerWidth,
-.customDatePickerWidth > div.react-datepicker-wrapper,
-.customDatePickerWidth
-  > div
-  > div.react-datepicker__input-container
+  .customDatePickerWidth,
+  .customDatePickerWidth > div.react-datepicker-wrapper,
   .customDatePickerWidth
-  > div
-  > div.react-datepicker__input-container
-  input {
-  width: 100%;
-}
+    > div
+    > div.react-datepicker__input-container
+    .customDatePickerWidth
+    > div
+    > div.react-datepicker__input-container
+    input {
+    width: 100%;
+  }
 
-.ReactModal__Content {
-  opacity: 0;
-  transform: translateY(50px);
-  transition: all 200ms ease-in-out;
-}
+  .ReactModal__Content {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 200ms ease-in-out;
+  }
 
-.ReactModal__Content--after-open {
-  opacity: 1;
-  transform: translateY(0px);
-}
+  .ReactModal__Content--after-open {
+    opacity: 1;
+    transform: translateY(0px);
+  }
 
-.ReactModal__Content--before-close {
-  opacity: 0;
-  transform: translateY(50px);
+  .ReactModal__Content--before-close {
+    opacity: 0;
+    transform: translateY(50px);
+  }
 }
