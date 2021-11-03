@@ -72,6 +72,8 @@ export interface TrasactionPivot {
   item_name: string;
   item_unit: string;
   note: string;
+
+  median_purchase_price?: number;
 }
 
 export interface TrasactionItem {
@@ -120,4 +122,8 @@ export interface Transactions {
 
 export interface TransactionsResponse {
   transactions: Transactions;
+}
+
+export interface TransactionResponse {
+  transaction: TransactionData;
 }

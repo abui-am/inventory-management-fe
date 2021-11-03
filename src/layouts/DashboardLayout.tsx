@@ -179,7 +179,26 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
 
 const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
   const { state } = usePermission();
+  const getBubble = (id: string) => {
+    switch (id) {
+      case 'stock.confirmation':
+        return (
+          <div className="absolute top-3 right-4">
+            <ConfirmationStockBubble />
+          </div>
+        );
 
+      case 'sellprice.adjustment':
+        return (
+          <div className="absolute top-3 right-4">
+            <OnReviewBubble />
+          </div>
+        );
+
+      default:
+        return <div />;
+    }
+  };
   return (
     <div className="bg-blueGray-900 pb-4">
       {MENU_LIST.map(({ displayName, icon, id, slug, permission }, index) => {
@@ -206,12 +225,8 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
                     }`}
                   >
                     {displayName}
-                    {id === 'stock.confirmation' && (
-                      <div className="absolute -top-1 -right-1">
-                        <ConfirmationStockBubble />
-                      </div>
-                    )}
                   </span>
+                  {getBubble(id)}
                 </button>
               </a>
             </Link>
@@ -231,6 +246,25 @@ const ConfirmationStockBubble: React.FC = () => {
 
       where: {
         status: 'pending',
+      },
+    },
+    {
+      refetchInterval: 10000, // 10 sec
+    }
+  );
+  return (
+    <div className="bg-red-600 text-white rounded-full w-6 h-6 flex align-middle justify-center">
+      {dataTrasaction?.data.transactions.total}
+    </div>
+  );
+};
+
+const OnReviewBubble: React.FC = () => {
+  const { data: dataTrasaction } = useFetchTransactions(
+    {
+      order_by: { created_at: 'desc' },
+      where: {
+        status: 'on-review',
       },
     },
     {
