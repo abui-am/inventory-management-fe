@@ -1,4 +1,5 @@
 import { useFormik } from 'formik';
+import Link from 'next/link';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
@@ -28,7 +29,7 @@ export default function Home(): JSX.Element {
     <div className="flex flex-col items-center justify-center min-h-screen py-2 p-6">
       <form onSubmit={handleSubmit} className="max-w-md flex-col justify-center items-center -mt-16">
         <h1 className="text-4xl font-bold mb-10 text-center">
-          Sign in ke <span className="text-blue-600">dashboard</span>
+          Masuk ke <span className="text-blue-600">dashboard</span>
         </h1>
         <div className=" w-full text-center mb-10">
           <span className="text-blueGray-600">Silahkan mengisi form di bawah ini untuk masuk ke dalam dashboard</span>
@@ -59,19 +60,20 @@ export default function Home(): JSX.Element {
                 autoComplete="invt-password"
                 disabled={isSubmitting}
                 onChange={handleChange}
-                hasError={!!errors.password}
               />
             </WithLabelAndError>
           </div>
-          <div className="flex mb-4 justify-between">
+          <div className="flex mb-8 justify-between items-end">
             <Checkbox name="rememberMe" onChange={handleChange}>
-              Remember me
+              Ingat saya
             </Checkbox>
-            <a>Lupa password</a>
+            <Link href="/login/recover">
+              <a className="hover:text-blue-700 text-blueGray-600 text-sm font-bold">Lupa kata sandi</a>
+            </Link>
           </div>
           <div>
             <Button fullWidth type="submit" disabled={isLoading}>
-              Sign in
+              Masuk
             </Button>
           </div>
         </div>

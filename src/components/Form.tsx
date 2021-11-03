@@ -100,7 +100,7 @@ const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...pro
 const Checkbox: React.FC<InputHTMLAttributes<unknown>> = ({ children, ...props }) => {
   const [checked, setChecked] = useState(false);
   return (
-    <div className="flex relative items-center">
+    <div className="flex relative items-center text-sm">
       <input
         onClick={() => setChecked((val) => !val)}
         type="checkbox"
