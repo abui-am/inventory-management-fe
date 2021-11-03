@@ -21,6 +21,7 @@ export default function Home(): JSX.Element {
     initialValues,
     onSubmit: async (values) => {
       setSent(true);
+      console.log(values);
     },
   });
 
@@ -56,27 +57,35 @@ export default function Home(): JSX.Element {
               <span className="text-blueGray-600">Silahkan isi email untuk mengatur ulang kata sandi baru</span>
             </div>
             <div className="max-w-md w-screen p-8 shadow-2xl rounded-lg bg-white">
-              <div className="mb-4">
+              <div className="mb-8">
                 <WithLabelAndError label="Email" touched={touched} errors={errors} name="email">
                   <TextField
-                    id="usernameEmail"
+                    id="email"
                     name="email"
+                    placeholder="example@mail.com"
                     value={values.email}
-                    placeholder="Username / Email"
                     autoComplete="invt-email"
                     disabled={isSubmitting}
                     onChange={handleChange}
-                    hasError={!!errors.email}
                   />
                 </WithLabelAndError>
               </div>
-              <div className="mt-4">
+              <div>
                 <Button fullWidth disabled={sent} type="submit">
                   Minta atur ulang kata sandi
                 </Button>
-                <Button fullWidth className="mt-4" onClick={() => back()} variant="outlined">
-                  Batalkan
-                </Button>
+                <div className="text-center text-blueGray-600 mt-2">
+                  <span className="text-sm">Ingat password anda? </span>
+                  <span
+                    role="link"
+                    tabIndex={0}
+                    onKeyDown={handleKey}
+                    className="text-sm cursor-pointer font-bold hover:text-blue-700"
+                    onClick={() => back()}
+                  >
+                    Coba untuk masuk
+                  </span>
+                </div>
               </div>
             </div>
           </>

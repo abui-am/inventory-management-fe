@@ -40,8 +40,8 @@ export default function Home(): JSX.Element {
               <TextField
                 id="usernameEmail"
                 name="usernameEmail"
+                placeholder="Masukan username / email"
                 value={values.usernameEmail}
-                placeholder="Username / Email"
                 autoComplete="invt-email"
                 disabled={isSubmitting}
                 onChange={handleChange}
@@ -56,7 +56,7 @@ export default function Home(): JSX.Element {
                 name="password"
                 type="password"
                 value={values.password}
-                placeholder="Password"
+                placeholder="Masukan kata sandi"
                 autoComplete="invt-password"
                 disabled={isSubmitting}
                 onChange={handleChange}
