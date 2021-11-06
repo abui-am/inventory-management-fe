@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import cookie from 'js-cookie';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 
 import { BackendResError } from '@/typings/request';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
@@ -24,6 +24,7 @@ export type CreateAccountReqBody = {
 const useAuthMutation = (type: 'login' | 'register') => {
   const mutationKey = type === 'login' ? 'loginUser' : 'registerUser';
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation(
     [mutationKey],
@@ -44,6 +45,7 @@ const useAuthMutation = (type: 'login' | 'register') => {
           cookie.set('INVT-USERNAME', data.user.username, {
             expires: data?.rememberMe ? 30 : 1,
           });
+          queryClient.invalidateQueries();
           toast.success(message);
           router.push('/');
         }
