@@ -3,12 +3,16 @@ import { useRouter } from 'next/dist/client/router';
 import Link from 'next/link';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
 import { List } from 'react-bootstrap-icons';
+import useCollapse from 'react-collapsed';
+import { useQueryClient } from 'react-query';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
+import { PermissionList, usePermission } from '@/context/permission-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import useFetchTransactions from '@/hooks/query/useFetchStockIn';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { removeCookie } from '@/utils/cookies';
 
@@ -18,17 +22,19 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const [showMenu, setShowMenu] = useState(false);
   const [onHover, setOnHover] = useState(false);
   const [showNavbar, setShowNavbar] = useState(false);
+  const query = useQueryClient();
   const refElement = useRef(null);
   const { push } = useRouter();
-
+  const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showNavbar });
   const { data } = useFetchMyself();
   const { data: dataUser } = data ?? {};
   const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
   function logout() {
     setShowMenu(false);
-    removeCookie('INVT_TOKEN');
-    removeCookie('INVT_USERID');
-    removeCookie('INVT_USERNAME');
+    removeCookie('INVT-TOKEN');
+    removeCookie('INVT-USERID');
+    removeCookie('INVT-USERNAME');
+    query.invalidateQueries('myself');
     push('/login');
   }
 
@@ -56,25 +62,34 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
     <>
       <div className="h-16 flex items-center bg-blueGray-900 justify-between px-6 py-4 sm:hidden">
         <Link href="/">
-          <h3 className="font-bold text-white">Dashboard</h3>
+          <h3 className="font-bold text-white cursor-pointer">Dashboard</h3>
         </Link>
 
-        <Button variant="secondary" onClick={() => setShowNavbar((val) => !val)}>
+        <Button
+          variant="secondary"
+          {...getToggleProps({
+            onClick: () => setShowNavbar((val) => !val),
+          })}
+        >
           <List width={24} height={24} className="text-white" />
         </Button>
       </div>
 
       <div className="min-h-screen max-w-screen overflow-hidden">
-        {showNavbar && (
-          <section id="MenuSmall" className="sm:hidden">
+        <section id="MenuSmall" className="sm:hidden">
+          <div {...getCollapseProps()}>
             <Menu activePage={activePage} />
-          </section>
-        )}
+          </div>
+        </section>
+
         <div className="flex min-h-screen max-w-screen">
           <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
             <div className="p-8 pb-7">
               <Link href="/">
-                <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+                <div className="flex -ml-5 cursor-pointer">
+                  <img src="/logo.png" className="w-9 h-9 mr-2" alt="logo" />
+                  <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+                </div>
               </Link>
             </div>
             <section id="menu">
@@ -163,14 +178,19 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
 };
 
 const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
+  const { state } = usePermission();
+
   return (
     <div className="bg-blueGray-900 pb-4">
-      {MENU_LIST.map(({ displayName, icon, id, slug }, index) => {
+      {MENU_LIST.map(({ displayName, icon, id, slug, permission }, index) => {
+        if (permission && !state.permission.includes(permission as PermissionList)) {
+          return <div />;
+        }
         return (
           <div className="px-8 py-4 relative flex items-center" key={id}>
             <Link href={slug}>
               <a>
-                <button type="button" className="group flex items-center">
+                <button type="button" className="group flex items-center text-left">
                   <div className="mr-4">
                     {icon({
                       className: clsx(
@@ -179,15 +199,19 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
                       ),
                     })}
                   </div>
-                  <div className="flex-1">
-                    <span
-                      className={`group-hover:text-blue-600 font-bold ${
-                        activePage === index ? 'text-white' : 'text-blueGray-400'
-                      }`}
-                    >
-                      {displayName}
-                    </span>
-                  </div>
+
+                  <span
+                    className={`group-hover:text-blue-600 font-bold relative ${
+                      activePage === index ? 'text-white' : 'text-blueGray-400'
+                    }`}
+                  >
+                    {displayName}
+                    {id === 'stock.confirmation' && (
+                      <div className="absolute -top-1 -right-1">
+                        <ConfirmationStockBubble />
+                      </div>
+                    )}
+                  </span>
                 </button>
               </a>
             </Link>
@@ -196,6 +220,26 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
           </div>
         );
       })}
+    </div>
+  );
+};
+
+const ConfirmationStockBubble: React.FC = () => {
+  const { data: dataTrasaction } = useFetchTransactions(
+    {
+      order_by: { created_at: 'desc' },
+
+      where: {
+        status: 'pending',
+      },
+    },
+    {
+      refetchInterval: 10000, // 10 sec
+    }
+  );
+  return (
+    <div className="bg-red-600 text-white rounded-full w-6 h-6 flex align-middle justify-center">
+      {dataTrasaction?.data.transactions.total}
     </div>
   );
 };

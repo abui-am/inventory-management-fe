@@ -3,7 +3,12 @@ import toast from 'react-hot-toast';
 import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
-import { CreateSupplierBody, SupplierDetailResponse, SuppliersResponse } from '@/typings/supplier';
+import {
+  CreateSupplierBody,
+  CreateSupplierResponse,
+  SupplierDetailResponse,
+  SuppliersResponse,
+} from '@/typings/supplier';
 import { apiInstanceAdmin, apiInstanceWithoutBaseUrl } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
@@ -69,7 +74,7 @@ const useEditSupplier = (
 };
 
 const useCreateSupplier = (): UseMutationResult<
-  Omit<BackendRes<unknown>, 'data'>,
+  BackendRes<CreateSupplierResponse>,
   unknown,
   CreateSupplierBody,
   unknown
@@ -78,7 +83,7 @@ const useCreateSupplier = (): UseMutationResult<
     ['createEmployee'],
     async (data: CreateSupplierBody) => {
       try {
-        const res = await apiInstanceAdmin().put<CreateSupplierBody, AxiosResponse<BackendRes<unknown>>>(
+        const res = await apiInstanceAdmin().put<CreateSupplierBody, AxiosResponse<BackendRes<CreateSupplierResponse>>>(
           '/suppliers',
           data
         );

@@ -25,6 +25,35 @@ export interface Items {
   total: number;
 }
 
+export interface Item {
+  id: string;
+  name: string;
+  slug: string;
+  description?: unknown;
+  quantity: number;
+  buy_price?: number;
+  sell_price?: number;
+  unit: string;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: unknown;
+}
+
+export interface ItemResponse {
+  item: Item;
+}
 export interface ItemsResponse {
   items: Items;
+}
+
+export interface CreateItemsBody {
+  name: string;
+  unit: string;
+}
+
+export interface CreateItemsResponse {
+  item: {
+    id: string;
+    name: string;
+  };
 }
