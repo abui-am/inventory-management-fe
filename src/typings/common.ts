@@ -9,3 +9,5 @@ export type Option<T = unknown> = {
   value: string;
   data?: T;
 };
+
+export type Status = 'pending' | 'on-review' | 'declined' | 'accepted';
