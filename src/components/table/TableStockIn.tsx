@@ -26,9 +26,6 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
       case 'all':
         return (
           <div className="flex">
-            <Button variant="secondary" className="mr-2">
-              <Pencil width={24} height={24} />
-            </Button>
             <DetailStockIn transactions={transaction} />
           </div>
         );
@@ -36,6 +33,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         return (
           <div className="flex">
             <Button
+              size="small"
               className="mr-2"
               onClick={() =>
                 updateStockIn({
@@ -49,7 +47,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
               <Check width={24} height={24} />
             </Button>
             <DetailStockIn transactions={transaction} />
-            <Button variant="outlined" className="ml-2">
+            <Button size="small" variant="outlined" className="ml-2">
               <X
                 onClick={() => {
                   updateStockIn({
@@ -72,7 +70,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
             <div className="ml-2">
               <SellPriceAdjustment transactionId={transaction.id} />
             </div>
-            <Button variant="outlined" className="ml-2">
+            <Button size="small" variant="outlined" className="ml-2">
               <X
                 onClick={() => {
                   updateStockIn({
@@ -91,7 +89,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
       default:
         return (
           <div className="flex">
-            <Button variant="secondary" className="mr-2">
+            <Button size="small" variant="secondary" className="mr-2">
               <Pencil width={24} height={24} />
             </Button>
             <DetailStockIn transactions={transaction} />

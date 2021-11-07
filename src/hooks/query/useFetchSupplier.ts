@@ -9,8 +9,9 @@ import {
   SupplierDetailResponse,
   SuppliersResponse,
 } from '@/typings/supplier';
-import { apiInstanceAdmin, apiInstanceWithoutBaseUrl } from '@/utils/api';
+import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRole } from '@/utils/api';
 
+import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
 const useFetchSuppliers = (
@@ -22,10 +23,11 @@ const useFetchSuppliers = (
     order_by: Record<string, string>;
   }> = {}
 ): UseQueryResult<BackendRes<SuppliersResponse>> => {
+  const { data: dataSelf } = useFetchMyself();
   const fetcher = useMyQuery(['suppliers', data], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-      : await apiInstanceAdmin().post('/suppliers', data);
+      : await getApiBasedOnRole(dataSelf?.data.user.roles[0].name || '').post('/suppliers', data);
     return res.data;
   });
 

@@ -34,7 +34,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
     removeCookie('INVT_TOKEN');
     removeCookie('INVT_USERID');
     removeCookie('INVT_USERNAME');
-    queryClient.invalidateQueries();
+    query.invalidateQueries();
     push('/login');
   }
 

@@ -2,8 +2,9 @@ import { UseQueryOptions, UseQueryResult } from 'react-query';
 
 import { BackendRes } from '@/typings/request';
 import { TransactionResponse, TransactionsResponse } from '@/typings/stock-in';
-import { apiInstanceAdmin, apiInstanceWithoutBaseUrl } from '@/utils/api';
+import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRole } from '@/utils/api';
 
+import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
 const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
@@ -17,12 +18,13 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<TransactionsResponse>>
 ): UseQueryResult<BackendRes<TransactionsResponse>> => {
+  const { data: dataSelf } = useFetchMyself();
   const fetcher = useMyQuery(
-    ['transactions', data],
+    ['transactions', data, dataSelf?.data.user.roles[0].name],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-        : await apiInstanceAdmin().post('/transactions', data);
+        : await getApiBasedOnRole(dataSelf?.data.user.roles[0].name ?? '').post('/transactions', data);
       return res.data;
     },
     options

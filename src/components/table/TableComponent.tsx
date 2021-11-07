@@ -31,7 +31,7 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData }> = ({ tra
 
   return (
     <>
-      <Button onClick={() => setOpen((open) => !open)}>
+      <Button size="small" onClick={() => setOpen((open) => !open)}>
         <Eye width={24} height={24} />
       </Button>
 
@@ -95,7 +95,7 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ trans
   const { mutateAsync } = useUpdateStockIn();
   return (
     <>
-      <Button onClick={() => setOpen((open) => !open)}>
+      <Button size="small" onClick={() => setOpen((open) => !open)}>
         <Calculator width={24} height={24} />
       </Button>
 
