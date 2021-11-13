@@ -21,6 +21,16 @@ export type CreateAccountReqBody = {
   roles: (string | undefined)[];
 };
 
+export type ForgotPasswordReqBody = {
+  email: string;
+};
+
+export type ResetPasswordReqBody = {
+  token: string;
+  password: string;
+  password_confirmation: string;
+};
+
 const useAuthMutation = (type: 'login' | 'register') => {
   const mutationKey = type === 'login' ? 'loginUser' : 'registerUser';
   const router = useRouter();
@@ -81,5 +91,51 @@ const useCreateAccount = () => {
   );
 };
 
-export { useCreateAccount };
+const useForgotPassword = () => {
+  return useMutation(
+    ['forgotPassword'],
+    async (formik: ForgotPasswordReqBody) => {
+      try {
+        const { data } = await apiInstance().post(`/auth/forgot`, formik);
+        return data;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    {
+      onSuccess: async ({ message }) => {
+        toast.success(message);
+      },
+      onError: (e: AxiosError<BackendResError<unknown>>) => {
+        toast.error(e.response?.data.message ?? '');
+      },
+    }
+  );
+};
+
+const useResetPassword = () => {
+  return useMutation(
+    ['resetPassword'],
+    async (formik: ResetPasswordReqBody) => {
+      try {
+        const { data } = await apiInstance().post(`/auth/reset`, formik);
+        return data;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    {
+      onSuccess: async ({ message }) => {
+        toast.success(message);
+      },
+      onError: (e: AxiosError<BackendResError<unknown>>) => {
+        toast.error(e.response?.data.message ?? '');
+      },
+    }
+  );
+};
+
+export { useCreateAccount, useForgotPassword, useResetPassword };
 export default useAuthMutation;
