@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import cookie from 'js-cookie';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 
 import { BackendResError } from '@/typings/request';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
@@ -21,9 +21,20 @@ export type CreateAccountReqBody = {
   roles: (string | undefined)[];
 };
 
+export type ForgotPasswordReqBody = {
+  email: string;
+};
+
+export type ResetPasswordReqBody = {
+  token: string;
+  password: string;
+  password_confirmation: string;
+};
+
 const useAuthMutation = (type: 'login' | 'register') => {
   const mutationKey = type === 'login' ? 'loginUser' : 'registerUser';
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation(
     [mutationKey],
@@ -44,6 +55,7 @@ const useAuthMutation = (type: 'login' | 'register') => {
           cookie.set('INVT-USERNAME', data.user.username, {
             expires: data?.rememberMe ? 30 : 1,
           });
+          queryClient.invalidateQueries();
           toast.success(message);
           router.push('/');
         }
@@ -79,5 +91,53 @@ const useCreateAccount = () => {
   );
 };
 
-export { useCreateAccount };
+const useForgotPassword = () => {
+  return useMutation(
+    ['forgotPassword'],
+    async (formik: ForgotPasswordReqBody) => {
+      try {
+        const { data } = await apiInstance().post(`/auth/forgot`, formik);
+        return data;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    {
+      onSuccess: async ({ msg }) => {
+        toast.success(msg);
+      },
+      onError: (e: AxiosError<{ msg: string } & BackendResError<unknown>>) => {
+        toast.error(e.response?.data.msg ?? e.response?.data.message ?? '');
+      },
+    }
+  );
+};
+
+const useResetPassword = () => {
+  const router = useRouter();
+  return useMutation(
+    ['resetPassword'],
+    async (formik: ResetPasswordReqBody) => {
+      try {
+        const { data } = await apiInstance().post(`/auth/reset`, formik);
+        return data;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    {
+      onSuccess: async ({ msg }) => {
+        toast.success(msg);
+        router.push('/login');
+      },
+      onError: (e: AxiosError<{ msg: string } & BackendResError<unknown>>) => {
+        toast.error(e.response?.data.msg ?? e.response?.data.message ?? '');
+      },
+    }
+  );
+};
+
+export { useCreateAccount, useForgotPassword, useResetPassword };
 export default useAuthMutation;

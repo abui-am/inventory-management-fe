@@ -5,6 +5,7 @@ import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { TextField, WithLabelAndError } from '@/components/Form';
+import { useForgotPassword } from '@/hooks/mutation/useAuth';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {
@@ -15,13 +16,16 @@ export default function Home(): JSX.Element {
   const handleKey = useKeyPressEnter(() => {
     setSent(false);
   });
+
+  const { mutateAsync } = useForgotPassword();
   const { back } = useRouter();
   const { values, handleChange, errors, isSubmitting, handleSubmit, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
+      await mutateAsync(values);
+
       setSent(true);
-      console.log(values);
     },
   });
 

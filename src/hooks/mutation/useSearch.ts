@@ -1,11 +1,14 @@
 import { useMutation } from 'react-query';
 
+import { CustomersResponse } from '@/typings/customer';
 import { ItemsResponse } from '@/typings/item';
 import { RegionCitiesRes, RegionProvincesRes, RegionSubdistrictRes, RegionVilageRes } from '@/typings/regions';
 import { BackendRes } from '@/typings/request';
 import { RolesResponse } from '@/typings/role';
 import { SuppliersResponse } from '@/typings/supplier';
-import apiInstance, { apiInstanceAdmin } from '@/utils/api';
+import apiInstance, { apiInstanceAdmin, getApiBasedOnRole } from '@/utils/api';
+
+import { useFetchMyself } from '../query/useFetchEmployee';
 export type SearchParam = { search: string; where?: { [k: string]: string } };
 
 export const useSearchProvince = () => {
@@ -51,8 +54,19 @@ export const useSearchItems = () => {
 };
 
 export const useSearchSuppliers = () => {
+  const { data: dataSelf } = useFetchMyself();
+
   return useMutation<BackendRes<SuppliersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
-    const { data } = await apiInstanceAdmin().post('/suppliers', jsonBody);
+    const { data } = await getApiBasedOnRole(dataSelf?.data?.user?.roles[0]?.name || '').post('/suppliers', jsonBody);
+    return data;
+  });
+};
+
+export const useSearchCustomers = () => {
+  const { data: dataSelf } = useFetchMyself();
+
+  return useMutation<BackendRes<CustomersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
+    const { data } = await getApiBasedOnRole(dataSelf?.data?.user?.roles[0]?.name || '').post('/customers', jsonBody);
     return data;
   });
 };

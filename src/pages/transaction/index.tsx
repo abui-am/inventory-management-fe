@@ -1,129 +1,73 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React from 'react';
-import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
+import { PlusLg, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
+import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
+import { DetailStockIn } from '@/components/table/TableComponent';
+import useFetchTransactions from '@/hooks/query/useFetchStockIn';
+import { formatDate, formatToIDR } from '@/utils/format';
 
 const TransactionPage: NextPage<unknown> = () => {
-  const dataRes = [
-    {
-      tanggal: '16 Nov 21, 16:45',
-      name: 'Sembako',
-      customer: 'Abui',
-      quantity: 10,
-      amount: 2000,
-      discount: '0',
-      amountTotal: 20000,
-      id: '01',
-    },
-    {
-      tanggal: '16 Nov 21, 16:45',
-      name: 'Sembako',
-      customer: 'Abui',
-      quantity: 10,
-      amount: 2000,
-      discount: '0',
-      amountTotal: 20000,
-      id: '01',
-    },
-    {
-      tanggal: '16 Nov 21, 16:45',
-      name: 'Sembako',
-      customer: 'Abui',
-      quantity: 10,
-      amount: 2000,
-      discount: '0',
-      amountTotal: 20000,
-      id: '01',
-    },
-    {
-      tanggal: '16 Nov 21, 16:45',
-      name: 'Sembako',
-      customer: 'Abui',
-      quantity: 10,
-      amount: 2000,
-      discount: '0',
-      amountTotal: 20000,
-      id: '01',
-    },
-    {
-      tanggal: '16 Nov 21, 16:45',
-      name: 'Sembako',
-      customer: 'Abui',
-      quantity: 10,
-      amount: 2000,
-      discount: '0',
-      amountTotal: 20000,
-      id: '01',
-    },
-    {
-      tanggal: '16 Nov 21, 16:45',
-      name: 'Sembako',
-      customer: 'Abui',
-      quantity: 10,
-      amount: 2000,
-      discount: '0',
-      amountTotal: 20000,
-      id: '01',
-    },
-  ];
-  const data = dataRes.map(({ amount, amountTotal, customer, discount, id, name, quantity, tanggal }) => ({
-    col1: tanggal,
-    col2: name,
-    col3: customer,
-    col4: quantity,
-    col5: amount,
-    col6: discount,
-    col7: amountTotal,
-    col8: (
-      <div className="flex">
-        <Link href={`/employee/${id}`}>
-          <a>
-            <Button>
-              <Eye width={24} height={24} />
-            </Button>
-          </a>
-        </Link>
-        <Button variant="secondary">
-          <Pencil width={24} height={24} />
-        </Button>
-      </div>
-    ),
-  }));
+  const [paginationUrl, setPaginationUrl] = React.useState('');
+  const { data: dataTrasaction } = useFetchTransactions({
+    order_by: { created_at: 'desc' },
+    forceUrl: paginationUrl,
+  });
 
+  const {
+    data: dataRes = [],
+    from,
+    to,
+    total,
+    links,
+    next_page_url,
+    prev_page_url,
+  } = dataTrasaction?.data.transactions ?? {};
+  const data = dataRes.map(
+    ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
+      col1: transaction_code,
+      col2: formatDate(created_at, { withHour: true }),
+      col4: payment_method,
+      col5: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+      col6: `${pic.employee.first_name} ${pic.employee.last_name}`,
+      col7: 'Abui',
+      col8: (
+        <DetailStockIn
+          transactions={{ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }}
+        />
+      ),
+    })
+  );
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Tanggal',
+        Header: 'Kode Transaksi',
         accessor: 'col1', // accessor is the "key" in the data
       },
       {
-        Header: 'Nama barang',
+        Header: 'Tanggal',
         accessor: 'col2',
       },
       {
-        Header: 'Nama pembeli',
-        accessor: 'col3',
-      },
-      {
-        Header: 'Jumlah',
+        Header: 'Metode Pembayaran',
         accessor: 'col4',
       },
       {
-        Header: 'Harga',
+        Header: 'Pembayaran',
         accessor: 'col5',
+      },
+      {
+        Header: 'Kasir',
+        accessor: 'col6',
       },
 
       {
-        Header: 'Diskon',
-        accessor: 'col6',
-      },
-      {
-        Header: 'Total harga',
+        Header: 'Pengirim',
         accessor: 'col7',
       },
       {
@@ -148,7 +92,7 @@ const TransactionPage: NextPage<unknown> = () => {
                 variant="contained"
                 placeholder="Cari nama transaksi"
               />
-              <Link href="/employee/add">
+              <Link href="/transaction/add">
                 <a>
                   <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
                     Tambah
@@ -158,6 +102,23 @@ const TransactionPage: NextPage<unknown> = () => {
             </div>
           </div>
         )}
+      />
+      <Pagination
+        stats={{
+          from: `${from ?? '0'}`,
+          to: `${to ?? '0'}`,
+          total: `${total ?? '0'}`,
+        }}
+        onClickPageButton={(url) => {
+          setPaginationUrl(url);
+        }}
+        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        onClickNext={() => {
+          setPaginationUrl(next_page_url ?? '');
+        }}
+        onClickPrevious={() => {
+          setPaginationUrl(prev_page_url ?? '');
+        }}
       />
     </CardDashboard>
   );

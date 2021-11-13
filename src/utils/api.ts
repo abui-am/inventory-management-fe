@@ -15,9 +15,43 @@ function apiInstance({ token }: { token?: string } = {}): AxiosInstance {
   });
 }
 
+function getApiBasedOnRole(role: string): AxiosInstance {
+  if (role === 'superadmin') {
+    return apiInstanceAdmin();
+  }
+
+  if (role === 'admin') {
+    return apiInstanceBasicAdmin();
+  }
+  if (role === 'warehouse-admin') {
+    return apiInstanceWarehouseAdmin();
+  }
+  return apiInstanceGeneral();
+}
+
 function apiInstanceAdmin({ token }: { token?: string } = {}): AxiosInstance {
   return axios.create({
     baseURL: process.env.NEXT_PUBLIC_SUPERADMIN_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token ?? getCookie('INVT-TOKEN')}`,
+    },
+  });
+}
+
+function apiInstanceBasicAdmin({ token }: { token?: string } = {}): AxiosInstance {
+  return axios.create({
+    baseURL: process.env.NEXT_PUBLIC_ADMIN_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token ?? getCookie('INVT-TOKEN')}`,
+    },
+  });
+}
+
+function apiInstanceWarehouseAdmin({ token }: { token?: string } = {}): AxiosInstance {
+  return axios.create({
+    baseURL: process.env.NEXT_PUBLIC_WAREHOUSE_URL,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token ?? getCookie('INVT-TOKEN')}`,
@@ -44,5 +78,5 @@ function apiInstanceWithoutBaseUrl({ token }: { token?: string } = {}): AxiosIns
   });
 }
 
-export { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl };
+export { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRole };
 export default apiInstance;

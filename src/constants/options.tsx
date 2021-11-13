@@ -47,11 +47,11 @@ export const SUPPLIER_SORT_BY_OPTIONS = [
 ];
 
 export const SORT_TYPE_OPTIONS = [
-  { label: 'Sortir menurun', value: 'desc' },
   {
     label: 'Sortir naik',
     value: 'asc',
   },
+  { label: 'Sortir menurun', value: 'desc' },
 ];
 
 export const PAYMENT_METHOD_OPTIONS = [
