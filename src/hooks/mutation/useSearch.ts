@@ -1,5 +1,6 @@
 import { useMutation } from 'react-query';
 
+import { CustomersResponse } from '@/typings/customer';
 import { ItemsResponse } from '@/typings/item';
 import { RegionCitiesRes, RegionProvincesRes, RegionSubdistrictRes, RegionVilageRes } from '@/typings/regions';
 import { BackendRes } from '@/typings/request';
@@ -54,10 +55,18 @@ export const useSearchItems = () => {
 
 export const useSearchSuppliers = () => {
   const { data: dataSelf } = useFetchMyself();
-  console.log(dataSelf?.data?.user?.roles[0]?.name);
 
   return useMutation<BackendRes<SuppliersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
     const { data } = await getApiBasedOnRole(dataSelf?.data?.user?.roles[0]?.name || '').post('/suppliers', jsonBody);
+    return data;
+  });
+};
+
+export const useSearchCustomers = () => {
+  const { data: dataSelf } = useFetchMyself();
+
+  return useMutation<BackendRes<CustomersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
+    const { data } = await getApiBasedOnRole(dataSelf?.data?.user?.roles[0]?.name || '').post('/customers', jsonBody);
     return data;
   });
 };

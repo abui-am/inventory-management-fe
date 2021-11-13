@@ -18,6 +18,7 @@ import {
   WithLabelAndError,
 } from '@/components/Form';
 import Modal from '@/components/Modal';
+import { SelectCustomer } from '@/components/Select';
 import Table from '@/components/Table';
 import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { Option } from '@/typings/common';
@@ -134,7 +135,7 @@ const AddStockPage: NextPage = () => {
         <div className="flex flex-wrap -mx-2 mb-8">
           <div className="w-6/12 px-2 mb-3">
             <WithLabelAndError touched={touched} errors={errors} name="customer" label="Nama Customer">
-              <SelectSupplier
+              <SelectCustomer
                 onChange={(val, action) => {
                   setFieldValue('customer', val);
                   setFieldValue('isNewSupplier', action.action === 'create-option');
