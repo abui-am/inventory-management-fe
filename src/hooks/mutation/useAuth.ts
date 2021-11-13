@@ -104,17 +104,18 @@ const useForgotPassword = () => {
       }
     },
     {
-      onSuccess: async ({ message }) => {
-        toast.success(message);
+      onSuccess: async ({ msg }) => {
+        toast.success(msg);
       },
-      onError: (e: AxiosError<BackendResError<unknown>>) => {
-        toast.error(e.response?.data.message ?? '');
+      onError: (e: AxiosError<{ msg: string } & BackendResError<unknown>>) => {
+        toast.error(e.response?.data.msg ?? e.response?.data.message ?? '');
       },
     }
   );
 };
 
 const useResetPassword = () => {
+  const router = useRouter();
   return useMutation(
     ['resetPassword'],
     async (formik: ResetPasswordReqBody) => {
@@ -127,11 +128,12 @@ const useResetPassword = () => {
       }
     },
     {
-      onSuccess: async ({ message }) => {
-        toast.success(message);
+      onSuccess: async ({ msg }) => {
+        toast.success(msg);
+        router.push('/login');
       },
-      onError: (e: AxiosError<BackendResError<unknown>>) => {
-        toast.error(e.response?.data.message ?? '');
+      onError: (e: AxiosError<{ msg: string } & BackendResError<unknown>>) => {
+        toast.error(e.response?.data.msg ?? e.response?.data.message ?? '');
       },
     }
   );
