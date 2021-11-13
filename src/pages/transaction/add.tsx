@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -12,7 +12,6 @@ import {
   DatePickerComponent,
   SelectItems,
   SelectSupplier,
-  TextArea,
   TextField,
   ThemedSelect,
   WithLabelAndError,
@@ -20,7 +19,7 @@ import {
 import Modal from '@/components/Modal';
 import { SelectCustomer } from '@/components/Select';
 import Table from '@/components/Table';
-import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
+import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { Option } from '@/typings/common';
 import createSchema from '@/utils/validation/formik';
 
@@ -52,12 +51,12 @@ const AddStockPage: NextPage = () => {
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
-    onSubmit: async ({}) => {
-      const jsonBody = {};
+    onSubmit: async () => {
+      console.log('test');
     },
   });
 
-  const data = values.stockAdjustment.map(({ item, qty, buyPrice, discount, unit, memo, isNew }) => ({
+  const data = values.stockAdjustment.map(({ item, qty, buyPrice, discount, unit, memo, isNew, ...values }) => ({
     col1: item?.label ?? '',
     col2: qty,
     col3: buyPrice,
@@ -67,28 +66,27 @@ const AddStockPage: NextPage = () => {
     action: (
       <div className="flex">
         <ButtonWithModal
-          initialValues={{ item, qty, buyPrice, discount, unit, memo, isNew }}
+          initialValues={{ item, qty, buyPrice, discount, unit, memo, isNew, ...values }}
           withEditButton
-          onSave={(val) => {
+          onSave={() => {
             // replace data
-            const newValues = values.stockAdjustment.map((stock) => {
-              if (stock.item.value === item.value) {
-                return val;
-              }
-              return stock;
-            });
-
-            setFieldValue('stockAdjustment', newValues);
+            // const newValues = values.stockAdjustment.map((stock) => {
+            //   if (stock.item.value === item.value) {
+            //     return val;
+            //   }
+            //   return stock;
+            // });
+            // setFieldValue('stockAdjustment', newValues);
           }}
         />
         <Button
           variant="secondary"
-          onClick={() =>
-            setFieldValue(
-              'stockAdjustment',
-              values.stockAdjustment.filter((stock) => stock.item.value !== item.value)
-            )
-          }
+          onClick={() => {
+            // setFieldValue(
+            //   'stockAdjustment',
+            //   values.stockAdjustment.filter((stock) => stock.item.value !== item.value)
+            // )
+          }}
         >
           <Trash width={24} height={24} />
         </Button>
@@ -148,7 +146,7 @@ const AddStockPage: NextPage = () => {
           <div className="w-6/12 px-2 mb-3">
             <WithLabelAndError touched={touched} errors={errors} name="sender" label="Nama Pengirim">
               <SelectSupplier
-                onChange={(val, action) => {
+                onChange={(val) => {
                   setFieldValue('sender', val);
                 }}
                 value={values.sender}
@@ -249,13 +247,16 @@ type ButtonWithModalFormValues = {
   sellPrice: number;
   stock: number;
   isNew: boolean;
+  buyPrice: number;
+  unit: string;
+  memo: string;
 };
 
 const ButtonWithModal: React.FC<{
   onSave: (values: ButtonWithModalFormValues) => void;
   initialValues?: ButtonWithModalFormValues;
   withEditButton?: boolean;
-}> = ({ onSave, initialValues: initVal, withEditButton }) => {
+}> = ({ onSave, initialValues: initVal }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const items = [
@@ -276,6 +277,9 @@ const ButtonWithModal: React.FC<{
     sellPrice: 0,
     stock: 0,
     isNew: false,
+    buyPrice: 0,
+    unit: '',
+    memo: '',
   };
 
   const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
