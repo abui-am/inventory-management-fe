@@ -47,7 +47,7 @@ const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBas
   );
 };
 
-type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
+export type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
   Props<OptionTypeBase, false | true> & {
     variant?: SelectVariant;
     additionalStyle?: AdditionalStyle;

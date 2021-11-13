@@ -1,4 +1,4 @@
-import { UseQueryResult } from 'react-query';
+import { UseQueryOptions, UseQueryResult } from 'react-query';
 
 import { ItemResponse, ItemsResponse } from '@/typings/item';
 import { BackendRes } from '@/typings/request';
@@ -15,21 +15,27 @@ const useFetchItemById = (id: string): UseQueryResult<BackendRes<ItemResponse>> 
   return fetcher;
 };
 
-const useFetchItems = (
+const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
   data: Partial<{
     forceUrl: string;
     paginated: boolean;
     per_page: number;
     search: string;
     order_by: Record<string, string>;
-  }> = {}
+    where: Record<string, unknown>;
+  }> = {},
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<ItemsResponse>>
 ): UseQueryResult<BackendRes<ItemsResponse>> => {
-  const fetcher = useMyQuery(['employee', data], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-      : await apiInstanceAdmin().post('/items', data);
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    ['employee', data],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+        : await apiInstanceAdmin().post('/items', data);
+      return res.data;
+    },
+    options
+  );
 
   return fetcher;
 };

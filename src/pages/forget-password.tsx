@@ -4,18 +4,27 @@ import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { TextField, WithLabelAndError } from '@/components/Form';
+import { useResetPassword } from '@/hooks/mutation/useAuth';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {
+  const { query } = useRouter();
   const initialValues = {
     newPassword: '',
     confirmPassword: '',
   };
+
+  const { mutateAsync } = useResetPassword();
   const { values, handleChange, errors, isSubmitting, handleSubmit, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
-      console.log(values);
+      const data = {
+        token: query.token as string,
+        password_confirmation: values.confirmPassword,
+        password: values.newPassword,
+      };
+      mutateAsync(data);
     },
   });
 

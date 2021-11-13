@@ -38,10 +38,10 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
 
       // admin
       case 2:
-        permission = [...permission, 'control:transaction', 'control:supplier'];
+        permission = [...permission, 'control:transaction', 'control:stock', 'control:supplier'];
         break;
       case 4:
-        permission = [...permission, 'control:stock', 'control:stock.confirmation'];
+        permission = [...permission, 'control:stock.confirmation'];
         break;
     }
   });

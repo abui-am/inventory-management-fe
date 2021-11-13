@@ -3,7 +3,7 @@ import React from 'react';
 import { CardDashboard } from '@/components/Container';
 import TableItems from '@/components/table/TableItems';
 
-const ConfirmationPage: React.FC = () => {
+const ItemsPage: React.FC = () => {
   return (
     <CardDashboard>
       <TableItems />
@@ -11,4 +11,4 @@ const ConfirmationPage: React.FC = () => {
   );
 };
 
-export default ConfirmationPage;
+export default ItemsPage;

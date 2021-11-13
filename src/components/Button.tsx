@@ -25,8 +25,9 @@ const Button: React.FC<
     variant?: 'primary' | 'secondary' | 'gray' | 'outlined';
     fullWidth?: boolean;
     Icon?: JSX.Element;
+    size?: 'small' | 'medium';
   }
-> = ({ children, className, variant = 'primary', fullWidth, Icon, ...props }) => {
+> = ({ children, className, variant = 'primary', fullWidth, Icon, size, ...props }) => {
   const classes = {
     primary: 'bg-blue-600 hover:bg-blue-700 shadow-md text-white',
     secondary: 'hover:text-blue-600',
@@ -44,11 +45,12 @@ const Button: React.FC<
     <button
       type="button"
       className={clsx(
-        Icon ? 'pl-10' : 'pl-4',
-        'h-11 rounded-md font-bold whitespace-nowrap pr-4 relative transition-colors',
+        'rounded-md font-bold whitespace-nowrap relative transition-colors',
+        size === 'small' ? 'h-9 px-2 py-1' : 'h-11 px-4 py-3',
         classes[variant],
         classesDisabled[variant],
         fullWidth ? 'w-full' : '',
+        Icon ? 'pl-10' : '',
         className
       )}
       {...props}
