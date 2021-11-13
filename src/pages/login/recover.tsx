@@ -23,8 +23,9 @@ export default function Home(): JSX.Element {
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
     onSubmit: async (values) => {
+      await mutateAsync(values);
+
       setSent(true);
-      mutateAsync(values);
     },
   });
 
