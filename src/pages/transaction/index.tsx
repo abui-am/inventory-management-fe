@@ -8,13 +8,13 @@ import { CardDashboard } from '@/components/Container';
 import { TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { DetailStockIn } from '@/components/table/TableComponent';
-import useFetchTransactions from '@/hooks/query/useFetchStockIn';
+import { DetailSale } from '@/components/table/TableComponent';
+import useFetchSales from '@/hooks/query/useFetchSale';
 import { formatDate, formatToIDR } from '@/utils/format';
 
 const TransactionPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
-  const { data: dataTrasaction } = useFetchTransactions({
+  const { data: dataTrasaction } = useFetchSales({
     order_by: { created_at: 'desc' },
     forceUrl: paginationUrl,
   });
@@ -29,16 +29,28 @@ const TransactionPage: NextPage<unknown> = () => {
     prev_page_url,
   } = dataTrasaction?.data.transactions ?? {};
   const data = dataRes.map(
-    ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
-      col1: transaction_code,
-      col2: formatDate(created_at, { withHour: true }),
-      col4: payment_method,
-      col5: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
-      col6: `${pic.employee.first_name} ${pic.employee.last_name}`,
-      col7: 'Abui',
+    ({ transaction_code, created_at, sender, payment_method, pic, items, id, status, customer, ...props }) => ({
+      id: transaction_code,
+      date: formatDate(created_at, { withHour: true }),
+      purchaseMethod: payment_method,
+      payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+      pic: `${pic.employee.first_name} ${pic.employee.last_name}`,
+      customer: customer.full_name,
+      sender: `${sender.first_name} ${sender.last_name}`,
       col8: (
-        <DetailStockIn
-          transactions={{ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }}
+        <DetailSale
+          transactions={{
+            transaction_code,
+            created_at,
+            sender,
+            payment_method,
+            pic,
+            items,
+            id,
+            status,
+            customer,
+            ...props,
+          }}
         />
       ),
     })
@@ -47,29 +59,34 @@ const TransactionPage: NextPage<unknown> = () => {
     () => [
       {
         Header: 'Kode Transaksi',
-        accessor: 'col1', // accessor is the "key" in the data
+        accessor: 'id', // accessor is the "key" in the data
       },
       {
         Header: 'Tanggal',
-        accessor: 'col2',
+        accessor: 'date',
+      },
+      {
+        Header: 'Pembeli',
+        accessor: 'customer',
       },
       {
         Header: 'Metode Pembayaran',
-        accessor: 'col4',
+        accessor: 'purchaseMethod',
       },
       {
         Header: 'Pembayaran',
-        accessor: 'col5',
-      },
-      {
-        Header: 'Kasir',
-        accessor: 'col6',
+        accessor: 'payAmount',
       },
 
       {
-        Header: 'Pengirim',
-        accessor: 'col7',
+        Header: 'Kasir',
+        accessor: 'pic',
       },
+      {
+        Header: 'Pengirim',
+        accessor: 'sender',
+      },
+
       {
         Header: 'Aksi',
         accessor: 'col8',
@@ -114,10 +131,10 @@ const TransactionPage: NextPage<unknown> = () => {
         }}
         links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
         onClickNext={() => {
-          setPaginationUrl(next_page_url ?? '');
+          setPaginationUrl((next_page_url as string) ?? '');
         }}
         onClickPrevious={() => {
-          setPaginationUrl(prev_page_url ?? '');
+          setPaginationUrl((prev_page_url as string) ?? '');
         }}
       />
     </CardDashboard>

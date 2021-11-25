@@ -5,7 +5,7 @@ import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQue
 
 import { CreateEmployeePutBody, EmployeeDetailRes, EmployeeRes, UserRes } from '@/typings/employee';
 import { BackendRes, BackendResError } from '@/typings/request';
-import { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl } from '@/utils/api';
+import { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
 import useMyQuery from './useMyQuery';
 
@@ -16,12 +16,15 @@ const useFetchEmployee = (
     per_page: number;
     search: string;
     order_by: Record<string, string>;
+    where: Record<string, string>;
   }> = {}
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
-  const fetcher = useMyQuery(['employee', data], async () => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
+  const fetcher = useMyQuery(['employee', data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-      : await apiInstanceAdmin().post('/employees', data);
+      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', data);
     return res.data;
   });
 

@@ -1,13 +1,13 @@
 import { UseQueryOptions, UseQueryResult } from 'react-query';
 
 import { BackendRes } from '@/typings/request';
-import { TransactionResponse, TransactionsResponse } from '@/typings/stock-in';
+import { SalesResponse } from '@/typings/sale';
 import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
-const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
+const useFetchSales = <TQueryFnData = unknown, TError = unknown>(
   data: Partial<{
     forceUrl: string;
     paginated: boolean;
@@ -16,20 +16,20 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
     order_by: Record<string, string>;
     where: Record<string, unknown>;
   }> = {},
-  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<TransactionsResponse>>
-): UseQueryResult<BackendRes<TransactionsResponse>> => {
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<SalesResponse>>
+): UseQueryResult<BackendRes<SalesResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['transactions', data, roles],
+    ['sales', data, roles],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).post('/transactions', {
+        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/transactions', {
             ...data,
             where: {
               ...data.where,
-              transactionable_type: 'suppliers',
+              transactionable_type: 'customers',
             },
           });
       return res.data;
@@ -40,12 +40,12 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
   return fetcher;
 };
 
-export const useFetchTransactionById = <TQueryFnData = unknown, TError = unknown>(
+export const useFetchSaleById = <TQueryFnData = unknown, TError = unknown>(
   id: string,
-  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<TransactionResponse>>
-): UseQueryResult<BackendRes<TransactionResponse>> => {
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<SalesResponse>>
+): UseQueryResult<BackendRes<SalesResponse>> => {
   const fetcher = useMyQuery(
-    ['transaction', id],
+    ['saleById', id],
     async () => {
       const res = await apiInstanceAdmin().get(`/transactions/${id}`);
       return res.data;
@@ -56,4 +56,4 @@ export const useFetchTransactionById = <TQueryFnData = unknown, TError = unknown
   return fetcher;
 };
 
-export default useFetchTransactions;
+export default useFetchSales;

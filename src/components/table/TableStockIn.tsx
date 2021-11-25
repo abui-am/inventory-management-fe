@@ -124,7 +124,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
       col1: transaction_code,
       col2: formatDate(created_at, { withHour: true }),
-      col3: supplier.name,
+      col3: supplier?.name,
       col4: payment_method,
       col5: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
       col6: `${pic.employee.first_name} ${pic.employee.last_name}`,

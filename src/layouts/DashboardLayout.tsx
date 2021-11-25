@@ -254,7 +254,7 @@ const ConfirmationStockBubble: React.FC = () => {
   );
   return (
     <div className="bg-red-600 text-white rounded-full w-6 h-6 flex align-middle justify-center">
-      {dataTrasaction?.data.transactions.total}
+      {dataTrasaction?.data?.transactions?.total}
     </div>
   );
 };
@@ -273,7 +273,7 @@ const OnReviewBubble: React.FC = () => {
   );
   return (
     <div className="bg-red-600 text-white rounded-full w-6 h-6 flex align-middle justify-center">
-      {dataTrasaction?.data.transactions.total}
+      {dataTrasaction?.data?.transactions?.total}
     </div>
   );
 };

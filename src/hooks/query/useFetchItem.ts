@@ -2,13 +2,16 @@ import { UseQueryOptions, UseQueryResult } from 'react-query';
 
 import { ItemResponse, ItemsResponse } from '@/typings/item';
 import { BackendRes } from '@/typings/request';
-import { apiInstanceAdmin, apiInstanceWithoutBaseUrl } from '@/utils/api';
+import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
 const useFetchItemById = (id: string): UseQueryResult<BackendRes<ItemResponse>> => {
-  const fetcher = useMyQuery(['itemById', id], async () => {
-    const res = await apiInstanceAdmin().get(`/items/${id}`);
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
+  const fetcher = useMyQuery(['itemById', id, roles], async () => {
+    const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin', 'warehouse-admin']).get(`/items/${id}`);
     return res.data;
   });
 
@@ -26,12 +29,14 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<ItemsResponse>>
 ): UseQueryResult<BackendRes<ItemsResponse>> => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['employee', data],
+    ['items', data, roles],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-        : await apiInstanceAdmin().post('/items', data);
+        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).post('/items', data);
       return res.data;
     },
     options

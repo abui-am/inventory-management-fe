@@ -2,12 +2,29 @@
 import React from 'react';
 import ReactModal, { Props } from 'react-modal';
 
-const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'normal' | 'large' }> = ({
+export type ModalVariant = 'big' | 'normal' | 'large' | 'screen';
+
+const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: ModalVariant }> = ({
   children,
   variant = 'normal',
   style,
   ...props
 }) => {
+  const getWidth = (variant: ModalVariant) => {
+    switch (variant) {
+      case 'big':
+        return '48rem';
+      case 'large':
+        return '56rem';
+      case 'normal':
+        return '32rem';
+      case 'screen':
+        return '68rem';
+      default:
+        return '32rem';
+    }
+  };
+
   const customStyles = {
     overlay: {
       display: 'flex',
@@ -17,9 +34,12 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'no
     },
     content: {
       background: 'transparent',
-      border: 0,
       position: 'relative',
-      maxWidth: variant === 'big' ? '48rem' : variant === 'large' ? '56rem' : '32rem',
+      border: 0,
+      insetBlockStart: 40,
+      insetBlockEnd: 40,
+      width: '100vw',
+      maxWidth: getWidth(variant),
     },
   } as ReactModal.Styles;
 
@@ -31,10 +51,16 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: 'big' | 'no
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
-          maxWidth: variant === 'big' ? '48rem' : variant === 'large' ? '56rem' : '32rem',
         }}
       >
-        <div className="w-full rounded-2xl ml-auto mr-auto bg-white p-6 drop-shadow-lg 100h">{children}</div>
+        <div
+          className="w-full rounded-2xl ml-auto mr-auto bg-white p-6 drop-shadow-lg 100h max-h-screen overflow-y-scroll"
+          style={{
+            maxHeight: '80vh',
+          }}
+        >
+          {children}
+        </div>
       </div>
     </ReactModal>
   );

@@ -16,17 +16,34 @@ function apiInstance({ token }: { token?: string } = {}): AxiosInstance {
 }
 
 function getApiBasedOnRole(role: string): AxiosInstance {
+  return getApiByName(role);
+}
+
+function getApiBasedOnRoles(roles: string[], hierarchy: string[]): AxiosInstance {
+  let api = apiInstance();
+  console.log(roles);
+  let isChosen = false;
+  hierarchy.forEach((list) => {
+    if (roles.includes(list) && !isChosen) {
+      api = getApiByName(list);
+      isChosen = true;
+    }
+  });
+
+  return api;
+}
+
+function getApiByName(role: string) {
   if (role === 'superadmin') {
     return apiInstanceAdmin();
   }
-
   if (role === 'admin') {
     return apiInstanceBasicAdmin();
   }
   if (role === 'warehouse-admin') {
     return apiInstanceWarehouseAdmin();
   }
-  return apiInstanceGeneral();
+  return apiInstance();
 }
 
 function apiInstanceAdmin({ token }: { token?: string } = {}): AxiosInstance {
@@ -78,5 +95,5 @@ function apiInstanceWithoutBaseUrl({ token }: { token?: string } = {}): AxiosIns
   });
 }
 
-export { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRole };
+export { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRole, getApiBasedOnRoles };
 export default apiInstance;

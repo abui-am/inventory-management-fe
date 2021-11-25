@@ -7,6 +7,19 @@ export interface Datum {
   updated_at: Date;
 }
 
+export interface CreateCustomerBody {
+  full_name: string;
+  phone_number: string;
+  address: string;
+}
+
+export interface CreateCustomerResponse {
+  customer: {
+    id: string;
+    full_name: string;
+  };
+}
+
 export interface Link {
   url: string;
   label: string;
