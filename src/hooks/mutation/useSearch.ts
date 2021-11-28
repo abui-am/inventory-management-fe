@@ -6,7 +6,7 @@ import { RegionCitiesRes, RegionProvincesRes, RegionSubdistrictRes, RegionVilage
 import { BackendRes } from '@/typings/request';
 import { RolesResponse } from '@/typings/role';
 import { SuppliersResponse } from '@/typings/supplier';
-import apiInstance, { apiInstanceAdmin, getApiBasedOnRole } from '@/utils/api';
+import apiInstance, { apiInstanceAdmin, getApiBasedOnRole, getApiBasedOnRoles } from '@/utils/api';
 
 import { useFetchMyself } from '../query/useFetchEmployee';
 export type SearchParam = { search: string; where?: { [k: string]: string } };
@@ -47,8 +47,13 @@ export const useSearchRoles = () => {
 };
 
 export const useSearchItems = () => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data?.user?.roles.map(({ name }) => name) ?? [];
   return useMutation<BackendRes<ItemsResponse>, void, SearchParam>(['items'], async (jsonBody) => {
-    const { data } = await apiInstanceAdmin().post('/items', jsonBody);
+    const { data } = await getApiBasedOnRoles(roles, ['superadmin', 'admin', 'warehouse-admin']).post(
+      '/items',
+      jsonBody
+    );
     return data;
   });
 };
@@ -64,9 +69,18 @@ export const useSearchSuppliers = () => {
 
 export const useSearchCustomers = () => {
   const { data: dataSelf } = useFetchMyself();
-
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
   return useMutation<BackendRes<CustomersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
-    const { data } = await getApiBasedOnRole(dataSelf?.data?.user?.roles[0]?.name || '').post('/customers', jsonBody);
+    const { data } = await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/customers', jsonBody);
+    return data;
+  });
+};
+
+export const useSearcEmployee = () => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data?.user?.roles.map(({ name }) => name) ?? [];
+  return useMutation<BackendRes<CustomersResponse>, void, SearchParam>(['suppliers'], async (jsonBody) => {
+    const { data } = await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', jsonBody);
     return data;
   });
 };
