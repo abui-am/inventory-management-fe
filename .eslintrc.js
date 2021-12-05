@@ -43,7 +43,7 @@ module.exports = {
     'simple-import-sort/sort': 'off',
     '@typescript-eslint/indent': [0],
     '@typescript-eslint/no-unused-vars': 'error',
-    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/camelcase': 'off',
     'react/jsx-filename-extension': [0],
     'react/jsx-props-no-spreading': [0],
@@ -52,7 +52,7 @@ module.exports = {
     'no-use-before-define': 'off',
     'import/extensions': 'off',
     'import/newline-after-import': 'off',
-    'import/prefer-default-export': 'warn',
+    'import/prefer-default-export': 'off',
     'jsx-a11y/label-has-associated-control': 'off',
     'jsx-a11y/anchor-is-valid': [
       'off',

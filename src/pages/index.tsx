@@ -6,7 +6,8 @@ import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis
 import { CardDashboard } from '@/components/Container';
 import SimpleList from '@/components/List';
 import Table from '@/components/Table';
-import { formatToIDR } from '@/utils/format';
+import useFetchSales from '@/hooks/query/useFetchSale';
+import { formatDate, formatToIDR } from '@/utils/format';
 type CardProps = {
   label: string;
   value: string | number;
@@ -74,37 +75,6 @@ const Home: NextPage = () => {
     },
   ];
 
-  const dataTable = [
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-  ];
-
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Tanggal',
-        accessor: 'col1', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Nama barang',
-        accessor: 'col2',
-      },
-      {
-        Header: 'Jumlah',
-        accessor: 'col3',
-      },
-      {
-        Header: 'Total harga',
-        accessor: 'col4',
-      },
-    ],
-    []
-  );
-
   const dataPie = [
     { name: 'Group A', value: 400 },
     { name: 'Group B', value: 300 },
@@ -153,9 +123,7 @@ const Home: NextPage = () => {
           </CardDashboard>
         </div>
         <div className="w-full sm:w-8/12 p-3">
-          <CardDashboard title="Transaksi terakhir">
-            <Table columns={columns} data={dataTable} />
-          </CardDashboard>
+          <LastTransaction />
         </div>
         <div className="w-full sm:w-4/12 p-3">
           <CardDashboard title="Kategori terpopuler" style={{ height: 489 }}>
@@ -186,6 +154,49 @@ const Home: NextPage = () => {
         </div>
       </section>
     </div>
+  );
+};
+
+const LastTransaction = () => {
+  const { data } = useFetchSales({ per_page: 6 });
+  const dataTable =
+    data?.data.transactions.data.map(({ transaction_code, created_at, payment_method, items, customer }) => ({
+      id: transaction_code,
+      date: formatDate(created_at, { withHour: true }),
+      purchaseMethod: payment_method,
+      payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+      customer: customer.full_name,
+    })) ?? [];
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Kode Transaksi',
+        accessor: 'id', // accessor is the "key" in the data
+      },
+      {
+        Header: 'Tanggal',
+        accessor: 'date',
+      },
+      {
+        Header: 'Pembeli',
+        accessor: 'customer',
+      },
+      {
+        Header: 'Metode Pembayaran',
+        accessor: 'purchaseMethod',
+      },
+      {
+        Header: 'Pembayaran',
+        accessor: 'payAmount',
+      },
+    ],
+    []
+  );
+
+  return (
+    <CardDashboard title="Transaksi terakhir">
+      <Table columns={columns} data={dataTable} />
+    </CardDashboard>
   );
 };
 

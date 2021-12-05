@@ -7,3 +7,7 @@ export function formatToIDR(number: number) {
 export function formatDate(date: Date, { withHour = false }: { withHour?: boolean } = {}) {
   return dayjs(date).format(withHour ? 'DD MMM YYYY HH:mm' : 'DD MMM YYYY');
 }
+
+export function formatDateYYYYMMDD(date: Date) {
+  return dayjs(date).format('YYYY-MM-DD');
+}

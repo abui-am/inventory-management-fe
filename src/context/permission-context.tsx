@@ -12,7 +12,9 @@ export type PermissionList =
   | 'control:supplier'
   | 'control:stock.confirmation'
   | 'control:stock.adjust-sell-price'
-  | 'control:item';
+  | 'control:item'
+  | 'control:audit'
+  | 'view:audit';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -33,6 +35,8 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:stock.confirmation',
           'control:stock.adjust-sell-price',
           'control:item',
+          'control:audit',
+          'view:audit',
         ];
         break;
 
@@ -41,7 +45,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
         permission = [...permission, 'control:transaction', 'control:stock', 'control:supplier'];
         break;
       case 4:
-        permission = [...permission, 'control:stock.confirmation'];
+        permission = [...permission, 'control:stock.confirmation', 'control:audit'];
         break;
     }
   });

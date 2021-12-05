@@ -120,6 +120,7 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
     <div className="relative customDatePickerWidth">
       <DatePicker
         {...props}
+        dateFormat="dd/MM/yyyy"
         className={clsx(
           'pl-11 border border-gray-300',
           'h-11 w-full rounded-md px-3 outline-none',

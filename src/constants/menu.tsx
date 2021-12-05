@@ -1,4 +1,5 @@
-import { ArchiveFill, Box, Calculator, House, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
+import { ArchiveFill, Box, Calculator, House, Paperclip, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
+
 const MENU_LIST = [
   {
     id: 'home',
@@ -54,6 +55,20 @@ const MENU_LIST = [
     displayName: 'Supplier',
     icon: (props = {}): JSX.Element => <Person {...props} />,
     permission: 'control:supplier',
+  },
+  {
+    id: 'inventory.audit',
+    slug: '/inventory/audit',
+    displayName: 'Audit Barang',
+    icon: (props = {}): JSX.Element => <Box {...props} />,
+    permission: 'control:audit',
+  },
+  {
+    id: 'inventory.report',
+    slug: '/inventory/report',
+    displayName: 'Laporan Audit',
+    icon: (props = {}): JSX.Element => <Paperclip {...props} />,
+    permission: 'view:audit',
   },
 ];
 
