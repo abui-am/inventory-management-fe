@@ -1,3 +1,4 @@
+import Tippy from '@tippyjs/react';
 import React from 'react';
 import { Calculator, Eye } from 'react-bootstrap-icons';
 
@@ -86,9 +87,11 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
 
   return (
     <>
-      <Button size="small" onClick={() => setOpen((open) => !open)}>
-        <Eye width={24} height={24} />
-      </Button>
+      <Tippy content="Lihat detail">
+        <Button size="small" onClick={() => setOpen((open) => !open)}>
+          <Eye width={24} height={24} />
+        </Button>
+      </Tippy>
 
       <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Barang Masuk</h2>
@@ -103,11 +106,11 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Pengirim:</span>
-              <div>{`${sender?.first_name} ${sender.last_name}`}</div>
+              <div>{`${sender?.first_name} ${sender?.last_name}`}</div>
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Kasir:</span>
-              <div>{`${pic?.employee.first_name} ${pic?.employee.last_name}`}</div>
+              <div>{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</div>
             </div>
           </section>
         </div>

@@ -8,12 +8,13 @@ import { DatePickerComponent, TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { useReportAuditInventory } from '@/hooks/table/useReportAuditInventory';
+import { formatDateYYYYMMDD } from '@/utils/format';
 
 const AuditPage = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [date, setDate] = React.useState(new Date());
 
-  const { columns, data } = useReportAuditInventory({ date });
+  const { columns, data } = useReportAuditInventory({ date: formatDateYYYYMMDD(date) });
   return (
     <div>
       <section className="flex justify-between items-center mb-4    ">
@@ -22,12 +23,10 @@ const AuditPage = () => {
           <label className="mr-2">Tanggal:</label>
           <DatePickerComponent
             onChange={(value) => {
-              setDate(value);
+              setDate(value as Date);
             }}
             selected={date}
           />
-          <label className="ml-4 mr-2">Pelapor:</label>
-          <DatePickerComponent />
         </div>
       </section>
 
@@ -63,7 +62,7 @@ const AuditPage = () => {
               total: `${'0'}`,
             }}
             onClickPageButton={(url) => {
-              setPaginationUrl(url);
+              // setPaginationUrl(url);
             }}
             links={[]}
             onClickNext={() => {

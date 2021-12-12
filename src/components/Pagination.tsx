@@ -1,4 +1,11 @@
+import { useState } from 'react';
+import Select from 'react-select';
+
+import { PER_PAGE_OPTIONS } from '@/constants/options';
 import { Link } from '@/typings/common';
+
+import { Button } from './Button';
+import { TextField } from './Form';
 
 type PaginationProps = {
   onClickNext: () => void;
@@ -6,6 +13,8 @@ type PaginationProps = {
   onClickPageButton: (url: string) => void;
   links: Link[] | [];
   stats: PaginationStats;
+  onClickGoToPage?: (page: number) => void;
+  onChangePerPage?: (option: { label: string; value: number } | null) => void;
 };
 
 type PaginationStats = {
@@ -14,7 +23,20 @@ type PaginationStats = {
   total: string;
 };
 
-const Pagination: React.FC<PaginationProps> = ({ onClickNext, onClickPrevious, onClickPageButton, links, stats }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  onClickNext,
+  onClickPrevious,
+  onClickPageButton,
+  links,
+  stats,
+  onClickGoToPage,
+  onChangePerPage,
+}) => {
+  const [goTo, setGoTo] = useState(0);
+
+  const handleClick = () => {
+    onClickGoToPage?.(goTo);
+  };
   return (
     <div className="bg-white px-4 pt-6 flex items-center justify-between border-t border-gray-200">
       <div className="flex-1 flex justify-between sm:hidden">
@@ -46,8 +68,12 @@ const Pagination: React.FC<PaginationProps> = ({ onClickNext, onClickPrevious, o
         </div>
         <div>
           <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-            <a
-              href="#"
+            <button
+              tabIndex={0}
+              type="button"
+              onClick={() => {
+                if (onClickPrevious) onClickPrevious();
+              }}
               className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               <span className="sr-only">Previous</span>
@@ -65,7 +91,7 @@ const Pagination: React.FC<PaginationProps> = ({ onClickNext, onClickPrevious, o
                   clipRule="evenodd"
                 />
               </svg>
-            </a>
+            </button>
 
             {links.map(({ label, active, url }) => {
               return (
@@ -81,8 +107,12 @@ const Pagination: React.FC<PaginationProps> = ({ onClickNext, onClickPrevious, o
               );
             })}
 
-            <a
-              href="#"
+            <button
+              tabIndex={0}
+              type="button"
+              onClick={() => {
+                if (onClickNext) onClickNext();
+              }}
               className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               <span className="sr-only">Next</span>
@@ -100,7 +130,42 @@ const Pagination: React.FC<PaginationProps> = ({ onClickNext, onClickPrevious, o
                   clipRule="evenodd"
                 />
               </svg>
-            </a>
+            </button>
+            <div>
+              <div className="flex ml-2">
+                <TextField
+                  placeholder={stats.from}
+                  onChange={(e) => setGoTo(+e.target.value)}
+                  className="w-20"
+                  type="number"
+                />
+                <Button className="ml-2" onClick={handleClick}>
+                  Pergi
+                </Button>
+                <div className="ml-2">
+                  <Select
+                    menuPlacement="top"
+                    defaultValue={PER_PAGE_OPTIONS[1]}
+                    onChange={(e) => {
+                      console.log(onChangePerPage);
+
+                      if (onChangePerPage) {
+                        console.log('nayal');
+                        onChangePerPage(e);
+                      }
+                    }}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        height: 44,
+                        width: 180,
+                      }),
+                    }}
+                    options={PER_PAGE_OPTIONS}
+                  />
+                </div>
+              </div>
+            </div>
           </nav>
         </div>
       </div>

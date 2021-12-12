@@ -33,6 +33,38 @@ export const EMPLOYEE_SORT_BY_OPTIONS = [
   },
 ];
 
+export const SALE_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan tanggal',
+    value: 'date',
+    data: ['created_at'],
+  },
+  {
+    label: 'Sortir berdasarkan pembayaran',
+    value: 'status',
+    data: ['payment_method'],
+  },
+];
+
+export const STOCK_IN_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan tanggal',
+    value: 'date',
+    data: ['created_at'],
+  },
+  {
+    label: 'Sortir berdasarkan pembayaran',
+    value: 'payment_menthod',
+    data: ['payment_method'],
+  },
+
+  {
+    label: 'Sortir berdasarkan status',
+    value: 'status',
+    data: ['status'],
+  },
+];
+
 export const SUPPLIER_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan nama',
@@ -64,4 +96,10 @@ export const PAYMENT_METHOD_OPTIONS = [
     label: 'Giro',
     value: 'current_account',
   },
+];
+
+export const PER_PAGE_OPTIONS = [
+  { label: 'Munculkan 5', value: 5 },
+  { label: 'Munculkan 10', value: 10 },
+  { label: 'Munculkan 20', value: 20 },
 ];

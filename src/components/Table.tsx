@@ -12,15 +12,22 @@ import {
   TableState,
   useGlobalFilter,
   UseGlobalFiltersInstanceProps,
+  usePagination,
+  UsePaginationInstanceProps,
   useResizeColumns,
   useSortBy,
   UseSortByInstanceProps,
   useTable,
+  UseTableInstanceProps,
 } from 'react-table';
 
-type PropsReturn = TableInstance<Record<string, unknown>> &
+import Pagination from './Pagination';
+
+type PropsReturn = TableInstance<any> &
+  UseTableInstanceProps<any> &
   UseGlobalFiltersInstanceProps<Record<string, unknown>> &
-  UseSortByInstanceProps<Record<string, unknown>>;
+  UseSortByInstanceProps<any> &
+  UsePaginationInstanceProps<any>;
 
 type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
   enableAutoSort?: boolean;
@@ -31,7 +38,7 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
   }) => JSX.Element;
 };
 
-const ResponsiveTable: React.FC<TableProps<Record<string, unknown>>> = (props) => {
+const ResponsiveTable: React.FC<TableProps<Record<string, unknown>> & { withPagination?: boolean }> = (props) => {
   const [isMd, setIsMd] = useState(false);
 
   const query = useMediaQuery({ query: '(min-width: 768px)' });
@@ -48,17 +55,26 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   data,
   search = () => <div />,
   enableAutoSort = false,
-}: TableProps<Record<string, unknown>>): JSX.Element {
+  withPagination = false,
+}: TableProps<Record<string, unknown>> & { withPagination: boolean }): JSX.Element {
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
+    page,
     prepareRow,
     state,
     preGlobalFilteredRows,
     setGlobalFilter,
-  } = useTable({ columns, data }, useGlobalFilter, useSortBy, useResizeColumns) as PropsReturn;
+    setPageSize,
+
+    // Test
+    gotoPage,
+    nextPage,
+    previousPage,
+  } = useTable({ columns, data }, useGlobalFilter, useSortBy, useResizeColumns, usePagination) as PropsReturn;
+
+  console.log(page, 'SLATE');
 
   const renderHead = (column: { isSorted?: boolean; isSortedDesc?: boolean }) => {
     if (column.isSortedDesc) return <ChevronUp />;
@@ -96,7 +112,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row, index) => {
+          {page.map((row, index) => {
             prepareRow(row);
             return (
               <tr
@@ -119,6 +135,37 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
           })}
         </tbody>
       </table>
+      {withPagination && (
+        <Pagination
+          onClickGoToPage={(e) => {
+            console.log(e);
+            gotoPage(e - 1);
+          }}
+          onChangePerPage={(val) => {
+            console.log(val, 'avl');
+            setPageSize(val?.value ?? 0);
+          }}
+          stats={{
+            from: `${(state as any).pageIndex * (state as any).pageSize + 1}`,
+            to: `${(state as any).pageIndex * (state as any).pageSize + page.length}`,
+            total: `${data.length}`,
+          }}
+          onClickPageButton={(num) => {
+            console.log(num);
+            gotoPage(+num);
+          }}
+          links={[]}
+          onClickNext={() => {
+            console.log('asdas');
+            nextPage();
+            //   setPaginationUrl(next_page_url ?? '');
+          }}
+          onClickPrevious={() => {
+            previousPage();
+            //   setPaginationUrl(prev_page_url ?? '');
+          }}
+        />
+      )}
     </>
   );
 }

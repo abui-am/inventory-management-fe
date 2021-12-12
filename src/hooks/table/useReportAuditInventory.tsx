@@ -7,19 +7,9 @@ import { formatDateYYYYMMDD } from '@/utils/format';
 
 import { useEditAudit } from '../mutation/useMutateAudit';
 import { useFetchUnpaginatedAudits } from '../query/useFetchAudit';
-const items = [
-  {
-    name: 'Minyak',
-    unit: 'Dus',
-    auditStock: 9,
-    qty: 9,
-    diffValue: 0,
-    isValid: true,
-  },
-];
 
-export const useReportAuditInventory = ({ date }) => {
-  const { data: dataRes, ...props } = useFetchUnpaginatedAudits({
+export const useReportAuditInventory = ({ date }: { date: string }) => {
+  const { data: dataRes } = useFetchUnpaginatedAudits({
     with_audits: {
       where_date: {
         created_at: date ?? formatDateYYYYMMDD(new Date()),

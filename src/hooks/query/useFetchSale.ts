@@ -15,8 +15,10 @@ const useFetchSales = <TQueryFnData = unknown, TError = unknown>(
     search: string;
     order_by: Record<string, string>;
     where: Record<string, unknown>;
+    [key: string]: any;
   }> = {},
-  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<SalesResponse>>
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<SalesResponse>>,
+  config?: any
 ): UseQueryResult<BackendRes<SalesResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
@@ -24,14 +26,24 @@ const useFetchSales = <TQueryFnData = unknown, TError = unknown>(
     ['sales', data, roles],
     async () => {
       const res = data.forceUrl
-        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/transactions', {
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, {
             ...data,
             where: {
               ...data.where,
               transactionable_type: 'customers',
             },
-          });
+          })
+        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post(
+            '/transactions',
+            {
+              ...data,
+              where: {
+                ...data.where,
+                transactionable_type: 'customers',
+              },
+            },
+            config
+          );
       return res.data;
     },
     options

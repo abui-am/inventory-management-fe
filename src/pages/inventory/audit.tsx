@@ -1,19 +1,13 @@
-import Link from 'next/link';
 import React from 'react';
-import { Calculator, Search } from 'react-bootstrap-icons';
+import { Search } from 'react-bootstrap-icons';
 
-import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { DatePickerComponent, TextField } from '@/components/Form';
-import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { useFetchAudits } from '@/hooks/query/useFetchAudit';
 import { useAuditInventory } from '@/hooks/table/useAuditInventory';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
 const AuditPage = () => {
-  const [paginationUrl, setPaginationUrl] = React.useState('');
-
   const [date, setDate] = React.useState(new Date());
 
   const { columns, data = [] } = useAuditInventory({ date: formatDateYYYYMMDD(date as Date) });
@@ -25,7 +19,7 @@ const AuditPage = () => {
           <label className="mr-2">Tanggal:</label>
           <DatePickerComponent
             onChange={(value) => {
-              setDate(value);
+              setDate(value as any);
             }}
             selected={date}
           />
@@ -35,6 +29,7 @@ const AuditPage = () => {
       <section>
         <CardDashboard>
           <Table
+            withPagination
             search={({ setGlobalFilter }) => (
               <div className="mt-2 mb-6 flex justify-between">
                 <TextField
@@ -57,23 +52,6 @@ const AuditPage = () => {
             )}
             columns={columns}
             data={data}
-          />
-          <Pagination
-            stats={{
-              from: `${'0'}`,
-              to: `${'0'}`,
-              total: `${'0'}`,
-            }}
-            onClickPageButton={(url) => {
-              setPaginationUrl(url);
-            }}
-            links={[]}
-            onClickNext={() => {
-              //   setPaginationUrl(next_page_url ?? '');
-            }}
-            onClickPrevious={() => {
-              //   setPaginationUrl(prev_page_url ?? '');
-            }}
           />
         </CardDashboard>
       </section>

@@ -1,3 +1,4 @@
+import Tippy from '@tippyjs/react';
 import React from 'react';
 import { Check, Pencil, ThreeDots, ThreeDotsVertical } from 'react-bootstrap-icons';
 
@@ -68,7 +69,7 @@ const TextFieldAudit = ({ itemId, initialValue }: { itemId: string; initialValue
 
   const [value, setValue] = React.useState(initialValue);
   return (
-    <div className="flex w-full items-center max-w-sm">
+    <div style={{ minHeight: 58 }} className="flex w-full items-center max-w-sm">
       <div className="max-w-none flex-1">
         <TextField
           value={value}
@@ -109,6 +110,7 @@ const TextFieldEditAudit = ({
   return !isEditing ? (
     <div
       className="flex w-full items-center max-w-sm"
+      style={{ minHeight: 58 }}
       onMouseEnter={() => {
         setIsHover(true);
       }}
@@ -133,7 +135,7 @@ const TextFieldEditAudit = ({
       )}
     </div>
   ) : (
-    <div className="flex w-full items-center max-w-sm">
+    <div className="flex w-full items-center max-w-sm" style={{ minHeight: 58 }}>
       <div className="max-w-none flex-1">
         <TextField
           className="max-w-none flex-1"
