@@ -65,6 +65,30 @@ export const STOCK_IN_SORT_BY_OPTIONS = [
   },
 ];
 
+export const ITEMS_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan nama',
+    value: 'name',
+    data: ['name'],
+  },
+  {
+    label: 'Sortir berdasarkan jumlah',
+    value: 'quantity',
+    data: ['quantity'],
+  },
+
+  {
+    label: 'Sortir berdasarkan kemasan',
+    value: 'unit',
+    data: ['unit'],
+  },
+  {
+    label: 'Sortir berdasarkan tanggal masuk',
+    value: 'updated_at',
+    data: ['updated_at'],
+  },
+];
+
 export const SUPPLIER_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan nama',

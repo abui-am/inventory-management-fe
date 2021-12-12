@@ -35,7 +35,7 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
     ['items', data, roles],
     async () => {
       const res = data.forceUrl
-        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
         : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).post('/items', data);
       return res.data;
     },

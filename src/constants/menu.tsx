@@ -65,7 +65,7 @@ const MENU_LIST = [
   },
   {
     id: 'inventory.report',
-    slug: '/inventory/report',
+    slug: '/audit/report',
     displayName: 'Laporan Audit',
     icon: (props = {}): JSX.Element => <Paperclip {...props} />,
     permission: 'view:audit',
