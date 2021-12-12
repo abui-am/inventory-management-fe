@@ -22,9 +22,10 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
 }) => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const { mutateAsync: updateStockIn } = useUpdateStockIn();
+  const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(STOCK_IN_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
-
+  const [pageSize, setPageSize] = useState(10);
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
@@ -116,6 +117,8 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
   const { data: dataTrasaction } = useFetchTransactions({
     order_by: params,
     forceUrl: paginationUrl,
+    search,
+    per_page: pageSize,
     ...queryVariant,
   });
 
@@ -127,6 +130,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     links,
     next_page_url,
     prev_page_url,
+    last_page_url,
   } = dataTrasaction?.data.transactions ?? {};
   const data = dataRes.map(
     ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
@@ -189,7 +193,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
       <Table
         columns={columns}
         data={data}
-        search={({ setGlobalFilter }) => (
+        search={() => (
           <div className="mt-2 mb-6 flex justify-between">
             <h2 className="text-2xl font-bold">
               {variant === 'pending' ? 'Konfirmasi Barang Masuk' : 'Riwayat Barang Masuk'}
@@ -217,7 +221,11 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
                   </div>
                   <TextField
                     Icon={<Search />}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    value={search}
+                    onChange={(e) => {
+                      setPaginationUrl('');
+                      setSearch(e.target.value);
+                    }}
                     variant="contained"
                     placeholder="Cari nama barang"
                   />
@@ -250,7 +258,13 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         onClickPrevious={() => {
           setPaginationUrl(prev_page_url ?? '');
         }}
-        onChangePerPage={}
+        onChangePerPage={(val) => {
+          setPaginationUrl('');
+          setPageSize(val?.value ?? 0);
+        }}
+        onClickGoToPage={(val) => {
+          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
+        }}
       />
     </>
   );

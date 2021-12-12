@@ -133,12 +133,7 @@ const Pagination: React.FC<PaginationProps> = ({
             </button>
             <div>
               <div className="flex ml-2">
-                <TextField
-                  placeholder={stats.from}
-                  onChange={(e) => setGoTo(+e.target.value)}
-                  className="w-20"
-                  type="number"
-                />
+                <TextField placeholder="10" onChange={(e) => setGoTo(+e.target.value)} className="w-20" type="number" />
                 <Button className="ml-2" onClick={handleClick}>
                   Pergi
                 </Button>

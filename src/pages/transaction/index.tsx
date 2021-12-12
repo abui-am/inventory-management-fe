@@ -19,12 +19,14 @@ const TransactionPage: NextPage<unknown> = () => {
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
 
   const { data: dataTrasaction } = useFetchSales({
     order_by: params,
+    search,
     per_page: pageSize,
     forceUrl: paginationUrl,
   });
@@ -110,7 +112,7 @@ const TransactionPage: NextPage<unknown> = () => {
       <Table
         columns={columns}
         data={data}
-        search={({ setGlobalFilter }) => (
+        search={() => (
           <div className="mt-2 mb-6 flex justify-between">
             <h2 className="text-2xl font-bold">Daftar Transaksi</h2>
 
@@ -134,7 +136,11 @@ const TransactionPage: NextPage<unknown> = () => {
               </div>
               <TextField
                 Icon={<Search />}
-                onChange={(e) => setGlobalFilter(e.target.value)}
+                value={search}
+                onChange={(e) => {
+                  setPaginationUrl('');
+                  setSearch(e.target.value);
+                }}
                 variant="contained"
                 placeholder="Cari nama transaksi"
               />
@@ -159,6 +165,7 @@ const TransactionPage: NextPage<unknown> = () => {
           setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
         onChangePerPage={(page) => {
+          setPaginationUrl('');
           setPageSize(page?.value ?? 0);
         }}
         onClickPageButton={(url) => {
