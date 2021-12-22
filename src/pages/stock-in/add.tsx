@@ -11,18 +11,17 @@ import { CardDashboard } from '@/components/Container';
 import {
   DatePickerComponent,
   SelectItems,
-  SelectSupplier,
   TextArea,
   TextField,
   ThemedSelect,
   WithLabelAndError,
 } from '@/components/Form';
 import Modal from '@/components/Modal';
+import { SelectSupplier } from '@/components/Select';
 import Table from '@/components/Table';
 import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateItems } from '@/hooks/mutation/useMutateItems';
 import { useCreateStockIn } from '@/hooks/mutation/useMutateStockIn';
-import { useCreateSupplier } from '@/hooks/query/useFetchSupplier';
 import { Option } from '@/typings/common';
 import { CreateStockInBody, Item } from '@/typings/stock-in';
 import promiseAll from '@/utils/promiseAll';
@@ -44,7 +43,6 @@ const AddStockPage: NextPage = () => {
   const { back } = useRouter();
   const { mutateAsync } = useCreateStockIn();
   const { mutateAsync: createItem } = useCreateItems();
-  const { mutateAsync: createSupplier } = useCreateSupplier();
   const { push } = useRouter();
 
   const initialValues = {
@@ -70,7 +68,6 @@ const AddStockPage: NextPage = () => {
       paymentDue,
       stockAdjustment,
       supplier,
-      isNewSupplier,
     }) => {
       const newItem = await promiseAll<Item>(
         stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, discount }): Promise<Item> => {
@@ -84,14 +81,7 @@ const AddStockPage: NextPage = () => {
         })
       );
 
-      let supplierId;
-
-      if (isNewSupplier) {
-        const { data } = await createSupplier({ name: supplier.label });
-        supplierId = data.supplier.id;
-      } else {
-        supplierId = supplier.value;
-      }
+      const supplierId = supplier.value;
       const jsonBody: CreateStockInBody = {
         transactionable_type: 'suppliers',
         purchase_date: dayjs(dateIn).format('YYYY-MM-DD HH:mm:ss'),
@@ -109,8 +99,12 @@ const AddStockPage: NextPage = () => {
         },
       };
 
-      mutateAsync(jsonBody);
-      push('/stock-in');
+      try {
+        await mutateAsync(jsonBody);
+        push('/stock-in');
+      } catch (e) {
+        console.error(e);
+      }
     },
   });
 
@@ -152,7 +146,6 @@ const AddStockPage: NextPage = () => {
       </div>
     ),
   }));
-  console.log('TES');
 
   const columns = React.useMemo(
     () => [
@@ -188,9 +181,8 @@ const AddStockPage: NextPage = () => {
     []
   );
   return (
-    <CardDashboard title="Penyesuaian Stock Gudang">
+    <CardDashboard title="Barang Masuk Baru">
       <form onSubmit={handleSubmit}>
-        {console.log(errors, 'ASDas')}
         <div className="flex flex-wrap -mx-2 mb-8">
           <div className="w-6/12 px-2 mb-3">
             <label className="mb-1 inline-block">Nomor faktur</label>
@@ -368,7 +360,7 @@ const ButtonWithModal: React.FC<{
         </Button>
       ) : (
         <Button fullWidth variant="outlined" onClick={() => setIsOpen(true)}>
-          Tambah Penyesuaian
+          Tambah Barang
         </Button>
       )}
       <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} variant="big">

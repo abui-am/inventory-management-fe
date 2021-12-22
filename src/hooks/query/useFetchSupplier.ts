@@ -9,7 +9,7 @@ import {
   SupplierDetailResponse,
   SuppliersResponse,
 } from '@/typings/supplier';
-import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRole } from '@/utils/api';
+import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
@@ -24,10 +24,11 @@ const useFetchSuppliers = (
   }> = {}
 ): UseQueryResult<BackendRes<SuppliersResponse>> => {
   const { data: dataSelf } = useFetchMyself();
-  const fetcher = useMyQuery(['suppliers', data], async () => {
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
+  const fetcher = useMyQuery(['suppliers', data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
-      : await getApiBasedOnRole(dataSelf?.data.user.roles[0].name || '').post('/suppliers', data);
+      : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/suppliers', data);
     return res.data;
   });
 
@@ -52,7 +53,7 @@ const useFetchSupplierById = (
 
 const useEditSupplier = (
   editId: string
-): UseMutationResult<Omit<BackendRes<unknown>, 'data'>, unknown, CreateSupplierBody, unknown> => {
+): UseMutationResult<BackendRes<CreateSupplierResponse>, unknown, CreateSupplierBody, unknown> => {
   const query = useQueryClient();
 
   const mutator = useMutation(

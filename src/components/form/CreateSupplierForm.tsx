@@ -9,10 +9,20 @@ import { object } from 'yup';
 import { Button } from '@/components/Button';
 import { PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from '@/components/Form';
 import { useCreateSupplier, useEditSupplier, useFetchSupplierById } from '@/hooks/query/useFetchSupplier';
-import { CreateSupplierBody } from '@/typings/supplier';
+import { CreateSupplierBody, CreateSupplierResponse } from '@/typings/supplier';
 import createSchema from '@/utils/validation/formik';
 
-const CreateSupplierForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ editId, isEdit = false }) => {
+const CreateSupplierForm: React.FC<{
+  isEdit?: boolean;
+  editId?: string;
+  onSave?: (data: CreateSupplierResponse) => void;
+  initialValues?: {
+    name: string;
+    address: string;
+    phoneNumber: string;
+  };
+  disableBack?: boolean;
+}> = ({ editId, isEdit = false, onSave, disableBack, initialValues: initVal }) => {
   const { mutateAsync } = useCreateSupplier();
   const { mutateAsync: editSupplier } = useEditSupplier(editId ?? '');
   const { back } = useRouter();
@@ -27,9 +37,9 @@ const CreateSupplierForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           phoneNumber: phone_number,
         }
       : {
-          name: '',
-          address: '',
-          phoneNumber: '',
+          name: initVal?.name ?? '',
+          address: initVal?.address ?? '',
+          phoneNumber: initVal?.phoneNumber ?? '',
         };
 
   const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
@@ -49,7 +59,10 @@ const CreateSupplierForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
       const res = isEdit ? await editSupplier(jsonBody) : await mutateAsync(jsonBody);
       setSubmitting(false);
       toast(res.message);
-      back();
+      onSave?.(res.data);
+      if (!disableBack) {
+        back();
+      }
     },
   });
 

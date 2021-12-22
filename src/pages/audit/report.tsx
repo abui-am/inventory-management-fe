@@ -33,6 +33,7 @@ const AuditPage = () => {
       <section>
         <CardDashboard>
           <Table
+            withPagination
             search={({ setGlobalFilter }) => (
               <div className="mt-2 mb-6 flex justify-between">
                 <TextField
@@ -54,23 +55,6 @@ const AuditPage = () => {
             )}
             columns={columns}
             data={data}
-          />
-          <Pagination
-            stats={{
-              from: `${'0'}`,
-              to: `${'0'}`,
-              total: `${'0'}`,
-            }}
-            onClickPageButton={(url) => {
-              // setPaginationUrl(url);
-            }}
-            links={[]}
-            onClickNext={() => {
-              //   setPaginationUrl(next_page_url ?? '');
-            }}
-            onClickPrevious={() => {
-              //   setPaginationUrl(prev_page_url ?? '');
-            }}
           />
         </CardDashboard>
       </section>

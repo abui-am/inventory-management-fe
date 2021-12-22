@@ -7,7 +7,7 @@ import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from 
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
-const useFetchSales = <TQueryFnData = unknown, TError = unknown>(
+const useFetchSales = <T, TQueryFnData = unknown, TError = unknown>(
   data: Partial<{
     forceUrl: string;
     paginated: boolean;
@@ -17,9 +17,9 @@ const useFetchSales = <TQueryFnData = unknown, TError = unknown>(
     where: Record<string, unknown>;
     [key: string]: any;
   }> = {},
-  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<SalesResponse>>,
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<T & SalesResponse>>,
   config?: any
-): UseQueryResult<BackendRes<SalesResponse>> => {
+): UseQueryResult<BackendRes<T & SalesResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(

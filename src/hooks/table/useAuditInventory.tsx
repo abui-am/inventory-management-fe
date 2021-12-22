@@ -1,41 +1,36 @@
 import Tippy from '@tippyjs/react';
 import React from 'react';
-import { Check, Pencil, ThreeDots, ThreeDotsVertical } from 'react-bootstrap-icons';
+import { Check, Pencil } from 'react-bootstrap-icons';
 
 import Bubble from '@/components/Bubble';
 import { Button } from '@/components/Button';
 import { TextField } from '@/components/Form';
-import Modal from '@/components/Modal';
-import { formatDate, formatDateYYYYMMDD } from '@/utils/format';
+import { formatDateYYYYMMDD } from '@/utils/format';
 
 import { useAudit, useEditAudit } from '../mutation/useMutateAudit';
-import { useFetchAudits, useFetchUnpaginatedAudits } from '../query/useFetchAudit';
+import { useFetchUnpaginatedAudits } from '../query/useFetchAudit';
 
 export const useAuditInventory = ({ date }) => {
   const { data: dataRes, ...props } = useFetchUnpaginatedAudits({
-    with_audits: {
-      where_date: {
-        created_at: date ?? formatDateYYYYMMDD(new Date()),
-      },
+    where: {
+      audit_date: date ?? formatDateYYYYMMDD(new Date()),
     },
     per_page: 10000,
   });
 
   const getData = () => {
-    return dataRes?.data?.items?.map(({ id, name, unit, audits }) => ({
-      name,
-      unit,
-      qty:
-        audits.length > 0 ? (
-          <TextFieldEditAudit
-            disableEdit={audits[0].update_count > 3}
-            isValid={audits[0].is_valid}
-            auditId={audits[0].id}
-            initialValue={audits[0].audit_quantity}
-          />
-        ) : (
-          <TextFieldAudit itemId={id} initialValue={audits[0]?.audit_quantity} />
-        ),
+    return dataRes?.data?.item_audits?.map(({ id, item_name, item_unit, update_count, is_valid, audit_quantity }) => ({
+      item_name,
+      item_unit,
+      qty: (
+        <TextFieldEditAudit
+          forceEdit={update_count === 0}
+          disableEdit={update_count > 3}
+          isValid={is_valid}
+          auditId={id}
+          initialValue={audit_quantity}
+        />
+      ),
     }));
   };
 
@@ -45,11 +40,11 @@ export const useAuditInventory = ({ date }) => {
       return [
         {
           Header: 'Nama Barang',
-          accessor: 'name', // accessor is the "key" in the data
+          accessor: 'item_name', // accessor is the "key" in the data
         },
         {
           Header: 'Unit',
-          accessor: 'unit',
+          accessor: 'item_unit',
         },
         {
           Header: 'Stock tersedia',
@@ -96,15 +91,17 @@ const TextFieldEditAudit = ({
   auditId,
   initialValue,
   isValid,
+  forceEdit,
   disableEdit,
 }: {
   auditId: string;
   initialValue: number;
   isValid: boolean;
+  forceEdit: boolean;
   disableEdit: boolean;
 }) => {
   const { mutateAsync: editAudit } = useEditAudit(auditId);
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(forceEdit);
   const [value, setValue] = React.useState(initialValue);
   const [isHover, setIsHover] = React.useState(false);
   return !isEditing ? (

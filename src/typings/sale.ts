@@ -146,3 +146,7 @@ export interface SalesTransactions {
 export interface SalesResponse {
   transactions: SalesTransactions;
 }
+
+export interface SalesResponseUnpaginated {
+  transactions: SaleTransactionsData[];
+}

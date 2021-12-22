@@ -12,7 +12,6 @@ import {
   useSearchItems,
   useSearchProvince,
   useSearchSubdistrict,
-  useSearchSuppliers,
   useSearchVillage,
 } from '@/hooks/mutation/useSearch';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
@@ -258,20 +257,6 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
   );
 };
 
-const SelectSupplier: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
-  const { mutateAsync: search } = useSearchSuppliers();
-  return (
-    <CreatableAsyncSelect
-      {...props}
-      styles={getThemedSelectStyle(variant, additionalStyle)}
-      loadOptions={async (val) => {
-        const { data } = await search({ search: val });
-        return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));
-      }}
-    />
-  );
-};
-
 const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
@@ -340,7 +325,6 @@ export {
   SelectSortBy,
   SelectSortType,
   SelectSubdistrict,
-  SelectSupplier,
   SelectVillage,
   TextArea,
   TextField,

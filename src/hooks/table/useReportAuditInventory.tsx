@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, X } from 'react-bootstrap-icons';
+import { Check } from 'react-bootstrap-icons';
 
 import Bubble from '@/components/Bubble';
 import { Button } from '@/components/Button';
@@ -10,28 +10,27 @@ import { useFetchUnpaginatedAudits } from '../query/useFetchAudit';
 
 export const useReportAuditInventory = ({ date }: { date: string }) => {
   const { data: dataRes } = useFetchUnpaginatedAudits({
-    with_audits: {
-      where_date: {
-        created_at: date ?? formatDateYYYYMMDD(new Date()),
-      },
+    where: {
+      audit_date: date ?? formatDateYYYYMMDD(new Date()),
     },
+
     per_page: 10000,
   });
 
   const getData = () => {
     return (
-      dataRes?.data.items.map(({ name, unit, audits }) => ({
-        name,
-        unit,
+      dataRes?.data.item_audits.map(({ item_id, item_name, item_unit, audit_quantity, is_valid, is_approved }) => ({
+        item_name,
+        item_unit,
         qty: <div className="flex justify-end">{0}</div>,
         auditStock: (
           <div className="flex justify-end">
-            <span className="mr-2">{audits[0]?.audit_quantity}</span>
-            <Bubble isValid={audits[0]?.is_valid || audits[0]?.is_approved} />
+            <span className="mr-2">{audit_quantity}</span>
+            <Bubble isValid={is_valid || is_approved} />
           </div>
         ),
         diffValue: <div className="flex justify-end">{0}</div>,
-        action: <ButtonChecklist auditId={audits[0]?.id} auditQty={audits[0]?.audit_quantity} />,
+        action: <ButtonChecklist auditId={item_id} auditQty={audit_quantity} />,
       })) ?? []
     );
   };
@@ -42,11 +41,11 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
       return [
         {
           Header: 'Nama Barang',
-          accessor: 'name', // accessor is the "key" in the data
+          accessor: 'item_name', // accessor is the "key" in the data
         },
         {
           Header: 'Unit',
-          accessor: 'unit',
+          accessor: 'item_unit',
         },
         {
           Header: 'Stock tersedia',
@@ -70,7 +69,7 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
     return getColumn();
   }, []);
 
-  return { data, columns };
+  return { data, columns, dataRes };
 };
 
 export const ButtonChecklist = ({ auditId, auditQty }) => {

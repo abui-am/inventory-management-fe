@@ -1,5 +1,7 @@
 import clsx from 'clsx';
-import React, { ButtonHTMLAttributes, DetailedHTMLProps, forwardRef } from 'react';
+import React, { ButtonHTMLAttributes, DetailedHTMLProps, forwardRef, useState } from 'react';
+
+import Modal from './Modal';
 
 const RoundedButton: React.FC<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>> = ({
   children,
@@ -72,5 +74,32 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
+
+export const ButtonWithModal = ({
+  text,
+  children,
+}: {
+  text: string;
+  children: ((val: { handleClose: () => void }) => JSX.Element) | JSX.Element;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Modal isOpen={open} onRequestClose={handleClose}>
+        {typeof children === 'function' ? children({ handleClose }) : children}
+      </Modal>
+      <Button onClick={handleClick}>{text}</Button>
+    </>
+  );
+};
 
 export { Button, RoundedButton };
