@@ -1,3 +1,4 @@
+import Tippy from '@tippyjs/react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { Calculator, Check, Pencil, Search, X } from 'react-bootstrap-icons';
@@ -35,64 +36,82 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
       case 'all':
         return (
           <div className="flex">
-            <DetailStockIn transactions={transaction} />
+            <Tippy content="Lihat detail barang masuk">
+              <DetailStockIn transactions={transaction} />
+            </Tippy>
           </div>
         );
       case 'pending':
         return (
           <div className="flex">
-            <Button
-              size="small"
-              className="mr-2"
-              onClick={() =>
-                updateStockIn({
-                  transactionId: transaction.id,
-                  data: {
-                    status: 'on-review',
-                  },
-                })
-              }
-            >
-              <Check width={24} height={24} />
-            </Button>
-            <DetailStockIn transactions={transaction} />
-            <Button size="small" variant="outlined" className="ml-2">
-              <X
-                onClick={() => {
+            <Tippy content="Lihat detail barang masuk">
+              <DetailStockIn transactions={transaction} />
+            </Tippy>
+            <Tippy content="Konfirmasi barang masuk">
+              <Button
+                size="small"
+                className="mr-2"
+                onClick={() =>
                   updateStockIn({
                     transactionId: transaction.id,
                     data: {
-                      status: 'declined',
+                      status: 'on-review',
                     },
-                  });
-                }}
-                width={24}
-                height={24}
-              />
-            </Button>
+                  })
+                }
+              >
+                <Check width={24} height={24} />
+              </Button>
+            </Tippy>
+            <Tippy content="Batalkan barang masuk">
+              <Button size="small" variant="outlined" className="ml-2">
+                <X
+                  onClick={() => {
+                    updateStockIn({
+                      transactionId: transaction.id,
+                      data: {
+                        status: 'declined',
+                      },
+                    });
+                  }}
+                  width={24}
+                  height={24}
+                />
+              </Button>
+            </Tippy>
           </div>
         );
       case 'on-review':
         return (
           <div className="flex">
-            <DetailStockIn transactions={transaction} />
+            <Tippy content="Lihat detail barang masuk">
+              <div>
+                <DetailStockIn transactions={transaction} />
+              </div>
+            </Tippy>
             <div className="ml-2">
-              <SellPriceAdjustment transactionId={transaction.id} />
+              <Tippy content="Tentukan harga jual barang">
+                <div>
+                  <SellPriceAdjustment transactionId={transaction.id} />
+                </div>
+              </Tippy>
             </div>
-            <Button size="small" variant="outlined" className="ml-2">
-              <X
-                onClick={() => {
-                  updateStockIn({
-                    transactionId: transaction.id,
-                    data: {
-                      status: 'declined',
-                    },
-                  });
-                }}
-                width={24}
-                height={24}
-              />
-            </Button>
+            <Tippy content="Batalkan barang masuk">
+              <Button size="small" variant="outlined" className="ml-2">
+                <X
+                  onClick={() => {
+                    updateStockIn({
+                      transactionId: transaction.id,
+                      data: {
+                        status: 'declined',
+                      },
+                    });
+                  }}
+                  width={24}
+                  height={24}
+                />
+              </Button>
+            </Tippy>
           </div>
         );
       default:
