@@ -6,6 +6,7 @@ export interface AuditsData {
   item_id: string;
   item_name?: any;
   item_unit?: any;
+  item_quantity: number;
   audit_quantity: number;
   audit_date?: any;
   is_valid: boolean;

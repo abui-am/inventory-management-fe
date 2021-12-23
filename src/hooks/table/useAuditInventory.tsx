@@ -7,10 +7,10 @@ import { Button } from '@/components/Button';
 import { TextField } from '@/components/Form';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
-import { useAudit, useEditAudit } from '../mutation/useMutateAudit';
+import { useEditAudit } from '../mutation/useMutateAudit';
 import { useFetchUnpaginatedAudits } from '../query/useFetchAudit';
 
-export const useAuditInventory = ({ date }) => {
+export const useAuditInventory = ({ date }: { date: string }) => {
   const { data: dataRes, ...props } = useFetchUnpaginatedAudits({
     where: {
       audit_date: date ?? formatDateYYYYMMDD(new Date()),
@@ -19,19 +19,23 @@ export const useAuditInventory = ({ date }) => {
   });
 
   const getData = () => {
-    return dataRes?.data?.item_audits?.map(({ id, item_name, item_unit, update_count, is_valid, audit_quantity }) => ({
-      item_name,
-      item_unit,
-      qty: (
-        <TextFieldEditAudit
-          forceEdit={update_count === 0}
-          disableEdit={update_count > 3}
-          isValid={is_valid}
-          auditId={id}
-          initialValue={audit_quantity}
-        />
-      ),
-    }));
+    return dataRes?.data?.item_audits?.map(
+      ({ id, user_id, item_name, item_quantity, item_unit, update_count, is_valid, audit_quantity }) => ({
+        item_name,
+        item_unit,
+        qty: (
+          <TextFieldEditAudit
+            forceEdit={update_count === 0}
+            disableEdit={update_count > 3}
+            isValid={is_valid}
+            auditId={id}
+            initialValue={audit_quantity}
+            userId={user_id}
+            itemQty={item_quantity}
+          />
+        ),
+      })
+    );
   };
 
   const data = getData();
@@ -59,51 +63,32 @@ export const useAuditInventory = ({ date }) => {
   return { data, columns, ...props };
 };
 
-const TextFieldAudit = ({ itemId, initialValue }: { itemId: string; initialValue: number }) => {
-  const { mutateAsync } = useAudit();
-
-  const [value, setValue] = React.useState(initialValue);
-  return (
-    <div style={{ minHeight: 58 }} className="flex w-full items-center max-w-sm">
-      <div className="max-w-none flex-1">
-        <TextField
-          value={value}
-          onChange={(e) => {
-            setValue(+e.target.value);
-          }}
-        />
-      </div>
-
-      <Button
-        size="small"
-        className="ml-2"
-        onClick={() => {
-          mutateAsync({ item_id: itemId, audit_quantity: value });
-        }}
-      >
-        <Check width={24} height={24} />
-      </Button>
-    </div>
-  );
-};
-
 const TextFieldEditAudit = ({
   auditId,
   initialValue,
   isValid,
   forceEdit,
   disableEdit,
+  userId,
+  itemQty,
 }: {
   auditId: string;
   initialValue: number;
   isValid: boolean;
   forceEdit: boolean;
   disableEdit: boolean;
+  userId: string;
+  itemQty: number;
 }) => {
   const { mutateAsync: editAudit } = useEditAudit(auditId);
   const [isEditing, setIsEditing] = React.useState(forceEdit);
   const [value, setValue] = React.useState(initialValue);
   const [isHover, setIsHover] = React.useState(false);
+
+  const hadnleClickCheck = () => {
+    editAudit({ audit_quantity: value, id: auditId, user_id: userId, is_valid: itemQty === value });
+    setIsEditing(false);
+  };
   return !isEditing ? (
     <div
       className="flex w-full items-center max-w-sm"
@@ -143,14 +128,7 @@ const TextFieldEditAudit = ({
         />
       </div>
 
-      <Button
-        size="small"
-        className="ml-2"
-        onClick={() => {
-          editAudit({ audit_quantity: value });
-          setIsEditing(false);
-        }}
-      >
+      <Button size="small" className="ml-2" onClick={hadnleClickCheck}>
         <Check width={24} height={24} />
       </Button>
     </div>

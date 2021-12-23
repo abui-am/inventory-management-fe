@@ -11,7 +11,6 @@ import { useReportAuditInventory } from '@/hooks/table/useReportAuditInventory';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
 const AuditPage = () => {
-  const [paginationUrl, setPaginationUrl] = React.useState('');
   const [date, setDate] = React.useState(new Date());
 
   const { columns, data } = useReportAuditInventory({ date: formatDateYYYYMMDD(date) });

@@ -56,7 +56,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   search = () => <div />,
   enableAutoSort = false,
   withPagination = false,
-}: TableProps<Record<string, unknown>> & { withPagination: boolean }): JSX.Element {
+}: TableProps<Record<string, unknown>> & { withPagination?: boolean }): JSX.Element {
   const {
     getTableProps,
     getTableBodyProps,
@@ -73,8 +73,6 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
     nextPage,
     previousPage,
   } = useTable({ columns, data }, useGlobalFilter, useSortBy, useResizeColumns, usePagination) as PropsReturn;
-
-  console.log(page, 'SLATE');
 
   const renderHead = (column: { isSorted?: boolean; isSortedDesc?: boolean }) => {
     if (column.isSortedDesc) return <ChevronUp />;
@@ -123,6 +121,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                   return (
                     <td
                       {...cell.getCellProps({
+                        key: Math.random(),
                         className: (cell.column as any).collapse ? 'py-3 px-4 collapse' : 'py-3 px-4',
                       })}
                     >
@@ -185,7 +184,7 @@ const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({ columns, da
           <div className="px-6 py-2 border rounded-md border-gray-300 mb-6">
             {row.cells.map((cell, index) => {
               return (
-                <div className="flex my-6">
+                <div className="flex my-6" key={Math.random()}>
                   <div className="flex-1 text-blueGray-600">{columns[index].Header}:</div>
                   <div className="flex-1">{cell.render('Cell')}</div>
                 </div>

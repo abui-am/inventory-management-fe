@@ -1,7 +1,7 @@
 import Tippy from '@tippyjs/react';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { Calculator, Check, Pencil, Search, X } from 'react-bootstrap-icons';
+import { Calculator, Check, Pencil, Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
 import Tag from '@/components/Tag';
@@ -12,7 +12,7 @@ import { Option } from '@/typings/common';
 import { TransactionData } from '@/typings/stock-in';
 import { formatDate, formatToIDR } from '@/utils/format';
 
-import { Button } from '../Button';
+import { Button, ButtonCancelTransaction } from '../Button';
 import { SelectSortBy, SelectSortType, TextField } from '../Form';
 import Pagination from '../Pagination';
 import { DetailStockIn, getTagValue, SellPriceAdjustment } from './TableComponent';
@@ -37,7 +37,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         return (
           <div className="flex">
             <Tippy content="Lihat detail barang masuk">
-              <DetailStockIn transactions={transaction} />
+              <div>
+                <DetailStockIn transactions={transaction} />
+              </div>
             </Tippy>
           </div>
         );
@@ -45,7 +47,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         return (
           <div className="flex">
             <Tippy content="Lihat detail barang masuk">
-              <DetailStockIn transactions={transaction} />
+              <div className="mr-2">
+                <DetailStockIn transactions={transaction} />
+              </div>
             </Tippy>
             <Tippy content="Konfirmasi barang masuk">
               <Button
@@ -63,55 +67,24 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
                 <Check width={24} height={24} />
               </Button>
             </Tippy>
-            <Tippy content="Batalkan barang masuk">
-              <Button size="small" variant="outlined" className="ml-2">
-                <X
-                  onClick={() => {
-                    updateStockIn({
-                      transactionId: transaction.id,
-                      data: {
-                        status: 'declined',
-                      },
-                    });
-                  }}
-                  width={24}
-                  height={24}
-                />
-              </Button>
-            </Tippy>
+            <ButtonCancelTransaction transactionId={transaction.id} />
           </div>
         );
       case 'on-review':
         return (
           <div className="flex">
             <Tippy content="Lihat detail barang masuk">
-              <div>
+              <div className="mr-2">
                 <DetailStockIn transactions={transaction} />
               </div>
             </Tippy>
-            <div className="ml-2">
-              <Tippy content="Tentukan harga jual barang">
-                <div>
-                  <SellPriceAdjustment transactionId={transaction.id} />
-                </div>
-              </Tippy>
-            </div>
-            <Tippy content="Batalkan barang masuk">
-              <Button size="small" variant="outlined" className="ml-2">
-                <X
-                  onClick={() => {
-                    updateStockIn({
-                      transactionId: transaction.id,
-                      data: {
-                        status: 'declined',
-                      },
-                    });
-                  }}
-                  width={24}
-                  height={24}
-                />
-              </Button>
+
+            <Tippy content="Tentukan harga jual barang">
+              <div className="mr-2">
+                <SellPriceAdjustment transactionId={transaction.id} />
+              </div>
             </Tippy>
+            <ButtonCancelTransaction transactionId={transaction.id} />
           </div>
         );
       default:

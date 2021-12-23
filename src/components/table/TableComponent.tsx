@@ -1,5 +1,5 @@
 import Tippy from '@tippyjs/react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Calculator, Eye } from 'react-bootstrap-icons';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
@@ -155,9 +155,10 @@ const ItemInfo: React.FC<{
 
 export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ transactionId }) => {
   const [open, setOpen] = React.useState(false);
-  const { data: dataTrans } = useFetchTransactionById(transactionId, { enabled: open });
+  const { data: dataTrans, isFetching } = useFetchTransactionById(transactionId, { enabled: open });
 
-  const { items = [] } = dataTrans?.data.transaction ?? {};
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const { items = [] } = useMemo(() => dataTrans?.data.transaction ?? { items: [] }, [isFetching]);
   const { columns, data, dataSellPrice } = useDetailStockInAdaptor(items, true);
   const { mutateAsync } = useUpdateStockIn();
   return (

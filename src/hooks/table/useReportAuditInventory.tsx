@@ -19,19 +19,34 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
 
   const getData = () => {
     return (
-      dataRes?.data.item_audits.map(({ item_id, item_name, item_unit, audit_quantity, is_valid, is_approved }) => ({
-        item_name,
-        item_unit,
-        qty: <div className="flex justify-end">{0}</div>,
-        auditStock: (
-          <div className="flex justify-end">
-            <span className="mr-2">{audit_quantity}</span>
-            <Bubble isValid={is_valid || is_approved} />
-          </div>
-        ),
-        diffValue: <div className="flex justify-end">{0}</div>,
-        action: <ButtonChecklist auditId={item_id} auditQty={audit_quantity} />,
-      })) ?? []
+      dataRes?.data.item_audits.map(
+        ({
+          id,
+          user_id,
+          item_name,
+          item_quantity,
+          item_unit,
+          audit_quantity,
+          is_valid,
+
+          update_count,
+          is_approved,
+        }) => ({
+          item_name,
+          item_unit,
+          qty: <div className="flex justify-end">{item_quantity}</div>,
+          auditStock: (
+            <div className="flex justify-end">
+              <span className="mr-2">{audit_quantity}</span>
+              <Bubble isValid={is_valid || is_approved} />
+            </div>
+          ),
+          diffValue: <div className="flex justify-end">{audit_quantity - item_quantity}</div>,
+          action: !is_valid && !is_approved && (
+            <ButtonChecklist userId={user_id} updateCount={update_count} auditId={id} auditQty={audit_quantity} />
+          ),
+        })
+      ) ?? []
     );
   };
 
@@ -72,7 +87,17 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
   return { data, columns, dataRes };
 };
 
-export const ButtonChecklist = ({ auditId, auditQty }) => {
+export const ButtonChecklist = ({
+  auditId,
+  auditQty,
+  updateCount,
+  userId,
+}: {
+  auditId: string;
+  auditQty: number;
+  userId: string;
+  updateCount: number;
+}) => {
   const { mutateAsync } = useEditAudit(auditId);
   return (
     <Button
@@ -80,8 +105,12 @@ export const ButtonChecklist = ({ auditId, auditQty }) => {
       className="mr-2"
       onClick={() => {
         mutateAsync({
+          id: auditId,
+          update_count: updateCount,
           is_approved: true,
           audit_quantity: auditQty,
+          is_valid: true,
+          user_id: userId,
         });
       }}
     >

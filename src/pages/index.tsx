@@ -10,7 +10,7 @@ import Table from '@/components/Table';
 import { HomeProvider, useHome } from '@/context/home-context';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { SalesResponseUnpaginated } from '@/typings/sale';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatDateYYYYMMDD, formatToIDR } from '@/utils/format';
 type CardProps = {
   label: string;
   value: string | number;
@@ -213,9 +213,16 @@ const TopSale = () => {
     [isFetching]
   );
 
-  console.log(topSaleItems, 'top');
   return (
-    <CardDashboard title="Penjualan terbanyak">
+    <CardDashboard title="Penjualan terbanyak" className="h-full">
+      {topSaleItems.length === 0 && (
+        <div className="w-full flex items-center justify-center">
+          <span className="max-w-xs text-center">
+            Tidak ada transaksi dari tanggal {formatDateYYYYMMDD(state.startDate)} sampai{' '}
+            {formatDateYYYYMMDD(state.endDate)}
+          </span>
+        </div>
+      )}
       {(topSaleItems || []).map(({ name, id, quantity }) => {
         // eslint-disable-next-line react/no-array-index-key
         return <SimpleList key={`${name}-${id}`} label={name} value={quantity} withTopDivider />;
