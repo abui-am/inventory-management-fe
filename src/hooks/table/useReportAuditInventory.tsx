@@ -1,6 +1,6 @@
 import Tippy from '@tippyjs/react';
 import React from 'react';
-import { Check } from 'react-bootstrap-icons';
+import { ArrowCounterclockwise as ArrowIcon, Check } from 'react-bootstrap-icons';
 
 import Bubble from '@/components/Bubble';
 import { Button } from '@/components/Button';
@@ -104,23 +104,41 @@ export const ButtonChecklist = ({
 }) => {
   const { mutateAsync } = useEditAudit(auditId);
   return (
-    <Tippy content="Setujui hasil audit">
-      <Button
-        size="small"
-        className="mr-2"
-        onClick={() => {
-          mutateAsync({
-            id: auditId,
-            update_count: updateCount,
-            is_approved: true,
-            audit_quantity: auditQty,
-            is_valid: true,
-            user_id: userId,
-          });
-        }}
-      >
-        <Check width={24} height={24} />
-      </Button>
-    </Tippy>
+    <div className="flex">
+      <Tippy content="Setujui hasil audit">
+        <Button
+          size="small"
+          className="mr-2"
+          onClick={() => {
+            mutateAsync({
+              id: auditId,
+              update_count: updateCount,
+              is_approved: true,
+              audit_quantity: auditQty,
+              is_valid: true,
+              user_id: userId,
+            });
+          }}
+        >
+          <Check width={24} height={24} />
+        </Button>
+      </Tippy>
+
+      {/* <Tippy content="Reset kesempatan audit">
+        <Button
+          size="small"
+          className="mr-2"
+          onClick={() => {
+            mutateAsync({
+              id: auditId,
+              update_count: 0,
+              user_id: userId,
+            });
+          }}
+        >
+          <ArrowIcon width={24} height={24} />
+        </Button>
+      </Tippy> */}
+    </div>
   );
 };

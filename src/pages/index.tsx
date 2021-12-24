@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { NextPage } from 'next';
 import React, { useMemo } from 'react';
+import { BagX as FileX } from 'react-bootstrap-icons';
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 import { CardDashboard } from '@/components/Container';
@@ -196,7 +197,7 @@ const getTopSaleFromSales = (data: SalesResponseUnpaginated) => {
     });
   });
 
-  return topSaleItems.sort(({ quantity: qty }, { quantity }) => quantity - qty).slice(0, 5);
+  return topSaleItems.sort(({ quantity: qty }, { quantity }) => quantity - qty).slice(0, 9);
 };
 
 const TopSale = () => {
@@ -216,9 +217,10 @@ const TopSale = () => {
   return (
     <CardDashboard title="Penjualan terbanyak" className="h-full">
       {topSaleItems.length === 0 && (
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center flex-col mb-8">
+          <FileX className="h-24 w-24 mb-16 opacity-50" />
           <span className="max-w-xs text-center">
-            Tidak ada transaksi dari tanggal {formatDateYYYYMMDD(state.startDate)} sampai{' '}
+            Tidak ada penjualan dari tanggal {formatDateYYYYMMDD(state.startDate)} sampai{' '}
             {formatDateYYYYMMDD(state.endDate)}
           </span>
         </div>

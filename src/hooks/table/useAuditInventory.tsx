@@ -144,7 +144,7 @@ const TextFieldEditAudit = ({
               {({ handleClose }) => {
                 return (
                   <>
-                    <h2 className="text-xl font-bold mb-4">Tersissa {3 - updateCount} kali kesempatan</h2>
+                    <h2 className="text-xl font-bold mb-4">Tersisa {3 - updateCount} kali kesempatan</h2>
                     <p>Pastikan jumlah barang benar</p>
                     <p>Setelah kesempatan habis anda tidak bisa mengubah laporan untuk barang di hari ini</p>
                     <ModalActionWrapper>

@@ -17,7 +17,7 @@ import { formatDate, formatToIDR } from '@/utils/format';
 const TransactionPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
-  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
+  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {

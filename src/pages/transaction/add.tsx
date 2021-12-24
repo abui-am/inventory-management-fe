@@ -11,7 +11,7 @@ import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { DatePickerComponent, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
 import ItemToBuyForm, { ItemToBuyFormValues } from '@/components/form/ItemToBuyForm';
-import Modal from '@/components/Modal';
+import Modal, { ModalActionWrapper } from '@/components/Modal';
 import { SelectCustomer, SelectSender } from '@/components/Select';
 import Table from '@/components/Table';
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
@@ -33,6 +33,19 @@ export type AddStockInTableValue = {
   totalPrice: number;
 };
 
+export type AddStockValue = {
+  payAmount: string;
+  dateIn: Date;
+  stockAdjustment: ItemToBuyFormValues[];
+  memo: string;
+  paymentMethod: Option;
+  paymentDue: Date;
+  customer: Option;
+  sender: Option;
+  isNewSupplier: boolean;
+  totalPrice: number;
+};
+
 const AddStockPage: NextPage = () => {
   const { mutateAsync } = useCreateSale();
   const initialValues = {
@@ -48,6 +61,7 @@ const AddStockPage: NextPage = () => {
     totalPrice: 0,
   };
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenSummary, setIsOpenSummary] = useState(false);
 
   const [editValue, setEditvalue] = useState<ItemToBuyFormValues>({
     discount: '',
@@ -56,11 +70,10 @@ const AddStockPage: NextPage = () => {
     qty: '',
   });
 
-  const router = useRouter();
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
-    onSubmit: async (data, { resetForm }) => {
+    onSubmit: async (data) => {
       try {
         await mutateAsync({
           transactionable_type: 'customers',
@@ -88,9 +101,8 @@ const AddStockPage: NextPage = () => {
             };
           }),
         });
-        router.push('/transaction');
 
-        resetForm();
+        setIsOpenSummary(true);
       } catch (e) {
         console.log(e);
       }
@@ -221,13 +233,13 @@ const AddStockPage: NextPage = () => {
                 <label className="mb-1 inline-block">Harga total</label>
                 <p className="text-2xl font-bold">{formatToIDR(values.totalPrice)}</p>
               </div>
-
               <div className="w-full px-2 mb-3">
                 <label className="mb-1 inline-block">Uang yang dibayarkan</label>
                 <TextField
                   id="payAmount"
                   name="payAmount"
                   value={values.payAmount}
+                  type="number"
                   placeholder="Masukan jumlah bayaran"
                   disabled={isSubmitting}
                   onChange={handleChange}
@@ -246,7 +258,6 @@ const AddStockPage: NextPage = () => {
                   />
                 </WithLabelAndError>
               </div>
-
               <div className="w-full px-2 mb-3">
                 <label className="mb-1 inline-block">Catatan</label>
                 <TextField
@@ -291,6 +302,7 @@ const AddStockPage: NextPage = () => {
                 <Button className="mt-4" fullWidth type="submit">
                   Simpan Transaksi
                 </Button>
+                <ModalSummary isOpen={isOpenSummary} values={values} />
               </div>
             </div>
           </div>
@@ -405,6 +417,31 @@ const useBoughtList = () => {
   );
 
   return columns;
+};
+
+const ModalSummary: React.FC<{ isOpen: boolean; values: AddStockValue }> = ({ isOpen, values }) => {
+  const router = useRouter();
+  const handleClick = () => {
+    router.push('/transaction');
+  };
+  return (
+    <Modal isOpen={isOpen}>
+      <div className="justify-center flex flex-col">
+        <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
+        <label className="">Nama Customer</label>
+        <p className="font-bold mb-4">{values.customer.label}</p>
+        <label className="">Harga Total</label>
+        <p className="font-bold mb-4">{formatToIDR(values.totalPrice)}</p>
+        <label className="">Dibayarkan</label>
+        <p className="font-bold mb-4">{formatToIDR(+values.payAmount)}</p>
+        <label className="">Kembalian</label>
+        <p className="text-2xl font-bold mb-4">{formatToIDR(+values.payAmount - values.totalPrice)}</p>
+        <ModalActionWrapper>
+          <Button onClick={handleClick}>Ke Halaman Transaksi</Button>
+        </ModalActionWrapper>
+      </div>
+    </Modal>
+  );
 };
 
 export default AddStockPage;

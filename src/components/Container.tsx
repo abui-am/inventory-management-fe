@@ -26,7 +26,7 @@ const CardDashboard: React.FC<
           {Action}
         </div>
       )}
-      <div>{children}</div>
+      <div className="h-full">{children}</div>
     </Paper>
   );
 };
