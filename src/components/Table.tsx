@@ -85,7 +85,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
       <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
       <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
-          {headerGroups.map((headerGroup) => (
+          {headerGroups.map((headerGroup, i) => (
             <tr {...headerGroup.getHeaderGroupProps()} className="table-themed">
               {headerGroup.headers.map((column: any) => (
                 <th
@@ -100,7 +100,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                         }
                   )}
                 >
-                  <span className="flex">
+                  <span className={clsx('flex', (columns?.[i] as any)?.flexEnd ? 'justify-end' : '')}>
                     {column.render('Header')}
                     <span style={{ marginLeft: 8 }}>{renderHead(column)}</span>
                   </span>

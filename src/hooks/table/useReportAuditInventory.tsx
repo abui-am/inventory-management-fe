@@ -1,3 +1,4 @@
+import Tippy from '@tippyjs/react';
 import React from 'react';
 import { Check } from 'react-bootstrap-icons';
 
@@ -65,14 +66,17 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
         {
           Header: 'Stock tersedia',
           accessor: 'qty',
+          flexEnd: true,
         },
         {
           Header: 'Stock hasil audit',
           accessor: 'auditStock',
+          flexEnd: true,
         },
         {
           Header: 'Nilai perbedaan',
           accessor: 'diffValue',
+          flexEnd: true,
         },
         {
           Header: 'Aksi',
@@ -100,21 +104,23 @@ export const ButtonChecklist = ({
 }) => {
   const { mutateAsync } = useEditAudit(auditId);
   return (
-    <Button
-      size="small"
-      className="mr-2"
-      onClick={() => {
-        mutateAsync({
-          id: auditId,
-          update_count: updateCount,
-          is_approved: true,
-          audit_quantity: auditQty,
-          is_valid: true,
-          user_id: userId,
-        });
-      }}
-    >
-      <Check width={24} height={24} />
-    </Button>
+    <Tippy content="Setujui hasil audit">
+      <Button
+        size="small"
+        className="mr-2"
+        onClick={() => {
+          mutateAsync({
+            id: auditId,
+            update_count: updateCount,
+            is_approved: true,
+            audit_quantity: auditQty,
+            is_valid: true,
+            user_id: userId,
+          });
+        }}
+      >
+        <Check width={24} height={24} />
+      </Button>
+    </Tippy>
   );
 };
