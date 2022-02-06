@@ -62,8 +62,10 @@ const TextField: React.FC<
   const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
   const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
   return (
-    <div className="relative">
-      {Icon && <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>}
+    <div className="relative h-11">
+      {Icon && (
+        <div className="absolute h-4 flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>
+      )}
 
       <input
         {...props}
