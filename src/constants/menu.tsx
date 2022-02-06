@@ -6,6 +6,7 @@ const MENU_LIST = [
     slug: '/',
     displayName: 'Beranda',
     icon: (props = {}): JSX.Element => <House {...props} />,
+    permission: 'view:home',
   },
   {
     id: 'karyawan',

@@ -1,5 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
 import { BagX as FileX } from 'react-bootstrap-icons';
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
@@ -9,6 +10,7 @@ import { DatePickerComponent } from '@/components/Form';
 import SimpleList from '@/components/List';
 import Table from '@/components/Table';
 import { HomeProvider, useHome } from '@/context/home-context';
+import { usePermission } from '@/context/permission-context';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { SalesResponseUnpaginated } from '@/typings/sale';
 import { formatDate, formatDateYYYYMMDD, formatToIDR } from '@/utils/format';
@@ -18,6 +20,19 @@ type CardProps = {
 };
 
 const HomeWithWrapper: React.FC = () => {
+  const permiss = usePermission();
+  const isHavingPermission = permiss.state.permission.includes('view:home');
+  const router = useRouter();
+  if (!isHavingPermission) {
+    const roleIds = permiss.state.roles.map(({ id }) => id);
+    if (roleIds.includes(4)) {
+      router.push('/stock-in-confirmation');
+    }
+
+    if (roleIds.includes(2)) {
+      router.push('/transaction');
+    }
+  }
   return (
     <HomeProvider>
       <Home />

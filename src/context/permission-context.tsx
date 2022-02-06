@@ -4,8 +4,9 @@ import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { RolesData } from '@/typings/role';
 import { getCookie } from '@/utils/cookies';
 
-type State = { permission: PermissionList[] };
+type State = { permission: PermissionList[]; roles: RolesData[] };
 export type PermissionList =
+  | 'view:home'
   | 'control:profile'
   | 'control:transaction'
   | 'control:stock'
@@ -28,6 +29,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
       case 1:
         permission = [
           ...permission,
+          'view:audit',
           'control:profile',
           'control:transaction',
           'control:stock',
@@ -61,7 +63,7 @@ const PermissionProvider: React.FC = ({ children }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const uniquePermission = [...(new Set(permission) as unknown as PermissionList[])];
 
-  const value: State = { permission: uniquePermission };
+  const value: State = { permission: uniquePermission, roles: data?.data.user.roles ?? [] };
   return <PermissionContext.Provider value={{ state: value }}>{children}</PermissionContext.Provider>;
 };
 
