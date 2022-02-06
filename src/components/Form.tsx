@@ -50,6 +50,7 @@ export type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
   Props<OptionTypeBase, false | true> & {
     variant?: SelectVariant;
     additionalStyle?: AdditionalStyle;
+    disableMargin?: boolean;
   };
 
 const TextField: React.FC<
@@ -263,7 +264,7 @@ const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', addit
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
 
-const SelectSortBy: React.FC<ThemedSelectProps> = (props) => {
+const SelectSortBy: React.FC<ThemedSelectProps> = ({ disableMargin, ...props }) => {
   const styles = {
     valueContainer: (base: Record<string, unknown>) => ({
       ...base,
@@ -276,7 +277,7 @@ const SelectSortBy: React.FC<ThemedSelectProps> = (props) => {
       variant="outlined"
       additionalStyle={styles}
       components={{ ValueContainer }}
-      className="w-full sm:w-72 sm:mr-4 mb-4"
+      className={clsx('w-full sm:w-72', !disableMargin && 'sm:mr-4 mb-4')}
       {...props}
     />
   );

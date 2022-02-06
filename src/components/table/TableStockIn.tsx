@@ -186,41 +186,24 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         columns={columns}
         data={data}
         search={() => (
-          <div className="mt-2 mb-6 flex justify-between">
+          <div className="mt-2 mb-4 flex justify-between">
             <h2 className="text-2xl font-bold">
               {variant === 'pending' ? 'Konfirmasi Barang Masuk' : 'Riwayat Barang Masuk'}
             </h2>
 
-            {withCreateButton && (
-              <>
-                <div className="flex">
-                  <div className="flex flex-wrap">
-                    <SelectSortBy
-                      value={sortBy}
-                      onChange={(val) => {
-                        setSortBy(val as Option<string[]>);
-                      }}
-                      options={STOCK_IN_SORT_BY_OPTIONS}
-                    />
-
-                    <SelectSortType
-                      value={sortType}
-                      defaultValue={SORT_TYPE_OPTIONS[1]}
-                      onChange={(val) => {
-                        setSortType(val as Option);
-                      }}
-                    />
-                  </div>
-                  <TextField
-                    Icon={<Search />}
-                    value={search}
-                    onChange={(e) => {
-                      setPaginationUrl('');
-                      setSearch(e.target.value);
-                    }}
-                    variant="contained"
-                    placeholder="Cari nama barang"
-                  />
+            <div className="flex flex-col items-end">
+              <div className="flex mb-4">
+                <TextField
+                  Icon={<Search />}
+                  value={search}
+                  onChange={(e) => {
+                    setPaginationUrl('');
+                    setSearch(e.target.value);
+                  }}
+                  variant="contained"
+                  placeholder="Cari nama barang"
+                />
+                {withCreateButton && (
                   <Link href="/stock-in/add">
                     <a>
                       <Button className="ml-3" Icon={<Calculator className="w-4" />}>
@@ -228,9 +211,26 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
                       </Button>
                     </a>
                   </Link>
-                </div>
-              </>
-            )}
+                )}
+              </div>
+              <div className="flex flex-wrap justify-end -mr-4 -mb-4">
+                <SelectSortBy
+                  value={sortBy}
+                  onChange={(val) => {
+                    setSortBy(val as Option<string[]>);
+                  }}
+                  options={STOCK_IN_SORT_BY_OPTIONS}
+                />
+
+                <SelectSortType
+                  value={sortType}
+                  defaultValue={SORT_TYPE_OPTIONS[1]}
+                  onChange={(val) => {
+                    setSortType(val as Option);
+                  }}
+                />
+              </div>
+            </div>
           </div>
         )}
       />

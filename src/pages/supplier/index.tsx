@@ -70,25 +70,9 @@ const Supplier: NextPage<unknown> = () => {
   );
   return (
     <CardDashboard>
-      <div className="mt-2 mb-6 justify-between sm:flex">
+      <div className="mt-2 mb-4 justify-between sm:flex">
         <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Supplier</h2>
-        <div className="flex sm:flex-row flex-col-reverse">
-          <div className="flex flex-wrap">
-            <SelectSortBy
-              options={SUPPLIER_SORT_BY_OPTIONS}
-              value={sortBy}
-              onChange={(val) => {
-                setSortBy(val as Option<string[]>);
-              }}
-            />
-            <SelectSortType
-              value={sortType}
-              onChange={(val) => {
-                setSortType(val as Option);
-              }}
-            />
-          </div>
-
+        <div className="flex flex-col items-end">
           <div className="flex">
             <div className="mr-4 mb-4">
               <TextField
@@ -106,8 +90,24 @@ const Supplier: NextPage<unknown> = () => {
               </a>
             </Link>
           </div>
+          <div className="flex flex-wrap justify-end -mr-4 -mb-4">
+            <SelectSortBy
+              options={SUPPLIER_SORT_BY_OPTIONS}
+              value={sortBy}
+              onChange={(val) => {
+                setSortBy(val as Option<string[]>);
+              }}
+            />
+            <SelectSortType
+              value={sortType}
+              onChange={(val) => {
+                setSortType(val as Option);
+              }}
+            />
+          </div>
         </div>
       </div>
+
       <Table columns={columns} data={data} />
       <Pagination
         stats={{

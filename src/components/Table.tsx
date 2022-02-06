@@ -36,6 +36,7 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
     preGlobalFilteredRows: Row<Record<string, unknown>>[];
     setGlobalFilter: (filterValue: unknown) => void;
   }) => JSX.Element;
+  filter?: () => JSX.Element;
 };
 
 const ResponsiveTable: React.FC<TableProps<Record<string, unknown>> & { withPagination?: boolean }> = (props) => {
@@ -56,6 +57,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   search = () => <div />,
   enableAutoSort = false,
   withPagination = false,
+  filter = () => <div />,
 }: TableProps<Record<string, unknown>> & { withPagination?: boolean }): JSX.Element {
   const {
     getTableProps,
@@ -82,7 +84,10 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
 
   return (
     <>
-      <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
+      <div className="w-full mb-4">
+        {search && search({ state, preGlobalFilteredRows, setGlobalFilter })}
+        {filter && filter()}
+      </div>
       <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup, i) => (
@@ -169,7 +174,12 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   );
 }
 
-const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({ columns, data, search = () => <div /> }) => {
+const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({
+  columns,
+  data,
+  search = () => <div />,
+  filter,
+}) => {
   const { rows, prepareRow, state, setGlobalFilter, preGlobalFilteredRows } = useTable(
     { columns, data },
     useGlobalFilter
@@ -177,7 +187,10 @@ const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({ columns, da
 
   return (
     <div>
-      <div className="w-full">{search && search({ state, preGlobalFilteredRows, setGlobalFilter })}</div>
+      <div className="w-full mb-4">
+        {search && search({ state, preGlobalFilteredRows, setGlobalFilter })}
+        {filter && filter()}
+      </div>
       {rows.map((row) => {
         prepareRow(row);
         return (

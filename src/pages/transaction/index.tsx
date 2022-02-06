@@ -113,11 +113,30 @@ const TransactionPage: NextPage<unknown> = () => {
         columns={columns}
         data={data}
         search={() => (
-          <div className="mt-2 mb-6 flex justify-between">
+          <div className="mt-2 mb-4 flex justify-between">
             <h2 className="text-2xl font-bold">Daftar Transaksi</h2>
+            <div className="flex flex-col items-end">
+              <div className="flex flex-wrap mb-4">
+                <TextField
+                  Icon={<Search />}
+                  value={search}
+                  onChange={(e) => {
+                    setPaginationUrl('');
+                    setSearch(e.target.value);
+                  }}
+                  variant="contained"
+                  placeholder="Cari nama transaksi"
+                />
+                <Link href="/transaction/add">
+                  <a>
+                    <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
+                      Tambah
+                    </Button>
+                  </a>
+                </Link>
+              </div>
 
-            <div className="flex">
-              <div className="flex flex-wrap">
+              <div className="flex flex-wrap justify-end -mr-4 -mb-4">
                 <SelectSortBy
                   value={sortBy}
                   onChange={(val) => {
@@ -134,23 +153,6 @@ const TransactionPage: NextPage<unknown> = () => {
                   }}
                 />
               </div>
-              <TextField
-                Icon={<Search />}
-                value={search}
-                onChange={(e) => {
-                  setPaginationUrl('');
-                  setSearch(e.target.value);
-                }}
-                variant="contained"
-                placeholder="Cari nama transaksi"
-              />
-              <Link href="/transaction/add">
-                <a>
-                  <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
-                    Tambah
-                  </Button>
-                </a>
-              </Link>
             </div>
           </div>
         )}
