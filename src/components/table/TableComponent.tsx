@@ -94,7 +94,7 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
       </Tippy>
 
       <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
-        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Barang Masuk</h2>
+        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Penjualan</h2>
         <div className="flex">
           <div className="flex-1">
             <ItemInfo info={{ created_at, invoice_number, transaction_code, payment_method, items }} />

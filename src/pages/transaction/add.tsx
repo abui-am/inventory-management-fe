@@ -131,12 +131,17 @@ const AddStockPage: NextPage = () => {
         <Button
           variant="outlined"
           tabIndex={-1}
-          onClick={() =>
+          onClick={() => {
+            const newValue = values.stockAdjustment.filter((value) => value.id !== id);
+            setFieldValue('stockAdjustment', newValue);
             setFieldValue(
-              'stockAdjustment',
-              values.stockAdjustment.filter((value) => value.id !== id)
-            )
-          }
+              'totalPrice',
+              newValue.reduce(
+                (prev, { item, qty, discount }) => (item?.data?.sell_price ?? 0 - +discount) * +qty + prev,
+                0
+              )
+            );
+          }}
           size="small"
         >
           <Trash width={24} height={24} />
@@ -191,7 +196,7 @@ const AddStockPage: NextPage = () => {
             </div>
 
             <div className="w-6/12 px-2 mb-3">
-              <label className="mb-1 inline-block">Tanggal masuk</label>
+              <label className="mb-1 inline-block">Tanggal penjualan</label>
               <DatePickerComponent
                 id="dateIn"
                 name="dateIn"

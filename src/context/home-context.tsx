@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import * as React from 'react';
 
 type State = { startDate: Date; endDate: Date };
@@ -26,7 +27,7 @@ function homeReducer(state: State, action: HomeAction) {
 }
 
 const HomeProvider: React.FC = ({ children }) => {
-  const defValue: State = { startDate: new Date(), endDate: new Date() };
+  const defValue: State = { startDate: dayjs().add(-7, 'day').toDate(), endDate: new Date() };
   const [state, dispatch] = React.useReducer(homeReducer, defValue);
 
   const value = { state, dispatch };

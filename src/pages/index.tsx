@@ -234,7 +234,12 @@ const TopSale = () => {
 };
 
 const LastTransaction = () => {
-  const { data } = useFetchSales({ per_page: 6 });
+  const { data } = useFetchSales({
+    per_page: 6,
+    order_by: {
+      created_at: 'desc',
+    },
+  });
   const dataTable =
     data?.data.transactions.data.map(({ transaction_code, created_at, payment_method, items, customer }) => ({
       id: transaction_code,
