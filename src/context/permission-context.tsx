@@ -29,7 +29,6 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
       case 1:
         permission = [
           ...permission,
-          'view:audit',
           'control:profile',
           'control:transaction',
           'control:stock',
@@ -39,6 +38,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:item',
           'control:audit',
           'view:audit',
+          'view:home',
         ];
         break;
 
