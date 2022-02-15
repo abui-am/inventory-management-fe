@@ -38,6 +38,9 @@ export type CreateEmployeePutBody = {
   phone_number: string;
   position: string;
   addresses: Address[];
+  salary: number;
+  debt?: number;
+  active?: boolean;
 };
 
 export interface Address {
@@ -91,6 +94,9 @@ export interface Employee {
   addresses: AddressDetail[];
   user: EmployeeUser;
   has_dashboard_account: boolean;
+  salary: number;
+  debt: number | null;
+  active: boolean;
 }
 
 export interface EmployeeDetailRes {

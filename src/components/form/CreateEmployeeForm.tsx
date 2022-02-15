@@ -40,6 +40,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
   const initialValues =
     isEdit && !isLoading
       ? {
+          salary: editingEmployee?.salary ?? 0,
           firstName: editingEmployee?.first_name ?? '',
           lastName: editingEmployee?.last_name ?? '',
           nik: editingEmployee?.nik ?? '',
@@ -59,6 +60,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           village: village ? createOption(village?.name ?? '', village?.id?.toString() ?? '') : ({} as Partial<Option>),
         }
       : {
+          salary: 0,
           firstName: '',
           lastName: '',
           nik: '',
@@ -81,7 +83,8 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
     initialValues,
     enableReinitialize: isEdit,
     onSubmit: async (values) => {
-      const { firstName, lastName, nik, birthday, gender, email, handphoneNumber, position, village, address } = values;
+      const { firstName, salary, lastName, nik, birthday, gender, email, handphoneNumber, position, village, address } =
+        values;
       setSubmitting(true);
 
       const jsonBody: CreateEmployeePutBody = {
@@ -93,6 +96,8 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
         email,
         phone_number: handphoneNumber,
         position,
+        salary,
+        active: true,
         addresses: [
           {
             village_id: +(village?.value ?? 0),
@@ -164,6 +169,11 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
               <label className="mb-1 inline-block">Jabatan</label>
               <TextField placeholder="Jabatan" onChange={handleChange} name="position" value={values.position} />
               {errors.position && touched.position && <span className="text-xs text-red-500">{errors.position}</span>}
+            </div>
+            <div>
+              <label className="mb-1 inline-block">Gaji</label>
+              <TextField type="number" placeholder="Gaji" onChange={handleChange} name="salary" value={values.salary} />
+              {errors.salary && touched.salary && <span className="text-xs text-red-500">{errors.salary}</span>}
             </div>
           </div>
         </div>

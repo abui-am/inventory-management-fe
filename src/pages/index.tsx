@@ -189,7 +189,6 @@ const Home: NextPage = () => {
 
 const getTopSaleFromSales = (data: SalesResponseUnpaginated) => {
   let topSaleItems: { id: string; name: string; quantity: number }[] = [];
-  console.log(data, 'datatad');
   data?.transactions?.forEach?.(({ items }) => {
     items.forEach(({ pivot }) => {
       let exist = false;

@@ -14,6 +14,7 @@ import { useFetchEmployeeById, useFetchMyself } from '@/hooks/query/useFetchEmpl
 import { useFetchUserById } from '@/hooks/query/useFetchUser';
 import { Employee } from '@/typings/employee';
 import { formatDate } from '@/utils/format';
+import formatCurrency from '@/utils/formatCurrency';
 
 const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
@@ -76,7 +77,7 @@ const EmployeeInfo = ({
   data: Omit<Employee, 'first_name' | 'last_name'>;
   isLoading: boolean;
 }) => {
-  const { birth_date, gender, email, phone_number, addresses } = data;
+  const { birth_date, gender, email, phone_number, addresses, salary, active, debt } = data;
   const address = addresses?.filter((val) => val.title === 'Alamat Rumah')[0];
   const { village } = address ?? {};
   const { subdistrict } = village ?? {};
@@ -117,6 +118,28 @@ const EmployeeInfo = ({
           )}
         </div>
       </div>
+      {active !== undefined && (
+        <>
+          <div className="relative flex py-5 items-center">
+            <span className="text-lg font-bold flex-shrink mr-4">Info Khusus Perusahaan</span>
+            <div className="flex-grow border-t border-gray-400" />
+          </div>
+
+          <div className="flex mb-4">
+            <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Gaji:</div>
+            <div className="flex-1">{formatCurrency({ value: salary })}</div>
+          </div>
+
+          <div className="flex mb-4">
+            <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Jumlah Hutang:</div>
+            <div className="flex-1">{debt ? formatCurrency({ value: debt }) : 'IDR 0'}</div>
+          </div>
+          <div className="flex mb-4">
+            <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Pegawai Aktif:</div>
+            <div className="flex-1">{active ? 'Iya' : 'Tidak'}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
