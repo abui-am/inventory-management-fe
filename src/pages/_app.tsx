@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
+import 'tippy.js/dist/tippy.css'; // optional
 
 import dayjs from 'dayjs';
 import { AppProps } from 'next/app';
@@ -14,7 +15,7 @@ import { PermissionProvider } from '@/context/permission-context';
 import Layout from '@/layouts/Layout';
 import parseCookies from '@/utils/cookies';
 require('dayjs/locale/id');
-dayjs.locale('id');
+dayjs.locale('id'); // optional
 
 type MyAppProps = AppProps & { dehydrateState: DehydratedState };
 

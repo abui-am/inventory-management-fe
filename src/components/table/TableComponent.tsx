@@ -1,4 +1,5 @@
-import React from 'react';
+import Tippy from '@tippyjs/react';
+import React, { useMemo } from 'react';
 import { Calculator, Eye } from 'react-bootstrap-icons';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
@@ -86,12 +87,14 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
 
   return (
     <>
-      <Button size="small" onClick={() => setOpen((open) => !open)}>
-        <Eye width={24} height={24} />
-      </Button>
+      <Tippy content="Lihat detail">
+        <Button size="small" onClick={() => setOpen((open) => !open)}>
+          <Eye width={24} height={24} />
+        </Button>
+      </Tippy>
 
       <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
-        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Barang Masuk</h2>
+        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Penjualan</h2>
         <div className="flex">
           <div className="flex-1">
             <ItemInfo info={{ created_at, invoice_number, transaction_code, payment_method, items }} />
@@ -103,11 +106,11 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Pengirim:</span>
-              <div>{`${sender?.first_name} ${sender.last_name}`}</div>
+              <div>{`${sender?.first_name} ${sender?.last_name}`}</div>
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Kasir:</span>
-              <div>{`${pic?.employee.first_name} ${pic?.employee.last_name}`}</div>
+              <div>{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</div>
             </div>
           </section>
         </div>
@@ -152,9 +155,10 @@ const ItemInfo: React.FC<{
 
 export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ transactionId }) => {
   const [open, setOpen] = React.useState(false);
-  const { data: dataTrans } = useFetchTransactionById(transactionId, { enabled: open });
+  const { data: dataTrans, isFetching } = useFetchTransactionById(transactionId, { enabled: open });
 
-  const { items = [] } = dataTrans?.data.transaction ?? {};
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const { items = [] } = useMemo(() => dataTrans?.data.transaction ?? { items: [] }, [isFetching]);
   const { columns, data, dataSellPrice } = useDetailStockInAdaptor(items, true);
   const { mutateAsync } = useUpdateStockIn();
   return (

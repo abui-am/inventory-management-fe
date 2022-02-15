@@ -12,7 +12,6 @@ import {
   useSearchItems,
   useSearchProvince,
   useSearchSubdistrict,
-  useSearchSuppliers,
   useSearchVillage,
 } from '@/hooks/mutation/useSearch';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
@@ -51,6 +50,7 @@ export type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
   Props<OptionTypeBase, false | true> & {
     variant?: SelectVariant;
     additionalStyle?: AdditionalStyle;
+    disableMargin?: boolean;
   };
 
 const TextField: React.FC<
@@ -63,8 +63,10 @@ const TextField: React.FC<
   const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
   const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
   return (
-    <div className="relative">
-      {Icon && <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>}
+    <div className="relative h-11">
+      {Icon && (
+        <div className="absolute h-4 flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>
+      )}
 
       <input
         {...props}
@@ -120,6 +122,7 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
     <div className="relative customDatePickerWidth">
       <DatePicker
         {...props}
+        dateFormat="dd/MM/yyyy"
         className={clsx(
           'pl-11 border border-gray-300',
           'h-11 w-full rounded-md px-3 outline-none',
@@ -257,25 +260,11 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
   );
 };
 
-const SelectSupplier: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
-  const { mutateAsync: search } = useSearchSuppliers();
-  return (
-    <CreatableAsyncSelect
-      {...props}
-      styles={getThemedSelectStyle(variant, additionalStyle)}
-      loadOptions={async (val) => {
-        const { data } = await search({ search: val });
-        return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));
-      }}
-    />
-  );
-};
-
 const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
 };
 
-const SelectSortBy: React.FC<ThemedSelectProps> = (props) => {
+const SelectSortBy: React.FC<ThemedSelectProps> = ({ disableMargin, ...props }) => {
   const styles = {
     valueContainer: (base: Record<string, unknown>) => ({
       ...base,
@@ -288,7 +277,7 @@ const SelectSortBy: React.FC<ThemedSelectProps> = (props) => {
       variant="outlined"
       additionalStyle={styles}
       components={{ ValueContainer }}
-      className="w-full sm:w-72 sm:mr-4 mb-4"
+      className={clsx('w-full sm:w-72', !disableMargin && 'sm:mr-4 mb-4')}
       {...props}
     />
   );
@@ -339,7 +328,6 @@ export {
   SelectSortBy,
   SelectSortType,
   SelectSubdistrict,
-  SelectSupplier,
   SelectVillage,
   TextArea,
   TextField,

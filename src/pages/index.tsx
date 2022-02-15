@@ -1,15 +1,43 @@
 /* eslint-disable react/no-array-index-key */
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
+import { BagX as FileX } from 'react-bootstrap-icons';
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 import { CardDashboard } from '@/components/Container';
+import { DatePickerComponent } from '@/components/Form';
 import SimpleList from '@/components/List';
 import Table from '@/components/Table';
-import { formatToIDR } from '@/utils/format';
+import { HomeProvider, useHome } from '@/context/home-context';
+import { usePermission } from '@/context/permission-context';
+import useFetchSales from '@/hooks/query/useFetchSale';
+import { SalesResponseUnpaginated } from '@/typings/sale';
+import { formatDate, formatDateYYYYMMDD, formatToIDR } from '@/utils/format';
 type CardProps = {
   label: string;
   value: string | number;
+};
+
+const HomeWithWrapper: React.FC = () => {
+  const permiss = usePermission();
+  const isHavingPermission = permiss.state.permission.includes('view:home');
+  const router = useRouter();
+  if (!isHavingPermission) {
+    const roleIds = permiss.state.roles.map(({ id }) => id);
+    if (roleIds.includes(4)) {
+      router.push('/stock-in-confirmation');
+    }
+
+    if (roleIds.includes(2)) {
+      router.push('/transaction');
+    }
+  }
+  return (
+    <HomeProvider>
+      <Home />
+    </HomeProvider>
+  );
 };
 
 const Home: NextPage = () => {
@@ -17,16 +45,6 @@ const Home: NextPage = () => {
     { label: 'Pengeluaran', value: formatToIDR(98000) },
     { label: 'pemasukan', value: formatToIDR(120000) },
     { label: 'Jumlah transaksi', value: 20 },
-  ];
-
-  const topSales = [
-    { label: 'Minyak', value: formatToIDR(25000) },
-    { label: 'Minyak', value: formatToIDR(25000) },
-    { label: 'Minyak', value: formatToIDR(25000) },
-    { label: 'Minyak', value: formatToIDR(25000) },
-    { label: 'Minyak', value: formatToIDR(25000) },
-    { label: 'Minyak', value: formatToIDR(25000) },
-    { label: 'Minyak', value: formatToIDR(25000) },
   ];
 
   const data = [
@@ -74,37 +92,6 @@ const Home: NextPage = () => {
     },
   ];
 
-  const dataTable = [
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-    { col1: '16 Nov 21, 16:45', col2: 'Korek Api', col3: 12, col4: 'Rp12000' },
-  ];
-
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Tanggal',
-        accessor: 'col1', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Nama barang',
-        accessor: 'col2',
-      },
-      {
-        Header: 'Jumlah',
-        accessor: 'col3',
-      },
-      {
-        Header: 'Total harga',
-        accessor: 'col4',
-      },
-    ],
-    []
-  );
-
   const dataPie = [
     { name: 'Group A', value: 400 },
     { name: 'Group B', value: 300 },
@@ -112,13 +99,31 @@ const Home: NextPage = () => {
     { name: 'Group D', value: 200 },
   ];
 
+  const { state, dispatch } = useHome();
+
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <div>
       <section id="head" className="flex">
         <div className="flex-1 text-2xl font-bold mb-8 sm:mx-0 mx-6">Overview</div>
-        <div className="flex-1 max-w-sm" />
+        <div className="flex-1 max-w-sm">
+          <div className="flex items-center">
+            <DatePickerComponent
+              selected={state.startDate}
+              onChange={(val) => {
+                dispatch({ type: 'setStartDate', payload: val as Date });
+              }}
+            />
+            <span className="ml-2 mr-2">to</span>
+            <DatePickerComponent
+              selected={state.endDate}
+              onChange={(val) => {
+                dispatch({ type: 'setEndDate', payload: val as Date });
+              }}
+            />
+          </div>
+        </div>
       </section>
       <section id="body" className="flex flex-wrap -m-3">
         <div className="w-full sm:w-8/12">
@@ -145,17 +150,10 @@ const Home: NextPage = () => {
           </div>
         </div>
         <div className="w-full sm:w-4/12 p-3">
-          <CardDashboard title="Penjualan terbanyak">
-            {topSales.map(({ label, value }, index) => {
-              // eslint-disable-next-line react/no-array-index-key
-              return <SimpleList key={`${label}-${index}`} label={label} value={value} withTopDivider />;
-            })}
-          </CardDashboard>
+          <TopSale />
         </div>
         <div className="w-full sm:w-8/12 p-3">
-          <CardDashboard title="Transaksi terakhir">
-            <Table columns={columns} data={dataTable} />
-          </CardDashboard>
+          <LastTransaction />
         </div>
         <div className="w-full sm:w-4/12 p-3">
           <CardDashboard title="Kategori terpopuler" style={{ height: 489 }}>
@@ -189,6 +187,115 @@ const Home: NextPage = () => {
   );
 };
 
+const getTopSaleFromSales = (data: SalesResponseUnpaginated) => {
+  let topSaleItems: { id: string; name: string; quantity: number }[] = [];
+  console.log(data, 'datatad');
+  data?.transactions?.forEach?.(({ items }) => {
+    items.forEach(({ pivot }) => {
+      let exist = false;
+      const tempTopSale = [...topSaleItems];
+      topSaleItems.forEach((value, index) => {
+        if (value.id === pivot.item_id) {
+          tempTopSale[index].quantity += +pivot.quantity;
+          exist = true;
+        }
+      });
+
+      if (!exist) {
+        tempTopSale.push({
+          id: pivot.item_id,
+          name: pivot.item_name,
+          quantity: pivot.quantity,
+        });
+      }
+      topSaleItems = tempTopSale;
+    });
+  });
+
+  return topSaleItems.sort(({ quantity: qty }, { quantity }) => quantity - qty).slice(0, 9);
+};
+
+const TopSale = () => {
+  const { state } = useHome();
+  const { data, isFetching } = useFetchSales<SalesResponseUnpaginated>({
+    start_date: state.startDate,
+    end_date: state.endDate,
+    paginated: false,
+  });
+
+  const topSaleItems = useMemo(
+    () => getTopSaleFromSales(data?.data as SalesResponseUnpaginated),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isFetching]
+  );
+
+  return (
+    <CardDashboard title="Penjualan terbanyak" className="h-full">
+      {topSaleItems.length === 0 && (
+        <div className="w-full h-full flex items-center justify-center flex-col mb-8">
+          <FileX className="h-24 w-24 mb-16 opacity-50" />
+          <span className="max-w-xs text-center">
+            Tidak ada penjualan dari tanggal {formatDateYYYYMMDD(state.startDate)} sampai{' '}
+            {formatDateYYYYMMDD(state.endDate)}
+          </span>
+        </div>
+      )}
+      {(topSaleItems || []).map(({ name, id, quantity }) => {
+        // eslint-disable-next-line react/no-array-index-key
+        return <SimpleList key={`${name}-${id}`} label={name} value={quantity} withTopDivider />;
+      })}
+    </CardDashboard>
+  );
+};
+
+const LastTransaction = () => {
+  const { data } = useFetchSales({
+    per_page: 6,
+    order_by: {
+      created_at: 'desc',
+    },
+  });
+  const dataTable =
+    data?.data.transactions.data.map(({ transaction_code, created_at, payment_method, items, customer }) => ({
+      id: transaction_code,
+      date: formatDate(created_at, { withHour: true }),
+      purchaseMethod: payment_method,
+      payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+      customer: customer.full_name,
+    })) ?? [];
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Kode Transaksi',
+        accessor: 'id', // accessor is the "key" in the data
+      },
+      {
+        Header: 'Tanggal',
+        accessor: 'date',
+      },
+      {
+        Header: 'Pembeli',
+        accessor: 'customer',
+      },
+      {
+        Header: 'Metode Pembayaran',
+        accessor: 'purchaseMethod',
+      },
+      {
+        Header: 'Pembayaran',
+        accessor: 'payAmount',
+      },
+    ],
+    []
+  );
+
+  return (
+    <CardDashboard title="Transaksi terakhir">
+      <Table columns={columns} data={dataTable} />
+    </CardDashboard>
+  );
+};
+
 const Card = ({ label, value }: CardProps) => {
   return (
     <CardDashboard>
@@ -198,4 +305,4 @@ const Card = ({ label, value }: CardProps) => {
   );
 };
 
-export default Home;
+export default HomeWithWrapper;

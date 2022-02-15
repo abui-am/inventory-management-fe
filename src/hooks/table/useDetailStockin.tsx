@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { TextField } from '@/components/Form';
 import { TrasactionItem } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
 export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAdjustment: boolean) => {
-  const [dataSellPrice, setDataSellPrice] = React.useState<{ id: string; sell_price: number }[]>(
-    items.map(({ id }) => ({ id, sell_price: 0 }))
-  );
+  const [dataSellPrice, setDataSellPrice] = React.useState<{ id: string; sell_price: number }[]>([]);
+
+  useEffect(() => {
+    setDataSellPrice(items.map(({ id }) => ({ id, sell_price: 0 })));
+  }, [items]);
+
+  console.log(dataSellPrice, 'data');
+
   const getData = () => {
     if (!withSellPriceAdjustment) {
       return items.map(({ name, unit, pivot }) => ({

@@ -7,13 +7,14 @@ import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
+import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { SORT_TYPE_OPTIONS, SUPPLIER_SORT_BY_OPTIONS } from '@/constants/options';
-import { useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
+import { useFetchSupplierById, useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
 import { Option } from '@/typings/common';
 
-const Home: NextPage<unknown> = () => {
+const Supplier: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(SUPPLIER_SORT_BY_OPTIONS[0]);
@@ -45,13 +46,7 @@ const Home: NextPage<unknown> = () => {
     address,
     action: (
       <div className="flex">
-        <Link href={`/supplier/${id}`}>
-          <a>
-            <Button size="small">
-              <Eye width={24} height={24} />
-            </Button>
-          </a>
-        </Link>
+        <ShowModal supplierId={id} />
         <Button size="small" variant="secondary" className="ml-2" onClick={() => push(`/supplier/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
@@ -65,14 +60,7 @@ const Home: NextPage<unknown> = () => {
         Header: 'Nama Supplier',
         accessor: 'name', // accessor is the "key" in the data
       },
-      {
-        Header: 'Nomor Telepon',
-        accessor: 'phone_number',
-      },
-      {
-        Header: 'Alamat',
-        accessor: 'address',
-      },
+
       {
         Header: 'Aksi',
         accessor: 'action',
@@ -82,25 +70,9 @@ const Home: NextPage<unknown> = () => {
   );
   return (
     <CardDashboard>
-      <div className="mt-2 mb-6 justify-between sm:flex">
+      <div className="mt-2 mb-4 justify-between sm:flex">
         <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Supplier</h2>
-        <div className="flex sm:flex-row flex-col-reverse">
-          <div className="flex flex-wrap">
-            <SelectSortBy
-              options={SUPPLIER_SORT_BY_OPTIONS}
-              value={sortBy}
-              onChange={(val) => {
-                setSortBy(val as Option<string[]>);
-              }}
-            />
-            <SelectSortType
-              value={sortType}
-              onChange={(val) => {
-                setSortType(val as Option);
-              }}
-            />
-          </div>
-
+        <div className="flex flex-col items-end">
           <div className="flex">
             <div className="mr-4 mb-4">
               <TextField
@@ -118,8 +90,24 @@ const Home: NextPage<unknown> = () => {
               </a>
             </Link>
           </div>
+          <div className="flex flex-wrap justify-end -mr-4 -mb-4">
+            <SelectSortBy
+              options={SUPPLIER_SORT_BY_OPTIONS}
+              value={sortBy}
+              onChange={(val) => {
+                setSortBy(val as Option<string[]>);
+              }}
+            />
+            <SelectSortType
+              value={sortType}
+              onChange={(val) => {
+                setSortType(val as Option);
+              }}
+            />
+          </div>
         </div>
       </div>
+
       <Table columns={columns} data={data} />
       <Pagination
         stats={{
@@ -142,4 +130,41 @@ const Home: NextPage<unknown> = () => {
   );
 };
 
-export default Home;
+const ShowModal = ({ supplierId }: { supplierId: string }) => {
+  const { data } = useFetchSupplierById(supplierId);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const supplier = data?.data?.supplier;
+
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      <Button size="small" onClick={handleOpen}>
+        <Eye width={24} height={24} />
+      </Button>
+      <Modal isOpen={isOpen} onRequestClose={handleClose}>
+        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Supplier</h2>
+        <div className="mb-2">
+          <span className="text-blueGray-600 mb-1 block">Supplier:</span>
+          <div>{supplier?.name}</div>
+        </div>
+        <div className="mb-2">
+          <span className="text-blueGray-600 mb-1 block">Nomor HP:</span>
+          <div>{supplier?.phone_number}</div>
+        </div>
+        <div className="mb-2">
+          <span className="text-blueGray-600 mb-1 block">Alamat:</span>
+          <div>{supplier?.address}</div>
+        </div>
+      </Modal>
+    </>
+  );
+};
+export default Supplier;

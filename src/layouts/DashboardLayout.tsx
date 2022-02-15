@@ -31,9 +31,9 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
   function logout() {
     setShowMenu(false);
-    removeCookie('INVT_TOKEN');
-    removeCookie('INVT_USERID');
-    removeCookie('INVT_USERNAME');
+    removeCookie('INVT-TOKEN');
+    removeCookie('INVT-USERID');
+    removeCookie('INVT-USERNAME');
     query.invalidateQueries();
     push('/login');
   }

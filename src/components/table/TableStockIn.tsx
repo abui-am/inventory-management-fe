@@ -1,16 +1,19 @@
+import Tippy from '@tippyjs/react';
 import Link from 'next/link';
-import React from 'react';
-import { Calculator, Check, Pencil, Search, X } from 'react-bootstrap-icons';
+import React, { useState } from 'react';
+import { Calculator, Check, Pencil, Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
 import Tag from '@/components/Tag';
+import { SORT_TYPE_OPTIONS, STOCK_IN_SORT_BY_OPTIONS } from '@/constants/options';
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
+import { Option } from '@/typings/common';
 import { TransactionData } from '@/typings/stock-in';
 import { formatDate, formatToIDR } from '@/utils/format';
 
-import { Button } from '../Button';
-import { TextField } from '../Form';
+import { Button, ButtonCancelTransaction } from '../Button';
+import { SelectSortBy, SelectSortType, TextField } from '../Form';
 import Pagination from '../Pagination';
 import { DetailStockIn, getTagValue, SellPriceAdjustment } from './TableComponent';
 
@@ -20,70 +23,68 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
 }) => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const { mutateAsync: updateStockIn } = useUpdateStockIn();
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(STOCK_IN_SORT_BY_OPTIONS[0]);
+  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
+  const [pageSize, setPageSize] = useState(10);
+  const params = sortBy?.data?.reduce((previousValue, currentValue) => {
+    return { ...previousValue, [currentValue]: sortType?.value };
+  }, {});
 
   const getAction = (transaction: TransactionData) => {
     switch (variant) {
       case 'all':
         return (
           <div className="flex">
-            <DetailStockIn transactions={transaction} />
+            <Tippy content="Lihat detail barang masuk">
+              <div>
+                <DetailStockIn transactions={transaction} />
+              </div>
+            </Tippy>
           </div>
         );
       case 'pending':
         return (
           <div className="flex">
-            <Button
-              size="small"
-              className="mr-2"
-              onClick={() =>
-                updateStockIn({
-                  transactionId: transaction.id,
-                  data: {
-                    status: 'on-review',
-                  },
-                })
-              }
-            >
-              <Check width={24} height={24} />
-            </Button>
-            <DetailStockIn transactions={transaction} />
-            <Button size="small" variant="outlined" className="ml-2">
-              <X
-                onClick={() => {
+            <Tippy content="Lihat detail barang masuk">
+              <div className="mr-2">
+                <DetailStockIn transactions={transaction} />
+              </div>
+            </Tippy>
+            <Tippy content="Konfirmasi barang masuk">
+              <Button
+                size="small"
+                className="mr-2"
+                onClick={() =>
                   updateStockIn({
                     transactionId: transaction.id,
                     data: {
-                      status: 'declined',
+                      status: 'on-review',
                     },
-                  });
-                }}
-                width={24}
-                height={24}
-              />
-            </Button>
+                  })
+                }
+              >
+                <Check width={24} height={24} />
+              </Button>
+            </Tippy>
+            <ButtonCancelTransaction transactionId={transaction.id} />
           </div>
         );
       case 'on-review':
         return (
           <div className="flex">
-            <DetailStockIn transactions={transaction} />
-            <div className="ml-2">
-              <SellPriceAdjustment transactionId={transaction.id} />
-            </div>
-            <Button size="small" variant="outlined" className="ml-2">
-              <X
-                onClick={() => {
-                  updateStockIn({
-                    transactionId: transaction.id,
-                    data: {
-                      status: 'declined',
-                    },
-                  });
-                }}
-                width={24}
-                height={24}
-              />
-            </Button>
+            <Tippy content="Lihat detail barang masuk">
+              <div className="mr-2">
+                <DetailStockIn transactions={transaction} />
+              </div>
+            </Tippy>
+
+            <Tippy content="Tentukan harga jual barang">
+              <div className="mr-2">
+                <SellPriceAdjustment transactionId={transaction.id} />
+              </div>
+            </Tippy>
+            <ButtonCancelTransaction transactionId={transaction.id} />
           </div>
         );
       default:
@@ -106,8 +107,10 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         }
       : {};
   const { data: dataTrasaction } = useFetchTransactions({
-    order_by: { created_at: 'desc' },
+    order_by: params,
     forceUrl: paginationUrl,
+    search,
+    per_page: pageSize,
     ...queryVariant,
   });
 
@@ -119,6 +122,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     links,
     next_page_url,
     prev_page_url,
+    last_page_url,
   } = dataTrasaction?.data.transactions ?? {};
   const data = dataRes.map(
     ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
@@ -181,21 +185,25 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
       <Table
         columns={columns}
         data={data}
-        search={({ setGlobalFilter }) => (
-          <div className="mt-2 mb-6 flex justify-between">
+        search={() => (
+          <div className="mt-2 mb-4 flex justify-between">
             <h2 className="text-2xl font-bold">
               {variant === 'pending' ? 'Konfirmasi Barang Masuk' : 'Riwayat Barang Masuk'}
             </h2>
 
-            {withCreateButton && (
-              <>
-                <div className="flex">
-                  <TextField
-                    Icon={<Search />}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    variant="contained"
-                    placeholder="Cari nama barang"
-                  />
+            <div className="flex flex-col items-end">
+              <div className="flex mb-4">
+                <TextField
+                  Icon={<Search />}
+                  value={search}
+                  onChange={(e) => {
+                    setPaginationUrl('');
+                    setSearch(e.target.value);
+                  }}
+                  variant="contained"
+                  placeholder="Cari nama barang"
+                />
+                {withCreateButton && (
                   <Link href="/stock-in/add">
                     <a>
                       <Button className="ml-3" Icon={<Calculator className="w-4" />}>
@@ -203,9 +211,26 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
                       </Button>
                     </a>
                   </Link>
-                </div>
-              </>
-            )}
+                )}
+              </div>
+              <div className="flex flex-wrap justify-end -mr-4 -mb-4">
+                <SelectSortBy
+                  value={sortBy}
+                  onChange={(val) => {
+                    setSortBy(val as Option<string[]>);
+                  }}
+                  options={STOCK_IN_SORT_BY_OPTIONS}
+                />
+
+                <SelectSortType
+                  value={sortType}
+                  defaultValue={SORT_TYPE_OPTIONS[1]}
+                  onChange={(val) => {
+                    setSortType(val as Option);
+                  }}
+                />
+              </div>
+            </div>
           </div>
         )}
       />
@@ -224,6 +249,13 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         }}
         onClickPrevious={() => {
           setPaginationUrl(prev_page_url ?? '');
+        }}
+        onChangePerPage={(val) => {
+          setPaginationUrl('');
+          setPageSize(val?.value ?? 0);
+        }}
+        onClickGoToPage={(val) => {
+          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
       />
     </>

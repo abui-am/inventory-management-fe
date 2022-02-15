@@ -1,5 +1,12 @@
+/* eslint-disable react/require-default-props */
+import Tippy from '@tippyjs/react';
 import clsx from 'clsx';
-import React, { ButtonHTMLAttributes, DetailedHTMLProps, forwardRef } from 'react';
+import React, { ButtonHTMLAttributes, DetailedHTMLProps, forwardRef, RefObject, useState } from 'react';
+import { X } from 'react-bootstrap-icons';
+
+import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
+
+import Modal, { ModalActionWrapper } from './Modal';
 
 const RoundedButton: React.FC<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>> = ({
   children,
@@ -73,4 +80,73 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-export { Button, RoundedButton };
+export const ButtonWithModal = ({
+  text,
+  children,
+  ...props
+}: {
+  text: any;
+  children: ((val: { handleClose: () => void }) => JSX.Element) | JSX.Element;
+} & ButtonProps & { ref?: RefObject<HTMLButtonElement> }): JSX.Element => {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Modal isOpen={open} onRequestClose={handleClose}>
+        {typeof children === 'function' ? children({ handleClose }) : children}
+      </Modal>
+      <Button onClick={handleClick} {...props}>
+        {text}
+      </Button>
+    </>
+  );
+};
+
+const ButtonCancelTransaction: React.FC<{ content?: string; transactionId: string }> = ({ content, transactionId }) => {
+  const { mutateAsync: updateStockIn } = useUpdateStockIn();
+
+  return (
+    <Tippy content={content || 'Batalkan barang masuk'}>
+      <ButtonWithModal text={<X width={24} height={24} />} size="small" variant="outlined">
+        {({ handleClose }) => {
+          const handleClick = () => {
+            try {
+              updateStockIn({
+                transactionId,
+                data: {
+                  status: 'declined',
+                },
+              });
+              handleClose();
+            } catch (e) {
+              console.error(e);
+            }
+          };
+          return (
+            <>
+              <h2 className="text-xl font-bold mb-4">Konfirmasi</h2>
+              <p>Batalkan barang masuk?</p>
+              <ModalActionWrapper>
+                <Button variant="secondary" className="mr-2" onClick={handleClose}>
+                  Tidak
+                </Button>
+
+                <Button onClick={handleClick}>Batalkan</Button>
+              </ModalActionWrapper>
+            </>
+          );
+        }}
+      </ButtonWithModal>
+    </Tippy>
+  );
+};
+
+export { Button, ButtonCancelTransaction, RoundedButton };

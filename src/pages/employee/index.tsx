@@ -18,12 +18,13 @@ const Home: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(EMPLOYEE_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
-
+  const [pageSize, setPageSize] = useState(10);
   const { data: dataEmployee } = useFetchEmployee({
     search: searchQuery,
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
+    per_page: pageSize,
     paginated: true,
     forceUrl: paginationUrl || undefined,
   });
@@ -36,6 +37,7 @@ const Home: NextPage<unknown> = () => {
     from,
     to,
     total,
+    last_page_url,
   } = dataEmployee?.data?.employees ?? {};
   const { push } = useRouter();
   const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
@@ -110,7 +112,11 @@ const Home: NextPage<unknown> = () => {
             <div className="mr-4 mb-4">
               <TextField
                 Icon={<Search />}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => {
+                  setPaginationUrl('');
+                  setSearchQuery(e.target.value);
+                }}
                 variant="contained"
                 placeholder="Cari nama karyawan"
               />
@@ -141,6 +147,13 @@ const Home: NextPage<unknown> = () => {
         }}
         onClickPrevious={() => {
           setPaginationUrl(prev_page_url ?? '');
+        }}
+        onClickGoToPage={(val) => {
+          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
+        }}
+        onChangePerPage={(page) => {
+          setPaginationUrl('');
+          setPageSize(page?.value ?? 0);
         }}
       />
     </CardDashboard>
