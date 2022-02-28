@@ -121,7 +121,6 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
   return (
     <div className="relative customDatePickerWidth">
       <DatePicker
-        {...props}
         dateFormat="dd/MM/yyyy"
         className={clsx(
           'pl-11 border border-gray-300',
@@ -130,10 +129,35 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
           'transition-all duration-150 ease-in',
           className
         )}
+        {...props}
       />
       <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">
         <Calendar />
       </div>
+    </div>
+  );
+};
+
+const DateRangePicker: React.FC<{
+  values: [Date, Date];
+  onChangeFrom: (date: Date) => void;
+  onChangeTo: (date: Date) => void;
+}> = ({ values, onChangeFrom, onChangeTo }) => {
+  return (
+    <div className="flex">
+      <DatePickerComponent
+        selected={values[0]}
+        onChange={(date: Date) => {
+          onChangeFrom(date);
+        }}
+      />
+      <span className="ml-2 mr-2 h-full flex items-center">-</span>
+      <DatePickerComponent
+        onChange={(date: Date) => {
+          onChangeTo(date);
+        }}
+        selected={values[1]}
+      />
     </div>
   );
 };
@@ -320,6 +344,7 @@ const WithLabelAndError: React.FC<{
 export {
   Checkbox,
   DatePickerComponent,
+  DateRangePicker,
   PhoneNumberTextField,
   SelectCity,
   SelectItems,
