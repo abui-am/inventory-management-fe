@@ -24,7 +24,13 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
     ['transactions', data, roles],
     async () => {
       const res = data.forceUrl
-        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, {
+            ...data,
+            where: {
+              ...data.where,
+              transactionable_type: 'suppliers',
+            },
+          })
         : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).post('/transactions', {
             ...data,
             where: {

@@ -1,7 +1,9 @@
 import React, { forwardRef, LegacyRef, PropsWithChildren } from 'react';
 import Select, { components, OptionTypeBase, SingleValueProps } from 'react-select';
+import CreatableAsyncSelect from 'react-select/async-creatable';
 import CreatableSelect from 'react-select/creatable';
 
+import { useSearchSuppliers } from '@/hooks/mutation/useSearch';
 import { useFetchCustomers } from '@/hooks/query/useFetchCustomer';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
 import { useFetchItems } from '@/hooks/query/useFetchItem';
@@ -12,6 +14,7 @@ import { getThemedSelectStyle } from '@/utils/style';
 
 import { ThemedSelectProps } from './Form';
 import CreateCustomerForm from './form/CreateCustomerForm';
+import CreateSupplierForm from './form/CreateSupplierForm';
 import Modal from './Modal';
 
 export const SelectCustomer: React.FC<ThemedSelectProps> = ({
@@ -111,3 +114,49 @@ export const SelectItemsSync = forwardRef(
     );
   }
 );
+
+export const SelectSupplier: React.FC<ThemedSelectProps> = ({
+  variant = 'outlined',
+  additionalStyle = {},
+  onChange,
+  ...props
+}) => {
+  const { mutateAsync: search } = useSearchSuppliers();
+  const [isCreating, setIsCreating] = React.useState(false);
+  const [initValues, setInitValues] = React.useState({
+    name: '',
+    phoneNumber: '',
+    address: '',
+  });
+  return (
+    <>
+      <CreatableAsyncSelect
+        {...props}
+        styles={getThemedSelectStyle(variant, additionalStyle)}
+        loadOptions={async (val) => {
+          const { data } = await search({ search: val });
+          return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));
+        }}
+        onChange={(e, act) => {
+          const data = e as Option<null>;
+          if (act.action === 'create-option') {
+            setInitValues({ name: data?.label, phoneNumber: '', address: '' });
+            setIsCreating(true);
+          } else {
+            onChange?.(e, act);
+          }
+        }}
+      />
+      <Modal isOpen={isCreating} onRequestClose={() => setIsCreating(false)}>
+        <CreateSupplierForm
+          disableBack
+          initialValues={initValues}
+          onSave={(data) => {
+            setIsCreating(false);
+            onChange?.({ label: data.supplier.name, value: data.supplier.id }, { action: 'create-option' });
+          }}
+        />
+      </Modal>
+    </>
+  );
+};

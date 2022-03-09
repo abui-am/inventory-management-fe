@@ -66,4 +66,8 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: ModalVarian
   );
 };
 
+export const ModalActionWrapper: React.FC = ({ children }) => {
+  return <div className="mt-4 flex justify-end">{children}</div>;
+};
+
 export default Modal;

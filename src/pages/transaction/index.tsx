@@ -1,21 +1,33 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { PlusLg, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { TextField } from '@/components/Form';
+import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DetailSale } from '@/components/table/TableComponent';
+import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import useFetchSales from '@/hooks/query/useFetchSale';
+import { Option } from '@/typings/common';
 import { formatDate, formatToIDR } from '@/utils/format';
 
 const TransactionPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
+  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
+  const params = sortBy?.data?.reduce((previousValue, currentValue) => {
+    return { ...previousValue, [currentValue]: sortType?.value };
+  }, {});
+
   const { data: dataTrasaction } = useFetchSales({
-    order_by: { created_at: 'desc' },
+    order_by: params,
+    search,
+    per_page: pageSize,
     forceUrl: paginationUrl,
   });
 
@@ -27,6 +39,7 @@ const TransactionPage: NextPage<unknown> = () => {
     links,
     next_page_url,
     prev_page_url,
+    last_page_url,
   } = dataTrasaction?.data.transactions ?? {};
   const data = dataRes.map(
     ({ transaction_code, created_at, sender, payment_method, pic, items, id, status, customer, ...props }) => ({
@@ -35,8 +48,8 @@ const TransactionPage: NextPage<unknown> = () => {
       purchaseMethod: payment_method,
       payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
       pic: `${pic.employee.first_name} ${pic.employee.last_name}`,
-      customer: customer.full_name,
-      sender: `${sender.first_name} ${sender.last_name}`,
+      customer: customer?.full_name,
+      sender: `${sender?.first_name} ${sender?.last_name}`,
       col8: (
         <DetailSale
           transactions={{
@@ -99,23 +112,47 @@ const TransactionPage: NextPage<unknown> = () => {
       <Table
         columns={columns}
         data={data}
-        search={({ setGlobalFilter }) => (
-          <div className="mt-2 mb-6 flex justify-between">
+        search={() => (
+          <div className="mt-2 mb-4 flex justify-between">
             <h2 className="text-2xl font-bold">Daftar Transaksi</h2>
-            <div className="flex">
-              <TextField
-                Icon={<Search />}
-                onChange={(e) => setGlobalFilter(e.target.value)}
-                variant="contained"
-                placeholder="Cari nama transaksi"
-              />
-              <Link href="/transaction/add">
-                <a>
-                  <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
-                    Tambah
-                  </Button>
-                </a>
-              </Link>
+            <div className="flex flex-col items-end">
+              <div className="flex flex-wrap mb-4">
+                <TextField
+                  Icon={<Search />}
+                  value={search}
+                  onChange={(e) => {
+                    setPaginationUrl('');
+                    setSearch(e.target.value);
+                  }}
+                  variant="contained"
+                  placeholder="Cari nama transaksi"
+                />
+                <Link href="/transaction/add">
+                  <a>
+                    <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
+                      Tambah
+                    </Button>
+                  </a>
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap justify-end -mr-4 -mb-4">
+                <SelectSortBy
+                  value={sortBy}
+                  onChange={(val) => {
+                    setSortBy(val as Option<string[]>);
+                  }}
+                  options={SALE_SORT_BY_OPTIONS}
+                />
+
+                <SelectSortType
+                  value={sortType}
+                  defaultValue={SORT_TYPE_OPTIONS[1]}
+                  onChange={(val) => {
+                    setSortType(val as Option);
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -125,6 +162,13 @@ const TransactionPage: NextPage<unknown> = () => {
           from: `${from ?? '0'}`,
           to: `${to ?? '0'}`,
           total: `${total ?? '0'}`,
+        }}
+        onClickGoToPage={(val) => {
+          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
+        }}
+        onChangePerPage={(page) => {
+          setPaginationUrl('');
+          setPageSize(page?.value ?? 0);
         }}
         onClickPageButton={(url) => {
           setPaginationUrl(url);
