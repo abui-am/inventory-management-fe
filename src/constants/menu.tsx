@@ -1,4 +1,4 @@
-import { ArchiveFill, Box, Calculator, House, Paperclip, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
+import { ArchiveFill, Box, Calculator, Coin, House, Paperclip, Pen, PeopleFill, Person } from 'react-bootstrap-icons';
 
 const MENU_LIST = [
   {
@@ -70,6 +70,20 @@ const MENU_LIST = [
     displayName: 'Laporan Audit',
     icon: (props = {}): JSX.Element => <Paperclip {...props} />,
     permission: 'view:audit',
+  },
+  {
+    id: 'monthly-salary',
+    slug: '/monthly-salary',
+    displayName: 'Gaji Karyawan',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'view:monthly-salary',
+  },
+  {
+    id: 'advance-payrolls',
+    slug: '/pre-paid-salary',
+    displayName: 'Gaji dibayar di Muka',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:advance-payrolls',
   },
 ];
 

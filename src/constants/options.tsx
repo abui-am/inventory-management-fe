@@ -46,6 +46,32 @@ export const SALE_SORT_BY_OPTIONS = [
   },
 ];
 
+export const PAYROLLS_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan status',
+    value: 'status',
+    data: ['status'],
+  },
+  {
+    label: 'Sortir berdasarkan gaji',
+    value: 'employee_salary',
+    data: ['employee_salary'],
+  },
+];
+
+export const ADVANCE_PAYROLLS_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan tanggal',
+    value: 'created_at',
+    data: ['created_at'],
+  },
+  {
+    label: 'Sortir berdasarkan jumlah',
+    value: 'amount',
+    data: ['amount'],
+  },
+];
+
 export const STOCK_IN_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan tanggal',

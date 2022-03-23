@@ -1,36 +1,23 @@
-import dayjs from 'dayjs';
-import { useFormik } from 'formik';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import React, { useState } from 'react';
-import { PlusLg, Search } from 'react-bootstrap-icons';
-import { object } from 'yup';
+import { PlusLg } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DateRangePicker, SelectSortBy, SelectSortType, TextField, WithLabelAndError } from '@/components/Form';
-import CreatePrepaidSalary from '@/components/form/CreatePrepaidSalary';
+import { DateRangePicker, SelectSortBy, SelectSortType } from '@/components/Form';
 import CreatePrive from '@/components/form/CreatePrive';
 import Modal from '@/components/Modal';
-import Pagination from '@/components/Pagination';
-import { SelectSender } from '@/components/Select';
+// import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { DetailSale } from '@/components/table/TableComponent';
 import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
-import useFetchSales from '@/hooks/query/useFetchSale';
 import { Option } from '@/typings/common';
 import { formatDate, formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
 
 const PrivePage: NextPage<unknown> = () => {
-  const [paginationUrl, setPaginationUrl] = React.useState('');
+  // const [setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
-  const [pageSize, setPageSize] = useState(10);
-  const [search, setSearch] = useState('');
-  const params = sortBy?.data?.reduce((previousValue, currentValue) => {
-    return { ...previousValue, [currentValue]: sortType?.value };
-  }, {});
+  // const [setPageSize] = useState(10);
 
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(new Date());
@@ -51,13 +38,13 @@ const PrivePage: NextPage<unknown> = () => {
 
   const {
     data: dataRes = [],
-    from,
-    to,
-    total,
-    links,
-    next_page_url,
-    prev_page_url,
-    last_page_url,
+    // from,
+    // to,
+    // total,
+    // links,
+    // next_page_url,
+    // prev_page_url,
+    // last_page_url,
   } = dataPrepaidSalary?.data.prepaid_salary ?? {};
   const data = dataRes.map(({ date, description, amount }: any) => ({
     date: formatDate(date),
@@ -124,7 +111,7 @@ const PrivePage: NextPage<unknown> = () => {
           </div>
         )}
       />
-      <Pagination
+      {/* <Pagination
         stats={{
           from: `${from ?? '0'}`,
           to: `${to ?? '0'}`,
@@ -147,7 +134,7 @@ const PrivePage: NextPage<unknown> = () => {
         onClickPrevious={() => {
           setPaginationUrl((prev_page_url as string) ?? '');
         }}
-      />
+      /> */}
     </CardDashboard>
   );
 };

@@ -1,54 +1,37 @@
 import dayjs from 'dayjs';
-import { useFormik } from 'formik';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import React, { useState } from 'react';
-import { PlusLg, Search } from 'react-bootstrap-icons';
-import { object } from 'yup';
+import { PlusLg } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DateRangePicker, SelectSortBy, SelectSortType, TextField, WithLabelAndError } from '@/components/Form';
+import { DateRangePicker, SelectSortBy, SelectSortType } from '@/components/Form';
 import CreatePrepaidSalary from '@/components/form/CreatePrepaidSalary';
 import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
-import { SelectSender } from '@/components/Select';
 import Table from '@/components/Table';
-import { DetailSale } from '@/components/table/TableComponent';
-import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
-import useFetchSales from '@/hooks/query/useFetchSale';
+import { ADVANCE_PAYROLLS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useFetchAdvancePayrolls } from '@/hooks/query/useFetchAdvancePayrolls';
 import { Option } from '@/typings/common';
 import { formatDate, formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
 
 const PrepaidSalaryPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(ADVANCE_PAYROLLS_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
-  const [search, setSearch] = useState('');
-  const params = sortBy?.data?.reduce((previousValue, currentValue) => {
-    return { ...previousValue, [currentValue]: sortType?.value };
-  }, {});
 
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(new Date());
 
-  const dataPrepaidSalary = {
-    data: {
-      prepaid_salary: {
-        data: [
-          {
-            name: 'Dani Fadli Irmawan',
-            position: 'Teknisi',
-            paid_date: '2022-02-28T13:31:13+0700',
-            salary_date: '2022-06-28T13:31:13+0700',
-            amount: 2000000,
-          },
-        ],
-      },
-    } as any,
-  };
+  const { data: dataPrepaidSalary } = useFetchAdvancePayrolls({
+    per_page: pageSize,
+    order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
+      return { ...previousValue, [currentValue]: sortType?.value };
+    }, {}),
+    paginated: true,
+    forceUrl: paginationUrl || undefined,
+  });
 
   const {
     data: dataRes = [],
@@ -59,12 +42,12 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     next_page_url,
     prev_page_url,
     last_page_url,
-  } = dataPrepaidSalary?.data.prepaid_salary ?? {};
-  const data = dataRes.map(({ name, position, paid_date, salary_date, amount }: any) => ({
-    name,
-    position,
-    paidDate: formatDate(paid_date),
-    salaryDate: dayjs(salary_date).format('MMM YYYY'),
+  } = dataPrepaidSalary?.data.advance_payrolls ?? {};
+  const data = dataRes.map(({ employee, employee_position, payroll_month, created_at, amount }) => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    position: employee_position,
+    paidDate: formatDate(created_at),
+    salaryDate: dayjs(payroll_month).format('MMM YYYY'),
     amount: formatToIDR(amount),
   }));
   const columns = React.useMemo(
@@ -88,10 +71,6 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
       {
         Header: 'Pembayaran',
         accessor: 'amount',
-      },
-      {
-        Header: 'Aksi',
-        accessor: 'action',
       },
     ],
     []
@@ -124,7 +103,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
                   onChange={(val) => {
                     setSortBy(val as Option<string[]>);
                   }}
-                  options={SALE_SORT_BY_OPTIONS}
+                  options={ADVANCE_PAYROLLS_SORT_BY_OPTIONS}
                 />
 
                 <SelectSortType
@@ -184,7 +163,7 @@ const AddPrepaidSalary = () => {
         Tambah
       </Button>
       <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <CreatePrepaidSalary />
+        <CreatePrepaidSalary onSave={handleClose} onClose={handleClose} />
       </Modal>
     </>
   );

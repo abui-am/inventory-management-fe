@@ -1,13 +1,13 @@
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React, { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { object } from 'yup';
 
-import { useCreateCustomer, useEditCustomer } from '@/hooks/mutation/useMutateCustomer';
+import { useCreateAdvancePayrolls } from '@/hooks/mutation/useMutateAdvancePayrolls';
+import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
+import { CreateAdvancePayrollsPayload } from '@/typings/advance-payrolls';
 import { Option } from '@/typings/common';
-import { formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
+import { formatDateYYYYMM, formatToIDR } from '@/utils/format';
+import { prepaidSalarySchema } from '@/utils/validation/pre-paid-salary';
 
 import { Button } from '../Button';
 import { DatePickerComponent, TextField, WithLabelAndError } from '../Form';
@@ -17,44 +17,49 @@ export type CreatePrepaidSalaryFormValues = {
   employee: Option | null;
   amount: number;
   salaryDate: Date;
+  salary: number;
 };
 
 const CreatePrepaidSalary: React.FC<{
   prepaidSalaryId?: string;
   onSave?: (data: any) => void;
-}> = ({ prepaidSalaryId, onSave }) => {
-  const { mutateAsync } = useCreateCustomer();
-  const { mutateAsync: editCustomer } = useEditCustomer(prepaidSalaryId ?? '');
+  onClose?: () => void;
+}> = ({ onSave, onClose }) => {
+  const { mutateAsync } = useCreateAdvancePayrolls();
   const initialValues: CreatePrepaidSalaryFormValues = {
     employee: null,
     amount: 0,
     salaryDate: new Date(),
+    salary: 0,
   };
 
-  const { back } = useRouter();
+  const validationSchema = prepaidSalarySchema();
 
-  const isEdit = !!prepaidSalaryId;
-
-  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
-
-  const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
+  const { values, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema,
     initialValues,
-    enableReinitialize: isEdit,
+    validateOnChange: true,
     onSubmit: async (values, { resetForm }) => {
       setSubmitting(true);
-      const jsonBody: any = {
-        employee_id: values.employee?.data?.id,
+      const jsonBody: CreateAdvancePayrollsPayload = {
+        employee_id: values.employee?.value ?? '',
         amount: values.amount,
-        salary_date: values.salaryDate,
+        payroll_month: formatDateYYYYMM(values.salaryDate),
       };
-      const res = isEdit ? await editCustomer(jsonBody) : await mutateAsync(jsonBody);
+      const res = await mutateAsync(jsonBody);
       setSubmitting(false);
       resetForm();
       onSave?.(res.data);
       toast(res.message);
     },
   });
+
+  const { data, isFetching } = useFetchEmployeeById(values?.employee?.value as string);
+
+  useEffect(() => {
+    setFieldValue('salary', data?.data?.employee?.salary);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFetching, data?.data.employee.salary]);
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -68,7 +73,7 @@ const CreatePrepaidSalary: React.FC<{
                   placeholder="Masukan nama karyawan"
                   value={values.employee}
                   name="employee"
-                  onChange={handleChange}
+                  onChange={(e) => setFieldValue('employee', e)}
                 />
               </WithLabelAndError>
             </div>
@@ -76,15 +81,14 @@ const CreatePrepaidSalary: React.FC<{
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah gaji">
                 <TextField
                   type="number"
+                  disabled={!values?.salary}
                   hasError={!!touched.amount && !!errors.amount}
-                  placeholder="Masukan nomor telepon"
+                  placeholder="Masukan jumlah gaji"
                   value={values.amount}
-                  name="paidDate"
-                  onChange={(amount) => setFieldValue('paidDate', amount)}
+                  name="amount"
+                  onChange={(e) => setFieldValue('amount', e.target.value)}
                 />
-                <span className="text-red-500 mt-2 block">
-                  Batas maksimal {formatToIDR(values.employee?.data?.salary as number)}
-                </span>
+                <span className="text-red-500 mt-2 block">Batas maksimal {formatToIDR(values?.salary ?? 0)}</span>
               </WithLabelAndError>
             </div>
             <div className="sm:col-span-2">
@@ -92,6 +96,8 @@ const CreatePrepaidSalary: React.FC<{
                 <DatePickerComponent
                   selected={values.salaryDate}
                   name="salaryDate"
+                  dateFormat="MMMM yyyy"
+                  showMonthYearPicker
                   onChange={(date) => setFieldValue('salaryDate', date)}
                 />
               </WithLabelAndError>
@@ -101,10 +107,10 @@ const CreatePrepaidSalary: React.FC<{
       </section>
       <div className="mt-8 flex justify-end">
         <div className="flex">
-          <Button onClick={() => back()} variant="secondary" className="mr-4">
+          <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">{isEdit ? 'Edit Customer' : 'Tambah Customer'}</Button>
+          <Button type="submit">Tambah Gaji dibayar di Muka</Button>
         </div>
       </div>
     </form>

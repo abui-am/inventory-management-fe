@@ -1,63 +1,40 @@
+import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
-import { useFormik } from 'formik';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import React, { useState } from 'react';
-import { CashCoin, PlusLg, Search } from 'react-bootstrap-icons';
-import { object } from 'yup';
+import { CashCoin } from 'react-bootstrap-icons';
 
 import { Button, ButtonWithModal } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import {
-  DatePickerComponent,
-  DateRangePicker,
-  SelectSortBy,
-  SelectSortType,
-  TextField,
-  WithLabelAndError,
-} from '@/components/Form';
-import CreatePrepaidSalary from '@/components/form/CreatePrepaidSalary';
+import { DatePickerComponent, SelectSortBy, SelectSortType } from '@/components/Form';
 import PaySalaryForm from '@/components/form/PaySalary';
 import Modal, { ModalActionWrapper } from '@/components/Modal';
 import Pagination from '@/components/Pagination';
-import { SelectSender } from '@/components/Select';
 import Table from '@/components/Table';
-import { DetailSale } from '@/components/table/TableComponent';
-import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
-import useFetchSales from '@/hooks/query/useFetchSale';
+import { PAYROLLS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useCreateSalary } from '@/hooks/mutation/useMutateSalary';
+import { useFetchSalary } from '@/hooks/query/useFetchSalary';
 import { Option } from '@/typings/common';
-import { formatDate, formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
+import { Datum } from '@/typings/salary';
+import { formatDateYYYYMM, formatToIDR } from '@/utils/format';
 
 const PrepaidSalaryPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
-  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(PAYROLLS_SORT_BY_OPTIONS[0]);
+  const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [pageSize, setPageSize] = useState(10);
-  const [search, setSearch] = useState('');
-  const params = sortBy?.data?.reduce((previousValue, currentValue) => {
-    return { ...previousValue, [currentValue]: sortType?.value };
-  }, {});
 
   const [date, setDate] = useState(new Date());
+  const { data: datasource } = useFetchSalary({
+    per_page: pageSize,
+    where_payroll_month: formatDateYYYYMM(date),
+    order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
+      return { ...previousValue, [currentValue]: sortType?.value };
+    }, {}),
+    paginated: true,
+    forceUrl: paginationUrl || undefined,
+  });
 
-  const dataSalary = {
-    data: {
-      prepaid_salary: {
-        data: [
-          {
-            name: 'Dani Fadli Irmawan',
-            position: 'Teknisi',
-            status: 'paid',
-            paid_amount: 4000000,
-            salary: 4000000,
-          },
-        ],
-      },
-    } as any,
-  };
-
-  const isCreateNew = true;
   const {
     data: dataRes = [],
     from,
@@ -67,15 +44,35 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     next_page_url,
     prev_page_url,
     last_page_url,
-  } = dataSalary?.data.prepaid_salary ?? {};
-  const data = dataRes.map(({ name, position, status, paid_amount, salary }: any) => ({
-    name,
-    position,
-    status,
-    paidAmount: formatToIDR(paid_amount),
-    salary: formatToIDR(salary),
-    action: <PaySalary />,
-  }));
+  } = datasource?.data.payrolls ?? {};
+  const isCreateNew = dataRes.length === 0;
+
+  const data = dataRes.map(
+    ({ employee, paid_in_advance, employee_position: position, status, paid_amount, employee_salary, ...props }) => ({
+      name: <div className="font-bold">{`${employee?.first_name} ${employee?.last_name}`}</div>,
+      position,
+      status: (
+        <div className={status === 'lunas' ? 'text-blue-600 font-bold' : ''}>
+          {`${status} ${paid_in_advance ? ' (dibayar dimuka)' : ''}`}
+        </div>
+      ),
+      paidAmount: formatToIDR(paid_amount),
+      salary: formatToIDR(employee_salary),
+      action: (
+        <PaySalary
+          payroll={{
+            employee,
+            paid_in_advance,
+            employee_position: position,
+            status,
+            paid_amount,
+            employee_salary,
+            ...props,
+          }}
+        />
+      ),
+    })
+  );
   const columns = React.useMemo(
     () => [
       {
@@ -113,6 +110,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
           <div className="flex flex-wrap mb-4">
             <DatePickerComponent
               dateFormat="MMMM yyyy"
+              showMonthYearPicker
               selected={date}
               onChange={(date: Date) => {
                 setDate(date);
@@ -126,7 +124,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
               onChange={(val) => {
                 setSortBy(val as Option<string[]>);
               }}
-              options={SALE_SORT_BY_OPTIONS}
+              options={PAYROLLS_SORT_BY_OPTIONS}
             />
 
             <SelectSortType
@@ -174,7 +172,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
   );
 };
 
-const PaySalary = () => {
+const PaySalary: React.FC<{ payroll: Datum }> = ({ payroll }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
@@ -187,19 +185,25 @@ const PaySalary = () => {
 
   return (
     <>
-      <Button className="ml-3" onClick={handleOpen}>
-        <CashCoin />
-      </Button>
+      <Tippy content="Bayar gaji">
+        <Button className="ml-3" onClick={handleOpen}>
+          <CashCoin />
+        </Button>
+      </Tippy>
+
       <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <PaySalaryForm />
+        <PaySalaryForm onSave={handleClose} onClose={handleClose} payroll={payroll} />
       </Modal>
     </>
   );
 };
 
 const CreateNewPayrollList = ({ date }: { date: Date }) => {
+  const { mutateAsync } = useCreateSalary();
   const handleClick = () => {
-    return null;
+    mutateAsync({
+      month: formatDateYYYYMM(date),
+    });
   };
   return (
     <section className="h-96 flex items-center flex-col justify-center">

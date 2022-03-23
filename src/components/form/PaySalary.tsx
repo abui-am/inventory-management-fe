@@ -1,48 +1,50 @@
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React from 'react';
 import toast from 'react-hot-toast';
-import { object } from 'yup';
 
-import { useCreateCustomer, useEditCustomer } from '@/hooks/mutation/useMutateCustomer';
+import { useUpdatePayroll } from '@/hooks/mutation/useMutateSalary';
+import { Datum as Payroll, PayPayrollPayload } from '@/typings/salary';
 import { formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
+import { salarySchema } from '@/utils/validation/pay-salary';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { TextField, WithLabelAndError } from '../Form';
+import { Checkbox, TextField, WithLabelAndError } from '../Form';
+
 export type PaySalaryFormValues = {
   salary: number;
   paidAmount: number;
-  amount: number;
+  amount: number | null;
+  payFull: boolean;
 };
 
 const PaySalaryForm: React.FC<{
-  prepaidSalaryId?: string;
+  payroll: Payroll;
   onSave?: (data: any) => void;
-}> = ({ prepaidSalaryId, onSave }) => {
-  const { mutateAsync } = useCreateCustomer();
-  const { mutateAsync: editCustomer } = useEditCustomer(prepaidSalaryId ?? '');
+  onClose: (data: any) => void;
+}> = ({ onSave, onClose, payroll }) => {
+  const { mutateAsync } = useUpdatePayroll();
   const initialValues: PaySalaryFormValues = {
-    salary: 0,
-    paidAmount: 0,
-    amount: 0,
+    salary: payroll.employee_salary,
+    paidAmount: payroll.paid_amount,
+    amount: null,
+    payFull: false,
   };
 
-  const { back } = useRouter();
-
-  const isEdit = !!prepaidSalaryId;
-
-  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
-
   const { values, handleChange, setSubmitting, handleSubmit, errors, touched } = useFormik({
-    validationSchema,
+    validationSchema: salarySchema,
+    validateOnChange: true,
+    validateOnBlur: true,
     initialValues,
-    enableReinitialize: isEdit,
     onSubmit: async (values, { resetForm }) => {
       setSubmitting(true);
-      const jsonBody: any = {};
-      const res = isEdit ? await editCustomer(jsonBody) : await mutateAsync(jsonBody);
+      const jsonBody: PayPayrollPayload = {
+        id: payroll.id,
+        data: {
+          amount: values?.payFull ? values?.salary - values?.paidAmount : values?.amount ?? 0,
+        },
+      };
+      const res = await mutateAsync(jsonBody);
       setSubmitting(false);
       resetForm();
       onSave?.(res.data);
@@ -70,19 +72,37 @@ const PaySalaryForm: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah yang mau dibayarkan">
-                <TextField name="amount" value={values.amount} onChange={handleChange} placeholder="0" type="number" />
+                <TextField
+                  name="amount"
+                  value={values.amount as number}
+                  onChange={handleChange}
+                  placeholder="0"
+                  type="number"
+                  disabled={values.payFull}
+                />
               </WithLabelAndError>
-              <small className="text-red-500">Batas maksimal {formatToIDR(values?.salary)}</small>
+              {!values.payFull && (
+                <div>
+                  <small className="text-red-500">Batas maksimal {formatToIDR(values?.salary)}</small>
+                </div>
+              )}
+
+              <div className="sm:col-span-2">
+                <div className="flex mt-2 items-center">
+                  <Checkbox name="payFull" onChange={handleChange} />
+                  <label className="text-base ml-1">Lunas</label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
       <div className="mt-8 flex justify-end">
         <div className="flex">
-          <Button onClick={() => back()} variant="secondary" className="mr-4">
+          <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">{isEdit ? 'Bayar Gaji' : 'Bayar Gaji'}</Button>
+          <Button type="submit"> Bayar Gaji</Button>
         </div>
       </div>
     </form>
