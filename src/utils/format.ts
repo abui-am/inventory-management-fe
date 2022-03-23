@@ -11,3 +11,7 @@ export function formatDate(date: Date, { withHour = false }: { withHour?: boolea
 export function formatDateYYYYMMDD(date: Date) {
   return dayjs(date).format('YYYY-MM-DD');
 }
+
+export function formatDateYYYYMM(date: Date) {
+  return dayjs(date).format('YYYY-MM');
+}

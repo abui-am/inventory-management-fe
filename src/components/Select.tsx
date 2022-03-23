@@ -66,7 +66,10 @@ export const SelectSender: React.FC<ThemedSelectProps> = ({ variant = 'outlined'
     <Select
       {...props}
       styles={getThemedSelectStyle(variant, additionalStyle)}
-      options={data?.data.employees.data.map(({ first_name, id }) => ({ label: first_name, value: id }))}
+      options={data?.data.employees.data.map(({ first_name, last_name, id }) => ({
+        label: `${first_name} ${last_name}`,
+        value: id,
+      }))}
     />
   );
 };

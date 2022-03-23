@@ -15,7 +15,9 @@ export type PermissionList =
   | 'control:stock.adjust-sell-price'
   | 'control:item'
   | 'control:audit'
-  | 'view:audit';
+  | 'view:audit'
+  | 'view:monthly-salary'
+  | 'control:advance-payrolls';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -39,6 +41,8 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:audit',
           'view:audit',
           'view:home',
+          'view:monthly-salary',
+          'control:advance-payrolls',
         ];
         break;
 

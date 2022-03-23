@@ -4,7 +4,7 @@ export interface Link {
   active: boolean;
 }
 
-export type Option<T = unknown> = {
+export type Option<T = any> = {
   label: string;
   value: string;
   data?: T;
