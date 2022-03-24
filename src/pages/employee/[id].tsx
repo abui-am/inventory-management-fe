@@ -77,7 +77,7 @@ const EmployeeInfo = ({
   data: Omit<Employee, 'first_name' | 'last_name'>;
   isLoading: boolean;
 }) => {
-  const { birth_date, gender, email, phone_number, addresses, salary, active, debt } = data;
+  const { birth_date, gender, email, phone_number, addresses, salary, active } = data;
   const address = addresses?.filter((val) => val.title === 'Alamat Rumah')[0];
   const { village } = address ?? {};
   const { subdistrict } = village ?? {};
@@ -130,10 +130,10 @@ const EmployeeInfo = ({
             <div className="flex-1">{formatCurrency({ value: salary })}</div>
           </div>
 
-          <div className="flex mb-4">
+          {/* <div className="flex mb-4">
             <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Jumlah Hutang:</div>
             <div className="flex-1">{debt ? formatCurrency({ value: debt }) : 'IDR 0'}</div>
-          </div>
+          </div> */}
           <div className="flex mb-4">
             <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Pegawai Aktif:</div>
             <div className="flex-1">{active ? 'Iya' : 'Tidak'}</div>

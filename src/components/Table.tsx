@@ -74,13 +74,26 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
     gotoPage,
     nextPage,
     previousPage,
-  } = useTable({ columns, data }, useGlobalFilter, useSortBy, useResizeColumns, usePagination) as PropsReturn;
+  } = useTable(
+    {
+      columns,
+      data,
+    },
+    useGlobalFilter,
+    useSortBy,
+    useResizeColumns,
+    usePagination
+  ) as PropsReturn;
 
   const renderHead = (column: { isSorted?: boolean; isSortedDesc?: boolean }) => {
     if (column.isSortedDesc) return <ChevronUp />;
     if (column.isSorted) return <ChevronDown />;
     return '';
   };
+
+  useEffect(() => {
+    setPageSize(data?.length || 10);
+  }, [data, setPageSize]);
 
   return (
     <>

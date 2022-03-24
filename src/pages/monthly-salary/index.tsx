@@ -45,6 +45,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     prev_page_url,
     last_page_url,
   } = datasource?.data.payrolls ?? {};
+
   const isCreateNew = dataRes.length === 0;
 
   const data = dataRes.map(
@@ -102,6 +103,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     ],
     []
   );
+
   return (
     <CardDashboard>
       <div className="mt-2 mb-4 flex justify-between">
@@ -200,11 +202,7 @@ const PaySalary: React.FC<{ payroll: Datum }> = ({ payroll }) => {
 
 const CreateNewPayrollList = ({ date }: { date: Date }) => {
   const { mutateAsync } = useCreateSalary();
-  const handleClick = () => {
-    mutateAsync({
-      month: formatDateYYYYMM(date),
-    });
-  };
+
   return (
     <section className="h-96 flex items-center flex-col justify-center">
       <h3 className="text-xl block mb-4">
@@ -213,6 +211,13 @@ const CreateNewPayrollList = ({ date }: { date: Date }) => {
 
       <ButtonWithModal text="Buat Daftar">
         {({ handleClose }) => {
+          const handleClick = () => {
+            mutateAsync({
+              month: formatDateYYYYMM(date),
+            });
+            handleClose();
+          };
+
           return (
             <>
               <h2 className="text-xl font-bold mb-4">Konfirmasi</h2>

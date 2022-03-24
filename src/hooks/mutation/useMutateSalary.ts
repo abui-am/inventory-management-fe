@@ -25,7 +25,8 @@ export const useCreateSalary = (): UseMutationResult<BackendRes<any>, unknown, C
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('salary');
+        query.invalidateQueries(['salary']);
+        query.refetchQueries(['salary']);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
