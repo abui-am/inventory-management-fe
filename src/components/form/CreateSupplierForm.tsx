@@ -2,15 +2,15 @@
 
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React from 'react';
 import toast from 'react-hot-toast';
-import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from '@/components/Form';
 import { useCreateSupplier, useEditSupplier, useFetchSupplierById } from '@/hooks/query/useFetchSupplier';
 import { CreateSupplierBody, CreateSupplierResponse } from '@/typings/supplier';
-import createSchema from '@/utils/validation/formik';
+
+import { validationSchemaSupplier } from './constant';
 
 const CreateSupplierForm: React.FC<{
   isEdit?: boolean;
@@ -42,10 +42,8 @@ const CreateSupplierForm: React.FC<{
           phoneNumber: initVal?.phoneNumber ?? '',
         };
 
-  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
-
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
-    validationSchema,
+    validationSchema: validationSchemaSupplier,
     initialValues,
     enableReinitialize: isEdit,
     onSubmit: async (values) => {

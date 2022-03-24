@@ -5,12 +5,12 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Pencil, PlusLg, Trash } from 'react-bootstrap-icons';
-import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { DatePickerComponent, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
 import ItemToBuyForm, { ItemToBuyFormValues } from '@/components/form/ItemToBuyForm';
+import Label from '@/components/Label';
 import Modal, { ModalActionWrapper } from '@/components/Modal';
 import { SelectCustomer, SelectSender } from '@/components/Select';
 import Table from '@/components/Table';
@@ -18,7 +18,8 @@ import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateSale } from '@/hooks/mutation/useMutateSale';
 import { Option } from '@/typings/common';
 import { formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
+
+import { validationSchemaTransaction } from './constant';
 
 export type AddStockInTableValue = {
   item_name: string;
@@ -40,13 +41,13 @@ export type AddStockValue = {
   memo: string;
   paymentMethod: Option;
   paymentDue: Date;
-  customer: Option;
-  sender: Option;
+  customer: Option<unknown> | null;
+  sender: Option<unknown> | null;
   isNewSupplier: boolean;
   totalPrice: number;
 };
 
-const AddStockPage: NextPage = () => {
+const AddTransactionPage: NextPage = () => {
   const { mutateAsync } = useCreateSale();
   const initialValues = {
     payAmount: '',
@@ -55,8 +56,8 @@ const AddStockPage: NextPage = () => {
     memo: '',
     paymentMethod: PAYMENT_METHOD_OPTIONS[0],
     paymentDue: new Date(),
-    customer: {} as Option<unknown>,
-    sender: {} as Option<unknown>,
+    customer: null as Option<unknown> | null,
+    sender: null as Option<unknown> | null,
     isNewSupplier: false,
     totalPrice: 0,
   };
@@ -71,8 +72,9 @@ const AddStockPage: NextPage = () => {
   });
 
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
-    validationSchema: object().shape(createSchema(initialValues)),
+    validationSchema: validationSchemaTransaction,
     initialValues,
+    validateOnChange: true,
     onSubmit: async (data) => {
       try {
         await mutateAsync({
@@ -86,8 +88,8 @@ const AddStockPage: NextPage = () => {
                 : dayjs().format('YYYY-MM-DD HH:mm:ss'),
           },
           note: data.memo,
-          sender_id: data.sender.value,
-          transactionable_id: data.customer.value,
+          sender_id: data.sender?.value ?? '',
+          transactionable_id: data.customer?.value ?? '',
           payment_method: data.paymentMethod.value,
           purchase_date: dayjs(data.dateIn).format('YYYY-MM-DD HH:mm:ss'),
           invoice_number: '',
@@ -109,46 +111,50 @@ const AddStockPage: NextPage = () => {
     },
   });
 
-  const data = values?.stockAdjustment.map(({ item, qty, discount, id }) => ({
-    col1: item?.label ?? '',
-    col2: qty,
-    col3: item?.data?.sell_price,
-    col4: discount,
-    col5: formatToIDR((item?.data?.sell_price ?? 0 - +discount) * +qty),
-    action: (
-      <div className="flex">
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => {
-            setIsOpen(true);
-            setEditvalue({ item, qty, discount, id });
-          }}
-          className="mr-4"
-        >
-          <Pencil width={24} height={24} />
-        </Button>
-        <Button
-          variant="outlined"
-          tabIndex={-1}
-          onClick={() => {
-            const newValue = values.stockAdjustment.filter((value) => value.id !== id);
-            setFieldValue('stockAdjustment', newValue);
-            setFieldValue(
-              'totalPrice',
-              newValue.reduce(
-                (prev, { item, qty, discount }) => (item?.data?.sell_price ?? 0 - +discount) * +qty + prev,
-                0
-              )
-            );
-          }}
-          size="small"
-        >
-          <Trash width={24} height={24} />
-        </Button>
-      </div>
-    ),
-  }));
+  const data = values?.stockAdjustment.map(({ item, qty, discount, id }) => {
+    return {
+      col1: item?.label ?? '',
+      col2: qty,
+      col3: formatToIDR(+(item?.data?.sell_price ?? 0)),
+      col4: formatToIDR(+discount),
+      col5: formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty),
+      action: (
+        <div className="flex">
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              setIsOpen(true);
+              setEditvalue({ item, qty, discount, id });
+            }}
+            className="mr-4"
+          >
+            <Pencil width={24} height={24} />
+          </Button>
+          <Button
+            variant="outlined"
+            tabIndex={-1}
+            onClick={() => {
+              const newValue = values.stockAdjustment.filter((value) => value.id !== id);
+              setFieldValue('stockAdjustment', newValue);
+              setFieldValue(
+                'totalPrice',
+                newValue.reduce(
+                  (prev, { item, qty, discount }) => ((item?.data?.sell_price ?? 0) - +discount) * +qty + prev,
+                  0
+                )
+              );
+            }}
+            size="small"
+          >
+            <Trash width={24} height={24} />
+          </Button>
+        </div>
+      ),
+    };
+  });
+
+  console.log(errors);
 
   const columns = React.useMemo(
     () => [
@@ -185,7 +191,7 @@ const AddStockPage: NextPage = () => {
         <div className="flex flex-wrap -mx-2 mb-4">
           <div className="w-8/12 pr-8 flex flex-wrap mb-4">
             <div className="w-6/12 px-2 mb-3">
-              <WithLabelAndError touched={touched} errors={errors} name="customer" label="Nama Customer">
+              <WithLabelAndError required touched={touched} errors={errors} name="customer" label="Nama Customer">
                 <SelectCustomer
                   onChange={(val) => {
                     setFieldValue('customer', val);
@@ -219,7 +225,7 @@ const AddStockPage: NextPage = () => {
                   setFieldValue(
                     'totalPrice',
                     data.reduce(
-                      (prev, { item, qty, discount }) => (item?.data?.sell_price ?? 0 - +discount) * +qty + prev,
+                      (prev, { item, qty, discount }) => ((item?.data?.sell_price ?? 0) - +discount) * +qty + prev,
                       0
                     )
                   );
@@ -239,7 +245,7 @@ const AddStockPage: NextPage = () => {
                 <p className="text-2xl font-bold">{formatToIDR(values.totalPrice)}</p>
               </div>
               <div className="w-full px-2 mb-3">
-                <label className="mb-1 inline-block">Uang yang dibayarkan</label>
+                <Label required>Uang yang dibayarkan</Label>
                 <TextField
                   id="payAmount"
                   name="payAmount"
@@ -250,11 +256,13 @@ const AddStockPage: NextPage = () => {
                   onChange={handleChange}
                   hasError={!!errors.memo}
                 />
-                {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.payAmount}</span>}
+                {errors.payAmount && touched.payAmount && (
+                  <span className="text-xs text-red-500">{errors.payAmount}</span>
+                )}
               </div>
 
               <div className="w-full px-2 mb-3">
-                <WithLabelAndError touched={touched} errors={errors} name="sender" label="Nama Pengirim">
+                <WithLabelAndError touched={touched} errors={errors} name="sender" label="Nama Pengirim" required>
                   <SelectSender
                     onChange={(val) => {
                       setFieldValue('sender', val);
@@ -330,9 +338,9 @@ const ButtonWithModal: React.FC<{
   const data = values?.map(({ item, qty, discount, id }) => ({
     col1: item?.label ?? '',
     col2: qty,
-    col3: item?.data?.sell_price,
-    col4: discount,
-    col5: formatToIDR((item?.data?.sell_price ?? 0) * +qty),
+    col3: formatToIDR(+(item?.data?.sell_price ?? 0)),
+    col4: formatToIDR(+discount),
+    col5: formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty),
     action: (
       <div className="flex">
         <Button
@@ -435,7 +443,7 @@ const ModalSummary: React.FC<{ isOpen: boolean; values: AddStockValue }> = ({ is
       <div className="justify-center flex flex-col">
         <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
         <label className="">Nama Customer</label>
-        <p className="font-bold mb-4">{values.customer.label}</p>
+        <p className="font-bold mb-4">{values.customer?.label}</p>
         <label className="">Harga Total</label>
         <p className="font-bold mb-4">{formatToIDR(values.totalPrice)}</p>
         <label className="">Dibayarkan</label>
@@ -450,4 +458,4 @@ const ModalSummary: React.FC<{ isOpen: boolean; values: AddStockValue }> = ({ is
   );
 };
 
-export default AddStockPage;
+export default AddTransactionPage;

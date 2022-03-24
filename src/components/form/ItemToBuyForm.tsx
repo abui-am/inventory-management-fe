@@ -2,10 +2,9 @@ import { useFormik } from 'formik';
 import React from 'react';
 import toast from 'react-hot-toast';
 import { v4 } from 'uuid';
-import { object } from 'yup';
 
+import { validationSchemaItem } from '@/pages/transaction/constant';
 import { Item } from '@/typings/item';
-import createSchema from '@/utils/validation/formik';
 
 import { Button } from '../Button';
 import { TextField, WithLabelAndError } from '../Form';
@@ -16,6 +15,7 @@ export type ItemToBuyFormValues = {
   discount: number | '';
   qty: number | '';
   id: string | '';
+  maxQty?: number;
 };
 
 const ItemToBuyForm: React.FC<{
@@ -30,7 +30,7 @@ const ItemToBuyForm: React.FC<{
   };
 
   const { values, handleChange, handleSubmit, resetForm, setFieldValue, errors, touched } = useFormik({
-    validationSchema: object().shape(createSchema(initialValues)),
+    validationSchema: validationSchemaItem,
     initialValues,
     enableReinitialize: !!initValues,
     onSubmit: async (values, { resetForm }) => {
@@ -72,6 +72,7 @@ const ItemToBuyForm: React.FC<{
               onChange={(val: never) => {
                 const data: { label: string; value: string; data: Item } = val as never;
                 setFieldValue(`item`, data);
+                setFieldValue('maxQty', data?.data?.quantity);
               }}
               withDetail
               value={values.item}
@@ -82,7 +83,7 @@ const ItemToBuyForm: React.FC<{
         <div className="w-9/12 mb-3 px-2">
           <WithLabelAndError label="Jumlah yang dibeli" name="qty" errors={errors} touched={touched}>
             <TextField name="qty" value={values.qty} onChange={handleChange} placeholder="0" type="number" />
-            <small className="text-gray-600">Pastikan jumlah yang dibeli dibawah stock</small>
+            <small className="text-gray-600 block">Pastikan jumlah yang dibeli dibawah stock</small>
           </WithLabelAndError>
         </div>
         <div className="w-3/12 mb-3 px-2">

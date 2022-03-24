@@ -18,6 +18,8 @@ import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import debounce from '@/utils/decounce';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
+import Label from './Label';
+
 const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
   children,
   ...props
@@ -331,10 +333,11 @@ const WithLabelAndError: React.FC<{
   errors: Record<string, unknown>;
   touched: Record<string, unknown>;
   name: string;
-}> = ({ label, children, errors, touched, name }) => {
+  required?: boolean;
+}> = ({ label, children, errors, touched, name, required }) => {
   return (
     <>
-      <label className="mb-1 inline-block">{label}</label>
+      <Label required={required}>{label}</Label>
       {children}
       {errors[name] && touched[name] && <span className="text-xs text-red-500">{errors[name] as string}</span>}
     </>

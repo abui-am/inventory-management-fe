@@ -20,7 +20,7 @@ export const useCreateStockIn = (): UseMutationResult<
     ['createStockin'],
     async (data: CreateStockInBody) => {
       try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['super-admin', 'admin']).put<
+        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
           CreateStockInBody,
           AxiosResponse<BackendRes<unknown>>
         >('/transactions', data);

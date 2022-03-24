@@ -123,7 +123,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     next_page_url,
     prev_page_url,
     last_page_url,
-  } = dataTrasaction?.data.transactions ?? {};
+  } = dataTrasaction?.data?.transactions ?? {};
   const data = dataRes.map(
     ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
       col1: transaction_code,

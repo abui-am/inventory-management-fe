@@ -37,7 +37,7 @@ const TableItems: React.FC = () => {
     next_page_url,
     last_page_url,
     prev_page_url,
-  } = dataItems?.data.items ?? {};
+  } = dataItems?.data?.items ?? {};
   const data = dataRes.map(({ name, quantity, unit, updated_at }) => ({
     name,
     quantity,

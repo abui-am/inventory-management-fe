@@ -4,7 +4,6 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Pencil, Trash } from 'react-bootstrap-icons';
-import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -16,6 +15,7 @@ import {
   ThemedSelect,
   WithLabelAndError,
 } from '@/components/Form';
+import Label from '@/components/Label';
 import Modal from '@/components/Modal';
 import { SelectSupplier } from '@/components/Select';
 import Table from '@/components/Table';
@@ -25,7 +25,8 @@ import { useCreateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { Option } from '@/typings/common';
 import { CreateStockInBody, Item } from '@/typings/stock-in';
 import promiseAll from '@/utils/promiseAll';
-import createSchema from '@/utils/validation/formik';
+
+import { validationSchemaStockIn, validationSchemaStockInItem } from './constant';
 
 export type AddStockInTableValue = {
   item_name: string;
@@ -36,7 +37,7 @@ export type AddStockInTableValue = {
   memo: string;
   paymentMethod: string;
   paymentDue: Date;
-  supplier: Option;
+  supplier: Option | null;
 };
 
 const AddStockPage: NextPage = () => {
@@ -53,11 +54,11 @@ const AddStockPage: NextPage = () => {
     memo: '',
     paymentMethod: PAYMENT_METHOD_OPTIONS[0],
     paymentDue: new Date(),
-    supplier: {} as Option<unknown>,
+    supplier: null as Option<unknown> | null,
     isNewSupplier: false,
   };
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
-    validationSchema: object().shape(createSchema(initialValues)),
+    validationSchema: validationSchemaStockIn,
     initialValues,
     onSubmit: async ({
       dateIn,
@@ -72,7 +73,7 @@ const AddStockPage: NextPage = () => {
       const newItem = await promiseAll<Item>(
         stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, discount }): Promise<Item> => {
           const baseData = { note: memo, purchase_price: +buyPrice ?? 0, quantity: +qty ?? 0, discount: +discount };
-          if (!isNew) return { id: item.value ?? '', ...baseData };
+          if (!isNew) return { id: item?.value ?? '', ...baseData };
           const { data } = await createItem({ name: item?.label ?? '', unit });
           return {
             id: data.item.id,
@@ -81,7 +82,7 @@ const AddStockPage: NextPage = () => {
         })
       );
 
-      const supplierId = supplier.value;
+      const supplierId = supplier?.value ?? '';
       const jsonBody: CreateStockInBody = {
         transactionable_type: 'suppliers',
         purchase_date: dayjs(dateIn).format('YYYY-MM-DD HH:mm:ss'),
@@ -123,7 +124,7 @@ const AddStockPage: NextPage = () => {
           onSave={(val) => {
             // replace data
             const newValues = values.stockAdjustment.map((stock) => {
-              if (stock.item.value === item.value) {
+              if (stock?.item?.value === item?.value) {
                 return val;
               }
               return stock;
@@ -137,7 +138,7 @@ const AddStockPage: NextPage = () => {
           onClick={() =>
             setFieldValue(
               'stockAdjustment',
-              values.stockAdjustment.filter((stock) => stock.item.value !== item.value)
+              values.stockAdjustment.filter((stock) => stock?.item?.value !== item?.value)
             )
           }
         >
@@ -180,12 +181,13 @@ const AddStockPage: NextPage = () => {
     ],
     []
   );
+
   return (
     <CardDashboard title="Barang Masuk Baru">
       <form onSubmit={handleSubmit}>
         <div className="flex flex-wrap -mx-2 mb-8">
           <div className="w-6/12 px-2 mb-3">
-            <label className="mb-1 inline-block">Nomor faktur</label>
+            <Label required>Nomor faktur</Label>
             <div className="flex w-full">
               <ThemedSelect
                 variant="contained"
@@ -228,7 +230,7 @@ const AddStockPage: NextPage = () => {
           </div>
           <div className="w-6/12 px-2 mb-3" />
           <div className="w-6/12 px-2 mb-3">
-            <WithLabelAndError touched={touched} errors={errors} name="supplier" label="Nama Supplier">
+            <WithLabelAndError required touched={touched} errors={errors} name="supplier" label="Nama Supplier">
               <SelectSupplier
                 onChange={(val, action) => {
                   setFieldValue('supplier', val);
@@ -269,6 +271,9 @@ const AddStockPage: NextPage = () => {
               <Table columns={columns} data={data} />
             </div>
             <ButtonWithModal onSave={(data) => setFieldValue('stockAdjustment', [...values.stockAdjustment, data])} />
+            {errors.stockAdjustment && touched.stockAdjustment && (
+              <span className="text-xs text-red-500">{errors.stockAdjustment}</span>
+            )}
           </div>
         </div>
 
@@ -289,7 +294,8 @@ const AddStockPage: NextPage = () => {
                 }}
                 options={PAYMENT_METHOD_OPTIONS}
               />
-              {values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value && (
+              {(values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value ||
+                values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[2].value) && (
                 <DatePickerComponent
                   name="paymentDue"
                   selected={values.paymentDue}
@@ -317,7 +323,7 @@ type ButtonWithModalFormValues = Omit<
 > & {
   buyPrice: number | string;
   discount: number | string;
-  item: Partial<Option<Item>>;
+  item: Partial<Option<Item>> | null;
   qty: number | string;
   isNew: boolean;
 };
@@ -330,7 +336,7 @@ const ButtonWithModal: React.FC<{
   const [isOpen, setIsOpen] = useState(false);
 
   const initialValues: ButtonWithModalFormValues = initVal || {
-    item: {},
+    item: null,
     buyPrice: '',
     discount: 0,
     qty: '',
@@ -340,7 +346,7 @@ const ButtonWithModal: React.FC<{
   };
 
   const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
-    validationSchema: object().shape(createSchema(initialValues)),
+    validationSchema: validationSchemaStockInItem,
     initialValues,
     enableReinitialize: !!initVal,
     onSubmit: async (values, { resetForm }) => {
@@ -367,10 +373,10 @@ const ButtonWithModal: React.FC<{
         <form onSubmit={handleSubmit}>
           <section className="max-w-4xl mr-auto ml-auto">
             <div>
-              <h6 className="mb-4 mt-2 text-2xl font-bold">Informasi Umum</h6>
+              <h6 className="mb-4 mt-2 text-2xl font-bold">Informasi Barang</h6>
               <div className="flex -mx-2 flex-wrap mb-1">
                 <div className="w-full mb-3 px-2">
-                  <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
+                  <WithLabelAndError required label="Nama barang" name="item" errors={errors} touched={touched}>
                     <SelectItems
                       onChange={(val, action) => {
                         setFieldValue('item', val);
@@ -382,7 +388,7 @@ const ButtonWithModal: React.FC<{
                   </WithLabelAndError>
                 </div>
                 <div className="w-8/12 mb-3 px-2">
-                  <WithLabelAndError label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
+                  <WithLabelAndError required label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
                     <TextField name="buyPrice" value={values.buyPrice} onChange={handleChange} type="number" />
                   </WithLabelAndError>
                 </div>
@@ -392,13 +398,13 @@ const ButtonWithModal: React.FC<{
                   </WithLabelAndError>
                 </div>
                 <div className="w-8/12 mb-3 px-2">
-                  <WithLabelAndError label="Qty" name="qty" errors={errors} touched={touched}>
+                  <WithLabelAndError required label="Qty" name="qty" errors={errors} touched={touched}>
                     <TextField name="qty" value={values.qty} onChange={handleChange} type="number" />
                   </WithLabelAndError>
                 </div>
                 <div className="w-4/12 mb-3 px-2">
-                  <WithLabelAndError label="Unit satuan" name="unit" errors={errors} touched={touched}>
-                    <TextField name="unit" value={values.unit} onChange={handleChange} />
+                  <WithLabelAndError required label="Unit satuan" name="unit" errors={errors} touched={touched}>
+                    <TextField name="unit" value={values.unit} disabled={!values?.isNew} onChange={handleChange} />
                   </WithLabelAndError>
                 </div>
                 <div className="w-full mb-3 px-2">
