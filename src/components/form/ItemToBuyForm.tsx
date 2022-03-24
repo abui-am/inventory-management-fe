@@ -7,8 +7,7 @@ import { validationSchemaItem } from '@/pages/transaction/constant';
 import { Item } from '@/typings/item';
 
 import { Button } from '../Button';
-import { TextField, WithLabelAndError } from '../Form';
-import { SelectItemsSync } from '../Select';
+import { SelectItemsDetail, TextField, WithLabelAndError } from '../Form';
 
 export type ItemToBuyFormValues = {
   item: { label: string; value: string; data: Item };
@@ -68,7 +67,7 @@ const ItemToBuyForm: React.FC<{
       <div className="flex -mx-2 flex-wrap mb-1">
         <div className="mb-3 px-2 w-full">
           <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
-            <SelectItemsSync
+            <SelectItemsDetail
               onChange={(val: never) => {
                 const data: { label: string; value: string; data: Item } = val as never;
                 setFieldValue(`item`, data);

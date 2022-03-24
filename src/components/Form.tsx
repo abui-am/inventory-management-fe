@@ -1,8 +1,16 @@
 import clsx from 'clsx';
-import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
+import React, {
+  DetailedHTMLProps,
+  forwardRef,
+  InputHTMLAttributes,
+  LegacyRef,
+  PropsWithChildren,
+  TextareaHTMLAttributes,
+  useState,
+} from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
-import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase } from 'react-select';
+import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase, SingleValueProps } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
 import CreatableAsyncSelect from 'react-select/async-creatable';
 
@@ -15,7 +23,9 @@ import {
   useSearchVillage,
 } from '@/hooks/mutation/useSearch';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
+import { Item } from '@/typings/item';
 import debounce from '@/utils/decounce';
+import { formatToIDR } from '@/utils/format';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
 import Label from './Label';
@@ -285,6 +295,56 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
     />
   );
 };
+
+const SingleValue = (props: SingleValueProps<{ label: string; value: string; data: Item }>) => {
+  const { data, children } = props;
+
+  return (
+    <components.SingleValue {...props}>
+      <div>
+        <div className="font-bold">{children}</div>
+        {/* <div style={{ fontSize: 10, color: 'rgba(0, 0, 0, 0.6)' }}>{`${nip} | Gol ${golongan} | ${jabatan}`}</div> */}
+        <div>
+          Harga jual : {formatToIDR(data?.data?.sell_price ?? 0)} | stock : {data.data?.quantity}
+        </div>
+      </div>
+    </components.SingleValue>
+  );
+};
+
+export const SelectItemsDetail = forwardRef(
+  (
+    { withDetail = false, ...props }: PropsWithChildren<ThemedSelectProps>,
+    ref: LegacyRef<Select<OptionTypeBase, boolean>>
+  ): JSX.Element => {
+    const { mutateAsync: search } = useSearchItems();
+
+    return (
+      <Select
+        {...props}
+        ref={ref}
+        styles={{
+          valueContainer: (base) => ({
+            ...base,
+            height: 64,
+          }),
+        }}
+        loadOptions={debounce(async (val) => {
+          const { data } = await search({ search: val });
+
+          return data?.items?.data.map(({ name, id, ...props }) => ({
+            label: name,
+            value: id,
+            data: { name, id, ...props },
+          }));
+          // return data.items.data.map(({ id, name, ...rest }) => ({ value: id, label: name, data: rest }));
+        }, 300)}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        components={withDetail ? { SingleValue: SingleValue as any } : {}}
+      />
+    );
+  }
+);
 
 const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
   return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;

@@ -1,4 +1,5 @@
 import Tippy from '@tippyjs/react';
+import { Form, Formik } from 'formik';
 import React, { useMemo } from 'react';
 import { Calculator, Eye } from 'react-bootstrap-icons';
 
@@ -159,7 +160,7 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ trans
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { items = [] } = useMemo(() => dataTrans?.data.transaction ?? { items: [] }, [isFetching]);
-  const { columns, data, dataSellPrice } = useDetailStockInAdaptor(items, true);
+  const { columns, data, initialValues } = useDetailStockInAdaptor(items, true);
   const { mutateAsync } = useUpdateStockIn();
   return (
     <>
@@ -169,26 +170,28 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ trans
 
       <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
         <h2 className="text-2xl font-bold mt-2 max">Tentukan Harga Jual</h2>
-
-        <ResponsiveTable columns={columns} data={data} />
-
-        <div className="mt-4 flex justify-end">
-          <Button
-            variant="primary"
-            onClick={() => {
-              mutateAsync({
-                transactionId: transactionId ?? '',
-                data: {
-                  status: 'accepted',
-                  items: dataSellPrice,
-                },
-              });
-              setOpen(false);
-            }}
-          >
-            Simpan Harga
-          </Button>
-        </div>
+        <Formik
+          initialValues={initialValues}
+          onSubmit={(values) => {
+            mutateAsync({
+              transactionId: transactionId ?? '',
+              data: {
+                status: 'accepted',
+                items: values.data,
+              },
+            });
+            setOpen(false);
+          }}
+        >
+          <Form>
+            <ResponsiveTable columns={columns} data={data} />
+            <div className="mt-4 flex justify-end">
+              <Button variant="primary" type="submit">
+                Simpan Harga
+              </Button>
+            </div>
+          </Form>
+        </Formik>
       </Modal>
     </>
   );

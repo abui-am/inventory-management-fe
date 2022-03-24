@@ -19,7 +19,7 @@ export const useCreateCustomer = (): UseMutationResult<
     ['createCustomer'],
     async (data: CreateCustomerBody) => {
       try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['super-admin', 'admin']).put<
+        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
           CreateCustomerBody,
           AxiosResponse<BackendRes<CreateCustomerResponse>>
         >('/customers', data);

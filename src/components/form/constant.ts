@@ -5,3 +5,9 @@ export const validationSchemaSupplier = object().shape({
   address: string().nullable(),
   phoneNumber: string().nullable(),
 });
+
+export const validationSchemaCustomer = object().shape({
+  fullName: string().nullable().required('* Required'),
+  address: string().nullable(),
+  phoneNumber: string().nullable(),
+});

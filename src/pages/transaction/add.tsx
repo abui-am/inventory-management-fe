@@ -154,8 +154,6 @@ const AddTransactionPage: NextPage = () => {
     };
   });
 
-  console.log(errors);
-
   const columns = React.useMemo(
     () => [
       {

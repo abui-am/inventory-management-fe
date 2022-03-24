@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
+import { Field, FieldProps } from 'formik';
+import React from 'react';
 
 import { TextField } from '@/components/Form';
 import { TrasactionItem } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
 export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAdjustment: boolean) => {
-  const [dataSellPrice, setDataSellPrice] = React.useState<{ id: string; sell_price: number }[]>([]);
-
-  useEffect(() => {
-    setDataSellPrice(items.map(({ id }) => ({ id, sell_price: 0 })));
-  }, [items]);
+  const initialValues: {
+    data: { id: string; sell_price: number }[];
+  } = {
+    data: [],
+  };
 
   const getData = () => {
     if (!withSellPriceAdjustment) {
@@ -29,13 +30,19 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
       purchasePrice: formatToIDR(pivot.purchase_price ?? 0),
       purchasePriceMedian: formatToIDR(pivot.median_purchase_price ?? 0),
       sellPriceAdjustment: (
-        <AdjustSellPrice
-          itemId={id}
-          value={dataSellPrice[index]?.sell_price}
-          onChange={(newPrice) => {
-            setDataSellPrice((prices) => prices.map((value) => (value?.id === newPrice.id ? newPrice : value)));
+        <Field name={`data[${index}]`}>
+          {(formik: FieldProps) => {
+            return (
+              <AdjustSellPrice
+                id={id}
+                value={formik.field.value?.sell_price}
+                onChange={(newPrice) => {
+                  formik.form.setFieldValue(formik.field.name, newPrice);
+                }}
+              />
+            );
           }}
-        />
+        </Field>
       ),
     }));
   };
@@ -103,21 +110,17 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
     return getColumn();
   }, [withSellPriceAdjustment]);
 
-  return { data, columns, dataSellPrice };
+  return { data, columns, initialValues };
 };
 
 export const AdjustSellPrice: React.FC<{
-  itemId: string;
   value: number;
-  onChange: (item: { id: string; sell_price: number }) => void;
-}> = ({ itemId, onChange, value }) => {
+  id: string;
+  onChange: (item: { sell_price: number; id: string }) => void;
+}> = ({ onChange, value, id }) => {
   return (
     <div>
-      <TextField
-        value={value}
-        type="number"
-        onChange={(e) => onChange({ sell_price: +e.target.value ?? 0, id: itemId })}
-      />
+      <TextField value={value} type="number" onChange={(e) => onChange({ sell_price: +e.target.value ?? 0, id })} />
     </div>
   );
 };

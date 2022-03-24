@@ -1,15 +1,14 @@
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React from 'react';
 import toast from 'react-hot-toast';
-import { object } from 'yup';
 
 import { useCreateCustomer, useEditCustomer } from '@/hooks/mutation/useMutateCustomer';
 import { CreateCustomerBody, CreateCustomerResponse } from '@/typings/customer';
-import createSchema from '@/utils/validation/formik';
 
 import { Button } from '../Button';
 import { PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from '../Form';
+import { validationSchemaCustomer } from './constant';
 
 export type CreateCustomerFormValues = {
   fullName: string;
@@ -34,10 +33,8 @@ const CreateCustomerForm: React.FC<{
 
   const isEdit = !!customerId;
 
-  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
-
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
-    validationSchema,
+    validationSchema: validationSchemaCustomer,
     initialValues,
     enableReinitialize: isEdit,
     onSubmit: async (values, { resetForm }) => {
@@ -62,7 +59,7 @@ const CreateCustomerForm: React.FC<{
           <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <WithLabelAndError touched={touched} errors={errors} name="fullName" label="Nama supplier">
+              <WithLabelAndError touched={touched} errors={errors} name="fullName" label="Nama customer">
                 <TextField
                   placeholder="Nama customer"
                   value={values.fullName}
