@@ -4,7 +4,9 @@ import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateStockInBody, TransactionData } from '@/typings/stock-in';
-import { apiInstanceAdmin } from '@/utils/api';
+import { getApiBasedOnRoles } from '@/utils/api';
+
+import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateStockIn = (): UseMutationResult<
   Omit<BackendRes<unknown>, 'data'>,
@@ -12,14 +14,16 @@ export const useCreateStockIn = (): UseMutationResult<
   CreateStockInBody,
   unknown
 > => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
     ['createStockin'],
     async (data: CreateStockInBody) => {
       try {
-        const res = await apiInstanceAdmin().put<CreateStockInBody, AxiosResponse<BackendRes<unknown>>>(
-          '/transactions',
-          data
-        );
+        const res = await getApiBasedOnRoles(roles ?? [], ['super-admin', 'admin']).put<
+          CreateStockInBody,
+          AxiosResponse<BackendRes<unknown>>
+        >('/transactions', data);
         return res.data;
       } catch (e) {
         console.error(e);
@@ -52,6 +56,8 @@ export const useUpdateStockIn = (): UseMutationResult<
   unknown
 > => {
   const queryClient = useQueryClient();
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
     ['createStockin'],
     async (data: {
@@ -63,10 +69,10 @@ export const useUpdateStockIn = (): UseMutationResult<
       >;
     }) => {
       try {
-        const res = await apiInstanceAdmin().patch<CreateStockInBody, AxiosResponse<BackendRes<unknown>>>(
-          `/transactions/${data.transactionId}`,
-          data.data
-        );
+        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).patch<
+          CreateStockInBody,
+          AxiosResponse<BackendRes<unknown>>
+        >(`/transactions/${data.transactionId}`, data.data);
         return res.data;
       } catch (e) {
         console.error(e);

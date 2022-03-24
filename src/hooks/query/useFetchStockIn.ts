@@ -31,7 +31,7 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
               transactionable_type: 'suppliers',
             },
           })
-        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).post('/transactions', {
+        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin', 'admin']).post('/transactions', {
             ...data,
             where: {
               ...data.where,

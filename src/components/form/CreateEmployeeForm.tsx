@@ -18,8 +18,14 @@ import {
   TextArea,
   TextField,
 } from '@/components/Form';
+import Label from '@/components/Label';
 import { genderOptions } from '@/constants/options';
-import { useCreateEmployee, useEditEmployee, useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
+import {
+  useCreateEmployee,
+  useEditEmployee,
+  useFetchEmployeeById,
+  useFetchMyself,
+} from '@/hooks/query/useFetchEmployee';
 import { Option } from '@/typings/common';
 import { CreateEmployeePutBody } from '@/typings/employee';
 import { createOption, getOptionByValue } from '@/utils/options';
@@ -35,6 +41,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
   const subdistrict = village?.subdistrict;
   const city = subdistrict?.city;
   const province = city?.province;
+  const myself = useFetchMyself();
   const { back } = useRouter();
 
   const initialValues =
@@ -76,6 +83,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           village: {} as Partial<Option>,
         };
 
+  const isOwner = myself.data?.data?.user?.roles.map(({ name }) => name).includes('superadmin' as any);
   const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
 
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
@@ -124,19 +132,20 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           <h6 className="mb-3 text-lg font-bold">Informasi Umum</h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 inline-block">Nama Awal</label>
+              <Label required>Nama Awal</Label>
               <TextField placeholder="Nama Awal" value={values.firstName} name="firstName" onChange={handleChange} />
               {errors.firstName && touched.firstName && (
                 <span className="text-xs text-red-500">{errors.firstName}</span>
               )}
             </div>
             <div>
-              <label className="mb-1 inline-block">Nama Akhir</label>
+              <Label required>Nama Akhir</Label>
               <TextField placeholder="Nama Akhir" value={values.lastName} name="lastName" onChange={handleChange} />
               {errors.lastName && touched.lastName && <span className="text-xs text-red-500">{errors.lastName}</span>}
             </div>
             <div>
-              <label className="mb-1 inline-block">Nomor KTP</label>
+              <Label required>Nomor KTP</Label>
+
               <TextField placeholder="Nomor KTP" name="nik" onChange={handleChange} value={values.nik} />
               {errors.nik && touched.nik && <span className="text-xs text-red-500">{errors.nik}</span>}
             </div>
@@ -170,11 +179,19 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
               <TextField placeholder="Jabatan" onChange={handleChange} name="position" value={values.position} />
               {errors.position && touched.position && <span className="text-xs text-red-500">{errors.position}</span>}
             </div>
-            <div>
-              <label className="mb-1 inline-block">Gaji</label>
-              <TextField type="number" placeholder="Gaji" onChange={handleChange} name="salary" value={values.salary} />
-              {errors.salary && touched.salary && <span className="text-xs text-red-500">{errors.salary}</span>}
-            </div>
+            {isOwner && (
+              <div>
+                <label className="mb-1 inline-block">Gaji</label>
+                <TextField
+                  type="number"
+                  placeholder="Gaji"
+                  onChange={handleChange}
+                  name="salary"
+                  value={values.salary}
+                />
+                {errors.salary && touched.salary && <span className="text-xs text-red-500">{errors.salary}</span>}
+              </div>
+            )}
           </div>
         </div>
         <div className="mb-4">
@@ -186,7 +203,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
               {errors.email && touched.email && <span className="text-xs text-red-500">{errors.email}</span>}
             </div>
             <div>
-              <label className="mb-1 inline-block">Nomor HP</label>
+              <Label required>Nomor HP</Label>
               <PhoneNumberTextField
                 placeholder="Nomor HP"
                 value={values.handphoneNumber}
@@ -257,7 +274,8 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
               {errors.village && touched.village && <span className="text-xs text-red-500">{errors.village}</span>}
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 inline-block">Alamat</label>
+              <Label required>Alamat</Label>
+
               <TextArea placeholder="Alamat" value={values.address} name="address" onChange={handleChange} />
               {errors.address && touched.address && <span className="text-xs text-red-500">{errors.address}</span>}
             </div>

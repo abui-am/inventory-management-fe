@@ -11,8 +11,6 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
     setDataSellPrice(items.map(({ id }) => ({ id, sell_price: 0 })));
   }, [items]);
 
-  console.log(dataSellPrice, 'data');
-
   const getData = () => {
     if (!withSellPriceAdjustment) {
       return items.map(({ name, unit, pivot }) => ({
@@ -24,7 +22,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
         col5: formatToIDR(pivot.total_price),
       }));
     }
-    return items.map(({ name, unit, pivot, id }) => ({
+    return items.map(({ name, unit, pivot, id }, index) => ({
       name,
       unit,
       qty: pivot.quantity,
@@ -33,6 +31,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
       sellPriceAdjustment: (
         <AdjustSellPrice
           itemId={id}
+          value={dataSellPrice[index]?.sell_price}
           onChange={(newPrice) => {
             setDataSellPrice((prices) => prices.map((value) => (value?.id === newPrice.id ? newPrice : value)));
           }}
@@ -109,11 +108,16 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
 
 export const AdjustSellPrice: React.FC<{
   itemId: string;
+  value: number;
   onChange: (item: { id: string; sell_price: number }) => void;
-}> = ({ itemId, onChange }) => {
+}> = ({ itemId, onChange, value }) => {
   return (
     <div>
-      <TextField type="number" onChange={(e) => onChange({ sell_price: +e.target.value, id: itemId })} />
+      <TextField
+        value={value}
+        type="number"
+        onChange={(e) => onChange({ sell_price: +e.target.value ?? 0, id: itemId })}
+      />
     </div>
   );
 };

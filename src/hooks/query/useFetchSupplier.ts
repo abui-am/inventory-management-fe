@@ -9,7 +9,7 @@ import {
   SupplierDetailResponse,
   SuppliersResponse,
 } from '@/typings/supplier';
-import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
+import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
@@ -39,10 +39,12 @@ const useFetchSupplierById = (
   id: string,
   options?: UseQueryOptions<unknown, unknown, BackendRes<SupplierDetailResponse>>
 ): UseQueryResult<BackendRes<SupplierDetailResponse>> => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
     ['suppliers', id],
     async () => {
-      const res = await apiInstanceAdmin().get(`/suppliers/${id}`);
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).get(`/suppliers/${id}`);
       return res.data;
     },
     options
@@ -55,11 +57,13 @@ const useEditSupplier = (
   editId: string
 ): UseMutationResult<BackendRes<CreateSupplierResponse>, unknown, CreateSupplierBody, unknown> => {
   const query = useQueryClient();
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
 
   const mutator = useMutation(
     ['editSupplier', editId],
     async (data: CreateSupplierBody) => {
-      const res = await apiInstanceAdmin().patch(`/suppliers/${editId}`, data);
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).patch(`/suppliers/${editId}`, data);
       query.invalidateQueries(['suppliers']);
       return res.data;
     },
@@ -82,14 +86,17 @@ const useCreateSupplier = (): UseMutationResult<
   CreateSupplierBody,
   unknown
 > => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
+
   const mutator = useMutation(
     ['createEmployee'],
     async (data: CreateSupplierBody) => {
       try {
-        const res = await apiInstanceAdmin().put<CreateSupplierBody, AxiosResponse<BackendRes<CreateSupplierResponse>>>(
-          '/suppliers',
-          data
-        );
+        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
+          CreateSupplierBody,
+          AxiosResponse<BackendRes<CreateSupplierResponse>>
+        >('/suppliers', data);
         return res.data;
       } catch (e) {
         console.error(e);

@@ -293,7 +293,8 @@ const AddStockPage: NextPage = () => {
                       }}
                       options={PAYMENT_METHOD_OPTIONS}
                     />
-                    {values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value && (
+                    {(values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value ||
+                      values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[2].value) && (
                       <DatePickerComponent
                         name="paymentDue"
                         selected={values.paymentDue}

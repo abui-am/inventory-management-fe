@@ -4,18 +4,19 @@ import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
 
 import { AuditsData, CreateItemsAuditBody, CreateItemsAuditResponse } from '@/typings/audit';
 import { BackendRes, BackendResError } from '@/typings/request';
-import { apiInstanceAdmin, getApiBasedOnRoles } from '@/utils/api';
+import { getApiBasedOnRoles } from '@/utils/api';
 
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditResponse>, unknown, CreateItemsAuditBody> => {
   const query = useQueryClient();
-
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
     ['createAudit'],
     async (data: CreateItemsAuditBody) => {
       try {
-        const res = await apiInstanceAdmin().put<
+        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).put<
           CreateItemsAuditBody,
           AxiosResponse<BackendRes<CreateItemsAuditResponse>>
         >('/items/audits', data);
@@ -49,7 +50,10 @@ export const useEditAudit = (
   const mutator = useMutation(
     ['editAudit', editId],
     async (data: Partial<AuditsData>) => {
-      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).patch(`/items/audits/${editId}`, data);
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).patch(
+        `/items/audits/${editId}`,
+        data
+      );
       return res.data;
     },
     {

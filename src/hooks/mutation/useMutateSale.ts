@@ -5,7 +5,9 @@ import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSaleBody, CreateSaleResponse } from '@/typings/sale';
 import { CreateStockInBody } from '@/typings/stock-in';
-import { apiInstanceAdmin } from '@/utils/api';
+import { apiInstanceAdmin, getApiBasedOnRoles } from '@/utils/api';
+
+import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateSale = (): UseMutationResult<
   BackendRes<CreateSaleResponse>,
@@ -14,14 +16,16 @@ export const useCreateSale = (): UseMutationResult<
   unknown
 > => {
   const query = useQueryClient();
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
     ['createSale'],
     async (data: CreateSaleBody) => {
       try {
-        const res = await apiInstanceAdmin().put<CreateSaleBody, AxiosResponse<BackendRes<CreateSaleResponse>>>(
-          '/transactions',
-          data
-        );
+        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
+          CreateSaleBody,
+          AxiosResponse<BackendRes<CreateSaleResponse>>
+        >('/transactions', data);
         return res.data;
       } catch (e) {
         console.error(e);

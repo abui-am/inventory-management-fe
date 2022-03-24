@@ -40,7 +40,7 @@ const TransactionPage: NextPage<unknown> = () => {
     next_page_url,
     prev_page_url,
     last_page_url,
-  } = dataTrasaction?.data.transactions ?? {};
+  } = dataTrasaction?.data?.transactions ?? {};
   const data = dataRes.map(
     ({ transaction_code, created_at, sender, payment_method, pic, items, id, status, customer, ...props }) => ({
       id: transaction_code,
