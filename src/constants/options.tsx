@@ -46,6 +46,19 @@ export const SALE_SORT_BY_OPTIONS = [
   },
 ];
 
+export const PRIVES_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan tanggal',
+    value: 'prive_date',
+    data: ['prive_date'],
+  },
+  {
+    label: 'Sortir berdasarkan jumlah penarikan',
+    value: 'amount',
+    data: ['amount'],
+  },
+];
+
 export const PAYROLLS_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan status',

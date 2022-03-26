@@ -85,6 +85,13 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:advance-payrolls',
   },
+  {
+    id: 'prive',
+    slug: '/prive',
+    displayName: 'Prive',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:prive',
+  },
 ];
 
 export default MENU_LIST;

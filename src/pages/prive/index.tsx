@@ -7,49 +7,45 @@ import { CardDashboard } from '@/components/Container';
 import { DateRangePicker, SelectSortBy, SelectSortType } from '@/components/Form';
 import CreatePrive from '@/components/form/CreatePrive';
 import Modal from '@/components/Modal';
+import Pagination from '@/components/Pagination';
 // import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { PRIVES_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useFetchPrives } from '@/hooks/query/useFetchPrives';
 import { Option } from '@/typings/common';
 import { formatDate, formatToIDR } from '@/utils/format';
 
 const PrivePage: NextPage<unknown> = () => {
-  // const [setPaginationUrl] = React.useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(SALE_SORT_BY_OPTIONS[0]);
+  const [paginationUrl, setPaginationUrl] = React.useState('');
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(PRIVES_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
-  // const [setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
 
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(new Date());
+  const params = sortBy?.data?.reduce((previousValue, currentValue) => {
+    return { ...previousValue, [currentValue]: sortType?.value };
+  }, {});
 
-  const dataPrepaidSalary = {
-    data: {
-      prepaid_salary: {
-        data: [
-          {
-            date: '2022-06-28T13:31:13+0700',
-            description: 'Untuk makan',
-            amount: 2000000,
-          },
-        ],
-      },
-    } as any,
-  };
-
+  const { data: dataPrives } = useFetchPrives({
+    order_by: params,
+    forceUrl: paginationUrl,
+    per_page: pageSize,
+  });
   const {
     data: dataRes = [],
-    // from,
-    // to,
-    // total,
-    // links,
-    // next_page_url,
-    // prev_page_url,
-    // last_page_url,
-  } = dataPrepaidSalary?.data.prepaid_salary ?? {};
-  const data = dataRes.map(({ date, description, amount }: any) => ({
-    date: formatDate(date),
+    from,
+    to,
+    total,
+    links,
+    next_page_url,
+    prev_page_url,
+    last_page_url,
+  } = dataPrives?.data?.prives ?? {};
+  const data = dataRes.map(({ prive_date, description, amount }) => ({
+    date: formatDate(prive_date),
     description,
-    amount: formatToIDR(amount),
+    amount: formatToIDR(+amount),
   }));
   const columns = React.useMemo(
     () => [
@@ -96,7 +92,7 @@ const PrivePage: NextPage<unknown> = () => {
                   onChange={(val) => {
                     setSortBy(val as Option<string[]>);
                   }}
-                  options={SALE_SORT_BY_OPTIONS}
+                  options={PRIVES_SORT_BY_OPTIONS}
                 />
 
                 <SelectSortType
@@ -111,7 +107,7 @@ const PrivePage: NextPage<unknown> = () => {
           </div>
         )}
       />
-      {/* <Pagination
+      <Pagination
         stats={{
           from: `${from ?? '0'}`,
           to: `${to ?? '0'}`,
@@ -134,7 +130,7 @@ const PrivePage: NextPage<unknown> = () => {
         onClickPrevious={() => {
           setPaginationUrl((prev_page_url as string) ?? '');
         }}
-      /> */}
+      />
     </CardDashboard>
   );
 };
@@ -156,7 +152,7 @@ const AddPrive = () => {
         Tambah
       </Button>
       <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <CreatePrive />
+        <CreatePrive onClose={handleClose} onSave={handleClose} />
       </Modal>
     </>
   );
