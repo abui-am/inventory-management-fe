@@ -14,6 +14,6 @@ export const validationSchemaCustomer = object().shape({
 
 export const validationSchemaPrive = object().shape({
   description: string().nullable().required('* Required'),
-  amount: number().nullable().required('* Required'),
+  amount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
   date: date().nullable().required('* Required'),
 });
