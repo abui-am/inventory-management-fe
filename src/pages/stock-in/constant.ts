@@ -37,10 +37,10 @@ export const validationSchemaStockIn = object().shape({
 
 export const validationSchemaStockInItem = object().shape({
   item: object().nullable().required('* Required'),
-  buyPrice: number().nullable().required('* Required'),
-  discount: number().nullable(),
-  qty: number().nullable().required('* Required'),
+  buyPrice: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
+  discount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
+  qty: number().moreThan(0, 'Harus lebih dari 0').nullable().required('* Required'),
   unit: string().nullable().required('* Required'),
-  memo: number().nullable(),
+  memo: string().nullable(),
   isNew: object().nullable(),
 });

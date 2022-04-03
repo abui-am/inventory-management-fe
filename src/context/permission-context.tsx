@@ -18,7 +18,8 @@ export type PermissionList =
   | 'view:audit'
   | 'view:monthly-salary'
   | 'control:advance-payrolls'
-  | 'control:prive';
+  | 'control:prive'
+  | 'control:debt-giro';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -45,6 +46,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'view:monthly-salary',
           'control:advance-payrolls',
           'control:prive',
+          'control:debt-giro',
         ];
         break;
 

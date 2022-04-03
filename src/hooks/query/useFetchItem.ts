@@ -24,6 +24,7 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
     paginated: boolean;
     per_page: number;
     search: string;
+    trashed: string;
     order_by: Record<string, string>;
     where: Record<string, unknown>;
   }> = {},

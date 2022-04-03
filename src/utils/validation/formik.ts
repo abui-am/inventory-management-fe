@@ -39,9 +39,9 @@ const schema = (type: string) => {
 
     case 'buyPrice':
     case 'qty':
-      return number().required('Wajib diisi');
+      return number().moreThan(0, 'Harus lebih dari IDR Rp0').required('Wajib diisi');
     case 'discount':
-      return number();
+      return number().moreThan(0, 'Harus lebih dari IDR Rp0');
 
     case 'handphoneNumber':
       return string().min(9, 'Minimal 9 nomor').max(16, 'Maximal 16 character').required('Wajib diisi');

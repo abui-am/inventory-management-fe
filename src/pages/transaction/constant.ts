@@ -2,14 +2,14 @@ import { array, bool, number, object, ref, string } from 'yup';
 
 export const validationSchemaItem = object().shape({
   item: object().nullable().required('* Required'),
-  maxQty: number().nullable(),
-  discount: number().nullable(),
-  qty: number().max(ref('maxQty'), 'Tidak boleh lebih dari jumlah barang').nullable(),
+  maxQty: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
+  discount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
+  qty: number().moreThan(0, 'Harus lebih dari 0').max(ref('maxQty'), 'Tidak boleh lebih dari jumlah barang').nullable(),
   id: string().nullable(),
 });
 
 export const validationSchemaTransaction = object().shape({
-  payAmount: number().nullable().required('* Required'),
+  payAmount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
   dateIn: string().nullable(),
   stockAdjustment: array().nullable(),
   memo: string().nullable(),
@@ -27,5 +27,5 @@ export const validationSchemaTransaction = object().shape({
     .nullable()
     .required('* Required'),
   isNewSupplier: bool().nullable(),
-  totalPrice: number().nullable().required('* Required'),
+  totalPrice: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
 });
