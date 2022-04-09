@@ -92,6 +92,20 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:prive',
   },
+  {
+    id: 'debt',
+    slug: '/debt',
+    displayName: 'Utang',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:debt',
+  },
+  {
+    id: 'debt',
+    slug: '/debt-giro',
+    displayName: 'Utang Giro',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:debt-giro',
+  },
 ];
 
 export default MENU_LIST;

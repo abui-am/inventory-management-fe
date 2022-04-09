@@ -1,49 +1,51 @@
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React from 'react';
 import toast from 'react-hot-toast';
-import { object } from 'yup';
 
-import { useCreateCustomer, useEditCustomer } from '@/hooks/mutation/useMutateCustomer';
+import { useUpdateDebt } from '@/hooks/mutation/useMutateDebt';
+import { Datum, PayDebtPayload } from '@/typings/debts';
 import { formatToIDR } from '@/utils/format';
-import createSchema from '@/utils/validation/formik';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { TextField, WithLabelAndError } from '../Form';
+import { Checkbox, TextField, WithLabelAndError } from '../Form';
+import { validationSchemaPayDebt } from './constant';
 export type PayDebtFormValues = {
-  salary: number;
+  debtAmount: number;
   paidAmount: number;
-  amount: number;
+  unpaidAmount: number;
+  payFull: boolean;
+  amount: number | '';
 };
 
 const PayDebtForm: React.FC<{
-  prepaidSalaryId?: string;
+  debt: Datum;
   onSave?: (data: any) => void;
+  onClose: () => void;
   type: 'giro' | 'normal';
-}> = ({ prepaidSalaryId, type, onSave }) => {
-  const { mutateAsync } = useCreateCustomer();
-  const { mutateAsync: editCustomer } = useEditCustomer(prepaidSalaryId ?? '');
+}> = ({ debt, type, onSave, onClose }) => {
+  const { mutateAsync } = useUpdateDebt();
   const initialValues: PayDebtFormValues = {
-    salary: 0,
-    paidAmount: 0,
-    amount: 0,
+    debtAmount: +debt?.amount ?? 0,
+    paidAmount: +debt?.paid_amount ?? 0,
+    unpaidAmount: +debt?.amount - +debt?.paid_amount,
+    payFull: false,
+    amount: '',
   };
 
-  const { back } = useRouter();
-
-  const isEdit = !!prepaidSalaryId;
-
-  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
-
   const { values, handleChange, setSubmitting, handleSubmit, errors, touched } = useFormik({
-    validationSchema,
+    validationSchema: validationSchemaPayDebt,
     initialValues,
-    enableReinitialize: isEdit,
+    enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
       setSubmitting(true);
-      const jsonBody: any = {};
-      const res = isEdit ? await editCustomer(jsonBody) : await mutateAsync(jsonBody);
+      const jsonBody: PayDebtPayload = {
+        id: debt?.id,
+        data: {
+          paid_amount: values?.payFull ? +values?.unpaidAmount : +values?.amount,
+        },
+      };
+      const res = await mutateAsync(jsonBody);
       setSubmitting(false);
       resetForm();
       onSave?.(res.data);
@@ -59,11 +61,15 @@ const PayDebtForm: React.FC<{
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <label className="text-base block">Jumlah Utang</label>
-              <span className="text-xl font-bold block">{formatToIDR(values?.salary)}</span>
+              <span className="text-xl font-bold block">{formatToIDR(values?.debtAmount)}</span>
             </div>
             <div className="sm:col-span-2">
               <label className="text-base block">Yang sudah dibayarkan</label>
               <span className="text-xl font-bold block">{formatToIDR(values?.paidAmount)}</span>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-base block">Yang belum dibayarkan</label>
+              <span className="text-xl font-bold block">{formatToIDR(values?.unpaidAmount)}</span>
             </div>
 
             <div className="sm:col-span-2">
@@ -71,19 +77,38 @@ const PayDebtForm: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah yang mau dibayarkan">
-                <TextField name="amount" value={values.amount} onChange={handleChange} placeholder="0" type="number" />
+                <TextField
+                  disabled={values?.payFull}
+                  name="amount"
+                  value={values.amount}
+                  onChange={handleChange}
+                  placeholder="0"
+                  type="number"
+                />
               </WithLabelAndError>
-              <small className="text-red-500">Batas maksimal {formatToIDR(values?.salary)}</small>
+
+              {!values.payFull && (
+                <small className="text-red-500 block">
+                  Batas maksimal {formatToIDR(values?.debtAmount - values?.paidAmount)}
+                </small>
+              )}
+
+              <div className="sm:col-span-2">
+                <div className="flex mt-2 items-center">
+                  <Checkbox name="payFull" onChange={handleChange} />
+                  <label className="text-base ml-1">Lunas</label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
       <div className="mt-8 flex justify-end">
         <div className="flex">
-          <Button onClick={() => back()} variant="secondary" className="mr-4">
+          <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">{type === 'giro' ? 'Bayar Urang Giro' : 'Bayar Utang'}</Button>
+          <Button type="submit">{type === 'giro' ? 'Bayar Utang Giro' : 'Bayar Utang'}</Button>
         </div>
       </div>
     </form>

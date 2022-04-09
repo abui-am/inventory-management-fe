@@ -34,7 +34,7 @@ const PrivePage: NextPage<unknown> = () => {
     paginated: true,
     forceUrl: paginationUrl || undefined,
     where: {
-      type: 'current_account',
+      type: 'debt',
     },
   });
 
@@ -92,7 +92,7 @@ const PrivePage: NextPage<unknown> = () => {
         data={data}
         search={() => (
           <div className="mt-2 mb-4 flex justify-between">
-            <h2 className="text-2xl font-bold">Daftar Utang Giro Perusahaan</h2>
+            <h2 className="text-2xl font-bold">Daftar Utang Perusahaan</h2>
             <div className="flex flex-col items-end">
               <div className="flex flex-wrap mb-4">
                 <DateRangePicker

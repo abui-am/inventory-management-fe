@@ -102,7 +102,7 @@ const PaySalaryForm: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit"> Bayar Gaji</Button>
+          <Button type="submit">Bayar Gaji</Button>
         </div>
       </div>
     </form>

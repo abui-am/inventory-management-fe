@@ -141,6 +141,19 @@ export const SUPPLIER_SORT_BY_OPTIONS = [
   },
 ];
 
+export const DEBT_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan tanggal',
+    value: 'created_at',
+    data: ['created_at'],
+  },
+  {
+    label: 'Sortir berdasarkan status',
+    value: 'is_paid',
+    data: ['is_paid'],
+  },
+];
+
 export const SORT_TYPE_OPTIONS = [
   {
     label: 'Sortir naik',

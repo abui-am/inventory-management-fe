@@ -338,7 +338,7 @@ const ButtonWithModal: React.FC<{
   const initialValues: ButtonWithModalFormValues = initVal || {
     item: null,
     buyPrice: '',
-    discount: 0,
+    discount: '',
     qty: '',
     unit: '',
     memo: '',
@@ -415,7 +415,13 @@ const ButtonWithModal: React.FC<{
               </div>
 
               <div className="flex justify-end">
-                <Button variant="secondary" className="mr-3">
+                <Button
+                  variant="secondary"
+                  className="mr-3"
+                  onClick={() => {
+                    setIsOpen(false);
+                  }}
+                >
                   Batalkan
                 </Button>
                 <Button variant="primary" type="submit">
