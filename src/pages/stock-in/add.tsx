@@ -25,8 +25,7 @@ import { useCreateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { Option } from '@/typings/common';
 import { CreateStockInBody, Item } from '@/typings/stock-in';
 import promiseAll from '@/utils/promiseAll';
-
-import { validationSchemaStockIn, validationSchemaStockInItem } from './constant';
+import { validationSchemaStockIn, validationSchemaStockInItem } from '@/utils/validation/stock-in';
 
 export type AddStockInTableValue = {
   item_name: string;

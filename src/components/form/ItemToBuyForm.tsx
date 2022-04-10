@@ -3,8 +3,8 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { v4 } from 'uuid';
 
-import { validationSchemaItem } from '@/pages/transaction/constant';
 import { Item } from '@/typings/item';
+import { validationSchemaItem } from '@/utils/validation/transaction';
 
 import { Button } from '../Button';
 import { SelectItemsDetail, TextField, WithLabelAndError } from '../Form';

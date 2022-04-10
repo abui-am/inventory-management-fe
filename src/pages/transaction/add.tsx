@@ -18,8 +18,7 @@ import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateSale } from '@/hooks/mutation/useMutateSale';
 import { Option } from '@/typings/common';
 import { formatToIDR } from '@/utils/format';
-
-import { validationSchemaTransaction } from './constant';
+import { validationSchemaTransaction } from '@/utils/validation/transaction';
 
 export type AddStockInTableValue = {
   item_name: string;
