@@ -45,6 +45,20 @@ input:checked + div svg {
   ::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
   }
+  
+  #menu::-webkit-scrollbar-thumb:hover {
+    background: #3E4A5F;
+  }
+
+  #menu::-webkit-scrollbar-thumb {
+    background: #3E4A5F;
+    border-radius: 100vh;
+  }
+
+  #menu::-webkit-scrollbar-corner {
+    background: #3E4A5F;
+  }
+  
 }
 
 @layer components {

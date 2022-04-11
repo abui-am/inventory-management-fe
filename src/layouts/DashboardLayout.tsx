@@ -83,7 +83,18 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
         </section>
 
         <div className="flex min-h-screen max-w-screen">
-          <div style={{ flexBasis: 216 }} className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block">
+          <div
+            style={{
+              width: 240,
+              position: 'fixed',
+              top: 0,
+              bottom: 0,
+              left: 0,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+            className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block"
+          >
             <div className="p-8 pb-7">
               <Link href="/">
                 <div className="flex -ml-5 cursor-pointer">
@@ -92,12 +103,19 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                 </div>
               </Link>
             </div>
-            <section id="menu">
+            <section
+              id="menu"
+              style={{
+                overflowX: 'scroll',
+                height: '100%',
+                paddingBottom: 40,
+              }}
+            >
               <Menu activePage={activePage} />
             </section>
           </div>
 
-          <div className="flex-1 p-0 sm:p-8">
+          <div className="flex-1 p-0 sm:p-8 " style={{ marginLeft: 240 }}>
             <div className="p-6 flex justify-between mb-0 sm:p-0 sm:mb-6 max-w-screen">
               <Link href={titleHref}>
                 <a>
@@ -231,7 +249,7 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
               </a>
             </Link>
 
-            {activePage === index && <div className="w-2 bg-blue-600 h-full absolute right-0" />}
+            {activePage === index && <div className="w-2 bg-blue-600 h-full absolute left-0" />}
           </div>
         );
       })}
