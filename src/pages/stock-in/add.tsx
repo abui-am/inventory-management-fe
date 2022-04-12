@@ -22,8 +22,10 @@ import Table from '@/components/Table';
 import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateItems } from '@/hooks/mutation/useMutateItems';
 import { useCreateStockIn } from '@/hooks/mutation/useMutateStockIn';
+import { useFetchItemById } from '@/hooks/query/useFetchItem';
 import { Option } from '@/typings/common';
 import { CreateStockInBody, Item } from '@/typings/stock-in';
+import { formatToIDR } from '@/utils/format';
 import promiseAll from '@/utils/promiseAll';
 import { validationSchemaStockIn, validationSchemaStockInItem } from '@/utils/validation/stock-in';
 
@@ -357,6 +359,8 @@ const ButtonWithModal: React.FC<{
     },
   });
 
+  const { data: itemData } = useFetchItemById(values?.item?.value ?? '');
+
   return (
     <>
       {withEditButton ? (
@@ -385,6 +389,12 @@ const ButtonWithModal: React.FC<{
                       value={values.item}
                     />
                   </WithLabelAndError>
+                </div>
+                <div className="w-full mb-3 px-2">
+                  <span className="block">Harga jual sebelumnya:</span>
+                  <span className="text-xl font-bold">
+                    {itemData?.data?.item?.sell_price ? formatToIDR(itemData?.data?.item?.sell_price ?? 0) : '-'}
+                  </span>
                 </div>
                 <div className="w-8/12 mb-3 px-2">
                   <WithLabelAndError required label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
