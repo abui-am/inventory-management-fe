@@ -21,7 +21,6 @@ function getApiBasedOnRole(role: string): AxiosInstance {
 
 function getApiBasedOnRoles(roles: string[], hierarchy: string[]): AxiosInstance {
   let api = apiInstance();
-  console.log(roles);
   let isChosen = false;
   hierarchy.forEach((list) => {
     if (roles.includes(list) && !isChosen) {

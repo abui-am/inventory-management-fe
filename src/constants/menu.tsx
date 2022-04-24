@@ -100,11 +100,19 @@ const MENU_LIST = [
     permission: 'control:debt',
   },
   {
-    id: 'debt',
+    id: 'debt-giro',
     slug: '/debt-giro',
     displayName: 'Utang Giro',
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:debt-giro',
+  },
+
+  {
+    id: 'account-receivable',
+    slug: '/account-receivable',
+    displayName: 'Piutang',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:account-receivable',
   },
 ];
 

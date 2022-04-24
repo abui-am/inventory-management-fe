@@ -16,7 +16,7 @@ import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatToIDR } from '@/utils/format';
 
-const PrivePage: NextPage<unknown> = () => {
+const AccountReceivable: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(DEBT_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
@@ -34,7 +34,7 @@ const PrivePage: NextPage<unknown> = () => {
     paginated: true,
     forceUrl: paginationUrl || undefined,
     where: {
-      type: 'debt',
+      type: 'recievable',
     },
   });
 
@@ -75,7 +75,7 @@ const PrivePage: NextPage<unknown> = () => {
         accessor: 'paid',
       },
       {
-        Header: 'Jumlah Utang',
+        Header: 'Jumlah Piutang',
         accessor: 'debtAmount',
       },
       {
@@ -92,7 +92,7 @@ const PrivePage: NextPage<unknown> = () => {
         data={data}
         search={() => (
           <div className="mt-2 mb-4 flex justify-between">
-            <h2 className="text-2xl font-bold">Daftar Utang Perusahaan</h2>
+            <h2 className="text-2xl font-bold">Daftar Piutang Perusahaan</h2>
             <div className="flex flex-col items-end">
               <div className="flex flex-wrap mb-4">
                 <DateRangePicker
@@ -175,10 +175,10 @@ const PayDebt: React.FC<{ debt: Datum }> = ({ debt }) => {
       </Tippy>
 
       <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <PayDebtForm type="normal" onSave={handleClose} onClose={handleClose} debt={debt} />
+        <PayDebtForm type="account-receivable" onSave={handleClose} onClose={handleClose} debt={debt} />
       </Modal>
     </>
   );
 };
 
-export default PrivePage;
+export default AccountReceivable;

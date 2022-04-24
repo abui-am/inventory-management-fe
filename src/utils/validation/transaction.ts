@@ -9,7 +9,12 @@ export const validationSchemaItem = object().shape({
 });
 
 export const validationSchemaTransaction = object().shape({
-  payAmount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
+  payAmount: number().when('paymentMethod.value', {
+    is: 'cash',
+    then: (schema) =>
+      schema.min(ref('totalPrice'), 'Harus lebih dari harga total atau sama').nullable().required('* Required'),
+    otherwise: (schema) => schema.max(ref('totalPrice'), 'Harus kurang dari harga total atau sama'),
+  }),
   dateIn: string().nullable(),
   stockAdjustment: array().nullable(),
   memo: string().nullable(),

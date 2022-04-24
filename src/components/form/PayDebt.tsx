@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { useFormik } from 'formik';
 import React from 'react';
 import toast from 'react-hot-toast';
@@ -22,7 +23,7 @@ const PayDebtForm: React.FC<{
   debt: Datum;
   onSave?: (data: any) => void;
   onClose: () => void;
-  type: 'giro' | 'normal';
+  type: 'giro' | 'normal' | 'account-receivable';
 }> = ({ debt, type, onSave, onClose }) => {
   const { mutateAsync } = useUpdateDebt();
   const initialValues: PayDebtFormValues = {
@@ -57,10 +58,14 @@ const PayDebtForm: React.FC<{
     <form onSubmit={handleSubmit} noValidate>
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
-          <h6 className="mb-6 text-2xl font-bold">{type === 'giro' ? 'Bayar Utang Giro' : 'Bayar Utang'}</h6>
+          <h6 className="mb-6 text-2xl font-bold">
+            {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Lunaskan Piutang' : 'Bayar Utang'}
+          </h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="text-base block">Jumlah Utang</label>
+              <label className="text-base block">
+                {type === 'account-receivable' ? 'Jumlah Piutang' : 'Jumlah Utang'}
+              </label>
               <span className="text-xl font-bold block">{formatToIDR(values?.debtAmount)}</span>
             </div>
             <div className="sm:col-span-2">
@@ -108,7 +113,9 @@ const PayDebtForm: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">{type === 'giro' ? 'Bayar Utang Giro' : 'Bayar Utang'}</Button>
+          <Button type="submit">
+            {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Lunaskan Piutang' : 'Bayar Utang'}
+          </Button>
         </div>
       </div>
     </form>

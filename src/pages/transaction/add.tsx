@@ -80,7 +80,10 @@ const AddTransactionPage: NextPage = () => {
           transactionable_type: 'customers',
           payment: {
             cash: +data.payAmount ?? 0,
-            change: +data.payAmount - data.totalPrice,
+            change:
+              values.paymentMethod.value === 'debt' || values?.paymentMethod.value === 'current_account'
+                ? 0
+                : +data.payAmount - data.totalPrice,
             maturity_date:
               data.paymentMethod.value !== 'cash'
                 ? dayjs(data.paymentDue).format('YYYY-MM-DD HH:mm:ss')
@@ -445,8 +448,17 @@ const ModalSummary: React.FC<{ isOpen: boolean; values: AddStockValue }> = ({ is
         <p className="font-bold mb-4">{formatToIDR(values.totalPrice)}</p>
         <label className="">Dibayarkan</label>
         <p className="font-bold mb-4">{formatToIDR(+values.payAmount)}</p>
-        <label className="">Kembalian</label>
-        <p className="text-2xl font-bold mb-4">{formatToIDR(+values.payAmount - values.totalPrice)}</p>
+        {values.paymentMethod.value === 'debt' || values.paymentMethod.value === 'current_account' ? (
+          <>
+            <label className="">Pelanggan berhutang</label>
+            <p className="text-2xl font-bold mb-4">{formatToIDR(+values.totalPrice - +values.payAmount)}</p>
+          </>
+        ) : (
+          <>
+            <label className="">Kembalian</label>
+            <p className="text-2xl font-bold mb-4">{formatToIDR(+values.payAmount - values.totalPrice)}</p>
+          </>
+        )}
         <ModalActionWrapper>
           <Button onClick={handleClick}>Ke Halaman Transaksi</Button>
         </ModalActionWrapper>

@@ -116,11 +116,11 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
 export const AdjustSellPrice: React.FC<{
   value: number;
   id: string;
-  onChange: (item: { sell_price: number; id: string }) => void;
+  onChange: (item: { sell_price: number | ''; id: string }) => void;
 }> = ({ onChange, value, id }) => {
   return (
     <div>
-      <TextField value={value} type="number" onChange={(e) => onChange({ sell_price: +e.target.value ?? 0, id })} />
+      <TextField value={value} type="number" onChange={(e) => onChange({ sell_price: +e.target.value || '', id })} />
     </div>
   );
 };
