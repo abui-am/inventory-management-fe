@@ -9,7 +9,7 @@ import { salarySchema } from '@/utils/validation/pay-salary';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { Checkbox, TextField, WithLabelAndError } from '../Form';
+import { Checkbox, CurrencyTextField, TextField, WithLabelAndError } from '../Form';
 
 export type PaySalaryFormValues = {
   salary: number;
@@ -31,7 +31,7 @@ const PaySalaryForm: React.FC<{
     payFull: false,
   };
 
-  const { values, handleChange, setSubmitting, handleSubmit, errors, touched } = useFormik({
+  const { values, handleChange, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
     validationSchema: salarySchema,
     validateOnChange: true,
     validateOnBlur: true,
@@ -72,13 +72,22 @@ const PaySalaryForm: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah yang mau dibayarkan">
-                <TextField
+                {/* <TextField
                   name="amount"
                   value={values.amount as number}
                   onChange={handleChange}
                   placeholder="0"
                   type="number"
                   disabled={values.payFull}
+                /> */}
+                <CurrencyTextField
+                  disabled={values?.payFull}
+                  name="amount"
+                  value={values.amount}
+                  onChange={(val) => {
+                    setFieldValue('amount', val);
+                  }}
+                  placeholder="0"
                 />
               </WithLabelAndError>
               {!values.payFull && (

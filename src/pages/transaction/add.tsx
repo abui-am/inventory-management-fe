@@ -8,7 +8,7 @@ import { Pencil, PlusLg, Trash } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
+import { CurrencyTextField, DatePickerComponent, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
 import ItemToBuyForm, { ItemToBuyFormValues } from '@/components/form/ItemToBuyForm';
 import Label from '@/components/Label';
 import Modal, { ModalActionWrapper } from '@/components/Modal';
@@ -246,15 +246,15 @@ const AddTransactionPage: NextPage = () => {
               </div>
               <div className="w-full px-2 mb-3">
                 <Label required>Uang yang dibayarkan</Label>
-                <TextField
+                <CurrencyTextField
                   id="payAmount"
                   name="payAmount"
                   value={values.payAmount}
-                  type="number"
                   placeholder="Masukan jumlah bayaran"
                   disabled={isSubmitting}
-                  onChange={handleChange}
-                  hasError={!!errors.memo}
+                  onChange={(val) => {
+                    setFieldValue('payAmount', val);
+                  }}
                 />
                 {errors.payAmount && touched.payAmount && (
                   <span className="text-xs text-red-500">{errors.payAmount}</span>

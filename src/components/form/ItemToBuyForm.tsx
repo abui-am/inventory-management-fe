@@ -7,7 +7,7 @@ import { Item } from '@/typings/item';
 import { validationSchemaItem } from '@/utils/validation/transaction';
 
 import { Button } from '../Button';
-import { SelectItemsDetail, TextField, WithLabelAndError } from '../Form';
+import { CurrencyTextField, SelectItemsDetail, TextField, WithLabelAndError } from '../Form';
 
 export type ItemToBuyFormValues = {
   item: { label: string; value: string; data: Item };
@@ -87,13 +87,14 @@ const ItemToBuyForm: React.FC<{
         </div>
         <div className="w-3/12 mb-3 px-2">
           <WithLabelAndError label="Diskon" name="discount" errors={errors} touched={touched}>
-            <TextField
+            <CurrencyTextField
               name="discount"
               tabIndex={-1}
               value={values.discount}
-              onChange={handleChange}
+              onChange={(val) => {
+                setFieldValue('discount', val);
+              }}
               placeholder="0"
-              type="number"
             />
             <small className="text-gray-600">Masukan angka (bukan persen)</small>
           </WithLabelAndError>

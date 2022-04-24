@@ -94,7 +94,6 @@ export function makeServerAuth(): void {
       this.passthrough('/_next/static/development/_devPagesManifest.json');
       this.post('auth/login', (schema, request) => {
         const attrs = JSON.parse(request.requestBody);
-        console.log(attrs);
         if (attrs.email === 'super_admin' && attrs.password === 'SuperAdmin') {
           return {
             status_code: 200,

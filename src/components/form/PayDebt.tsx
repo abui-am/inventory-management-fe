@@ -9,7 +9,7 @@ import { formatToIDR } from '@/utils/format';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { Checkbox, TextField, WithLabelAndError } from '../Form';
+import { Checkbox, CurrencyTextField, WithLabelAndError } from '../Form';
 import { validationSchemaPayDebt } from './constant';
 export type PayDebtFormValues = {
   debtAmount: number;
@@ -34,7 +34,7 @@ const PayDebtForm: React.FC<{
     amount: '',
   };
 
-  const { values, handleChange, setSubmitting, handleSubmit, errors, touched } = useFormik({
+  const { values, handleChange, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
     validationSchema: validationSchemaPayDebt,
     initialValues,
     enableReinitialize: true,
@@ -82,13 +82,14 @@ const PayDebtForm: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah yang mau dibayarkan">
-                <TextField
+                <CurrencyTextField
                   disabled={values?.payFull}
                   name="amount"
                   value={values.amount}
-                  onChange={handleChange}
+                  onChange={(val) => {
+                    setFieldValue('amount', val);
+                  }}
                   placeholder="0"
-                  type="number"
                 />
               </WithLabelAndError>
 

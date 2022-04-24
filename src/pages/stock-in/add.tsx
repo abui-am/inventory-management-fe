@@ -8,6 +8,7 @@ import { Pencil, Trash } from 'react-bootstrap-icons';
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import {
+  CurrencyTextField,
   DatePickerComponent,
   SelectItems,
   TextArea,
@@ -398,12 +399,24 @@ const ButtonWithModal: React.FC<{
                 </div>
                 <div className="w-8/12 mb-3 px-2">
                   <WithLabelAndError required label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
-                    <TextField name="buyPrice" value={values.buyPrice} onChange={handleChange} type="number" />
+                    <CurrencyTextField
+                      name="buyPrice"
+                      value={values.buyPrice}
+                      onChange={(val) => {
+                        setFieldValue('buyPrice', val);
+                      }}
+                    />
                   </WithLabelAndError>
                 </div>
                 <div className="w-4/12 mb-3 px-2">
                   <WithLabelAndError label="Diskon" name="discount" errors={errors} touched={touched}>
-                    <TextField name="discount" value={values.discount} onChange={handleChange} type="number" />
+                    <CurrencyTextField
+                      name="discount"
+                      value={values.discount}
+                      onChange={(val) => {
+                        setFieldValue('discount', val);
+                      }}
+                    />
                   </WithLabelAndError>
                 </div>
                 <div className="w-8/12 mb-3 px-2">

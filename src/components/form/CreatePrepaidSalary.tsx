@@ -10,7 +10,7 @@ import { formatDateYYYYMM, formatToIDR } from '@/utils/format';
 import { prepaidSalarySchema } from '@/utils/validation/pre-paid-salary';
 
 import { Button } from '../Button';
-import { DatePickerComponent, TextField, WithLabelAndError } from '../Form';
+import { CurrencyTextField, DatePickerComponent, WithLabelAndError } from '../Form';
 import { SelectSender } from '../Select';
 
 export type CreatePrepaidSalaryFormValues = {
@@ -79,14 +79,12 @@ const CreatePrepaidSalary: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah gaji">
-                <TextField
-                  type="number"
+                <CurrencyTextField
                   disabled={!values?.salary}
-                  hasError={!!touched.amount && !!errors.amount}
                   placeholder="Masukan jumlah gaji"
                   value={values.amount}
                   name="amount"
-                  onChange={(e) => setFieldValue('amount', e.target.value)}
+                  onChange={(e) => setFieldValue('amount', e)}
                 />
                 <span className="text-red-500 mt-2 block">Batas maksimal {formatToIDR(values?.salary ?? 0)}</span>
               </WithLabelAndError>

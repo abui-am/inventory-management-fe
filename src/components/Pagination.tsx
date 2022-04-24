@@ -142,10 +142,7 @@ const Pagination: React.FC<PaginationProps> = ({
                     menuPlacement="top"
                     defaultValue={PER_PAGE_OPTIONS[1]}
                     onChange={(e) => {
-                      console.log(onChangePerPage);
-
                       if (onChangePerPage) {
-                        console.log('nayal');
                         onChangePerPage(e);
                       }
                     }}

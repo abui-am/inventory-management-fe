@@ -1,7 +1,7 @@
 import { Field, FieldProps } from 'formik';
 import React from 'react';
 
-import { TextField } from '@/components/Form';
+import { CurrencyTextField } from '@/components/Form';
 import { TrasactionItem } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
@@ -55,26 +55,59 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
           {
             Header: 'Nama Barang',
             accessor: 'col1', // accessor is the "key" in the data
+            width: '25%',
           },
           {
             Header: 'Unit',
             accessor: 'col15',
+            width: '10%',
           },
           {
             Header: 'Jumlah',
             accessor: 'col2',
+            width: '15%',
+            style: {
+              textAlign: 'right',
+              display: 'block',
+            },
+            bodyStyle: {
+              textAlign: 'right',
+            },
           },
           {
             Header: 'Harga',
             accessor: 'col3',
+            width: '20%',
+            style: {
+              textAlign: 'right',
+              display: 'block',
+            },
+            bodyStyle: {
+              textAlign: 'right',
+            },
           },
           {
             Header: 'Diskon',
             accessor: 'col4',
+            width: '10%',
+            style: {
+              textAlign: 'right',
+              display: 'block',
+            },
+            bodyStyle: {
+              textAlign: 'right',
+            },
           },
           {
             Header: 'Total Harga',
             accessor: 'col5',
+            style: {
+              display: 'block',
+              textAlign: 'right',
+            },
+            bodyStyle: {
+              textAlign: 'right',
+            },
           },
         ];
       }
@@ -83,26 +116,59 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
         {
           Header: 'Nama Barang',
           accessor: 'name', // accessor is the "key" in the data
+          width: '20%',
         },
         {
           Header: 'Unit',
           accessor: 'unit',
+          width: '10%',
         },
         {
           Header: 'Jumlah',
           accessor: 'qty',
+          width: '10%',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
         {
           Header: 'Harga beli',
           accessor: 'purchasePrice',
+          width: '15%',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
         {
           Header: 'Harga beli median',
           accessor: 'purchasePriceMedian',
+          width: '15%',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
         {
           Header: 'Harga jual',
           accessor: 'sellPriceAdjustment',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
       ];
     };
@@ -120,7 +186,7 @@ export const AdjustSellPrice: React.FC<{
 }> = ({ onChange, value, id }) => {
   return (
     <div>
-      <TextField value={value} type="number" onChange={(e) => onChange({ sell_price: +e.target.value || '', id })} />
+      <CurrencyTextField value={value} onChange={(val) => onChange({ sell_price: val ?? '', id })} />
     </div>
   );
 };

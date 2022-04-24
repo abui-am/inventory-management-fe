@@ -86,8 +86,8 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   ) as PropsReturn;
 
   const renderHead = (column: { isSorted?: boolean; isSortedDesc?: boolean }) => {
-    if (column.isSortedDesc) return <ChevronUp />;
-    if (column.isSorted) return <ChevronDown />;
+    if (column.isSortedDesc) return <ChevronUp style={{ marginLeft: 8 }} />;
+    if (column.isSorted) return <ChevronDown style={{ marginLeft: 8 }} />;
     return '';
   };
 
@@ -103,29 +103,39 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
       </div>
       <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
-          {headerGroups.map((headerGroup, i) => (
-            <tr {...headerGroup.getHeaderGroupProps()} className="table-themed">
-              {headerGroup.headers.map((column: any) => (
-                <th
-                  {...column.getHeaderProps(
-                    enableAutoSort
-                      ? {
-                          className: clsx('py-6 px-4 text-left', column.collapse ? 'collapse' : ''),
-                          ...column.getSortByToggleProps?.(),
-                        }
-                      : {
-                          className: clsx('py-6 px-4 text-left', column.collapse ? 'collapse' : ''),
-                        }
-                  )}
-                >
-                  <span className={clsx('flex', (columns?.[i] as any)?.flexEnd ? 'justify-end' : '')}>
-                    {column.render('Header')}
-                    <span style={{ marginLeft: 8 }}>{renderHead(column)}</span>
-                  </span>
-                </th>
-              ))}
-            </tr>
-          ))}
+          {headerGroups.map((headerGroup, i) => {
+            return (
+              <tr {...headerGroup.getHeaderGroupProps()} className="table-themed">
+                {headerGroup.headers.map((column: any) => {
+                  return (
+                    <th
+                      {...column.getHeaderProps(
+                        enableAutoSort
+                          ? {
+                              className: clsx('py-6 px-4 text-left', column.collapse ? 'collapse' : ''),
+                              ...column.getSortByToggleProps?.(),
+                            }
+                          : {
+                              className: clsx('py-6 px-4 text-left', column.collapse ? 'collapse' : ''),
+                            }
+                      )}
+                      style={{
+                        width: column.width,
+                      }}
+                    >
+                      <span
+                        className={clsx('flex', (columns?.[i] as any)?.flexEnd ? 'justify-end' : '', column.className)}
+                        style={column.style}
+                      >
+                        {column.render('Header')}
+                        <span>{renderHead(column)}</span>
+                      </span>
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </thead>
         <tbody {...getTableBodyProps()}>
           {page.map((row, index) => {
@@ -141,6 +151,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                       {...cell.getCellProps({
                         key: Math.random(),
                         className: (cell.column as any).collapse ? 'py-3 px-4 collapse' : 'py-3 px-4',
+                        style: (cell.column as any).bodyStyle,
                       })}
                     >
                       {cell.render('Cell')}
@@ -159,7 +170,6 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
             gotoPage(e - 1);
           }}
           onChangePerPage={(val) => {
-            console.log(val, 'avl');
             setPageSize(val?.value ?? 0);
           }}
           stats={{
@@ -173,7 +183,6 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
           }}
           links={[]}
           onClickNext={() => {
-            console.log('asdas');
             nextPage();
             //   setPaginationUrl(next_page_url ?? '');
           }}
@@ -207,7 +216,7 @@ const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({
       {rows.map((row) => {
         prepareRow(row);
         return (
-          <div className="px-6 py-2 border rounded-md border-gray-300 mb-6">
+          <div className="px-6 py-2 border rounded-md border-gray-300 mb-6" key={row.id}>
             {row.cells.map((cell, index) => {
               return (
                 <div className="flex my-6" key={Math.random()}>

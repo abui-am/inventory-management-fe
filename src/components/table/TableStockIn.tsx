@@ -1,7 +1,7 @@
 import Tippy from '@tippyjs/react';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { Calculator, Check, Pencil, Search } from 'react-bootstrap-icons';
+import { Calculator, Check, Eye, Pencil, Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
 import Tag from '@/components/Tag';
@@ -27,18 +27,22 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(STOCK_IN_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
+  const [transactionId, setTransactionid] = useState('');
+  const [transaction, setTransaction] = useState<TransactionData | null>(null);
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
 
-  const getAction = (transaction: TransactionData) => {
+  const Action = (transaction: TransactionData) => {
     switch (variant) {
       case 'all':
         return (
           <div className="flex">
             <Tippy content="Lihat detail barang masuk">
               <div>
-                <DetailStockIn transactions={transaction} />
+                <Button size="small" onClick={() => setTransaction(transaction)}>
+                  <Eye width={24} height={24} />
+                </Button>
               </div>
             </Tippy>
           </div>
@@ -48,7 +52,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
           <div className="flex">
             <Tippy content="Lihat detail barang masuk">
               <div className="mr-2">
-                <DetailStockIn transactions={transaction} />
+                <Button size="small" onClick={() => setTransaction(transaction)}>
+                  <Eye width={24} height={24} />
+                </Button>
               </div>
             </Tippy>
             <Tippy content="Konfirmasi barang masuk">
@@ -75,13 +81,17 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
           <div className="flex">
             <Tippy content="Lihat detail barang masuk">
               <div className="mr-2">
-                <DetailStockIn transactions={transaction} />
+                <Button size="small" onClick={() => setTransaction(transaction)}>
+                  <Eye width={24} height={24} />
+                </Button>
               </div>
             </Tippy>
 
             <Tippy content="Tentukan harga jual barang">
               <div className="mr-2">
-                <SellPriceAdjustment transactionId={transaction.id} />
+                <Button size="small" onClick={() => setTransactionid(transaction.id)}>
+                  <Calculator width={24} height={24} />
+                </Button>
               </div>
             </Tippy>
             <ButtonCancelTransaction transactionId={transaction.id} />
@@ -93,7 +103,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
             <Button size="small" variant="secondary" className="mr-2">
               <Pencil width={24} height={24} />
             </Button>
-            <DetailStockIn transactions={transaction} />
+            <Button size="small" onClick={() => setTransaction(transaction)}>
+              <Eye width={24} height={24} />
+            </Button>
           </div>
         );
     }
@@ -137,7 +149,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
           <Tag variant={status === 'accepted' ? 'primary' : 'secondary'}>{getTagValue(status)}</Tag>
         </div>
       ),
-      col8: getAction({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }),
+      col8: (
+        <Action {...{ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }} />
+      ),
     })
   );
 
@@ -182,6 +196,19 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
 
   return (
     <>
+      <SellPriceAdjustment
+        transactionId={transactionId}
+        onClose={() => {
+          setTransactionid('');
+        }}
+      />
+      <DetailStockIn
+        transactions={transaction}
+        onClose={() => {
+          setTransaction(null);
+        }}
+      />
+
       <Table
         columns={columns}
         data={data}

@@ -7,7 +7,7 @@ import { CreatePrivePayload } from '@/typings/prives';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
 import { Button } from '../Button';
-import { DatePickerComponent, TextField, WithLabelAndError } from '../Form';
+import { CurrencyTextField, DatePickerComponent, TextField, WithLabelAndError } from '../Form';
 import { validationSchemaPrive } from './constant';
 
 export type CreatePriveFormValues = {
@@ -74,13 +74,11 @@ const CreatePrive: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError required touched={touched} errors={errors} name="amount" label="Jumlah penarikan">
-                <TextField
-                  type="number"
-                  hasError={!!touched.amount && !!errors.amount}
+                <CurrencyTextField
                   placeholder="Masukan nomor telepon"
                   value={values.amount?.toString()}
                   name="amount"
-                  onChange={(amount) => setFieldValue('amount', amount.target.value)}
+                  onChange={(amount) => setFieldValue('amount', amount)}
                 />
               </WithLabelAndError>
             </div>

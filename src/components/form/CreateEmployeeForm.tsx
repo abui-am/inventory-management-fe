@@ -9,6 +9,7 @@ import { object } from 'yup';
 
 import { Button } from '@/components/Button';
 import {
+  CurrencyTextField,
   DatePickerComponent,
   PhoneNumberTextField,
   SelectCity,
@@ -85,7 +86,6 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
 
   const isOwner = myself.data?.data?.user?.roles.map(({ name }) => name).includes('superadmin' as any);
   const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
-
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema,
     initialValues,
@@ -182,12 +182,13 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
             {isOwner && (
               <div>
                 <label className="mb-1 inline-block">Gaji</label>
-                <TextField
-                  type="number"
-                  placeholder="Gaji"
-                  onChange={handleChange}
-                  name="salary"
+                <CurrencyTextField
                   value={values.salary}
+                  placeholder="Gaji"
+                  onChange={(val) => {
+                    setFieldValue('salary', val);
+                  }}
+                  name="salary"
                 />
                 {errors.salary && touched.salary && <span className="text-xs text-red-500">{errors.salary}</span>}
               </div>

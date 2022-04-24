@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
+import NumberFormat, { NumberFormatProps, NumberFormatValues } from 'react-number-format';
 import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase, SingleValueProps } from 'react-select';
 import Select, { Async, Props } from 'react-select/async';
 import CreatableAsyncSelect from 'react-select/async-creatable';
@@ -388,6 +389,66 @@ const SelectSortType: React.FC<ThemedSelectProps> = (props) => {
   );
 };
 
+type CurrencyTextFieldProps = Omit<NumberFormatProps, 'onChange'> & {
+  prefix?: string;
+  errorStyle?: Record<string, any>;
+  onChange: (val: number | undefined) => void;
+};
+const CurrencyTextField: React.FC<CurrencyTextFieldProps> = ({
+  prefix = 'IDR',
+  placeholder = '',
+  thousandSeparator = '.',
+  decimalSeparator = ',',
+  isNumericString = true,
+  errorStyle,
+  onChange,
+  ...props
+}) => {
+  const customOnChange = (e: NumberFormatValues) => {
+    onChange(e.floatValue);
+  };
+  if (!prefix) {
+    return (
+      <NumberFormat
+        className={clsx(
+          errorStyle,
+          'h-11 w-full px-3 outline-none rounded-md border-gray-300 border',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in'
+        )}
+        placeholder={placeholder}
+        isNumericString={isNumericString}
+        thousandSeparator={thousandSeparator}
+        decimalSeparator={decimalSeparator}
+        onValueChange={customOnChange}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <div className="flex">
+      <div className="flex items-center top-0 bottom-0 m-auto text-blueGray-400 px-3 border h-11 border-r-0 border-gray-300 rounded-tl-md rounded-bl-md">
+        {prefix}
+      </div>
+      <NumberFormat
+        className={clsx(
+          errorStyle,
+          'h-11 w-full px-3 outline-none rounded-tr-md rounded-br-md border-gray-300 border',
+          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
+          'transition-all duration-150 ease-in'
+        )}
+        onValueChange={customOnChange}
+        placeholder={placeholder}
+        isNumericString={isNumericString}
+        thousandSeparator={thousandSeparator}
+        decimalSeparator={decimalSeparator}
+        {...props}
+      />
+    </div>
+  );
+};
+
 const WithLabelAndError: React.FC<{
   label: string;
   errors: Record<string, unknown>;
@@ -406,6 +467,7 @@ const WithLabelAndError: React.FC<{
 
 export {
   Checkbox,
+  CurrencyTextField,
   DatePickerComponent,
   DateRangePicker,
   PhoneNumberTextField,

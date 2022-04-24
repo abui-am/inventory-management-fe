@@ -267,7 +267,7 @@ const ConfirmationStockBubble: React.FC = () => {
       },
     },
     {
-      refetchInterval: 10000, // 10 sec
+      refetchOnWindowFocus: true,
     }
   );
   return (
@@ -286,7 +286,7 @@ const OnReviewBubble: React.FC = () => {
       },
     },
     {
-      refetchInterval: 10000, // 10 sec
+      refetchOnWindowFocus: true,
     }
   );
   return (

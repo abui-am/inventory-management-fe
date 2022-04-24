@@ -21,22 +21,46 @@ export const useDetailSaleAdaptor = (items: SaleItem[]) => {
         {
           Header: 'Nama Barang',
           accessor: 'name', // accessor is the "key" in the data
+          width: '25%',
         },
         {
           Header: 'Unit',
           accessor: 'unit',
+          width: '10%',
         },
         {
           Header: 'Jumlah',
           accessor: 'qty',
+          width: '15%',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
         {
           Header: 'Harga jual',
           accessor: 'sellPrice',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
         {
           Header: 'Total harga',
           accessor: 'total',
+          style: {
+            textAlign: 'right',
+            display: 'block',
+          },
+          bodyStyle: {
+            textAlign: 'right',
+          },
         },
       ];
     };

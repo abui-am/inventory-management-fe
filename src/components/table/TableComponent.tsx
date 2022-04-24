@@ -1,7 +1,7 @@
 import Tippy from '@tippyjs/react';
 import { Form, Formik } from 'formik';
 import React, { useMemo } from 'react';
-import { Calculator, Eye } from 'react-bootstrap-icons';
+import { Eye } from 'react-bootstrap-icons';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchTransactionById } from '@/hooks/query/useFetchStockIn';
@@ -17,14 +17,15 @@ import Modal from '../Modal';
 import ResponsiveTable from '../Table';
 import Tag from '../Tag';
 
-export const DetailStockIn: React.FC<{ transactions: TransactionData }> = ({ transactions }) => {
-  const [open, setOpen] = React.useState(false);
-
+export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onClose: () => void }> = ({
+  transactions,
+  onClose,
+}) => {
   const {
-    created_at,
-    invoice_number,
-    transaction_code,
-    payment_method,
+    created_at = new Date(),
+    invoice_number = '',
+    transaction_code = '',
+    payment_method = '',
     supplier,
     pic,
     status,
@@ -35,11 +36,7 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData }> = ({ tra
 
   return (
     <>
-      <Button size="small" onClick={() => setOpen((open) => !open)}>
-        <Eye width={24} height={24} />
-      </Button>
-
-      <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
+      <Modal ariaHideApp={false} isOpen={!!transactions} onRequestClose={onClose} variant="large">
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Barang Masuk</h2>
         <div className="flex">
           <div className="flex-1">
@@ -154,9 +151,11 @@ const ItemInfo: React.FC<{
   );
 };
 
-export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ transactionId }) => {
-  const [open, setOpen] = React.useState(false);
-  const { data: dataTrans, isFetching } = useFetchTransactionById(transactionId, { enabled: open });
+export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () => void }> = ({
+  transactionId,
+  onClose,
+}) => {
+  const { data: dataTrans, isFetching } = useFetchTransactionById(transactionId, { enabled: !!transactionId });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { items = [] } = useMemo(() => dataTrans?.data.transaction ?? { items: [] }, [isFetching]);
@@ -164,14 +163,11 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ trans
   const { mutateAsync } = useUpdateStockIn();
   return (
     <>
-      <Button size="small" onClick={() => setOpen((open) => !open)}>
-        <Calculator width={24} height={24} />
-      </Button>
-
-      <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
+      <Modal isOpen={!!transactionId} onRequestClose={onClose} variant="large">
         <h2 className="text-2xl font-bold mt-2 max">Tentukan Harga Jual</h2>
         <Formik
           initialValues={initialValues}
+          enableReinitialize
           onSubmit={(values) => {
             mutateAsync({
               transactionId: transactionId ?? '',
@@ -180,7 +176,7 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string }> = ({ trans
                 items: values.data,
               },
             });
-            setOpen(false);
+            onClose();
           }}
         >
           <Form>
