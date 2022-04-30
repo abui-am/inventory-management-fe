@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import React, { useState } from 'react';
 import { PlusLg } from 'react-bootstrap-icons';
 
@@ -44,7 +45,11 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     last_page_url,
   } = dataPrepaidSalary?.data.advance_payrolls ?? {};
   const data = dataRes.map(({ employee, employee_position, payroll_month, created_at, amount }) => ({
-    name: `${employee.first_name} ${employee.last_name}`,
+    name: (
+      <Link href={`/employee/${employee.id}`}>
+        <a className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</a>
+      </Link>
+    ),
     position: employee_position,
     paidDate: formatDate(created_at),
     salaryDate: dayjs(payroll_month).format('MMM YYYY'),
@@ -71,6 +76,13 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
       {
         Header: 'Pembayaran',
         accessor: 'amount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
     ],
     []

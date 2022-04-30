@@ -174,10 +174,6 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         accessor: 'col4',
       },
       {
-        Header: 'Pembayaran',
-        accessor: 'col5',
-      },
-      {
         Header: 'Kasir',
         accessor: 'col6',
       },
@@ -187,8 +183,20 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         accessor: 'col7',
       },
       {
+        Header: 'Pembayaran',
+        accessor: 'col5',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
+      },
+      {
         Header: 'Aksi',
         accessor: 'col8',
+        width: '150px',
       },
     ],
     []

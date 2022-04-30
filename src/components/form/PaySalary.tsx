@@ -9,7 +9,7 @@ import { salarySchema } from '@/utils/validation/pay-salary';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { Checkbox, CurrencyTextField, TextField, WithLabelAndError } from '../Form';
+import { Checkbox, CurrencyTextField, WithLabelAndError } from '../Form';
 
 export type PaySalaryFormValues = {
   salary: number;

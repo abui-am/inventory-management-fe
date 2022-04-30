@@ -73,14 +73,29 @@ const AccountReceivable: NextPage<unknown> = () => {
       {
         Header: 'Dibayarkan',
         accessor: 'paid',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
       {
         Header: 'Jumlah Piutang',
         accessor: 'debtAmount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
       {
         Header: 'Aksi',
         accessor: 'action',
+        width: '100px',
       },
     ],
     []

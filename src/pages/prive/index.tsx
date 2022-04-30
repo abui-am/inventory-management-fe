@@ -60,6 +60,13 @@ const PrivePage: NextPage<unknown> = () => {
       {
         Header: 'Jumlah penarikan',
         accessor: 'amount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
     ],
     []

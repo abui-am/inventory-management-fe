@@ -1,6 +1,7 @@
 import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import React, { useState } from 'react';
 import { CashCoin } from 'react-bootstrap-icons';
 
@@ -50,7 +51,11 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
 
   const data = dataRes.map(
     ({ employee, paid_in_advance, employee_position: position, status, paid_amount, employee_salary, ...props }) => ({
-      name: <div className="font-bold">{`${employee?.first_name} ${employee?.last_name}`}</div>,
+      name: (
+        <Link href={`/employee/${employee.id}`}>
+          <a className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</a>
+        </Link>
+      ),
       position,
       status: (
         <div className={status === 'lunas' ? 'text-blue-600 font-bold' : ''}>
@@ -91,14 +96,29 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
       {
         Header: 'Dibayarkan',
         accessor: 'paidAmount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
       {
         Header: 'Jumlah Gaji Bulanan',
         accessor: 'salary',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
       {
         Header: 'Aksi',
         accessor: 'action',
+        width: '100px',
       },
     ],
     []

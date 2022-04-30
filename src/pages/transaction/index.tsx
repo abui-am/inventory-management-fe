@@ -73,6 +73,13 @@ const TransactionPage: NextPage<unknown> = () => {
       {
         Header: 'Kode Transaksi',
         accessor: 'id', // accessor is the "key" in the data
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
       },
       {
         Header: 'Tanggal',
@@ -86,10 +93,6 @@ const TransactionPage: NextPage<unknown> = () => {
         Header: 'Metode Pembayaran',
         accessor: 'purchaseMethod',
       },
-      {
-        Header: 'Pembayaran',
-        accessor: 'payAmount',
-      },
 
       {
         Header: 'Kasir',
@@ -101,8 +104,20 @@ const TransactionPage: NextPage<unknown> = () => {
       },
 
       {
+        Header: 'Pembayaran',
+        accessor: 'payAmount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
+      },
+      {
         Header: 'Aksi',
         accessor: 'col8',
+        width: '100px',
       },
     ],
     []
