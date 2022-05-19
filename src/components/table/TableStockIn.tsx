@@ -7,10 +7,11 @@ import Table from '@/components/Table';
 import Tag from '@/components/Tag';
 import { SORT_TYPE_OPTIONS, STOCK_IN_SORT_BY_OPTIONS } from '@/constants/options';
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
+import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
 import { Option } from '@/typings/common';
 import { TransactionData } from '@/typings/stock-in';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
 
 import { Button, ButtonCancelTransaction } from '../Button';
 import { SelectSortBy, SelectSortType, TextField } from '../Form';
@@ -125,6 +126,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     per_page: pageSize,
     ...queryVariant,
   });
+  const { data: dataMyself } = useFetchMyself();
+
+  const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
 
   const {
     data: dataRes = [],
@@ -140,10 +144,33 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
       col1: transaction_code,
       col2: formatDate(created_at, { withHour: true }),
-      col3: supplier?.name,
-      col4: payment_method,
-      col5: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
-      col6: `${pic.employee.first_name} ${pic.employee.last_name}`,
+      detail: (
+        <div>
+          <label className="block">Supplier:</label>
+          <span className="text-base font-bold block mb-2">{supplier?.name}</span>
+          <label className="block">Pembayaran (metode):</label>
+          <span className="text-base font-bold block mb-2">
+            {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))} (
+            {formatPaymentMethod(payment_method)})
+          </span>
+        </div>
+      ),
+      // col3: supplier?.name,
+      // col4: payment_method,
+      // col5: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+      col6: isAdmin ? (
+        <div>
+          <a
+            href={`/employee/${pic.id}`}
+            className="block font-bold hover:text-blue-600"
+          >{`${pic.employee.first_name} ${pic.employee.last_name}`}</a>
+        </div>
+      ) : (
+        <div>
+          <span className="block">{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</span>
+        </div>
+      ),
+
       col7: (
         <div>
           <Tag variant={status === 'accepted' ? 'primary' : 'secondary'}>{getTagValue(status)}</Tag>
@@ -166,12 +193,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         accessor: 'col2',
       },
       {
-        Header: 'Supplier',
-        accessor: 'col3',
-      },
-      {
-        Header: 'Metode Pembayaran',
-        accessor: 'col4',
+        Header: 'Detail Barang Masuk',
+        accessor: 'detail',
+        width: '40%',
       },
       {
         Header: 'Kasir',
@@ -181,25 +205,16 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
       {
         Header: 'Status',
         accessor: 'col7',
+        width: '150px',
       },
-      {
-        Header: 'Pembayaran',
-        accessor: 'col5',
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
-      },
+
       {
         Header: 'Aksi',
         accessor: 'col8',
-        width: '150px',
+        width: variant === 'all' ? '100px' : '180px',
       },
     ],
-    []
+    [variant]
   );
 
   return (

@@ -10,9 +10,10 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DetailSale } from '@/components/table/TableComponent';
 import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { Option } from '@/typings/common';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
 
 const TransactionPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
@@ -23,6 +24,10 @@ const TransactionPage: NextPage<unknown> = () => {
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
+
+  const { data: dataMyself } = useFetchMyself();
+
+  const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
 
   const { data: dataTrasaction } = useFetchSales({
     order_by: params,
@@ -45,11 +50,39 @@ const TransactionPage: NextPage<unknown> = () => {
     ({ transaction_code, created_at, sender, payment_method, pic, items, id, status, customer, ...props }) => ({
       id: transaction_code,
       date: formatDate(created_at, { withHour: true }),
-      purchaseMethod: payment_method,
-      payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
-      pic: `${pic.employee.first_name} ${pic.employee.last_name}`,
-      customer: customer?.full_name,
-      sender: `${sender?.first_name} ${sender?.last_name}`,
+      pic: isAdmin ? (
+        <div>
+          <label>Kasir:</label>
+          <a
+            href={`/employee/${pic.id}`}
+            className="block font-bold mb-2 hover:text-blue-600"
+          >{`${pic.employee.first_name} ${pic.employee.last_name}`}</a>
+          <label>Pengirim:</label>
+          <a
+            href={`/employee/${sender.id}`}
+            className="block font-bold hover:text-blue-600"
+          >{`${sender?.first_name} ${sender?.last_name}`}</a>
+        </div>
+      ) : (
+        <div>
+          <label>Kasir:</label>
+          <span className="block font-bold mb-2">{`${pic.employee.first_name} ${pic.employee.last_name}`}</span>
+          <label>Pengirim:</label>
+          <span className="block font-bold">{`${sender?.first_name} ${sender?.last_name}`}</span>
+        </div>
+      ),
+      customer: (
+        <div>
+          <label className="block">Pembeli:</label>
+          <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
+          <label className="block">Pembayaran (metode):</label>
+          <span className="text-base font-bold block mb-2">
+            {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))} (
+            {formatPaymentMethod(payment_method)})
+          </span>
+        </div>
+      ),
+
       col8: (
         <DetailSale
           transactions={{
@@ -73,47 +106,22 @@ const TransactionPage: NextPage<unknown> = () => {
       {
         Header: 'Kode Transaksi',
         accessor: 'id', // accessor is the "key" in the data
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
       },
       {
         Header: 'Tanggal',
         accessor: 'date',
       },
       {
-        Header: 'Pembeli',
+        Header: 'Detail Pembelian',
         accessor: 'customer',
-      },
-      {
-        Header: 'Metode Pembayaran',
-        accessor: 'purchaseMethod',
+        width: '30%',
       },
 
       {
-        Header: 'Kasir',
+        Header: 'Kasir & Pengirim',
         accessor: 'pic',
       },
-      {
-        Header: 'Pengirim',
-        accessor: 'sender',
-      },
 
-      {
-        Header: 'Pembayaran',
-        accessor: 'payAmount',
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
-      },
       {
         Header: 'Aksi',
         accessor: 'col8',

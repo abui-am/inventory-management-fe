@@ -117,9 +117,22 @@ const AddTransactionPage: NextPage = () => {
     return {
       col1: item?.label ?? '',
       col2: qty,
-      col3: formatToIDR(+(item?.data?.sell_price ?? 0)),
-      col4: formatToIDR(+discount),
-      col5: formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty),
+      price: (
+        <div>
+          <div>
+            Harga beli: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
+          </div>
+          <div>
+            Diskon: <b>{formatToIDR(+discount)}</b>
+          </div>
+          <div>
+            Total: <b>{formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty)}</b>
+          </div>
+        </div>
+      ),
+      // col3: formatToIDR(+(item?.data?.sell_price ?? 0)),
+      // col4: formatToIDR(+discount),
+      // col5: formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty),
       action: (
         <div className="flex">
           <Button
@@ -165,18 +178,12 @@ const AddTransactionPage: NextPage = () => {
       {
         Header: 'Qty',
         accessor: 'col2',
+        width: '10%',
       },
       {
-        Header: 'Harga beli',
-        accessor: 'col3',
-      },
-      {
-        Header: 'Diskon',
-        accessor: 'col4',
-      },
-      {
-        Header: 'Total harga',
-        accessor: 'col5',
+        Header: 'Harga',
+        accessor: 'price',
+        width: '40%',
       },
       {
         Header: 'Aksi',
@@ -338,9 +345,20 @@ const ButtonWithModal: React.FC<{
   const data = values?.map(({ item, qty, discount, id }) => ({
     col1: item?.label ?? '',
     col2: qty,
-    col3: formatToIDR(+(item?.data?.sell_price ?? 0)),
-    col4: formatToIDR(+discount),
-    col5: formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty),
+    price: (
+      <div>
+        <div>
+          Harga beli: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
+        </div>
+        <div>
+          Diskon: <b>{formatToIDR(+discount)}</b>
+        </div>
+        <div>
+          Total: <b>{formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty)}</b>
+        </div>
+      </div>
+    ),
+
     action: (
       <div className="flex">
         <Button
@@ -409,19 +427,14 @@ const useBoughtList = () => {
       {
         Header: 'Qty',
         accessor: 'col2',
+        width: '10%',
       },
       {
-        Header: 'Harga jual',
-        accessor: 'col3',
+        Header: 'Harga',
+        accessor: 'price',
+        width: '40%',
       },
-      {
-        Header: 'Diskon',
-        accessor: 'col4',
-      },
-      {
-        Header: 'Total harga',
-        accessor: 'col5',
-      },
+
       {
         Header: 'Aksi',
         accessor: 'action',

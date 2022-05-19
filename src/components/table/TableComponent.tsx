@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { Eye } from 'react-bootstrap-icons';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
+import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useFetchTransactionById } from '@/hooks/query/useFetchStockIn';
 import { useDetailSaleAdaptor } from '@/hooks/table/useDetailSale';
 import { useDetailStockInAdaptor } from '@/hooks/table/useDetailStockin';
@@ -31,6 +32,9 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
     status,
     items = [],
   } = transactions ?? {};
+  const { data: dataMyself } = useFetchMyself();
+
+  const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
 
   const { columns, data } = useDetailStockInAdaptor(items, false);
 
@@ -49,7 +53,16 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Kasir:</span>
-              <div>{`${pic?.employee.first_name} ${pic?.employee.last_name}`}</div>
+              {isAdmin ? (
+                <div>
+                  <a
+                    href={`/employee/${pic?.id}`}
+                    className="block font-bold hover:text-blue-600"
+                  >{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</a>
+                </div>
+              ) : (
+                <div>{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</div>
+              )}
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Status:</span>
@@ -69,6 +82,9 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
 
 export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ transactions }) => {
   const [open, setOpen] = React.useState(false);
+  const { data: dataMyself } = useFetchMyself();
+
+  const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
 
   const {
     created_at,
@@ -104,11 +120,31 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Pengirim:</span>
-              <div>{`${sender?.first_name} ${sender?.last_name}`}</div>
+              <div>
+                {isAdmin ? (
+                  <div>
+                    <a
+                      href={`/employee/${sender.id}`}
+                      className="block font-bold hover:text-blue-600"
+                    >{`${sender?.first_name} ${sender?.last_name}`}</a>
+                  </div>
+                ) : (
+                  <div>{`${sender?.first_name} ${sender?.last_name}`}</div>
+                )}
+              </div>
             </div>
             <div className="mb-2">
               <span className="text-blueGray-600 mb-1 block">Kasir:</span>
-              <div>{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</div>
+              {isAdmin ? (
+                <div>
+                  <a
+                    href={`/employee/${pic.id}`}
+                    className="block font-bold hover:text-blue-600"
+                  >{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</a>
+                </div>
+              ) : (
+                <div>{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</div>
+              )}
             </div>
           </section>
         </div>

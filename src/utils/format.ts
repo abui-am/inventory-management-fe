@@ -15,3 +15,14 @@ export function formatDateYYYYMMDD(date: Date) {
 export function formatDateYYYYMM(date: Date) {
   return dayjs(date).format('YYYY-MM');
 }
+
+export function formatPaymentMethod(payment: string) {
+  if (payment === 'current_account') {
+    return 'Giro';
+  }
+  if (payment === 'debt') {
+    return 'Utang';
+  }
+
+  return 'Kas';
+}
