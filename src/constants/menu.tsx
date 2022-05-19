@@ -114,6 +114,22 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:account-receivable',
   },
+  {
+    id: 'general-ledger',
+    slug: '/general-ledger',
+    displayName: 'Jurnal umum',
+    title: 'Keuangan',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:general-ledger',
+  },
+  {
+    id: 'ledger',
+    slug: '/ledger',
+    displayName: 'Buku Besar',
+    title: 'Keuangan',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:ledger',
+  },
 ];
 
 export default MENU_LIST;

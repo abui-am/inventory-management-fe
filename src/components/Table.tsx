@@ -39,7 +39,9 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
   filter?: () => JSX.Element;
 };
 
-const ResponsiveTable: React.FC<TableProps<Record<string, unknown>> & { withPagination?: boolean }> = (props) => {
+const ResponsiveTable: React.FC<
+  TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }
+> = (props) => {
   const [isMd, setIsMd] = useState(false);
 
   const query = useMediaQuery({ query: '(min-width: 768px)' });
@@ -58,7 +60,8 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   enableAutoSort = false,
   withPagination = false,
   filter = () => <div />,
-}: TableProps<Record<string, unknown>> & { withPagination?: boolean }): JSX.Element {
+  withoutStripe,
+}: TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }): JSX.Element {
   const {
     getTableProps,
     getTableBodyProps,
@@ -143,7 +146,12 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
             return (
               <tr
                 {...row.getRowProps()}
-                className={clsx(index % 2 === 0 ? 'bg-blueGray-100' : '', 'rounded-lg', 'table-themed')}
+                className={clsx(
+                  !withoutStripe && index % 2 === 0 ? 'bg-blueGray-100' : '',
+                  'rounded-lg',
+                  'table-themed',
+                  withoutStripe && 'border-b border-blueGray-300'
+                )}
               >
                 {row.cells.map((cell) => {
                   return (

@@ -11,7 +11,11 @@ const Layout: React.FC = ({ children }) => {
   const { pathname, events } = useRouter();
   const excludedUrl = ['/login', '/login/recover', '/forget-password'];
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState({ displayName: '', slug: '' });
+  const [title, setTitle] = useState<{ displayName: string; title?: string; slug: string }>({
+    displayName: '',
+    title: '',
+    slug: '',
+  });
 
   const handleChangeStart = () => {
     setLoading(true);
@@ -66,7 +70,7 @@ const Layout: React.FC = ({ children }) => {
           transition: 'all 0.4s',
         }}
       >
-        <DashboardLayout titleHref={title?.slug} title={title?.displayName}>
+        <DashboardLayout titleHref={title?.slug} title={title?.title ?? title?.displayName}>
           {children}
         </DashboardLayout>
       </div>
