@@ -2,41 +2,23 @@ import React from 'react';
 
 import { formatDate, formatToIDR } from '@/utils/format';
 
+import { useFetchLedgers } from '../query/useFetchLedgers';
+
 export const useGeneralLedger = () => {
-  //   const { data: dataRes, ...props } = useFetchUnpaginatedAudits({
-  //     where: {
-  //       audit_date: date ?? formatDateYYYYMMDD(new Date()),
-  //     },
-  //     per_page: 10000,
-  //   });
-
-  const props = {};
-
-  const dataRes = {
-    data: {
-      general_ledger: [
-        {
-          date: '2022-05-05T04:04:04Z',
-          description: 'Persediaan',
-          debit: 400000,
-          kredit: 0,
-        },
-        {
-          date: '2022-05-05T04:04:04Z',
-          description: 'Kas/Giro/Bank/Utang',
-          debit: 0,
-          kredit: 400000,
-        },
-      ],
+  const { data: dataRes, ...props } = useFetchLedgers({
+    order_by: {
+      created_at: 'desc',
+      type: 'desc',
     },
-  };
+    per_page: 10000,
+  });
 
   const getData = () => {
-    return dataRes?.data?.general_ledger?.map(({ date, description, debit, kredit }) => ({
-      date: formatDate(date),
+    return dataRes?.data?.ledgers?.data?.map(({ created_at, amount, description, type }) => ({
+      date: formatDate(created_at),
       description: <span className="font-bold text-blueGray-600">{description}</span>,
-      debit: debit !== 0 ? formatToIDR(debit) : '-',
-      kredit: kredit !== 0 ? formatToIDR(kredit) : '-',
+      debit: type === 'debit' ? formatToIDR(amount) : '-',
+      kredit: type === 'credit' ? formatToIDR(amount) : '-',
     }));
   };
 

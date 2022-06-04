@@ -2,72 +2,20 @@ import React from 'react';
 
 import { formatDate, formatToIDR } from '@/utils/format';
 
-export const useLedger = () => {
-  //   const { data: dataRes, ...props } = useFetchUnpaginatedAudits({
-  //     where: {
-  //       audit_date: date ?? formatDateYYYYMMDD(new Date()),
-  //     },
-  //     per_page: 10000,
-  //   });
+import { UseFetchLedgerProps, useFetchLedgers } from '../query/useFetchLedgers';
+
+export const useLedger = (filter: Partial<UseFetchLedgerProps>) => {
+  const { data: dataRes } = useFetchLedgers(filter);
 
   const props = {};
 
-  const dataRes = {
-    data: {
-      general_ledger: [
-        {
-          date: '2022-05-05T04:04:04Z',
-          description: 'Kas',
-          debit: 400000,
-          kredit: 0,
-          saldo: 40000,
-        },
-        {
-          date: '2022-05-05T04:04:04Z',
-          description: 'Kas',
-          debit: 0,
-          kredit: 400000,
-          saldo: 0,
-        },
-        {
-          date: '2022-05-05T04:04:04Z',
-          description: 'Kas',
-          debit: 400000,
-          kredit: 0,
-          saldo: 400000,
-        },
-        {
-          date: '2022-05-03T04:04:04Z',
-          description: 'Kas',
-          debit: 300000,
-          kredit: 0,
-          saldo: 700000,
-        },
-        {
-          date: '2022-05-02T04:04:04Z',
-          description: 'Kas',
-          debit: 200000,
-          kredit: 0,
-          saldo: 900000,
-        },
-        {
-          date: '2022-05-01T04:04:04Z',
-          description: 'Kas',
-          debit: 100000,
-          kredit: 0,
-          saldo: 1000000,
-        },
-      ],
-    },
-  };
-
   const getData = () => {
-    return dataRes?.data?.general_ledger?.map(({ date, description, debit, kredit, saldo }) => ({
-      date: formatDate(date),
+    return dataRes?.data?.ledgers?.data?.map(({ created_at, description, type, amount }) => ({
+      date: formatDate(created_at),
       description: <span className="font-bold text-blueGray-600">{description}</span>,
-      debit: debit !== 0 ? formatToIDR(debit) : '-',
-      kredit: kredit !== 0 ? formatToIDR(kredit) : '-',
-      saldo: formatToIDR(saldo),
+      debit: type === 'debit' ? formatToIDR(amount) : '-',
+      kredit: type === 'credit' ? formatToIDR(amount) : '-',
+      saldo: '-',
     }));
   };
 

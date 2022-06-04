@@ -34,7 +34,7 @@ const AccountReceivable: NextPage<unknown> = () => {
     paginated: true,
     forceUrl: paginationUrl || undefined,
     where: {
-      type: 'recievable',
+      type: 'receivable',
     },
   });
 

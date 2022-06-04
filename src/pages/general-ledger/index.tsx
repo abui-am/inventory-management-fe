@@ -9,6 +9,7 @@ const AuditPage = () => {
   const [fromDate, setFromDate] = React.useState(new Date());
   const [toDate, setToDate] = React.useState(new Date());
   const { columns, data = [] } = useGeneralLedger();
+
   return (
     <div>
       <section>
