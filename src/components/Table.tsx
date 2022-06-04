@@ -186,7 +186,6 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
             total: `${data.length}`,
           }}
           onClickPageButton={(num) => {
-            console.log(num);
             gotoPage(+num);
           }}
           links={[]}

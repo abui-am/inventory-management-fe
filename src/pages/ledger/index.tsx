@@ -1,25 +1,22 @@
-import React, { useState } from 'react';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 
 import { CardDashboard } from '@/components/Container';
 import { DateRangePicker, ThemedSelect } from '@/components/Form';
+import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { useFetchLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
+import { useFetchLedgers } from '@/hooks/query/useFetchLedgers';
 import { useLedger } from '@/hooks/table/useLedger';
 import { Option } from '@/typings/common';
-import { formatToIDR } from '@/utils/format';
-
-// const typeOptions = [
-//   {
-//     label: 'Kas',
-//     value: 'kas',
-//   },
-// ];
+import { formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
 const AuditPage = () => {
   const [fromDate, setFromDate] = React.useState(new Date());
   const [toDate, setToDate] = React.useState(new Date());
-  const { data: dataResLedger } = useFetchLedgerAccounts();
-
+  const { data: dataResLedger, isFetching } = useFetchLedgerAccounts();
+  const [paginationUrl, setPaginationUrl] = React.useState('');
+  const [pageSize, setPageSize] = useState(10);
   const [type, setType] = useState<Option | null>();
   const typeOptions =
     dataResLedger?.data?.ledger_accounts?.data.map?.(({ name, id, ...props }) => ({
@@ -27,18 +24,44 @@ const AuditPage = () => {
       value: id,
       data: props,
     })) ?? [];
-  const { columns, data = [] } = useLedger({
+
+  const { data: resLedgers } = useFetchLedgers({
     where: {
       description: type?.label ?? '',
     },
+    where_greater_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',
+    },
+    where_lower_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(toDate).endOf('day')) ?? '',
+    },
+    forceUrl: paginationUrl,
+    per_page: pageSize,
   });
+
+  const {
+    data: dataLedger = [],
+    from,
+    to,
+    total,
+    links,
+    next_page_url,
+    last_page_url,
+    prev_page_url,
+  } = resLedgers?.data?.ledgers ?? {};
+
+  const { columns, data = [] } = useLedger(dataLedger);
+
+  useEffect(() => {
+    setType(typeOptions[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFetching]);
 
   return (
     <div>
       <section>
         <CardDashboard>
           <Table
-            withPagination
             withoutStripe
             search={() => (
               <div className="mt-2 mb-4 flex justify-between">
@@ -50,10 +73,10 @@ const AuditPage = () => {
                   <div className="flex flex-wrap mb-4 gap-4">
                     {typeOptions?.length > 1 && (
                       <ThemedSelect
+                        value={type}
                         onChange={(val: any) => {
                           setType(val);
                         }}
-                        defaultValue={typeOptions[0]}
                         options={typeOptions}
                         className="w-52"
                       />
@@ -74,6 +97,30 @@ const AuditPage = () => {
             )}
             columns={columns}
             data={data}
+          />
+          <Pagination
+            stats={{
+              from: `${from ?? '0'}`,
+              to: `${to ?? '0'}`,
+              total: `${total ?? '0'}`,
+            }}
+            onClickPageButton={(url) => {
+              setPaginationUrl(url);
+            }}
+            links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+            onClickNext={() => {
+              setPaginationUrl(next_page_url ?? '');
+            }}
+            onClickPrevious={() => {
+              setPaginationUrl(prev_page_url ?? '');
+            }}
+            onClickGoToPage={(val) => {
+              setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
+            }}
+            onChangePerPage={(page) => {
+              setPaginationUrl('');
+              setPageSize(page?.value ?? 0);
+            }}
           />
         </CardDashboard>
       </section>

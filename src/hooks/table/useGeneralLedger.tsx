@@ -1,20 +1,11 @@
 import React from 'react';
 
+import { Datum } from '@/typings/ledgers';
 import { formatDate, formatToIDR } from '@/utils/format';
 
-import { useFetchLedgers } from '../query/useFetchLedgers';
-
-export const useGeneralLedger = () => {
-  const { data: dataRes, ...props } = useFetchLedgers({
-    order_by: {
-      created_at: 'desc',
-      type: 'desc',
-    },
-    per_page: 10000,
-  });
-
+export const useGeneralLedger = (dataRes: Datum[]) => {
   const getData = () => {
-    return dataRes?.data?.ledgers?.data?.map(({ created_at, amount, description, type }) => ({
+    return dataRes?.map(({ created_at, amount, description, type }) => ({
       date: formatDate(created_at),
       description: <span className="font-bold text-blueGray-600">{description}</span>,
       debit: type === 'debit' ? formatToIDR(amount) : '-',
@@ -48,5 +39,5 @@ export const useGeneralLedger = () => {
     return getColumn();
   }, []);
 
-  return { data, columns, ...props };
+  return { data, columns };
 };

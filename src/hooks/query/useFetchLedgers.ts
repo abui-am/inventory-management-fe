@@ -14,6 +14,8 @@ export type UseFetchLedgerProps = {
   search: string;
   order_by: Record<string, string>;
   where: Record<string, string>;
+  where_greater_equal: Record<string, any>;
+  where_lower_equal: Record<string, any>;
 };
 
 export const useFetchLedgers = (
