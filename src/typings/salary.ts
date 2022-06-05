@@ -6,6 +6,7 @@ export type PayPayrollPayload = {
   id: string;
   data: {
     amount: number;
+    transaction_method: string;
   };
 };
 

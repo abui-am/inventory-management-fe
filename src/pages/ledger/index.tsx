@@ -5,7 +5,7 @@ import { CardDashboard } from '@/components/Container';
 import { DateRangePicker, ThemedSelect } from '@/components/Form';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { useFetchLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
+import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
 import { useFetchLedgers } from '@/hooks/query/useFetchLedgers';
 import { useLedger } from '@/hooks/table/useLedger';
 import { Option } from '@/typings/common';
@@ -14,18 +14,22 @@ import { formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 const AuditPage = () => {
   const [fromDate, setFromDate] = React.useState(new Date());
   const [toDate, setToDate] = React.useState(new Date());
-  const { data: dataResLedger, isFetching } = useFetchLedgerAccounts();
+  const { data: dataResLedger, isFetching } = useFetchUnpaginatedLedgerAccounts();
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [pageSize, setPageSize] = useState(10);
-  const [type, setType] = useState<Option | null>();
+  const [type, setType] = useState<Option<any> | null>();
   const typeOptions =
-    dataResLedger?.data?.ledger_accounts?.data.map?.(({ name, id, ...props }) => ({
+    dataResLedger?.data?.ledger_accounts.map?.(({ name, id, ...props }) => ({
       label: name,
       value: id,
       data: props,
     })) ?? [];
 
   const { data: resLedgers } = useFetchLedgers({
+    order_by: {
+      created_at: 'desc',
+      type: 'desc',
+    },
     where: {
       description: type?.label ?? '',
     },
@@ -53,9 +57,25 @@ const AuditPage = () => {
   const { columns, data = [] } = useLedger(dataLedger);
 
   useEffect(() => {
-    setType(typeOptions[0]);
+    if (dataResLedger) {
+      const defaultType = localStorage?.getItem('ledger-type');
+
+      if (!defaultType) {
+        setType(typeOptions[0]);
+      } else {
+        setType(typeOptions?.filter(({ value }) => defaultType === value)?.[0]);
+      }
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching]);
+
+  useEffect(() => {
+    if (type) {
+      localStorage?.setItem('ledger-type', type?.value);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type]);
 
   return (
     <div>

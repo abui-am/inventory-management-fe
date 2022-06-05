@@ -28,3 +28,7 @@ export interface LedgerAccounts {
 export interface GetLedgerAccountsResponse {
   ledger_accounts: LedgerAccounts;
 }
+
+export interface GetUnpaginatedLedgerAccountsResponse {
+  ledger_accounts: LedgerAccountData[];
+}

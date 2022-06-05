@@ -3,20 +3,33 @@ import React from 'react';
 import toast from 'react-hot-toast';
 
 import { useUpdatePayroll } from '@/hooks/mutation/useMutateSalary';
+import { Option } from '@/typings/common';
 import { Datum as Payroll, PayPayrollPayload } from '@/typings/salary';
 import { formatToIDR } from '@/utils/format';
 import { salarySchema } from '@/utils/validation/pay-salary';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { Checkbox, CurrencyTextField, WithLabelAndError } from '../Form';
+import { Checkbox, CurrencyTextField, ThemedSelect, WithLabelAndError } from '../Form';
 
 export type PaySalaryFormValues = {
   salary: number;
   paidAmount: number;
   amount: number | null;
   payFull: boolean;
+  transactionType: Option | null;
 };
+
+export const transactionTypeOptions = [
+  {
+    label: 'Cash',
+    value: 'cash',
+  },
+  {
+    label: 'Bank',
+    value: 'bank',
+  },
+];
 
 const PaySalaryForm: React.FC<{
   payroll: Payroll;
@@ -29,6 +42,7 @@ const PaySalaryForm: React.FC<{
     paidAmount: payroll.paid_amount,
     amount: null,
     payFull: false,
+    transactionType: transactionTypeOptions[0],
   };
 
   const { values, handleChange, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
@@ -42,6 +56,7 @@ const PaySalaryForm: React.FC<{
         id: payroll.id,
         data: {
           amount: values?.payFull ? values?.salary - values?.paidAmount : values?.amount ?? 0,
+          transaction_method: values?.transactionType?.value ?? '',
         },
       };
       const res = await mutateAsync(jsonBody);
@@ -97,10 +112,27 @@ const PaySalaryForm: React.FC<{
               )}
 
               <div className="sm:col-span-2">
-                <div className="flex mt-2 items-center">
+                <div className="flex mt-2 items-center mb-2">
                   <Checkbox name="payFull" onChange={handleChange} />
                   <label className="text-base ml-1">Lunas</label>
                 </div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <WithLabelAndError
+                  required
+                  touched={touched}
+                  errors={errors}
+                  name="transactionType"
+                  label="Metode transaksi"
+                >
+                  <ThemedSelect
+                    value={values.transactionType}
+                    options={transactionTypeOptions}
+                    name="transactionType"
+                    onChange={(value) => setFieldValue('transactionType', value)}
+                  />
+                </WithLabelAndError>
               </div>
             </div>
           </div>

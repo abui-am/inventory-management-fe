@@ -74,8 +74,9 @@ const AddTransactionPage: NextPage = () => {
     validationSchema: validationSchemaTransaction,
     initialValues,
     validateOnChange: true,
-    onSubmit: async (data) => {
+    onSubmit: async (data, { setSubmitting }) => {
       try {
+        setSubmitting(true);
         await mutateAsync({
           transactionable_type: 'customers',
           payment: {
@@ -105,6 +106,8 @@ const AddTransactionPage: NextPage = () => {
             };
           }),
         });
+
+        setSubmitting(false);
 
         setIsOpenSummary(true);
       } catch (e) {
