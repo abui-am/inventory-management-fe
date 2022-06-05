@@ -45,4 +45,5 @@ export type CreatePrivePayload = {
   description: string;
   amount: number;
   prive_date: string;
+  transaction_method: string;
 };

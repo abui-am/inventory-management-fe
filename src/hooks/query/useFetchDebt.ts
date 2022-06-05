@@ -15,6 +15,8 @@ export const useFetchDebt = (
     search: string;
     order_by: Record<string, string>;
     where: Record<string, string>;
+    where_greater_equal: Record<string, string>;
+    where_lower_equal: Record<string, string>;
   }> = {}
 ): UseQueryResult<BackendRes<DebtResponse>> => {
   const { data: dataSelf } = useFetchMyself();

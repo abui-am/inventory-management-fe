@@ -10,7 +10,7 @@ import { useGeneralLedger } from '@/hooks/table/useGeneralLedger';
 import { formatDateYYYYMMDDHHmmss } from '@/utils/format';
 
 const AuditPage = () => {
-  const [fromDate, setFromDate] = useState(new Date());
+  const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
   const [toDate, setToDate] = useState(new Date());
   const [paginationUrl, setPaginationUrl] = useState('');
   const [pageSize, setPageSize] = useState(10);

@@ -14,7 +14,7 @@ import Table from '@/components/Table';
 import { ADVANCE_PAYROLLS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchAdvancePayrolls } from '@/hooks/query/useFetchAdvancePayrolls';
 import { Option } from '@/typings/common';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
 const PrepaidSalaryPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
@@ -22,8 +22,8 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
 
+  const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
   const [toDate, setToDate] = useState(new Date());
-  const [fromDate, setFromDate] = useState(new Date());
 
   const { data: dataPrepaidSalary } = useFetchAdvancePayrolls({
     per_page: pageSize,
@@ -32,6 +32,12 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     }, {}),
     paginated: true,
     forceUrl: paginationUrl || undefined,
+    where_greater_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',
+    },
+    where_lower_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(toDate).endOf('day')) ?? '',
+    },
   });
 
   const {

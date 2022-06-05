@@ -13,8 +13,8 @@ export const useFetchLedgerAccounts = (
     paginated: boolean;
     per_page: number;
     search: string;
-    order_by: Record<string, string>;
-    where: Record<string, string>;
+    where_greater_equal: Record<string, string>;
+    where_lower_equal: Record<string, string>;
   }> = {}
 ): UseQueryResult<BackendRes<GetLedgerAccountsResponse>> => {
   const { data: dataSelf } = useFetchMyself();

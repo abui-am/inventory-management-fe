@@ -1,4 +1,5 @@
 import Tippy from '@tippyjs/react';
+import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import React, { useState } from 'react';
 import { CashCoin } from 'react-bootstrap-icons';
@@ -14,7 +15,7 @@ import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
 const PrivePage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
@@ -26,7 +27,7 @@ const PrivePage: NextPage<unknown> = () => {
   }, {});
 
   const [toDate, setToDate] = useState(new Date());
-  const [fromDate, setFromDate] = useState(new Date());
+  const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
 
   const { data: dataPrepaidSalary } = useFetchDebt({
     per_page: pageSize,
@@ -35,6 +36,12 @@ const PrivePage: NextPage<unknown> = () => {
     forceUrl: paginationUrl || undefined,
     where: {
       type: 'debt',
+    },
+    where_greater_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',
+    },
+    where_lower_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(toDate).endOf('day')) ?? '',
     },
   });
 

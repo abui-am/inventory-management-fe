@@ -3,8 +3,8 @@ import { bool, number, object, ref } from 'yup';
 export const salarySchema = () =>
   object().shape({
     salary: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
-    paidAmount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
-    payFull: bool().required('* Required'),
+    paidAmount: number().nullable(),
+    payFull: bool().nullable(),
     amount: number()
       .nullable()
       .moreThan(0, 'Harus lebih dari IDR Rp0')

@@ -3,18 +3,31 @@ import React from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreatePrive } from '@/hooks/mutation/useMutatePrives';
+import { Option } from '@/typings/common';
 import { CreatePrivePayload } from '@/typings/prives';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
 import { Button } from '../Button';
-import { CurrencyTextField, DatePickerComponent, TextField, WithLabelAndError } from '../Form';
+import { CurrencyTextField, DatePickerComponent, TextField, ThemedSelect, WithLabelAndError } from '../Form';
 import { validationSchemaPrive } from './constant';
 
 export type CreatePriveFormValues = {
   description: string;
   amount: number | null;
   date: Date;
+  transactionType: Option | null;
 };
+
+export const transactionTypeOptions = [
+  {
+    label: 'Cash',
+    value: 'cash',
+  },
+  {
+    label: 'Bank',
+    value: 'bank',
+  },
+];
 
 const CreatePrive: React.FC<{
   prepaidSalaryId?: string;
@@ -26,6 +39,7 @@ const CreatePrive: React.FC<{
     description: '',
     amount: null,
     date: new Date(),
+    transactionType: transactionTypeOptions[0],
   };
 
   const isEdit = !!prepaidSalaryId;
@@ -40,6 +54,7 @@ const CreatePrive: React.FC<{
         amount: values?.amount ?? 0,
         description: values?.description,
         prive_date: formatDateYYYYMMDD(values?.date),
+        transaction_method: values?.transactionType?.value ?? '',
       };
       const res = await mutateAsync(jsonBody);
       setSubmitting(false);
@@ -88,6 +103,22 @@ const CreatePrive: React.FC<{
                   selected={values.date}
                   name="date"
                   onChange={(date) => setFieldValue('date', date)}
+                />
+              </WithLabelAndError>
+            </div>
+            <div className="sm:col-span-2">
+              <WithLabelAndError
+                required
+                touched={touched}
+                errors={errors}
+                name="transactionType"
+                label="Metode transaksi"
+              >
+                <ThemedSelect
+                  value={values.transactionType}
+                  options={transactionTypeOptions}
+                  name="transactionType"
+                  onChange={(value) => setFieldValue('transactionType', value)}
                 />
               </WithLabelAndError>
             </div>

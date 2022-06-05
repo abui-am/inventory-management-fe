@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import React, { useState } from 'react';
 import { PlusLg } from 'react-bootstrap-icons';
@@ -13,7 +14,7 @@ import Table from '@/components/Table';
 import { PRIVES_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchPrives } from '@/hooks/query/useFetchPrives';
 import { Option } from '@/typings/common';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
 const PrivePage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
@@ -21,8 +22,8 @@ const PrivePage: NextPage<unknown> = () => {
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
 
+  const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
   const [toDate, setToDate] = useState(new Date());
-  const [fromDate, setFromDate] = useState(new Date());
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
@@ -31,6 +32,12 @@ const PrivePage: NextPage<unknown> = () => {
     order_by: params,
     forceUrl: paginationUrl,
     per_page: pageSize,
+    where_greater_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',
+    },
+    where_lower_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(toDate).endOf('day')) ?? '',
+    },
   });
   const {
     data: dataRes = [],
