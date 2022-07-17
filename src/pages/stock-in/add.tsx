@@ -73,10 +73,16 @@ const AddStockPage: NextPage = () => {
       supplier,
     }) => {
       const newItem = await promiseAll<Item>(
-        stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, discount }): Promise<Item> => {
-          const baseData = { note: memo, purchase_price: +buyPrice ?? 0, quantity: +qty ?? 0, discount: +discount };
+        stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, discount, itemId }): Promise<Item> => {
+          const baseData = {
+            note: memo,
+            purchase_price: +buyPrice ?? 0,
+            quantity: +qty ?? 0,
+            discount: +discount,
+            item_id: itemId,
+          };
           if (!isNew) return { id: item?.value ?? '', ...baseData };
-          const { data } = await createItem({ name: item?.label ?? '', unit });
+          const { data } = await createItem({ name: item?.label ?? '', unit, item_id: itemId });
           return {
             id: data.item.id,
             ...baseData,
@@ -111,7 +117,7 @@ const AddStockPage: NextPage = () => {
     },
   });
 
-  const data = values.stockAdjustment.map(({ item, qty, buyPrice, discount, unit, memo, isNew }) => ({
+  const data = values.stockAdjustment.map(({ item, qty, buyPrice, discount, unit, memo, isNew, itemId }) => ({
     col1: item?.label ?? '',
     col2: qty,
     col3: buyPrice,
@@ -121,7 +127,7 @@ const AddStockPage: NextPage = () => {
     action: (
       <div className="flex">
         <ButtonWithModal
-          initialValues={{ item, qty, buyPrice, discount, unit, memo, isNew }}
+          initialValues={{ item, qty, buyPrice, discount, unit, memo, isNew, itemId }}
           withEditButton
           onSave={(val) => {
             // replace data
@@ -328,6 +334,7 @@ type ButtonWithModalFormValues = Omit<
   item: Partial<Option<Item>> | null;
   qty: number | string;
   isNew: boolean;
+  itemId: string;
 };
 
 const ButtonWithModal: React.FC<{
@@ -345,6 +352,7 @@ const ButtonWithModal: React.FC<{
     unit: '',
     memo: '',
     isNew: false,
+    itemId: '',
   };
 
   const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
@@ -379,7 +387,7 @@ const ButtonWithModal: React.FC<{
             <div>
               <h6 className="mb-4 mt-2 text-2xl font-bold">Informasi Barang</h6>
               <div className="flex -mx-2 flex-wrap mb-1">
-                <div className="w-full mb-3 px-2">
+                <div className="w-8/12 mb-3 px-2">
                   <WithLabelAndError required label="Nama barang" name="item" errors={errors} touched={touched}>
                     <SelectItems
                       onChange={(val, action) => {
@@ -391,6 +399,12 @@ const ButtonWithModal: React.FC<{
                     />
                   </WithLabelAndError>
                 </div>
+                <div className="w-4/12 mb-3 px-2">
+                  <WithLabelAndError required label="ID Barang" name="itemId" errors={errors} touched={touched}>
+                    <TextField name="itemId" value={values.itemId} disabled={!values?.isNew} onChange={handleChange} />
+                  </WithLabelAndError>
+                </div>
+
                 <div className="w-full mb-3 px-2">
                   <span className="block">Harga jual sebelumnya:</span>
                   <span className="text-xl font-bold">

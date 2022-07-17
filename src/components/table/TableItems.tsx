@@ -7,6 +7,7 @@ import { ITEMS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { Option } from '@/typings/common';
 import { formatDate } from '@/utils/format';
+import formatCurrency from '@/utils/formatCurrency';
 
 // import { Button } from '../Button';
 import { SelectSortBy, SelectSortType, TextField } from '../Form';
@@ -38,9 +39,11 @@ const TableItems: React.FC = () => {
     last_page_url,
     prev_page_url,
   } = dataItems?.data?.items ?? {};
-  const data = dataRes.map(({ name, quantity, unit, updated_at }) => ({
+  const data = dataRes.map(({ name, quantity, unit, updated_at, sell_price, buy_price }) => ({
     name,
     quantity,
+    sell_price: sell_price ? formatCurrency({ value: sell_price }) : formatCurrency({ value: 0 }),
+    hpp: buy_price ? formatCurrency({ value: buy_price }) : '-',
     unit,
     updated_at: formatDate(updated_at, { withHour: true }),
     // action: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
@@ -59,6 +62,14 @@ const TableItems: React.FC = () => {
       {
         Header: 'Kemasan',
         accessor: 'unit',
+      },
+      {
+        Header: 'HPP',
+        accessor: 'hpp',
+      },
+      {
+        Header: 'Harga Jual',
+        accessor: 'sell_price',
       },
       {
         Header: 'Tanggal masuk terakhir',

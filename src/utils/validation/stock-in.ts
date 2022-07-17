@@ -2,6 +2,7 @@ import { array, bool, number, object, string } from 'yup';
 
 export const validationSchemaStockIn = object().shape({
   invoiceType: object().nullable().required('*'),
+
   invoiceNumber: number()
     .nullable()
     .when('invoiceType.value', {
@@ -37,6 +38,7 @@ export const validationSchemaStockIn = object().shape({
 
 export const validationSchemaStockInItem = object().shape({
   item: object().nullable().required('* Required'),
+  itemId: string().nullable().required('* Required'),
   buyPrice: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
   discount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
   qty: number().moreThan(0, 'Harus lebih dari 0').nullable().required('* Required'),

@@ -101,7 +101,6 @@ const AuditPage = () => {
                         className="w-52"
                       />
                     )}
-
                     <DateRangePicker
                       values={[fromDate, toDate]}
                       onChangeFrom={(date) => {

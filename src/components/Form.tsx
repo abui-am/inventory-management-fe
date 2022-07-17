@@ -291,7 +291,11 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
       styles={getThemedSelectStyle(variant, additionalStyle)}
       loadOptions={debounce(async (val) => {
         const { data } = await search({ search: val });
-        return data.items.data.map(({ id, name, ...rest }) => ({ value: id, label: name, data: rest }));
+        return data.items.data.map(({ id, item_id, name, ...rest }) => ({
+          value: id,
+          label: `${name} (ID:${item_id ?? '-'})`,
+          data: rest,
+        }));
       }, 300)}
     />
   );

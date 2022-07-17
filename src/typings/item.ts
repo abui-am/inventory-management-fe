@@ -2,9 +2,12 @@ import { Link } from './common';
 
 export interface ItemData {
   id: string;
+  item_id: string;
   name: string;
   quantity: number;
   unit: string;
+  sell_price: number;
+  buy_price: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -49,6 +52,7 @@ export interface ItemsResponse {
 export interface CreateItemsBody {
   name: string;
   unit: string;
+  item_id: string;
 }
 
 export interface CreateItemsResponse {

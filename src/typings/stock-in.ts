@@ -2,6 +2,7 @@ import { Link, Status } from './common';
 
 export interface Item {
   id: string;
+  item_id: string;
   purchase_price: number;
   discount?: number;
   quantity: number;
