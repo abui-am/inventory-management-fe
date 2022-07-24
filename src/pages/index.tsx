@@ -105,7 +105,7 @@ const Home: NextPage = () => {
 
   return (
     <div>
-      <section id="head" className="flex">
+      <section id="head" className="mb-6 sm:flex sm:mb-0">
         <div className="flex-1 text-2xl font-bold mb-8 sm:mx-0 mx-6">Overview</div>
         <div className="flex-1 max-w-sm">
           <div className="flex items-center">

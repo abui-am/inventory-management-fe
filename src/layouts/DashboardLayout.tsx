@@ -78,7 +78,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
       <div className="min-h-screen max-w-screen overflow-hidden">
         <section id="MenuSmall" className="sm:hidden">
           <div {...getCollapseProps()}>
-            <Menu activePage={activePage} />
+            <Menu onMenuClick={setShowNavbar} activePage={activePage} />
           </div>
         </section>
 
@@ -90,10 +90,9 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
               top: 0,
               bottom: 0,
               left: 0,
-              display: 'flex',
               flexDirection: 'column',
             }}
-            className="flex-grow-0 flex-shrink-0 bg-blueGray-900 hidden sm:block"
+            className="flex-grow-0  flex-shrink-0 bg-blueGray-900 hidden sm:flex "
           >
             <div className="p-8 pb-7">
               <Link href="/">
@@ -111,11 +110,11 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                 paddingBottom: 40,
               }}
             >
-              <Menu activePage={activePage} />
+              <Menu onMenuClick={setShowNavbar} activePage={activePage} />
             </section>
           </div>
 
-          <div className="flex-1 p-0 sm:p-8 " style={{ marginLeft: 240 }}>
+          <div className="flex-1 p-0 sm:p-8 sm:ml-[240px]">
             <div className="p-6 flex justify-between mb-0 sm:p-0 sm:mb-6 max-w-screen">
               <Link href={titleHref}>
                 <a>
@@ -195,7 +194,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   );
 };
 
-const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
+const Menu: React.FC<{ activePage: number; onMenuClick: (menu: boolean) => void }> = ({ activePage, onMenuClick }) => {
   const { state } = usePermission();
   const getBubble = (id: string) => {
     switch (id) {
@@ -227,7 +226,7 @@ const Menu: React.FC<{ activePage: number }> = ({ activePage }) => {
           <div className="px-8 py-4 relative flex items-center" key={id}>
             <Link href={slug}>
               <a>
-                <button type="button" className="group flex items-center text-left">
+                <button onClick={() => onMenuClick(false)} type="button" className="group flex items-center text-left">
                   <div className="mr-4">
                     {icon({
                       className: clsx(
