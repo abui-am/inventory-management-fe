@@ -1,10 +1,11 @@
-import { bool, number, object, ref } from 'yup';
+import { bool, mixed, number, object, ref } from 'yup';
 
 export const salarySchema = () =>
   object().shape({
     salary: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
     paidAmount: number().nullable(),
     payFull: bool().nullable(),
+    transactionType: mixed().nullable().required('* Required'),
     amount: number()
       .nullable()
       .moreThan(0, 'Harus lebih dari IDR Rp0')

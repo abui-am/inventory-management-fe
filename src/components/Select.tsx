@@ -5,7 +5,7 @@ import CreatableSelect from 'react-select/creatable';
 
 import { useSearchSuppliers } from '@/hooks/mutation/useSearch';
 import { useFetchCustomers } from '@/hooks/query/useFetchCustomer';
-import useFetchEmployee from '@/hooks/query/useFetchEmployee';
+import { useFetchUnpaginatedEmployee } from '@/hooks/query/useFetchEmployee';
 import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { Option } from '@/typings/common';
 import { Item } from '@/typings/item';
@@ -61,12 +61,12 @@ export const SelectCustomer: React.FC<ThemedSelectProps> = ({
 };
 
 export const SelectSender: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
-  const { data } = useFetchEmployee({});
+  const { data } = useFetchUnpaginatedEmployee();
   return (
     <Select
       {...props}
       styles={getThemedSelectStyle(variant, additionalStyle)}
-      options={data?.data.employees.data.map(({ first_name, last_name, id }) => ({
+      options={data?.data.employees.map(({ first_name, last_name, id }) => ({
         label: `${first_name} ${last_name}`,
         value: id,
       }))}

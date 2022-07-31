@@ -28,5 +28,9 @@ export function formatPaymentMethod(payment: string) {
     return 'Utang';
   }
 
+  if (payment === 'bank') {
+    return 'Bank';
+  }
+
   return 'Kas';
 }

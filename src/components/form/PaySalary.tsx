@@ -56,7 +56,7 @@ const PaySalaryForm: React.FC<{
         id: payroll.id,
         data: {
           amount: values?.payFull ? values?.salary - values?.paidAmount : values?.amount ?? 0,
-          transaction_method: values?.transactionType?.value ?? '',
+          payment_method: values?.transactionType?.value ?? '',
         },
       };
       const res = await mutateAsync(jsonBody);

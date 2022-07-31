@@ -391,7 +391,6 @@ const ButtonWithModal: React.FC<{
                   <WithLabelAndError required label="Nama barang" name="item" errors={errors} touched={touched}>
                     <SelectItems
                       onChange={(val, action) => {
-                        console.log(val, 'teasd');
                         setFieldValue('item', val);
                         setFieldValue('itemId', val?.data?.item_id);
 
@@ -403,7 +402,7 @@ const ButtonWithModal: React.FC<{
                   </WithLabelAndError>
                 </div>
                 <div className="w-4/12 mb-3 px-2">
-                  <WithLabelAndError required label="ID Barang" name="itemId" errors={errors} touched={touched}>
+                  <WithLabelAndError label="ID Barang" name="itemId" errors={errors} touched={touched}>
                     <TextField name="itemId" value={values.itemId} disabled={!values?.isNew} onChange={handleChange} />
                   </WithLabelAndError>
                 </div>

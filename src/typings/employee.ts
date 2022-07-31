@@ -18,6 +18,10 @@ export type EmployeeRes = {
   };
 };
 
+export type EmployeeUnpaginatedRes = {
+  employees: EmployeeData[];
+};
+
 export type EmployeeData = {
   id: string;
   first_name: string;

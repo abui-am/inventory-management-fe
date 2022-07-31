@@ -3,7 +3,13 @@ import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
 
-import { CreateEmployeePutBody, EmployeeDetailRes, EmployeeRes, UserRes } from '@/typings/employee';
+import {
+  CreateEmployeePutBody,
+  EmployeeDetailRes,
+  EmployeeRes,
+  EmployeeUnpaginatedRes,
+  UserRes,
+} from '@/typings/employee';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
@@ -12,7 +18,6 @@ import useMyQuery from './useMyQuery';
 const useFetchEmployee = (
   data: Partial<{
     forceUrl: string;
-    paginated: boolean;
     per_page: number;
     search: string;
     order_by: Record<string, string>;
@@ -25,6 +30,27 @@ const useFetchEmployee = (
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', data);
+    return res.data;
+  });
+
+  return fetcher;
+};
+
+const useFetchUnpaginatedEmployee = (
+  data: Partial<{
+    forceUrl: string;
+    per_page: number;
+    search: string;
+    order_by: Record<string, string>;
+    where: Record<string, string>;
+  }> = {}
+): UseQueryResult<BackendRes<EmployeeUnpaginatedRes>> => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
+  const fetcher = useMyQuery(['employee', data, roles], async () => {
+    const res = data.forceUrl
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: false })
+      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: false });
     return res.data;
   });
 
@@ -113,4 +139,4 @@ const useFetchMyself = (
 };
 
 export default useFetchEmployee;
-export { useCreateEmployee, useEditEmployee, useFetchEmployeeById, useFetchMyself };
+export { useCreateEmployee, useEditEmployee, useFetchEmployeeById, useFetchMyself, useFetchUnpaginatedEmployee };
