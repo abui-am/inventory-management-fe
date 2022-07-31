@@ -34,6 +34,7 @@ export interface Item {
   slug: string;
   description?: unknown;
   quantity: number;
+  item_id: string;
   buy_price?: number;
   sell_price?: number;
   unit: string;

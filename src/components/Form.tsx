@@ -294,7 +294,7 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
         return data.items.data.map(({ id, item_id, name, ...rest }) => ({
           value: id,
           label: `${name} (ID:${item_id ?? '-'})`,
-          data: rest,
+          data: { item_id, ...rest },
         }));
       }, 300)}
     />
@@ -310,7 +310,8 @@ const SingleValue = (props: SingleValueProps<{ label: string; value: string; dat
         <div className="font-bold">{children}</div>
         {/* <div style={{ fontSize: 10, color: 'rgba(0, 0, 0, 0.6)' }}>{`${nip} | Gol ${golongan} | ${jabatan}`}</div> */}
         <div>
-          Harga jual : {formatToIDR(data?.data?.sell_price ?? 0)} | stock : {data.data?.quantity}
+          Harga jual : {formatToIDR(data?.data?.sell_price ?? 0)} | stock : {data.data?.quantity} | id :
+          {data?.data?.item_id ?? '-'}
         </div>
       </div>
     </components.SingleValue>
@@ -337,10 +338,10 @@ export const SelectItemsDetail = forwardRef(
         loadOptions={debounce(async (val) => {
           const { data } = await search({ search: val });
 
-          return data?.items?.data.map(({ name, id, ...props }) => ({
-            label: name,
+          return data?.items?.data.map(({ name, id, item_id, ...props }) => ({
+            label: `${name} (ID: ${item_id ?? '-'})`,
             value: id,
-            data: { name, id, ...props },
+            data: { name, id, item_id, ...props },
           }));
           // return data.items.data.map(({ id, name, ...rest }) => ({ value: id, label: name, data: rest }));
         }, 300)}

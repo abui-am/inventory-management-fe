@@ -39,9 +39,10 @@ const TableItems: React.FC = () => {
     last_page_url,
     prev_page_url,
   } = dataItems?.data?.items ?? {};
-  const data = dataRes.map(({ name, quantity, unit, updated_at, sell_price, buy_price }) => ({
+  const data = dataRes.map(({ name, quantity, unit, item_id, updated_at, sell_price, buy_price }) => ({
     name,
     quantity,
+    item_id: item_id ?? '-',
     sell_price: sell_price ? formatCurrency({ value: sell_price }) : formatCurrency({ value: 0 }),
     hpp: buy_price ? formatCurrency({ value: buy_price }) : '-',
     unit,
@@ -68,6 +69,10 @@ const TableItems: React.FC = () => {
         accessor: 'hpp',
       },
       {
+        Header: 'Item Id',
+        accessor: 'item_id',
+      },
+      {
         Header: 'Harga Jual',
         accessor: 'sell_price',
       },
@@ -75,11 +80,6 @@ const TableItems: React.FC = () => {
         Header: 'Tanggal masuk terakhir',
         accessor: 'updated_at',
       },
-
-      // {
-      //   Header: 'Aksi',
-      //   accessor: 'action',
-      // },
     ],
     []
   );
@@ -120,14 +120,6 @@ const TableItems: React.FC = () => {
                 variant="contained"
                 placeholder="Cari nama barang"
               />
-
-              {/* <Link href="/stock-in/add">
-                    <a>
-                      <Button className="ml-3" Icon={<Calculator className="w-4" />}>
-                        Tambah
-                      </Button>
-                    </a>
-                  </Link> */}
             </div>
           </div>
         )}

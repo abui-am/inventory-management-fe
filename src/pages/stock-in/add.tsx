@@ -391,7 +391,10 @@ const ButtonWithModal: React.FC<{
                   <WithLabelAndError required label="Nama barang" name="item" errors={errors} touched={touched}>
                     <SelectItems
                       onChange={(val, action) => {
+                        console.log(val, 'teasd');
                         setFieldValue('item', val);
+                        setFieldValue('itemId', val?.data?.item_id);
+
                         setFieldValue('unit', val?.data?.unit ?? '');
                         setFieldValue('isNew', action.action === 'create-option');
                       }}
