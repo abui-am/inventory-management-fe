@@ -41,5 +41,6 @@ export interface PayDebtPayload {
   id: string;
   data: {
     paid_amount: number;
+    payment_method: string;
   };
 }

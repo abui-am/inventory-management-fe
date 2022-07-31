@@ -1,4 +1,4 @@
-import { date, number, object, ref, string } from 'yup';
+import { date, mixed, number, object, ref, string } from 'yup';
 
 export const validationSchemaSupplier = object().shape({
   name: string().nullable().required('* Required'),
@@ -32,4 +32,6 @@ export const validationSchemaPayDebt = object().shape({
       then: (sch) => sch.required('* Required'),
       otherwise: (sch) => sch,
     }),
+
+  paymentMethod: mixed().nullable().required('* Required'),
 });

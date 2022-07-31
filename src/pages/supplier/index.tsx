@@ -39,14 +39,21 @@ const Supplier: NextPage<unknown> = () => {
     total,
   } = dataSupplier?.data?.suppliers ?? {};
   const { push } = useRouter();
-
+  const [id, setId] = useState<string | null>(null);
   const data = dataRes.map(({ address, phone_number, name, id }) => ({
     name: `${name ?? ''}`,
     phone_number,
     address,
     action: (
       <div className="flex">
-        <ShowModal supplierId={id} />
+        <Button
+          size="small"
+          onClick={() => {
+            setId(id);
+          }}
+        >
+          <Eye width={24} height={24} />
+        </Button>
         <Button size="small" variant="secondary" className="ml-2" onClick={() => push(`/supplier/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
@@ -60,7 +67,10 @@ const Supplier: NextPage<unknown> = () => {
         Header: 'Nama Supplier',
         accessor: 'name', // accessor is the "key" in the data
       },
-
+      {
+        Header: 'Address',
+        accessor: 'address', // accessor is the "key" in the data
+      },
       {
         Header: 'Aksi',
         accessor: 'action',
@@ -70,6 +80,13 @@ const Supplier: NextPage<unknown> = () => {
   );
   return (
     <CardDashboard>
+      <ShowModal
+        supplierId={id ?? ''}
+        handleClose={() => {
+          setId(null);
+        }}
+      />
+
       <div className="mt-2 mb-4 justify-between sm:flex">
         <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Supplier</h2>
         <div className="flex flex-col items-end">
@@ -130,25 +147,15 @@ const Supplier: NextPage<unknown> = () => {
   );
 };
 
-const ShowModal = ({ supplierId }: { supplierId: string }) => {
-  const { data } = useFetchSupplierById(supplierId);
-  const [isOpen, setIsOpen] = useState(false);
-
+const ShowModal = ({ supplierId, handleClose }: { supplierId: string; handleClose: () => void }) => {
+  const isOpen = !!supplierId;
+  const { data } = useFetchSupplierById(supplierId, {
+    enabled: isOpen,
+  });
   const supplier = data?.data?.supplier;
-
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-  };
 
   return (
     <>
-      <Button size="small" onClick={handleOpen}>
-        <Eye width={24} height={24} />
-      </Button>
       <Modal isOpen={isOpen} onRequestClose={handleClose}>
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Supplier</h2>
         <div className="mb-2">

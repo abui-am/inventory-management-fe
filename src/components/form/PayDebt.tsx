@@ -3,13 +3,15 @@ import { useFormik } from 'formik';
 import React from 'react';
 import toast from 'react-hot-toast';
 
+import { PAYMENT_METHOD_OPTIONS_DEBT } from '@/constants/options';
 import { useUpdateDebt } from '@/hooks/mutation/useMutateDebt';
+import { Option } from '@/typings/common';
 import { Datum, PayDebtPayload } from '@/typings/debts';
 import { formatToIDR } from '@/utils/format';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
-import { Checkbox, CurrencyTextField, WithLabelAndError } from '../Form';
+import { Checkbox, CurrencyTextField, ThemedSelect, WithLabelAndError } from '../Form';
 import { validationSchemaPayDebt } from './constant';
 export type PayDebtFormValues = {
   debtAmount: number;
@@ -17,6 +19,7 @@ export type PayDebtFormValues = {
   unpaidAmount: number;
   payFull: boolean;
   amount: number | '';
+  paymentMethod: Option;
 };
 
 const PayDebtForm: React.FC<{
@@ -32,6 +35,7 @@ const PayDebtForm: React.FC<{
     unpaidAmount: +debt?.amount - +debt?.paid_amount,
     payFull: false,
     amount: '',
+    paymentMethod: PAYMENT_METHOD_OPTIONS_DEBT[0],
   };
 
   const { values, handleChange, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
@@ -43,6 +47,7 @@ const PayDebtForm: React.FC<{
       const jsonBody: PayDebtPayload = {
         id: debt?.id,
         data: {
+          payment_method: values?.paymentMethod?.value,
           paid_amount: values?.payFull ? +values?.unpaidAmount : +values?.amount,
         },
       };
@@ -100,11 +105,31 @@ const PayDebtForm: React.FC<{
               )}
 
               <div className="sm:col-span-2">
-                <div className="flex mt-2 items-center">
+                <div className="flex mt-2 mb-2 items-center">
                   <Checkbox name="payFull" onChange={handleChange} />
                   <label className="text-base ml-1">Lunas</label>
                 </div>
               </div>
+              <WithLabelAndError
+                touched={touched}
+                errors={errors}
+                name="paymentMethod"
+                required
+                label="Metode pembayaran"
+              >
+                <ThemedSelect
+                  variant="contained"
+                  name="paymentMethod"
+                  onChange={(val) => {
+                    setFieldValue('paymentMethod', val);
+                  }}
+                  value={values.paymentMethod}
+                  additionalStyle={{
+                    control: (provided) => ({ ...provided, minWidth: 240 }),
+                  }}
+                  options={PAYMENT_METHOD_OPTIONS_DEBT}
+                />
+              </WithLabelAndError>
             </div>
           </div>
         </div>

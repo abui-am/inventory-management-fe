@@ -172,6 +172,22 @@ export const PAYMENT_METHOD_OPTIONS = [
     label: 'Giro',
     value: 'current_account',
   },
+  {
+    label: 'Bank',
+    value: 'bank',
+  },
+];
+
+export const PAYMENT_METHOD_OPTIONS_DEBT = [
+  { label: 'Cash', value: 'cash' },
+  {
+    label: 'Utang',
+    value: 'debt',
+  },
+  {
+    label: 'Giro',
+    value: 'current_account',
+  },
 ];
 
 export const PER_PAGE_OPTIONS = [
