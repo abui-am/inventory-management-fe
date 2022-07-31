@@ -8,7 +8,7 @@ export const useLedger = (dataRes: Datum[]) => {
 
   const getData = () => {
     return dataRes?.map(({ created_at, description, type, amount }) => ({
-      date: formatDate(created_at),
+      date: formatDate(created_at, { withHour: true }),
       description: <span className="font-bold text-blueGray-600">{description}</span>,
       debit: type === 'debit' ? formatToIDR(amount) : '-',
       kredit: type === 'credit' ? formatToIDR(amount) : '-',

@@ -181,8 +181,8 @@ export const PAYMENT_METHOD_OPTIONS = [
 export const PAYMENT_METHOD_OPTIONS_DEBT = [
   { label: 'Cash', value: 'cash' },
   {
-    label: 'Utang',
-    value: 'debt',
+    label: 'Bank',
+    value: 'bank',
   },
   {
     label: 'Giro',

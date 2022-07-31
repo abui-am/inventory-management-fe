@@ -6,7 +6,7 @@ import { formatDate, formatToIDR } from '@/utils/format';
 export const useGeneralLedger = (dataRes: Datum[]) => {
   const getData = () => {
     return dataRes?.map(({ created_at, amount, description, type }) => ({
-      date: formatDate(created_at),
+      date: formatDate(created_at, { withHour: true }),
       description: <span className="font-bold text-blueGray-600">{description}</span>,
       debit: type === 'debit' ? formatToIDR(amount) : '-',
       kredit: type === 'credit' ? formatToIDR(amount) : '-',
