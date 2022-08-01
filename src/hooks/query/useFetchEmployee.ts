@@ -28,8 +28,8 @@ const useFetchEmployee = (
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
   const fetcher = useMyQuery(['employee', data, roles], async () => {
     const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', data);
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: true })
+      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: true });
     return res.data;
   });
 

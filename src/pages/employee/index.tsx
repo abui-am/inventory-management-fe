@@ -25,7 +25,6 @@ const Home: NextPage<unknown> = () => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
     per_page: pageSize,
-    paginated: true,
     forceUrl: paginationUrl || undefined,
   });
 
