@@ -49,9 +49,10 @@ const PrivePage: NextPage<unknown> = () => {
     prev_page_url,
     last_page_url,
   } = dataPrives?.data?.prives ?? {};
-  const data = dataRes.map(({ prive_date, description, amount }) => ({
+  const data = dataRes.map(({ prive_date, description, amount, transaction_method }) => ({
     date: formatDate(prive_date),
     description,
+    transactionMethod: transaction_method,
     amount: formatToIDR(+amount),
   }));
   const columns = React.useMemo(
@@ -63,6 +64,10 @@ const PrivePage: NextPage<unknown> = () => {
       {
         Header: 'Description',
         accessor: 'description',
+      },
+      {
+        Header: 'Metode Transaksi',
+        accessor: 'transactionMethod',
       },
       {
         Header: 'Jumlah penarikan',

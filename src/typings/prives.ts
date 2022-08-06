@@ -10,6 +10,7 @@ export interface Datum {
   description: string;
   amount: string;
   prive_date: string;
+  transaction_method: 'bank' | 'cash';
   created_at: Date;
   updated_at: Date;
   user: User;
