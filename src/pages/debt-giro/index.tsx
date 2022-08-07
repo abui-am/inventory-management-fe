@@ -204,7 +204,7 @@ const PayDebt: React.FC<{ debt: Datum; handleOpen: () => void }> = ({ debt, hand
   return (
     <>
       {!debt.is_paid && (
-        <Tippy content="Bayar gaji">
+        <Tippy content="Bayar utang giro">
           <Button className="ml-3" onClick={handleOpen}>
             <CashCoin />
           </Button>
