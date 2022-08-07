@@ -28,7 +28,7 @@ const PrivePage: NextPage<unknown> = () => {
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(new Date());
 
-  const { data: dataPrepaidSalary } = useFetchDebt({
+  const { data: dataDebt } = useFetchDebt({
     per_page: pageSize,
     order_by: params,
     paginated: true,
@@ -47,15 +47,25 @@ const PrivePage: NextPage<unknown> = () => {
     next_page_url,
     prev_page_url,
     last_page_url,
-  } = dataPrepaidSalary?.data.debts ?? {};
+  } = dataDebt?.data.debts ?? {};
   const data = dataRes.map(({ created_at, description, is_paid, paid_amount, amount, ...props }) => ({
     date: formatDate(created_at, { withHour: true }),
     description,
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
-    action: <PayDebt debt={{ created_at, description, is_paid, paid_amount, amount, ...props }} />,
+    action: (
+      <PayDebt
+        handleOpen={() => {
+          setDebt({ created_at, description, is_paid, paid_amount, amount, ...props });
+        }}
+        debt={{ created_at, description, is_paid, paid_amount, amount, ...props }}
+      />
+    ),
   }));
+
+  const [debt, setDebt] = useState<Datum | null>(null);
+
   const columns = React.useMemo(
     () => [
       {
@@ -102,6 +112,26 @@ const PrivePage: NextPage<unknown> = () => {
   );
   return (
     <CardDashboard>
+      {debt && (
+        <Modal
+          isOpen={!!debt}
+          onRequestClose={() => {
+            setDebt(null);
+          }}
+        >
+          <PayDebtForm
+            type="giro"
+            onSave={() => {
+              setDebt(null);
+            }}
+            onClose={() => {
+              setDebt(null);
+            }}
+            debt={debt}
+          />
+        </Modal>
+      )}
+
       <Table
         columns={columns}
         data={data}
@@ -170,28 +200,16 @@ const PrivePage: NextPage<unknown> = () => {
   );
 };
 
-const PayDebt: React.FC<{ debt: Datum }> = ({ debt }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
+const PayDebt: React.FC<{ debt: Datum; handleOpen: () => void }> = ({ debt, handleOpen }) => {
   return (
     <>
-      <Tippy content="Bayar gaji">
-        <Button className="ml-3" onClick={handleOpen}>
-          <CashCoin />
-        </Button>
-      </Tippy>
-
-      <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <PayDebtForm type="giro" onSave={handleClose} onClose={handleClose} debt={debt} />
-      </Modal>
+      {!debt.is_paid && (
+        <Tippy content="Bayar gaji">
+          <Button className="ml-3" onClick={handleOpen}>
+            <CashCoin />
+          </Button>
+        </Tippy>
+      )}
     </>
   );
 };
