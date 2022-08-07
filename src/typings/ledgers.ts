@@ -2,6 +2,7 @@ export interface Datum {
   id: string;
   description: string;
   type: string;
+  remaining_balance: number;
   amount: number;
   created_at: Date;
   updated_at: Date;

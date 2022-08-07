@@ -7,12 +7,12 @@ export const useLedger = (dataRes: Datum[]) => {
   const props = {};
 
   const getData = () => {
-    return dataRes?.map(({ created_at, description, type, amount }) => ({
+    return dataRes?.map(({ created_at, description, type, amount, remaining_balance }) => ({
       date: formatDate(created_at, { withHour: true }),
       description: <span className="font-bold text-blueGray-600">{description}</span>,
       debit: type === 'debit' ? formatToIDR(amount) : '-',
       kredit: type === 'credit' ? formatToIDR(amount) : '-',
-      saldo: '-',
+      saldo: formatToIDR(remaining_balance),
     }));
   };
 
