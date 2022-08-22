@@ -1,7 +1,5 @@
-import Tippy from '@tippyjs/react';
 import { Form, Formik } from 'formik';
 import React, { useMemo } from 'react';
-import { Eye } from 'react-bootstrap-icons';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
@@ -31,6 +29,8 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
     pic,
     status,
     items = [],
+    discount,
+    payment,
   } = transactions ?? {};
   const { data: dataMyself } = useFetchMyself();
 
@@ -44,7 +44,19 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Barang Masuk</h2>
         <div className="flex">
           <div className="flex-1">
-            <ItemInfo info={{ created_at, invoice_number, transaction_code, payment_method, items }} />
+            {payment && (
+              <ItemInfo
+                info={{
+                  payment,
+                  created_at,
+                  invoice_number,
+                  transaction_code,
+                  payment_method,
+                  items,
+                  discount: discount ?? 0,
+                }}
+              />
+            )}
           </div>
           <section className="ml-10 flex-1 p-6 rounded-lg border drop-shadow-lg bg-white" style={{ maxWidth: 228 }}>
             <div className="mb-2">
@@ -80,8 +92,11 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
   );
 };
 
-export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ transactions }) => {
-  const [open, setOpen] = React.useState(false);
+export const DetailSale: React.FC<{
+  transactions: SaleTransactionsData;
+  open: boolean;
+  onClose: () => void;
+}> = ({ transactions, open, onClose }) => {
   const { data: dataMyself } = useFetchMyself();
 
   const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
@@ -95,23 +110,21 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
     customer,
     pic,
     items = [],
+    discount,
+    payment,
   } = transactions ?? {};
 
   const { columns, data } = useDetailSaleAdaptor(items);
 
   return (
     <>
-      <Tippy content="Lihat detail">
-        <Button size="small" onClick={() => setOpen((open) => !open)}>
-          <Eye width={24} height={24} />
-        </Button>
-      </Tippy>
-
-      <Modal isOpen={open} onRequestClose={() => setOpen((open) => !open)} variant="large">
+      <Modal isOpen={open} onRequestClose={onClose} variant="large">
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Penjualan</h2>
         <div className="flex">
           <div className="flex-1">
-            <ItemInfo info={{ created_at, invoice_number, transaction_code, payment_method, items }} />
+            <ItemInfo
+              info={{ payment, created_at, invoice_number, transaction_code, payment_method, items, discount }}
+            />
           </div>
           <section className="ml-10 flex-1 p-6 rounded-lg border drop-shadow-lg bg-white" style={{ maxWidth: 228 }}>
             <div className="mb-2">
@@ -157,9 +170,12 @@ export const DetailSale: React.FC<{ transactions: SaleTransactionsData }> = ({ t
 };
 
 const ItemInfo: React.FC<{
-  info: Pick<TransactionData, 'created_at' | 'transaction_code' | 'invoice_number' | 'payment_method' | 'items'>;
+  info: Pick<
+    TransactionData,
+    'created_at' | 'transaction_code' | 'payment' | 'invoice_number' | 'payment_method' | 'items' | 'discount'
+  >;
 }> = ({ info }) => {
-  const { created_at, transaction_code, invoice_number, payment_method, items } = info;
+  const { created_at, payment, transaction_code, invoice_number, payment_method, discount } = info;
   return (
     <>
       <div className="flex justify-between mb-4">
@@ -180,8 +196,12 @@ const ItemInfo: React.FC<{
         <span>{payment_method}</span>
       </div>
       <div className="flex justify-between mb-4">
+        <h6 className="text-blueGray-600">Discount:</h6>
+        <span>{formatToIDR(discount)}</span>
+      </div>
+      <div className="flex justify-between mb-4">
         <h6 className="text-blueGray-600">Pembayaran:</h6>
-        <span>{formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))}</span>
+        <span>{formatToIDR(payment.payment_price)}</span>
       </div>
     </>
   );

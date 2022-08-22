@@ -7,25 +7,25 @@ import { Item } from '@/typings/item';
 import { validationSchemaItem } from '@/utils/validation/transaction';
 
 import { Button } from '../Button';
-import { CurrencyTextField, SelectItemsDetail, TextField, WithLabelAndError } from '../Form';
+import { SelectItemsDetail, TextField, WithLabelAndError } from '../Form';
 
 export type ItemToBuyFormValues = {
-  item: { label: string; value: string; data: Item };
-  discount: number | '';
+  item: { label: string; value: string; data: Item } | null;
   qty: number | '';
   id: string | '';
   maxQty?: number;
 };
 
 const ItemToBuyForm: React.FC<{
-  initValues: ItemToBuyFormValues;
+  initValues?: ItemToBuyFormValues;
   onSave: (values: ItemToBuyFormValues, action: 'create' | 'edit') => void;
-}> = ({ initValues, onSave }) => {
+  onReset?: () => void;
+}> = ({ initValues, onSave, onReset }) => {
   const initialValues = {
-    item: initValues.item || '',
-    discount: initValues.discount || '',
-    qty: initValues.qty || '',
-    id: initValues.id || '',
+    item: initValues?.item || null,
+    qty: initValues?.qty || '',
+    id: initValues?.id || '',
+    maxQty: initValues?.item?.data?.quantity || 0,
   };
 
   const { values, handleChange, handleSubmit, resetForm, setFieldValue, errors, touched } = useFormik({
@@ -33,41 +33,44 @@ const ItemToBuyForm: React.FC<{
     initialValues,
     enableReinitialize: !!initValues,
     onSubmit: async (values, { resetForm }) => {
-      if (onSave) {
-        if (!values.id) {
-          onSave(
-            {
-              discount: +values.discount,
-              item: values.item,
-              qty: +values.qty,
-              id: v4(),
-            },
-            'create'
-          );
-          toast.success(`${values.qty} ${values.item.label} berhasil ditambahkan`);
-        } else {
-          onSave(
-            {
-              discount: +values.discount,
-              item: values.item,
-              qty: +values.qty,
-              id: values.id,
-            },
-            'edit'
-          );
-          toast.success(`Barang ${values.item.label} berhasil diedit`);
+      if ((values.item, values.qty)) {
+        if (onSave) {
+          if (!values.id) {
+            onSave(
+              {
+                item: values.item,
+                qty: +values.qty,
+                id: v4(),
+              },
+              'create'
+            );
+            toast.success(`${values.qty} ${values?.item?.label} berhasil ditambahkan`);
+          } else {
+            onSave(
+              {
+                item: values?.item,
+                qty: +values.qty,
+                id: values.id,
+              },
+              'edit'
+            );
+            toast.success(`Barang ${values?.item?.label} berhasil diedit`);
+          }
+          resetForm();
         }
-        resetForm();
+      } else {
+        toast.error('Isi item dan qty');
       }
     },
   });
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <div className="flex -mx-2 flex-wrap mb-1">
-        <div className="mb-3 px-2 w-full">
+        <div className="mb-3 px-2 w-8/12">
           <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
             <SelectItemsDetail
+              isDisabled={initValues}
               onChange={(val: never) => {
                 const data: { label: string; value: string; data: Item } = val as never;
                 setFieldValue(`item`, data);
@@ -79,39 +82,39 @@ const ItemToBuyForm: React.FC<{
           </WithLabelAndError>
         </div>
 
-        <div className="w-9/12 mb-3 px-2">
+        <div className="w-4/12 mb-3 px-2">
           <WithLabelAndError label="Jumlah yang dibeli" name="qty" errors={errors} touched={touched}>
             <TextField name="qty" value={values.qty} onChange={handleChange} placeholder="0" type="number" />
             <small className="text-gray-600 block">Pastikan jumlah yang dibeli dibawah stock</small>
-          </WithLabelAndError>
-        </div>
-        <div className="w-3/12 mb-3 px-2">
-          <WithLabelAndError label="Diskon" name="discount" errors={errors} touched={touched}>
-            <CurrencyTextField
-              name="discount"
-              tabIndex={-1}
-              value={values.discount}
-              onChange={(val) => {
-                setFieldValue('discount', val);
-              }}
-              placeholder="0"
-            />
-            <small className="text-gray-600">Masukan angka (bukan persen)</small>
           </WithLabelAndError>
         </div>
       </div>
 
       <div className="flex justify-end pt-4 mt-4 border-t border-gray-300">
         <div className="flex">
-          <Button variant="secondary" onClick={() => resetForm()} tabIndex={-1} className="flex-1 mr-1">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (onReset) onReset();
+              resetForm();
+            }}
+            tabIndex={-1}
+            className="flex-1 mr-1"
+          >
             Batalkan
           </Button>
-          <Button variant="primary" type="submit" className="flex-1 ml-1">
+          <Button
+            variant="primary"
+            onClick={() => {
+              handleSubmit();
+            }}
+            className="flex-1 ml-1"
+          >
             {values.id ? 'Ubah' : 'Tambah'}
           </Button>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 

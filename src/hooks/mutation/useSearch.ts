@@ -9,7 +9,11 @@ import { SuppliersResponse } from '@/typings/supplier';
 import apiInstance, { apiInstanceAdmin, getApiBasedOnRole, getApiBasedOnRoles } from '@/utils/api';
 
 import { useFetchMyself } from '../query/useFetchEmployee';
-export type SearchParam = { search: string; where?: { [k: string]: string } };
+export type SearchParam = {
+  search: string;
+  where?: { [k: string]: string };
+  where_greater_equal?: { [k: string]: any };
+};
 
 export const useSearchProvince = () => {
   return useMutation<BackendRes<RegionProvincesRes>, void, SearchParam>(['province'], async (jsonBody) => {

@@ -336,7 +336,12 @@ export const SelectItemsDetail = forwardRef(
           }),
         }}
         loadOptions={debounce(async (val) => {
-          const { data } = await search({ search: val });
+          const { data } = await search({
+            search: val,
+            where_greater_equal: {
+              quantity: 1,
+            },
+          });
 
           return data?.items?.data.map(({ name, id, item_id, ...props }) => ({
             label: `${name} (ID: ${item_id ?? '-'})`,

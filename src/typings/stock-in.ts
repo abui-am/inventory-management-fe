@@ -10,7 +10,15 @@ export interface Item {
 }
 
 export interface Payment {
-  maturity_date: string;
+  maturity_date?: Date;
+  cash: number;
+  change: number;
+  created_at: Date;
+  paid: boolean;
+  payment_date: Date;
+  payment_price: number;
+  transaction_id: string;
+  updated_at: Date;
 }
 
 export interface CreateTransactionBody {
@@ -102,6 +110,7 @@ export interface TransactionData {
   pic: Pic;
   supplier: Supplier;
   payment: Payment;
+  discount: number;
   items: TrasactionItem[];
 }
 

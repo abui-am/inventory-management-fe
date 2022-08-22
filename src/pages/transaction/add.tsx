@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { Pencil, PlusLg, Trash } from 'react-bootstrap-icons';
+import React, { useMemo, useState } from 'react';
+import { Pencil, Trash } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -39,6 +39,7 @@ export type AddStockValue = {
   stockAdjustment: ItemToBuyFormValues[];
   memo: string;
   paymentMethod: Option;
+  discount: number;
   paymentDue: Date;
   customer: Option<unknown> | null;
   sender: Option<unknown> | null;
@@ -59,18 +60,12 @@ const AddTransactionPage: NextPage = () => {
     sender: null as Option<unknown> | null,
     isNewSupplier: false,
     totalPrice: 0,
+    discount: 0,
   };
-  const [isOpen, setIsOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [isOpenSummary, setIsOpenSummary] = useState(false);
 
-  const [editValue, setEditvalue] = useState<ItemToBuyFormValues>({
-    discount: '',
-    id: '',
-    item: undefined as never,
-    qty: '',
-  });
-
-  const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
+  const { values, resetForm, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
     validationSchema: validationSchemaTransaction,
     initialValues,
     validateOnChange: true,
@@ -90,6 +85,7 @@ const AddTransactionPage: NextPage = () => {
                 ? dayjs(data.paymentDue).format('YYYY-MM-DD HH:mm:ss')
                 : dayjs().format('YYYY-MM-DD HH:mm:ss'),
           },
+          discount: data.discount,
           note: data.memo,
           sender_id: data.sender?.value ?? '',
           transactionable_id: data.customer?.value ?? '',
@@ -98,9 +94,8 @@ const AddTransactionPage: NextPage = () => {
           invoice_number: '',
           items: data.stockAdjustment.map((value) => {
             return {
-              id: value.item.value,
-              purchase_price: value.item.data.sell_price ?? 0,
-              discount: value.discount ?? 0,
+              id: value?.item?.value ?? '',
+              purchase_price: value?.item?.data.sell_price ?? 0,
               quantity: +value.qty ?? 0,
               note: '',
             };
@@ -116,7 +111,7 @@ const AddTransactionPage: NextPage = () => {
     },
   });
 
-  const data = values?.stockAdjustment.map(({ item, qty, discount, id }) => {
+  const data = values?.stockAdjustment.map(({ item, qty, id }) => {
     return {
       col1: item?.label ?? '',
       col2: qty,
@@ -125,11 +120,9 @@ const AddTransactionPage: NextPage = () => {
           <div>
             Harga beli: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
           </div>
+
           <div>
-            Diskon: <b>{formatToIDR(+discount)}</b>
-          </div>
-          <div>
-            Total: <b>{formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty)}</b>
+            Total: <b>{formatToIDR((item?.data?.sell_price ?? 0) * +qty)}</b>
           </div>
         </div>
       ),
@@ -142,8 +135,7 @@ const AddTransactionPage: NextPage = () => {
             variant="outlined"
             size="small"
             onClick={() => {
-              setIsOpen(true);
-              setEditvalue({ item, qty, discount, id });
+              setEditId(id);
             }}
             className="mr-4"
           >
@@ -157,10 +149,7 @@ const AddTransactionPage: NextPage = () => {
               setFieldValue('stockAdjustment', newValue);
               setFieldValue(
                 'totalPrice',
-                newValue.reduce(
-                  (prev, { item, qty, discount }) => ((item?.data?.sell_price ?? 0) - +discount) * +qty + prev,
-                  0
-                )
+                newValue.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
               );
             }}
             size="small"
@@ -224,20 +213,13 @@ const AddTransactionPage: NextPage = () => {
             </div>
 
             <div className="w-full h-full mt-4 px-2 mb-3">
-              <ButtonWithModal
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                initValues={editValue}
-                onClickEdit={(val) => setEditvalue(val)}
+              <AddNewItem
                 values={values.stockAdjustment}
                 onSave={(data) => {
                   setFieldValue('stockAdjustment', data);
                   setFieldValue(
                     'totalPrice',
-                    data.reduce(
-                      (prev, { item, qty, discount }) => ((item?.data?.sell_price ?? 0) - +discount) * +qty + prev,
-                      0
-                    )
+                    data.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
                   );
                 }}
               />
@@ -250,25 +232,18 @@ const AddTransactionPage: NextPage = () => {
 
           <div className="w-4/12">
             <div className="border p-4 rounded-md shadow-md flex flex-wrap -mx-2 mb-4">
-              <div className="w-full mt-4 px-2 mb-3">
-                <label className="mb-1 inline-block">Harga total</label>
-                <p className="text-2xl font-bold">{formatToIDR(values.totalPrice)}</p>
-              </div>
               <div className="w-full px-2 mb-3">
-                <Label required>Uang yang dibayarkan</Label>
+                <label className="mb-1 inline-block">Diskon</label>
                 <CurrencyTextField
-                  id="payAmount"
-                  name="payAmount"
-                  value={values.payAmount}
-                  placeholder="Masukan jumlah bayaran"
+                  name="discount"
+                  value={values.discount}
+                  placeholder="Masukan diskon"
                   disabled={isSubmitting}
                   onChange={(val) => {
-                    setFieldValue('payAmount', val);
+                    setFieldValue('discount', val);
                   }}
                 />
-                {errors.payAmount && touched.payAmount && (
-                  <span className="text-xs text-red-500">{errors.payAmount}</span>
-                )}
+                {errors.discount && touched.discount && <span className="text-xs text-red-500">{errors.discount}</span>}
               </div>
 
               <div className="w-full px-2 mb-3">
@@ -294,6 +269,11 @@ const AddTransactionPage: NextPage = () => {
                 />
                 {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
               </div>
+              <div className="w-full px-2 mb-3">
+                <label className="mb-1 inline-block">Harga total</label>
+                <p className="text-2xl font-bold">{formatToIDR(values.totalPrice - values.discount)}</p>
+              </div>
+
               <div className="w-full px-2 mb-4 flex justify-between ">
                 <div className="mr-4">
                   <label className="mb-1 block">Metode pembayaran</label>
@@ -322,11 +302,57 @@ const AddTransactionPage: NextPage = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="w-full px-2 mb-3">
+                <Label required>Uang yang dibayarkan</Label>
+                <CurrencyTextField
+                  id="payAmount"
+                  name="payAmount"
+                  value={values.payAmount}
+                  placeholder="Masukan jumlah bayaran"
+                  disabled={isSubmitting}
+                  onChange={(val) => {
+                    setFieldValue('payAmount', val);
+                  }}
+                />
+                {errors.payAmount && touched.payAmount && (
+                  <span className="text-xs text-red-500">{errors.payAmount}</span>
+                )}
+              </div>
+
               <div className="w-full px-2 mb-3">
                 <Button className="mt-4" fullWidth type="submit">
                   Simpan Transaksi
                 </Button>
-                <ModalSummary isOpen={isOpenSummary} values={values} />
+                <ModalSummary
+                  onClose={() => {
+                    setIsOpenSummary(false);
+                    resetForm();
+                  }}
+                  isOpen={isOpenSummary}
+                  values={values}
+                />
+                <ModalEditItem
+                  onReset={() => {
+                    setEditId(null);
+                  }}
+                  editId={editId ?? ''}
+                  formikValues={values.stockAdjustment}
+                  onClose={() => {
+                    setEditId(null);
+                  }}
+                  onEdit={(editedData) => {
+                    const editedValues = values?.stockAdjustment?.map((data) => {
+                      if (data.id === editedData.id) {
+                        return editedData;
+                      }
+
+                      return data;
+                    });
+                    setFieldValue('stockAdjustment', editedValues);
+                    setEditId(null);
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -336,149 +362,88 @@ const AddTransactionPage: NextPage = () => {
   );
 };
 
-const ButtonWithModal: React.FC<{
+const AddNewItem: React.FC<{
   onSave: (values: ItemToBuyFormValues[]) => void;
   values: ItemToBuyFormValues[];
-  initValues: ItemToBuyFormValues;
-  onClickEdit: (val: ItemToBuyFormValues) => void;
-  isOpen: boolean;
-  setIsOpen: (val: boolean) => void;
-}> = ({ values = [], onSave, isOpen, setIsOpen, onClickEdit, initValues }) => {
-  const columns = useBoughtList();
-  const data = values?.map(({ item, qty, discount, id }) => ({
-    col1: item?.label ?? '',
-    col2: qty,
-    price: (
-      <div>
-        <div>
-          Harga beli: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
-        </div>
-        <div>
-          Diskon: <b>{formatToIDR(+discount)}</b>
-        </div>
-        <div>
-          Total: <b>{formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty)}</b>
-        </div>
-      </div>
-    ),
-
-    action: (
-      <div className="flex">
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => onClickEdit({ item, qty, discount, id })}
-          className="mr-4"
-          tabIndex={-1}
-        >
-          <Pencil width={24} height={24} />
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            onSave(values.filter((value) => value.id !== id));
-            if (onClickEdit) {
-              onClickEdit({} as never);
-            }
-          }}
-          tabIndex={-1}
-          size="small"
-        >
-          <Trash width={24} height={24} />
-        </Button>
-      </div>
-    ),
-  }));
-
+}> = ({ values = [], onSave }) => {
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} Icon={<PlusLg />}>
-        Tambah Barang
-      </Button>
-
-      <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} variant="screen">
-        <h6 className="mb-2 text-xl font-bold">Daftar barang dalam transaksi</h6>
-        <div className="w-full">
-          <div className="flex-1 flex-shrink-0 shadow-md p-4 rounded-md border">
-            <ItemToBuyForm
-              initValues={initValues}
-              onSave={(val, action) => {
-                onSave([...values, val]);
-                if (action === 'edit') {
-                  onSave(values.map((old) => (old.id === val.id ? val : old)));
-                  onClickEdit({} as never);
-                }
-              }}
-            />
-          </div>
-          <div className="flex-1">
-            <Table columns={columns} data={data} />
-          </div>
+      <h6 className="mb-2 text-xl font-bold">Daftar barang dalam transaksi</h6>
+      <div className="w-full">
+        <div className="flex-1 flex-shrink-0 shadow-md p-4 rounded-md border">
+          <ItemToBuyForm
+            onSave={(val) => {
+              onSave([...values, val]);
+            }}
+          />
         </div>
-      </Modal>
+      </div>
     </>
   );
 };
 
-const useBoughtList = () => {
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Nama barang',
-        accessor: 'col1', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Qty',
-        accessor: 'col2',
-        width: '10%',
-      },
-      {
-        Header: 'Harga',
-        accessor: 'price',
-        width: '40%',
-      },
-
-      {
-        Header: 'Aksi',
-        accessor: 'action',
-      },
-    ],
-    []
-  );
-
-  return columns;
-};
-
-const ModalSummary: React.FC<{ isOpen: boolean; values: AddStockValue }> = ({ isOpen, values }) => {
+const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: AddStockValue }> = ({
+  isOpen,
+  values,
+  onClose,
+}) => {
   const router = useRouter();
   const handleClick = () => {
     router.push('/transaction');
   };
+
+  const finalPrice = values.totalPrice - values.discount;
   return (
-    <Modal isOpen={isOpen}>
+    <Modal isOpen={isOpen} ariaHideApp={false}>
       <div className="justify-center flex flex-col">
         <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
         <label className="">Nama Customer</label>
         <p className="font-bold mb-4">{values.customer?.label}</p>
+        <label className="">Discount</label>
+        <p className="font-bold mb-4">{formatToIDR(values.discount)}</p>
         <label className="">Harga Total</label>
-        <p className="font-bold mb-4">{formatToIDR(values.totalPrice)}</p>
+        <p className="font-bold mb-4">{formatToIDR(values.totalPrice - values.discount)}</p>
         <label className="">Dibayarkan</label>
         <p className="font-bold mb-4">{formatToIDR(+values.payAmount)}</p>
         {values.paymentMethod.value === 'debt' || values.paymentMethod.value === 'current_account' ? (
           <>
             <label className="">Pelanggan berhutang</label>
-            <p className="text-2xl font-bold mb-4">{formatToIDR(+values.totalPrice - +values.payAmount)}</p>
+            <p className="text-2xl font-bold mb-4">{formatToIDR(+finalPrice - +values.payAmount)}</p>
           </>
         ) : (
           <>
             <label className="">Kembalian</label>
-            <p className="text-2xl font-bold mb-4">{formatToIDR(+values.payAmount - values.totalPrice)}</p>
+            <p className="text-2xl font-bold mb-4">{formatToIDR(+values.payAmount - finalPrice)}</p>
           </>
         )}
         <ModalActionWrapper>
-          <Button onClick={handleClick}>Ke Halaman Transaksi</Button>
+          <Button className="mr-2" variant="secondary" onClick={handleClick}>
+            Ke Halaman Transaksi
+          </Button>
+          <Button onClick={onClose}>Tetap di halaman ini</Button>
         </ModalActionWrapper>
       </div>
+    </Modal>
+  );
+};
+
+const ModalEditItem: React.FC<{
+  editId: string;
+  onClose: (val: boolean) => void;
+  onReset: () => void;
+  onEdit: (values: ItemToBuyFormValues, action: 'create' | 'edit') => void;
+  formikValues: ItemToBuyFormValues[];
+}> = ({ editId, onClose, onEdit, formikValues, onReset }) => {
+  const initValues = useMemo(() => formikValues.find((data) => data.id === editId), [formikValues, editId]);
+  return (
+    <Modal
+      variant="screen"
+      isOpen={!!editId}
+      onRequestClose={() => {
+        onClose(false);
+      }}
+    >
+      <ItemToBuyForm onReset={onReset} onSave={onEdit} initValues={initValues} />
     </Modal>
   );
 };

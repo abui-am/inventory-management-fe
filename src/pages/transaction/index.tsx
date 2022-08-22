@@ -1,7 +1,8 @@
+import Tippy from '@tippyjs/react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { PlusLg, Search } from 'react-bootstrap-icons';
+import { Eye, PlusLg, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -13,6 +14,7 @@ import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { Option } from '@/typings/common';
+import { SaleTransactionsData } from '@/typings/sale';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
 
 const TransactionPage: NextPage<unknown> = () => {
@@ -21,6 +23,7 @@ const TransactionPage: NextPage<unknown> = () => {
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
+  const [transaction, setTranscation] = useState<SaleTransactionsData | null>();
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
@@ -47,7 +50,20 @@ const TransactionPage: NextPage<unknown> = () => {
     last_page_url,
   } = dataTrasaction?.data?.transactions ?? {};
   const data = dataRes.map(
-    ({ transaction_code, created_at, sender, payment_method, pic, items, id, status, customer, ...props }) => ({
+    ({
+      transaction_code,
+      payment,
+      created_at,
+      sender,
+      payment_method,
+      pic,
+      items,
+      id,
+      status,
+      customer,
+      discount,
+      ...props
+    }) => ({
       id: transaction_code,
       date: formatDate(created_at, { withHour: true }),
       pic: isAdmin ? (
@@ -75,29 +91,39 @@ const TransactionPage: NextPage<unknown> = () => {
         <div>
           <label className="block">Pembeli:</label>
           <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
+          <label className="block">Diskon:</label>
+          <span className="text-base font-bold block mb-2">{formatToIDR(discount)}</span>
           <label className="block">Pembayaran (metode):</label>
           <span className="text-base font-bold block mb-2">
-            {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))} (
-            {formatPaymentMethod(payment_method)})
+            {formatToIDR(payment?.payment_price)} ({formatPaymentMethod(payment_method)})
           </span>
         </div>
       ),
 
       col8: (
-        <DetailSale
-          transactions={{
-            transaction_code,
-            created_at,
-            sender,
-            payment_method,
-            pic,
-            items,
-            id,
-            status,
-            customer,
-            ...props,
-          }}
-        />
+        <Tippy content="Lihat detail">
+          <Button
+            size="small"
+            onClick={() => {
+              setTranscation({
+                transaction_code,
+                created_at,
+                sender,
+                discount,
+                payment_method,
+                payment,
+                pic,
+                items,
+                id,
+                status,
+                customer,
+                ...props,
+              });
+            }}
+          >
+            <Eye width={24} height={24} />
+          </Button>
+        </Tippy>
       ),
     })
   );
@@ -132,6 +158,16 @@ const TransactionPage: NextPage<unknown> = () => {
   );
   return (
     <CardDashboard>
+      {transaction && (
+        <DetailSale
+          transactions={transaction}
+          open={!!transaction}
+          onClose={() => {
+            setTranscation(null);
+          }}
+        />
+      )}
+
       <Table
         columns={columns}
         data={data}

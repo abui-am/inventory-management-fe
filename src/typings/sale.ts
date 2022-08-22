@@ -23,6 +23,7 @@ export interface CreateSaleBody {
   payment_method: string;
   payment: Payment;
   note: string;
+  discount: number;
   items: Item[];
 }
 
@@ -73,11 +74,11 @@ export interface Customer {
 
 export interface SalePayment {
   transaction_id: string;
-  payment_date: string;
+  payment_date: Date;
   payment_price: number;
   cash: number;
   change: number;
-  maturity_date?: unknown;
+  maturity_date?: Date;
   paid: boolean;
   created_at: Date;
   updated_at: Date;
@@ -122,6 +123,7 @@ export interface SaleTransactionsData {
   deleted_at?: unknown;
   pic: Pic;
   sender: Sender;
+  discount: number;
   customer: Customer;
   payment: SalePayment;
   items: SaleItem[];
