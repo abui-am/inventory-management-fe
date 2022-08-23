@@ -35,3 +35,8 @@ export const validationSchemaPayDebt = object().shape({
 
   paymentMethod: mixed().nullable().required('* Required'),
 });
+
+export const validationSchemaLedgerTopUp = object().shape({
+  amount: number().moreThan(0, 'Harus lebih dari 0').nullable().required('* Required'),
+  paymentMethod: mixed().nullable().required('* Required'),
+});
