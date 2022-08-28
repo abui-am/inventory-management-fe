@@ -10,7 +10,7 @@ export interface Item {
 }
 
 export interface Payment {
-  maturity_date?: Date;
+  maturity_date?: Date | string;
   cash: number;
   change: number;
   created_at: Date;
@@ -28,7 +28,7 @@ export interface CreateTransactionBody {
   payment_method: string;
   note: string;
   items: Item[];
-  payment?: Payment;
+  payment?: Partial<Payment>;
   transactionable_type: string;
 }
 
