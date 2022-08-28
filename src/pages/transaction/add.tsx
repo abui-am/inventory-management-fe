@@ -39,7 +39,7 @@ export type AddStockValue = {
   stockAdjustment: ItemToBuyFormValues[];
   memo: string;
   paymentMethod: Option;
-  discount: number;
+  discount: number | null;
   paymentDue: Date;
   customer: Option<unknown> | null;
   sender: Option<unknown> | null;
@@ -60,7 +60,7 @@ const AddTransactionPage: NextPage = () => {
     sender: null as Option<unknown> | null,
     isNewSupplier: false,
     totalPrice: 0,
-    discount: 0,
+    discount: null as number | null,
   };
   const [editId, setEditId] = useState<string | null>(null);
   const [isOpenSummary, setIsOpenSummary] = useState(false);
@@ -85,7 +85,7 @@ const AddTransactionPage: NextPage = () => {
                 ? dayjs(data.paymentDue).format('YYYY-MM-DD HH:mm:ss')
                 : dayjs().format('YYYY-MM-DD HH:mm:ss'),
           },
-          discount: data.discount,
+          discount: data?.discount ?? 0,
           note: data.memo,
           sender_id: data.sender?.value ?? '',
           transactionable_id: data.customer?.value ?? '',
@@ -271,7 +271,7 @@ const AddTransactionPage: NextPage = () => {
               </div>
               <div className="w-full px-2 mb-3">
                 <label className="mb-1 inline-block">Harga total</label>
-                <p className="text-2xl font-bold">{formatToIDR(values.totalPrice - values.discount)}</p>
+                <p className="text-2xl font-bold">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
               </div>
 
               <div className="w-full px-2 mb-4 flex justify-between ">
@@ -392,7 +392,7 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
     router.push('/transaction');
   };
 
-  const finalPrice = values.totalPrice - values.discount;
+  const finalPrice = values.totalPrice - (values?.discount ?? 0);
   return (
     <Modal isOpen={isOpen} ariaHideApp={false}>
       <div className="justify-center flex flex-col">
@@ -400,9 +400,9 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
         <label className="">Nama Customer</label>
         <p className="font-bold mb-4">{values.customer?.label}</p>
         <label className="">Discount</label>
-        <p className="font-bold mb-4">{formatToIDR(values.discount)}</p>
+        <p className="font-bold mb-4">{formatToIDR(values?.discount ?? 0)}</p>
         <label className="">Harga Total</label>
-        <p className="font-bold mb-4">{formatToIDR(values.totalPrice - values.discount)}</p>
+        <p className="font-bold mb-4">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
         <label className="">Dibayarkan</label>
         <p className="font-bold mb-4">{formatToIDR(+values.payAmount)}</p>
         {values.paymentMethod.value === 'debt' || values.paymentMethod.value === 'current_account' ? (

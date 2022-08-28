@@ -58,6 +58,13 @@ const MENU_LIST = [
     permission: 'control:supplier',
   },
   {
+    id: 'customer',
+    slug: '/customer',
+    displayName: 'Customer',
+    icon: (props = {}): JSX.Element => <Person {...props} />,
+    permission: 'control:customer',
+  },
+  {
     id: 'inventory.audit',
     slug: '/inventory/audit',
     displayName: 'Audit Barang',

@@ -1,8 +1,7 @@
 import { NextPage } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { Eye, Pencil, PlusLg, Search } from 'react-bootstrap-icons';
+import { Eye, Pencil, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -10,18 +9,18 @@ import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
 import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { SORT_TYPE_OPTIONS, SUPPLIER_SORT_BY_OPTIONS } from '@/constants/options';
-import { useFetchSupplierById, useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
+import { CUSTOMER_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useFetchCustomerById, useFetchCustomers } from '@/hooks/query/useFetchCustomer';
 import { Option } from '@/typings/common';
 import formatCurrency from '@/utils/formatCurrency';
 
-const Supplier: NextPage<unknown> = () => {
+const Customer: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [paginationUrl, setPaginationUrl] = useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(SUPPLIER_SORT_BY_OPTIONS[0]);
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(CUSTOMER_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
 
-  const { data: dataSupplier } = useFetchSuppliers({
+  const { data: dataCustomer } = useFetchCustomers({
     search: searchQuery,
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
@@ -38,13 +37,13 @@ const Supplier: NextPage<unknown> = () => {
     from,
     to,
     total,
-  } = dataSupplier?.data?.suppliers ?? {};
+  } = dataCustomer?.data?.customers ?? {};
   const { push } = useRouter();
   const [id, setId] = useState<string | null>(null);
-  const data = dataRes.map(({ address, phone_number, name, total_receivable, id }) => ({
-    name: `${name ?? ''}`,
+  const data = dataRes.map(({ address, phone_number, total_debt, full_name, id }) => ({
+    name: `${full_name ?? ''}`,
     phoneNumber: phone_number && `+${phone_number}`,
-    totalReceivable: total_receivable ? formatCurrency({ value: total_receivable }) : '-',
+    totalDebt: total_debt ? formatCurrency({ value: total_debt }) : '-',
     address,
     action: (
       <div className="flex">
@@ -56,7 +55,7 @@ const Supplier: NextPage<unknown> = () => {
         >
           <Eye width={24} height={24} />
         </Button>
-        <Button size="small" variant="secondary" className="ml-2" onClick={() => push(`/supplier/${id}/edit`)}>
+        <Button size="small" variant="secondary" className="ml-2" onClick={() => push(`/Customer/${id}/edit`)}>
           <Pencil width={24} height={24} />
         </Button>
       </div>
@@ -66,7 +65,7 @@ const Supplier: NextPage<unknown> = () => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Nama Supplier',
+        Header: 'Nama Customer',
         accessor: 'name', // accessor is the "key" in the data
       },
       {
@@ -78,8 +77,8 @@ const Supplier: NextPage<unknown> = () => {
         accessor: 'phoneNumber', // accessor is the "key" in the data
       },
       {
-        Header: 'Total piutang',
-        accessor: 'totalReceivable', // accessor is the "key" in the data
+        Header: 'Total utang',
+        accessor: 'totalDebt', // accessor is the "key" in the data
       },
       {
         Header: 'Aksi',
@@ -91,35 +90,28 @@ const Supplier: NextPage<unknown> = () => {
   return (
     <CardDashboard>
       <ShowModal
-        supplierId={id ?? ''}
+        customerId={id ?? ''}
         handleClose={() => {
           setId(null);
         }}
       />
 
       <div className="mt-2 mb-4 justify-between sm:flex">
-        <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Supplier</h2>
+        <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Customer</h2>
         <div className="flex flex-col items-end">
           <div className="flex">
-            <div className="mr-4 mb-4">
+            <div className="mb-4">
               <TextField
                 Icon={<Search />}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 variant="contained"
-                placeholder="Cari nama supplier"
+                placeholder="Cari nama Customer"
               />
             </div>
-            <Link href="/supplier/add">
-              <a>
-                <Button className="mb-4" Icon={<PlusLg className="w-4" />}>
-                  Tambah
-                </Button>
-              </a>
-            </Link>
           </div>
           <div className="flex flex-wrap justify-end -mr-4 -mb-4">
             <SelectSortBy
-              options={SUPPLIER_SORT_BY_OPTIONS}
+              options={CUSTOMER_SORT_BY_OPTIONS}
               value={sortBy}
               onChange={(val) => {
                 setSortBy(val as Option<string[]>);
@@ -157,31 +149,31 @@ const Supplier: NextPage<unknown> = () => {
   );
 };
 
-const ShowModal = ({ supplierId, handleClose }: { supplierId: string; handleClose: () => void }) => {
-  const isOpen = !!supplierId;
-  const { data } = useFetchSupplierById(supplierId, {
+const ShowModal = ({ customerId, handleClose }: { customerId: string; handleClose: () => void }) => {
+  const isOpen = !!customerId;
+  const { data } = useFetchCustomerById(customerId, {
     enabled: isOpen,
   });
-  const supplier = data?.data?.supplier;
+  const customer = data?.data?.customer;
 
   return (
     <>
       <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Supplier</h2>
+        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Customer</h2>
         <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Supplier:</span>
-          <div>{supplier?.name}</div>
+          <span className="text-blueGray-600 mb-1 block">Customer:</span>
+          <div>{customer?.full_name}</div>
         </div>
         <div className="mb-2">
           <span className="text-blueGray-600 mb-1 block">Nomor HP:</span>
-          <div>{supplier?.phone_number}</div>
+          <div>{customer?.phone_number}</div>
         </div>
         <div className="mb-2">
           <span className="text-blueGray-600 mb-1 block">Alamat:</span>
-          <div>{supplier?.address}</div>
+          <div>{customer?.address}</div>
         </div>
       </Modal>
     </>
   );
 };
-export default Supplier;
+export default Customer;

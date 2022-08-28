@@ -13,6 +13,7 @@ import {
 import { BackendRes, BackendResError } from '@/typings/request';
 import { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import useLogout from '../useLogout';
 import useMyQuery from './useMyQuery';
 
 const useFetchEmployee = (
@@ -123,6 +124,7 @@ const useEditEmployee = (
 const useFetchMyself = (
   options?: UseQueryOptions<unknown, unknown, BackendRes<UserRes>>
 ): UseQueryResult<BackendRes<UserRes>> => {
+  const logout = useLogout();
   const fetcher = useMyQuery(
     ['myself'],
     async () => {
@@ -131,6 +133,11 @@ const useFetchMyself = (
     },
     {
       staleTime: Infinity,
+      onError: (err: any) => {
+        if (err?.response.status === 401) {
+          logout();
+        }
+      },
       ...options,
     }
   );

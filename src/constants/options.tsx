@@ -141,6 +141,19 @@ export const SUPPLIER_SORT_BY_OPTIONS = [
   },
 ];
 
+export const CUSTOMER_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan nama',
+    value: 'full_name',
+    data: ['full_name'],
+  },
+  {
+    label: 'Sortir berdasarkan alamat',
+    value: 'address',
+    data: ['address'],
+  },
+];
+
 export const DEBT_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan tanggal',

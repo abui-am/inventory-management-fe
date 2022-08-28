@@ -23,8 +23,9 @@ import {
   useSearchSubdistrict,
   useSearchVillage,
 } from '@/hooks/mutation/useSearch';
+import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
-import { Item } from '@/typings/item';
+import { Item, ItemData } from '@/typings/item';
 import debounce from '@/utils/decounce';
 import { formatToIDR } from '@/utils/format';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
@@ -324,10 +325,21 @@ export const SelectItemsDetail = forwardRef(
     ref: LegacyRef<Select<OptionTypeBase, boolean>>
   ): JSX.Element => {
     const { mutateAsync: search } = useSearchItems();
+    const { data } = useFetchItems();
+
+    const formatItemsToOption = (items: ItemData[]) => {
+      return items?.map(({ name, id, item_id, ...props }) => ({
+        label: `${name} (ID: ${item_id ?? '-'})`,
+        value: id,
+        data: { name, id, item_id, ...props },
+      }));
+    };
+    const defaultOptions = formatItemsToOption(data?.data.items.data ?? []);
 
     return (
       <Select
         {...props}
+        defaultOptions={defaultOptions}
         ref={ref}
         styles={{
           valueContainer: (base) => ({
@@ -343,11 +355,7 @@ export const SelectItemsDetail = forwardRef(
             },
           });
 
-          return data?.items?.data.map(({ name, id, item_id, ...props }) => ({
-            label: `${name} (ID: ${item_id ?? '-'})`,
-            value: id,
-            data: { name, id, item_id, ...props },
-          }));
+          return formatItemsToOption(data?.items?.data);
           // return data.items.data.map(({ id, name, ...rest }) => ({ value: id, label: name, data: rest }));
         }, 300)}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

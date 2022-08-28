@@ -1,10 +1,11 @@
-export interface Datum {
+export interface CustomerData {
   id: string;
   full_name: string;
   phone_number: string;
   address: string;
   created_at: Date;
   updated_at: Date;
+  total_debt: number;
 }
 
 export interface CreateCustomerBody {
@@ -28,20 +29,24 @@ export interface Link {
 
 export interface Customers {
   current_page: number;
-  data: Datum[];
+  data: CustomerData[];
   first_page_url: string;
   from: number;
   last_page: number;
   last_page_url: string;
   links: Link[];
-  next_page_url?: unknown;
+  next_page_url?: string;
   path: string;
   per_page: number;
-  prev_page_url?: unknown;
+  prev_page_url?: string;
   to: number;
   total: number;
 }
 
 export interface CustomersResponse {
   customers: Customers;
+}
+
+export interface CustomerDetailResponse {
+  customer: CustomerData;
 }

@@ -5,6 +5,7 @@ export interface SupplierData {
   name: string;
   address: string;
   phone_number: string;
+  total_receivable: number;
 }
 
 export interface Suppliers {
