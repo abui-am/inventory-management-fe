@@ -111,6 +111,8 @@ const AddTransactionPage: NextPage = () => {
     },
   });
 
+  console.log(values);
+
   const data = values?.stockAdjustment.map(({ item, qty, id }) => {
     return {
       col1: item?.label ?? '',
@@ -350,6 +352,11 @@ const AddTransactionPage: NextPage = () => {
                       return data;
                     });
                     setFieldValue('stockAdjustment', editedValues);
+
+                    setFieldValue(
+                      'totalPrice',
+                      editedValues.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
+                    );
                     setEditId(null);
                   }}
                 />
