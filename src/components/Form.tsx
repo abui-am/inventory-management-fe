@@ -6,6 +6,7 @@ import React, {
   LegacyRef,
   PropsWithChildren,
   TextareaHTMLAttributes,
+  useEffect,
   useState,
 } from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
@@ -366,7 +367,25 @@ export const SelectItemsDetail = forwardRef(
 );
 
 const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
-  return <NormalSelect isSearchable={false} styles={getThemedSelectStyle(variant, additionalStyle)} {...props} />;
+  const [portal, setPortal] = useState<HTMLElement>();
+  const extraProps = {
+    styles: { menuPortal: (base: any) => ({ ...base, zIndex: 9999 }) },
+    menuShouldScrollIntoView: true,
+    menuPortalTarget: portal,
+  };
+
+  useEffect(() => {
+    setPortal(document?.body);
+  }, []);
+
+  return (
+    <NormalSelect
+      {...extraProps}
+      isSearchable={false}
+      styles={getThemedSelectStyle(variant, additionalStyle)}
+      {...props}
+    />
+  );
 };
 
 const SelectSortBy: React.FC<ThemedSelectProps> = ({ disableMargin, ...props }) => {

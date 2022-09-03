@@ -22,7 +22,7 @@ export const useGeneralLedger = (dataRes: Datum[]) => {
           accessor: 'date', // accessor is the "key" in the data
         },
         {
-          Header: 'Keterangan / Akvsun',
+          Header: 'Keterangan / Akun',
           accessor: 'description',
         },
         {

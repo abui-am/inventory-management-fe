@@ -1,8 +1,9 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { useMemo } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateLedgerTopUp } from '@/hooks/mutation/useMutateLedgerTopUp';
+import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
 import { Option } from '@/typings/common';
 import { CreateLedgerTopUpPayload } from '@/typings/ledger-top-up';
 
@@ -11,6 +12,7 @@ import { CurrencyTextField, ThemedSelect, WithLabelAndError } from '../Form';
 import { validationSchemaLedgerTopUp } from './constant';
 
 export type CreateTopUpFormValues = {
+  ledger: Option | null;
   amount: number | null;
   paymentMethod: Option | null;
 };
@@ -25,6 +27,10 @@ export const paymentMethodOptions = [
     value: 'bank',
   },
   {
+    label: 'Giro',
+    value: 'current_account',
+  },
+  {
     label: 'Uang Pribadi',
     value: 'personal_money',
   },
@@ -33,13 +39,26 @@ export const paymentMethodOptions = [
 const CreateTopUp: React.FC<{
   onSave?: (data: any) => void;
   onClose?: () => void;
-  ledgerAccountId: string;
-}> = ({ onSave, onClose, ledgerAccountId }) => {
+}> = ({ onSave, onClose }) => {
   const { mutateAsync } = useCreateLedgerTopUp();
   const initialValues: CreateTopUpFormValues = {
+    ledger: null,
     amount: null,
     paymentMethod: null,
   };
+  const { data: dataResLedger } = useFetchUnpaginatedLedgerAccounts();
+
+  const typeOptions = useMemo(
+    () =>
+      dataResLedger?.data?.ledger_accounts
+        .map?.(({ name, id, ...props }) => ({
+          label: name,
+          value: id,
+          data: props,
+        }))
+        .filter((val) => ['Kas', 'Giro', 'Bank'].includes(val.label)) ?? [],
+    [dataResLedger]
+  );
 
   const { values, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema: validationSchemaLedgerTopUp,
@@ -50,7 +69,7 @@ const CreateTopUp: React.FC<{
       const jsonBody: CreateLedgerTopUpPayload = {
         amount: values?.amount ?? 0,
         payment_method: values?.paymentMethod?.value ?? '',
-        ledger_account_id: ledgerAccountId,
+        ledger_account_id: values.ledger?.value ?? '',
       };
       const res = await mutateAsync(jsonBody);
       setSubmitting(false);
@@ -64,8 +83,31 @@ const CreateTopUp: React.FC<{
     <form onSubmit={handleSubmit} noValidate>
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
-          <h6 className="mb-3 text-lg font-bold">Top Up Saldo</h6>
+          <h6 className="mb-3 text-lg font-bold">Konversi Saldo</h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <WithLabelAndError required touched={touched} errors={errors} name="paymentMethod" label="Dari">
+                <ThemedSelect
+                  value={values.paymentMethod}
+                  options={paymentMethodOptions}
+                  name="paymentMethod"
+                  getPopupContainer={(trigger: any) => trigger.parentNode}
+                  onChange={(value) => setFieldValue('paymentMethod', value)}
+                />
+              </WithLabelAndError>
+            </div>
+
+            <div className="sm:col-span-2">
+              {typeOptions?.length > 1 && (
+                <WithLabelAndError required touched={touched} errors={errors} name="ledger" label="Kepada Akun">
+                  <ThemedSelect
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    onChange={(val) => setFieldValue('ledger', val)}
+                    options={typeOptions}
+                  />
+                </WithLabelAndError>
+              )}
+            </div>
             <div className="sm:col-span-2">
               <WithLabelAndError required touched={touched} errors={errors} name="amount" label="Saldo">
                 <CurrencyTextField
@@ -73,22 +115,6 @@ const CreateTopUp: React.FC<{
                   value={values.amount?.toString()}
                   name="amount"
                   onChange={(amount) => setFieldValue('amount', amount)}
-                />
-              </WithLabelAndError>
-            </div>
-            <div className="sm:col-span-2">
-              <WithLabelAndError
-                required
-                touched={touched}
-                errors={errors}
-                name="paymentMethod"
-                label="Metode pembayaran"
-              >
-                <ThemedSelect
-                  value={values.paymentMethod}
-                  options={paymentMethodOptions}
-                  name="paymentMethod"
-                  onChange={(value) => setFieldValue('paymentMethod', value)}
                 />
               </WithLabelAndError>
             </div>
@@ -100,7 +126,7 @@ const CreateTopUp: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Tambah Prive</Button>
+          <Button type="submit">Konversi</Button>
         </div>
       </div>
     </form>

@@ -19,7 +19,7 @@ export const useCreateLedgerTopUp = (): UseMutationResult<BackendRes<any>, unkno
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
           CreateLedgerTopUpPayload,
           AxiosResponse<BackendRes<CreateLedgerTopUpPayload>>
-        >('/ledger-top-up', data);
+        >('/ledger-top-ups', data);
         return res.data;
       } catch (e) {
         console.error(e);
@@ -30,6 +30,7 @@ export const useCreateLedgerTopUp = (): UseMutationResult<BackendRes<any>, unkno
       onSuccess: (data) => {
         toast.success(data.message);
         query.invalidateQueries('ledgerTopUp');
+        query.invalidateQueries('ledgers');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

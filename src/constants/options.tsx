@@ -128,6 +128,19 @@ export const ITEMS_SORT_BY_OPTIONS = [
   },
 ];
 
+export const LEDGER_TOP_UPS_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan tanggal transaksi',
+    value: 'updated_at',
+    data: ['updated_at'],
+  },
+  {
+    label: 'Sortir berdasarkan jumlah transaksi',
+    value: 'amount',
+    data: ['amount'],
+  },
+];
+
 export const SUPPLIER_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan nama',

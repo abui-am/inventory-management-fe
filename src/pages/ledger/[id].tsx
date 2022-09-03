@@ -2,11 +2,8 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { DateRangePicker, ThemedSelect } from '@/components/Form';
-import CreateTopUp from '@/components/form/CreateTopUpForm';
-import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
@@ -23,7 +20,7 @@ const AuditPage = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [pageSize, setPageSize] = useState(10);
   const [type, setType] = useState<Option<any> | null>();
-  const [openModalTopUp, setOpenModalTopUp] = useState(false);
+
   const typeOptions = useMemo(
     () =>
       dataResLedger?.data?.ledger_accounts.map?.(({ name, id, ...props }) => ({
@@ -72,17 +69,6 @@ const AuditPage = () => {
   return (
     <div>
       <section>
-        <Modal isOpen={openModalTopUp}>
-          <CreateTopUp
-            ledgerAccountId={type?.value ?? ''}
-            onClose={() => {
-              setOpenModalTopUp(false);
-            }}
-            onSave={() => {
-              setOpenModalTopUp(false);
-            }}
-          />
-        </Modal>
         <CardDashboard>
           <Table
             withoutStripe
@@ -94,13 +80,6 @@ const AuditPage = () => {
                 </div>
                 <div className="flex flex-col items-end">
                   <div className="flex flex-wrap mb-4 gap-4">
-                    <Button
-                      onClick={() => {
-                        setOpenModalTopUp(true);
-                      }}
-                    >
-                      Top Up {type?.label}
-                    </Button>
                     {typeOptions?.length > 1 && (
                       <ThemedSelect
                         value={type}
