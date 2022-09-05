@@ -10,7 +10,7 @@ import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerA
 import { useFetchLedgers } from '@/hooks/query/useFetchLedgers';
 import { useLedger } from '@/hooks/table/useLedger';
 import { Option } from '@/typings/common';
-import { formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
+import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
 const AuditPage = () => {
   const { query, push } = useRouter();
@@ -66,6 +66,15 @@ const AuditPage = () => {
     setType(typeOptions.find((val) => val.label === query.id));
   }, [query.id, typeOptions]);
 
+  const getPeriodBalance = () => {
+    if (!resLedgers) return 0;
+
+    return type?.data?.type === 'debit'
+      ? resLedgers?.data.total.debit - resLedgers?.data.total.credit
+      : resLedgers?.data.total.credit - resLedgers?.data.total.debit;
+  };
+
+  const periodBalance = getPeriodBalance();
   return (
     <div>
       <section>
@@ -73,32 +82,56 @@ const AuditPage = () => {
           <Table
             withoutStripe
             search={() => (
-              <div className="mt-2 mb-4 flex justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold mb-1">Buku Besar</h2>
-                  <span className="text-xl font-bold">Saldo : {formatToIDR(type?.data?.balance ?? 0)}</span>
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="flex flex-wrap mb-4 gap-4">
-                    {typeOptions?.length > 1 && (
-                      <ThemedSelect
-                        value={type}
-                        onChange={(val: any) => {
-                          push(`/ledger/${val.label}`);
+              <div>
+                <div className="mt-2 mb-4 flex justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-1">Buku Besar</h2>
+                    <span className="text-xl font-bold">Saldo : {formatToIDR(type?.data?.balance ?? 0)}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="flex flex-wrap mb-4 gap-4">
+                      {typeOptions?.length > 1 && (
+                        <ThemedSelect
+                          value={type}
+                          onChange={(val: any) => {
+                            push(`/ledger/${val.label}`);
+                          }}
+                          options={typeOptions}
+                          className="w-52"
+                        />
+                      )}
+                      <DateRangePicker
+                        values={[fromDate, toDate]}
+                        onChangeFrom={(date) => {
+                          setFromDate(date);
                         }}
-                        options={typeOptions}
-                        className="w-52"
+                        onChangeTo={(date) => {
+                          setToDate(date);
+                        }}
                       />
-                    )}
-                    <DateRangePicker
-                      values={[fromDate, toDate]}
-                      onChangeFrom={(date) => {
-                        setFromDate(date);
-                      }}
-                      onChangeTo={(date) => {
-                        setToDate(date);
-                      }}
-                    />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between">
+                    <span className="text-lg font-bold">
+                      Periode : {formatDate(fromDate)} - {formatDate(toDate)}
+                    </span>
+                    <span className="flex gap-4">
+                      <span>
+                        Tipe akun : <b>{type?.data?.type}</b>
+                      </span>
+                      <span>Total debit : {formatToIDR(resLedgers?.data.total.debit ?? 0)}</span>
+                      <span>Total credit : {formatToIDR(resLedgers?.data.total.credit ?? 0)}</span>
+                      {resLedgers && (
+                        <span>
+                          Penambahan saldo :{' '}
+                          <span className={periodBalance > 0 ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>
+                            {formatToIDR(periodBalance)}
+                          </span>
+                        </span>
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>

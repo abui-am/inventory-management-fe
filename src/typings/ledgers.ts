@@ -4,8 +4,8 @@ export interface Datum {
   type: string;
   remaining_balance: number;
   amount: number;
-  created_at: Date;
-  updated_at: Date;
+  created_at: Date | string;
+  updated_at: Date | string;
 }
 
 export interface Link {
@@ -30,6 +30,12 @@ export interface Ledgers {
   total: number;
 }
 
+export interface Total {
+  debit: number;
+  credit: number;
+}
+
 export interface GetLedgersResponse {
   ledgers: Ledgers;
+  total: Total;
 }
