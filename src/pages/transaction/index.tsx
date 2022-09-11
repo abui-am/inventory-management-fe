@@ -52,7 +52,7 @@ const TransactionPage: NextPage<unknown> = () => {
   const data = dataRes.map(
     ({
       transaction_code,
-      payment,
+      payments,
       created_at,
       sender,
       payment_method,
@@ -95,7 +95,7 @@ const TransactionPage: NextPage<unknown> = () => {
           <span className="text-base font-bold block mb-2">{formatToIDR(discount)}</span>
           <label className="block">Pembayaran (metode):</label>
           <span className="text-base font-bold block mb-2">
-            {formatToIDR(payment?.payment_price)} ({formatPaymentMethod(payment_method)})
+            {formatToIDR(payments?.[0]?.payment_price)} ({formatPaymentMethod(payment_method)})
           </span>
         </div>
       ),
@@ -111,7 +111,7 @@ const TransactionPage: NextPage<unknown> = () => {
                 sender,
                 discount,
                 payment_method,
-                payment,
+                payments,
                 pic,
                 items,
                 id,

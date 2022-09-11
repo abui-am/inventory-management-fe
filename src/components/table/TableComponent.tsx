@@ -24,13 +24,12 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
     created_at = new Date(),
     invoice_number = '',
     transaction_code = '',
-    payment_method = '',
     supplier,
     pic,
     status,
     items = [],
     discount,
-    payment,
+    payments,
   } = transactions ?? {};
   const { data: dataMyself } = useFetchMyself();
 
@@ -44,14 +43,13 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Barang Masuk</h2>
         <div className="flex">
           <div className="flex-1">
-            {payment && (
+            {payments && (
               <ItemInfo
                 info={{
-                  payment,
+                  payments,
                   created_at,
                   invoice_number,
                   transaction_code,
-                  payment_method,
                   items,
                   discount: discount ?? 0,
                 }}
@@ -105,13 +103,12 @@ export const DetailSale: React.FC<{
     created_at,
     invoice_number,
     transaction_code,
-    payment_method,
     sender,
     customer,
     pic,
     items = [],
     discount,
-    payment,
+    payments,
   } = transactions ?? {};
 
   const { columns, data } = useDetailSaleAdaptor(items);
@@ -122,9 +119,7 @@ export const DetailSale: React.FC<{
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Penjualan</h2>
         <div className="flex">
           <div className="flex-1">
-            <ItemInfo
-              info={{ payment, created_at, invoice_number, transaction_code, payment_method, items, discount }}
-            />
+            <ItemInfo info={{ payments, created_at, invoice_number, transaction_code, items, discount }} />
           </div>
           <section className="ml-10 flex-1 p-6 rounded-lg border drop-shadow-lg bg-white" style={{ maxWidth: 228 }}>
             <div className="mb-2">
@@ -172,10 +167,10 @@ export const DetailSale: React.FC<{
 const ItemInfo: React.FC<{
   info: Pick<
     TransactionData,
-    'created_at' | 'transaction_code' | 'payment' | 'invoice_number' | 'payment_method' | 'items' | 'discount'
+    'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'payments' | 'items' | 'discount'
   >;
 }> = ({ info }) => {
-  const { created_at, payment, transaction_code, invoice_number, payment_method, discount } = info;
+  const { created_at, payments, transaction_code, invoice_number, discount } = info;
   return (
     <>
       <div className="flex justify-between mb-4">
@@ -193,7 +188,7 @@ const ItemInfo: React.FC<{
       </div>
       <div className="flex justify-between mb-4">
         <h6 className="text-blueGray-600">Metode Pembayaran</h6>
-        <span>{payment_method}</span>
+        {/* <span>{payment_method}</span> */}
       </div>
       <div className="flex justify-between mb-4">
         <h6 className="text-blueGray-600">Discount:</h6>
@@ -201,7 +196,7 @@ const ItemInfo: React.FC<{
       </div>
       <div className="flex justify-between mb-4">
         <h6 className="text-blueGray-600">Pembayaran:</h6>
-        <span>{formatToIDR(payment.payment_price)}</span>
+        <span>{formatToIDR(payments[0].payment_price)}</span>
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import { Link } from './common';
 export interface Payment {
   cash: number;
   change: number;
+  payment_method: string;
   maturity_date?: string;
 }
 
@@ -20,8 +21,7 @@ export interface CreateSaleBody {
   sender_id: string;
   invoice_number?: unknown;
   purchase_date: string;
-  payment_method: string;
-  payment: Payment;
+  payments: Payment[];
   note: string;
   discount: number;
   items: Item[];
@@ -80,6 +80,7 @@ export interface SalePayment {
   change: number;
   maturity_date?: Date;
   paid: boolean;
+  payment_method: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -125,7 +126,7 @@ export interface SaleTransactionsData {
   sender: Sender;
   discount: number;
   customer: Customer;
-  payment: SalePayment;
+  payments: SalePayment[];
   items: SaleItem[];
 }
 

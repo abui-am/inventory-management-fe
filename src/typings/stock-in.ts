@@ -16,6 +16,7 @@ export interface Payment {
   created_at: Date;
   paid: boolean;
   payment_date: Date;
+  payment_method: string;
   payment_price: number;
   transaction_id: string;
   updated_at: Date;
@@ -25,10 +26,9 @@ export interface CreateTransactionBody {
   transactionable_id: string;
   invoice_number?: unknown;
   purchase_date: string;
-  payment_method: string;
   note: string;
   items: Item[];
-  payment?: Partial<Payment>;
+  payments?: Partial<Payment>[];
   transactionable_type: string;
 }
 
@@ -109,7 +109,7 @@ export interface TransactionData {
   deleted_at?: unknown;
   pic: Pic;
   supplier: Supplier;
-  payment: Payment;
+  payments: Payment[];
   discount: number;
   items: TrasactionItem[];
 }

@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { Pencil, Trash } from 'react-bootstrap-icons';
+import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -30,6 +30,11 @@ import { formatToIDR } from '@/utils/format';
 import promiseAll from '@/utils/promiseAll';
 import { validationSchemaStockIn, validationSchemaStockInItem } from '@/utils/validation/stock-in';
 
+export type Payment = {
+  paymentMethod: Option;
+  paymentDue: Date | string;
+};
+
 export type AddStockInTableValue = {
   item_name: string;
   qty: number;
@@ -54,24 +59,19 @@ const AddStockPage: NextPage = () => {
     dateIn: new Date(),
     stockAdjustment: [] as ButtonWithModalFormValues[],
     memo: '',
-    paymentMethod: PAYMENT_METHOD_OPTIONS[0],
-    paymentDue: new Date(),
+    payments: [
+      {
+        paymentMethod: PAYMENT_METHOD_OPTIONS[0],
+        paymentDue: new Date(),
+      },
+    ] as Payment[],
     supplier: null as Option<unknown> | null,
     isNewSupplier: false,
   };
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
     validationSchema: validationSchemaStockIn,
     initialValues,
-    onSubmit: async ({
-      dateIn,
-      invoiceNumber,
-      invoiceType,
-      memo,
-      paymentMethod,
-      paymentDue,
-      stockAdjustment,
-      supplier,
-    }) => {
+    onSubmit: async ({ dateIn, invoiceNumber, invoiceType, memo, payments, stockAdjustment, supplier }) => {
       const newItem = await promiseAll<Item>(
         stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, discount, itemId }): Promise<Item> => {
           const baseData = {
@@ -96,16 +96,22 @@ const AddStockPage: NextPage = () => {
         purchase_date: dayjs(dateIn).format('YYYY-MM-DD HH:mm:ss'),
         invoice_number: invoiceType.value === 'automatic' ? null : invoiceNumber,
         note: memo,
-        payment_method: paymentMethod.value,
         items: newItem.results,
         transactionable_id: supplierId,
-
-        payment: {
+        payments: payments.map(({ paymentMethod, paymentDue }) => ({
+          payment_method: paymentMethod.value,
           maturity_date:
             paymentMethod.value !== 'cash'
               ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
               : dayjs().format('YYYY-MM-DD HH:mm:ss'),
-        },
+        })),
+
+        // payment: {
+        //   maturity_date:
+        // paymentMethod.value !== 'cash'
+        //   ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
+        //   : dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        // },
       };
 
       try {
@@ -286,32 +292,22 @@ const AddStockPage: NextPage = () => {
         </div>
 
         <div className="mt-8 flex justify-between">
-          <div className="mr-4">
-            <label className="mb-1 block">Metode pembayaran</label>
-            <div className="flex">
-              <ThemedSelect
-                className="mr-4"
-                variant="contained"
-                name="paymentMethod"
-                onChange={(val) => {
-                  setFieldValue('paymentMethod', val);
-                }}
-                value={values.paymentMethod}
-                additionalStyle={{
-                  control: (provided) => ({ ...provided, minWidth: 240 }),
-                }}
-                options={PAYMENT_METHOD_OPTIONS}
+          {values?.payments?.map((values, idx) => {
+            return (
+              <PaymentMethod
+                values={values}
+                setFieldValue={setFieldValue}
+                key={values.paymentMethod.value}
+                index={idx}
               />
-              {(values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value ||
-                values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[2].value) && (
-                <DatePickerComponent
-                  name="paymentDue"
-                  selected={values.paymentDue}
-                  onChange={(date) => setFieldValue('paymentDue', date)}
-                />
-              )}
-            </div>
-          </div>
+            );
+          })}
+          {values.payments.length < 2 && (
+            <Button>
+              <Plus width={24} height={24} />
+              Tambah Metode Pembayaran
+            </Button>
+          )}
 
           <div className="flex items-end">
             <Button onClick={() => back()} variant="secondary" className="mr-4">
@@ -322,6 +318,41 @@ const AddStockPage: NextPage = () => {
         </div>
       </form>
     </CardDashboard>
+  );
+};
+
+const PaymentMethod: React.FC<{
+  values: any;
+  setFieldValue: <T>(key: string, value: T) => void;
+  index: number;
+}> = ({ values, setFieldValue, index }) => {
+  return (
+    <div className="mr-4">
+      <label className="mb-1 block">Metode pembayaran</label>
+      <div className="flex">
+        <ThemedSelect
+          className="mr-4"
+          variant="contained"
+          name="paymentMethod"
+          onChange={(val) => {
+            setFieldValue('paymentMethod', val);
+          }}
+          value={values.paymentMethod}
+          additionalStyle={{
+            control: (provided) => ({ ...provided, minWidth: 240 }),
+          }}
+          options={PAYMENT_METHOD_OPTIONS}
+        />
+        {(values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value ||
+          values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[2].value) && (
+          <DatePickerComponent
+            name="paymentDue"
+            selected={values.paymentDue}
+            onChange={(date) => setFieldValue(`payments.[${index}].paymentDue`, date)}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 
