@@ -145,6 +145,14 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:convert-balance',
   },
+  {
+    id: 'expense',
+    slug: '/expense',
+    displayName: 'Pengeluaran',
+    title: 'Keuangan',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:expense',
+  },
 ];
 
 export default MENU_LIST;

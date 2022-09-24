@@ -25,7 +25,8 @@ export type PermissionList =
   | 'control:general-ledger'
   | 'control:ledger'
   | 'control:customer'
-  | 'control:convert-balance';
+  | 'control:convert-balance'
+  | 'control:expense';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -59,6 +60,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:ledger',
           'control:customer',
           'control:convert-balance',
+          'control:expense',
         ];
         break;
 
