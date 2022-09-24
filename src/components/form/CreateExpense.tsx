@@ -26,10 +26,6 @@ export const paymentMethodOptions = [
     label: 'Bank',
     value: 'bank',
   },
-  {
-    label: 'Giro',
-    value: 'current_account',
-  },
 ];
 
 const CreateExpense: React.FC<{

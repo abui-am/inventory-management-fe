@@ -167,7 +167,7 @@ export const DetailSale: React.FC<{
 const ItemInfo: React.FC<{
   info: Pick<TransactionData, 'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'items' | 'discount'>;
 }> = ({ info }) => {
-  const { created_at, payments, transaction_code, invoice_number, discount, pa } = info;
+  const { created_at, payments, transaction_code, invoice_number, discount } = info;
   return (
     <>
       <div className="flex justify-between mb-4">
