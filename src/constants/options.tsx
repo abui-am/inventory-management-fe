@@ -141,6 +141,35 @@ export const LEDGER_TOP_UPS_SORT_BY_OPTIONS = [
   },
 ];
 
+export const EXPENSES_SORT_BY_OPTIONS = [
+  {
+    label: 'Sortir berdasarkan nama',
+    value: 'name',
+    data: ['name'],
+  },
+  {
+    label: 'Sortir berdasarkan deskripsi',
+    value: 'description',
+    data: ['description'],
+  },
+
+  {
+    label: 'Sortir berdasarkan jumlah',
+    value: 'amount',
+    data: ['amount'],
+  },
+  {
+    label: 'Sortir berdasarkan metode pembayaran',
+    value: 'payment_method',
+    data: ['payment_method'],
+  },
+  {
+    label: 'Sortir berdasarkan tanggal',
+    value: 'date',
+    data: ['date'],
+  },
+];
+
 export const SUPPLIER_SORT_BY_OPTIONS = [
   {
     label: 'Sortir berdasarkan nama',

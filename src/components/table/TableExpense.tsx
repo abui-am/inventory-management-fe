@@ -3,15 +3,15 @@ import React, { useState } from 'react';
 import { Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
-import { LEDGER_TOP_UPS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
-import { useFetchLedgerTopUps } from '@/hooks/query/useFetchLedgerTopUp';
+import { EXPENSES_SORT_BY_OPTIONS, LEDGER_TOP_UPS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useFetchExpense } from '@/hooks/query/useFetchExpense';
 import { Option } from '@/typings/common';
 import { formatDate, formatToIDR } from '@/utils/format';
 
 import { Button } from '../Button';
 // import { Button } from '../Button';
 import { SelectSortBy, SelectSortType, TextField } from '../Form';
-import CreateTopUp from '../form/CreateTopUpForm';
+import CreateExpense from '../form/CreateExpense';
 import Modal from '../Modal';
 import Pagination from '../Pagination';
 
@@ -25,7 +25,7 @@ const getPaymentMethod = (paymentMethod: string): string => {
 };
 const TableExpense: React.FC = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
-  const [sortBy, setSortBy] = useState<Option<string[]> | null>(LEDGER_TOP_UPS_SORT_BY_OPTIONS[0]);
+  const [sortBy, setSortBy] = useState<Option<string[]> | null>(EXPENSES_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
@@ -34,7 +34,7 @@ const TableExpense: React.FC = () => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
 
-  const { data: dataItems } = useFetchLedgerTopUps({
+  const { data: dataItems } = useFetchExpense({
     forceUrl: paginationUrl,
     order_by: params,
     search,
@@ -50,33 +50,38 @@ const TableExpense: React.FC = () => {
     next_page_url,
     last_page_url,
     prev_page_url,
-  } = dataItems?.data?.ledger_top_ups ?? {};
-  const data = dataRes.map(({ ledger_account, amount, updated_at, payment_method }) => ({
-    name: ledger_account.name,
+  } = dataItems?.data?.expenses ?? {};
+  const data = dataRes.map(({ amount, date, description, name, payment_method }) => ({
+    name,
+    description,
     amount: formatToIDR(+amount),
     paymentMethod: getPaymentMethod(payment_method),
-    updated_at: formatDate(updated_at, { withHour: true }),
+    date: formatDate(date, { withHour: true }),
     // action: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
   }));
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Dari',
-        accessor: 'paymentMethod',
+        Header: 'Nama',
+        accessor: 'name',
       },
       {
-        Header: 'Kepada Akun',
-        accessor: 'name', // accessor is the "key" in the data
+        Header: 'Deskripsi',
+        accessor: 'description', // accessor is the "key" in the data
       },
       {
-        Header: 'Jumlah Saldo',
+        Header: 'Jumlah',
         accessor: 'amount',
       },
 
       {
-        Header: 'Tanggal Tansaksi',
-        accessor: 'updated_at',
+        Header: 'Metode Pembayaran',
+        accessor: 'paymentMethod',
+      },
+      {
+        Header: 'Tanggal',
+        accessor: 'date',
       },
     ],
     []
@@ -90,7 +95,7 @@ const TableExpense: React.FC = () => {
         }}
         isOpen={openModalTopUp}
       >
-        <CreateTopUp
+        <CreateExpense
           onClose={() => {
             setOpenModalTopUp(false);
           }}
