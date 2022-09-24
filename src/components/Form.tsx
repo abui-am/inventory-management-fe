@@ -292,12 +292,16 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
       {...props}
       styles={getThemedSelectStyle(variant, additionalStyle)}
       loadOptions={debounce(async (val) => {
-        const { data } = await search({ search: val });
-        return data.items.data.map(({ id, item_id, name, ...rest }) => ({
-          value: id,
-          label: `${name} (ID:${item_id ?? '-'})`,
-          data: { item_id, ...rest },
-        }));
+        if (val) {
+          const { data } = await search({ search: val });
+          return data.items.data.map(({ id, item_id, name, ...rest }) => ({
+            value: id,
+            label: `${name} (ID:${item_id ?? '-'})`,
+            data: { item_id, ...rest },
+          }));
+        }
+
+        return [];
       }, 300)}
     />
   );
@@ -326,7 +330,11 @@ export const SelectItemsDetail = forwardRef(
     ref: LegacyRef<Select<OptionTypeBase, boolean>>
   ): JSX.Element => {
     const { mutateAsync: search } = useSearchItems();
-    const { data } = useFetchItems();
+    const { data } = useFetchItems({
+      where_greater_equal: {
+        quantity: 1,
+      },
+    });
 
     const formatItemsToOption = (items: ItemData[]) => {
       return items?.map(({ name, id, item_id, ...props }) => ({

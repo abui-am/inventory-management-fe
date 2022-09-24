@@ -6,7 +6,6 @@ const useMyQuery = <TQueryFnData = unknown, TError = unknown, TData = TQueryFnDa
   option?: UseQueryOptions<TQueryFnData, TError, TData>
 ): UseQueryResult<TData, TError> => {
   const query = useQuery(queryKey, queryFn, {
-    staleTime: 60 * 60 * 10,
     ...option,
   });
   return query;

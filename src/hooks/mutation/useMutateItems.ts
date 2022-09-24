@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
 
 import { CreateItemsBody, CreateItemsResponse } from '@/typings/item';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -13,6 +13,7 @@ export const useCreateItems = (): UseMutationResult<
   CreateItemsBody,
   unknown
 > => {
+  const query = useQueryClient();
   const mutator = useMutation(
     ['createItems'],
     async (data: CreateItemsBody) => {
@@ -30,6 +31,7 @@ export const useCreateItems = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
+        query.invalidateQueries('ledgers');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
@@ -20,6 +20,7 @@ import Label from '@/components/Label';
 import Modal from '@/components/Modal';
 import { SelectSupplier } from '@/components/Select';
 import Table from '@/components/Table';
+import PaymentMethod, { Payment } from '@/components/transaction/PaymentMethod';
 import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateItems } from '@/hooks/mutation/useMutateItems';
 import { useCreateStockIn } from '@/hooks/mutation/useMutateStockIn';
@@ -29,11 +30,6 @@ import { CreateStockInBody, Item } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 import promiseAll from '@/utils/promiseAll';
 import { validationSchemaStockIn, validationSchemaStockInItem } from '@/utils/validation/stock-in';
-
-export type Payment = {
-  paymentMethod: Option;
-  paymentDue: Date | string;
-};
 
 export type AddStockInTableValue = {
   item_name: string;
@@ -73,12 +69,11 @@ const AddStockPage: NextPage = () => {
     initialValues,
     onSubmit: async ({ dateIn, invoiceNumber, invoiceType, memo, payments, stockAdjustment, supplier }) => {
       const newItem = await promiseAll<Item>(
-        stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, discount, itemId }): Promise<Item> => {
+        stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, itemId }): Promise<Item> => {
           const baseData = {
             note: memo,
             purchase_price: +buyPrice ?? 0,
             quantity: +qty ?? 0,
-            discount: +discount,
             item_id: itemId,
           };
           if (!isNew) return { id: item?.value ?? '', ...baseData };
@@ -98,23 +93,30 @@ const AddStockPage: NextPage = () => {
         note: memo,
         items: newItem.results,
         transactionable_id: supplierId,
-        payments: payments.map(({ paymentMethod, paymentDue }) => ({
+        payments: payments.map(({ paymentMethod, paymentDue, payAmount }) => ({
           payment_method: paymentMethod.value,
           maturity_date:
-            paymentMethod.value !== 'cash'
+            paymentMethod.value !== 'cash' && paymentMethod.value !== 'bank'
               ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
-              : dayjs().format('YYYY-MM-DD HH:mm:ss'),
+              : undefined,
+          cash: payAmount ?? 0,
+          change: 0,
         })),
-
-        // payment: {
-        //   maturity_date:
-        // paymentMethod.value !== 'cash'
-        //   ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
-        //   : dayjs().format('YYYY-MM-DD HH:mm:ss'),
-        // },
       };
 
       try {
+        // find index where payment method is cash
+        const cashIndex = values.payments.findIndex((val) => val.paymentMethod.value === 'cash');
+
+        const totalPrice = values.stockAdjustment.reduce((acc, curr) => {
+          const { qty, buyPrice } = curr;
+          return acc + +qty * +buyPrice;
+        }, 0);
+
+        if (cashIndex !== -1) {
+          jsonBody.payments[cashIndex].change =
+            jsonBody.payments.reduce((acc, val) => acc + (val?.cash ?? 0), 0) - totalPrice;
+        }
         await mutateAsync(jsonBody);
         push('/stock-in');
       } catch (e) {
@@ -123,17 +125,16 @@ const AddStockPage: NextPage = () => {
     },
   });
 
-  const data = values.stockAdjustment.map(({ item, qty, buyPrice, discount, unit, memo, isNew, itemId }) => ({
+  const data = values.stockAdjustment.map(({ item, qty, buyPrice, unit, memo, isNew, itemId }) => ({
     col1: item?.label ?? '',
     col2: qty,
-    col3: buyPrice,
-    col4: discount,
+    col3: formatToIDR(+buyPrice),
     col5: unit,
     col6: memo,
     action: (
       <div className="flex">
         <ButtonWithModal
-          initialValues={{ item, qty, buyPrice, discount, unit, memo, isNew, itemId }}
+          initialValues={{ item, qty, buyPrice, unit, memo, isNew, itemId }}
           withEditButton
           onSave={(val) => {
             // replace data
@@ -167,153 +168,198 @@ const AddStockPage: NextPage = () => {
       {
         Header: 'Nama barang',
         accessor: 'col1', // accessor is the "key" in the data
+        width: '20%',
       },
       {
         Header: 'Qty',
         accessor: 'col2',
+        width: '10%',
       },
       {
         Header: 'Harga beli',
         accessor: 'col3',
-      },
-      {
-        Header: 'Diskon',
-        accessor: 'col4',
+        width: '20%',
       },
       {
         Header: 'Kemasan',
         accessor: 'col5',
+        width: '10%',
       },
       {
         Header: 'Catatan',
         accessor: 'col6',
+        width: '20%',
       },
       {
         Header: 'Aksi',
         accessor: 'action',
+        width: '20%',
       },
     ],
     []
+  );
+
+  const totalPrice = useMemo(
+    () =>
+      values.stockAdjustment.reduce((acc, curr) => {
+        const { qty, buyPrice } = curr;
+        return acc + +qty * +buyPrice;
+      }, 0),
+    [values.stockAdjustment]
   );
 
   return (
     <CardDashboard title="Barang Masuk Baru">
       <form onSubmit={handleSubmit}>
         <div className="flex flex-wrap -mx-2 mb-8">
-          <div className="w-6/12 px-2 mb-3">
-            <Label required>Nomor faktur</Label>
-            <div className="flex w-full">
-              <ThemedSelect
-                variant="contained"
-                value={values.invoiceType}
-                additionalStyle={{
-                  control: () => ({
-                    width: 160,
-                  }),
-                }}
-                onChange={(e) => {
-                  setFieldValue('invoiceType', e);
-                }}
-                className="mr-2"
-                options={INVOICE_TYPE_OPTIONS}
-              />
-              <div className="flex-1">
-                <TextField
-                  id="invoiceNumber"
-                  name="invoiceNumber"
-                  value={values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value ? '' : values.invoiceNumber}
-                  placeholder={
-                    values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value
-                      ? '(Generate otomatis)'
-                      : 'Masukan nomor faktur'
-                  }
-                  autoComplete="invoiceNumber"
-                  disabled={isSubmitting || values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value}
-                  onChange={handleChange}
-                  hasError={!!errors.invoiceNumber && touched.invoiceNumber}
+          <div className="w-8/12 pr-4 mb-4">
+            <div className="flex flex-wrap ">
+              <div className="w-6/12 px-2 mb-3">
+                <Label required>Nomor faktur</Label>
+                <div className="flex w-full">
+                  <ThemedSelect
+                    variant="contained"
+                    value={values.invoiceType}
+                    additionalStyle={{
+                      control: () => ({
+                        width: 160,
+                      }),
+                    }}
+                    onChange={(e) => {
+                      setFieldValue('invoiceType', e);
+                    }}
+                    className="mr-2"
+                    options={INVOICE_TYPE_OPTIONS}
+                  />
+                  <div className="flex-1">
+                    <TextField
+                      id="invoiceNumber"
+                      name="invoiceNumber"
+                      value={values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value ? '' : values.invoiceNumber}
+                      placeholder={
+                        values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value
+                          ? '(Generate otomatis)'
+                          : 'Masukan nomor faktur'
+                      }
+                      autoComplete="invoiceNumber"
+                      disabled={isSubmitting || values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value}
+                      onChange={handleChange}
+                      hasError={!!errors.invoiceNumber && touched.invoiceNumber}
+                    />
+                  </div>
+                </div>
+                {errors.invoiceType && touched.invoiceType && (
+                  <span className="text-xs text-red-500">{errors.invoiceType}</span>
+                )}
+
+                {errors.invoiceNumber && touched.invoiceNumber && (
+                  <span className="text-xs text-red-500">{errors.invoiceNumber}</span>
+                )}
+              </div>
+              <div className="w-6/12 px-2 mb-3" />
+              <div className="w-6/12 px-2 mb-3">
+                <WithLabelAndError required touched={touched} errors={errors} name="supplier" label="Nama Supplier">
+                  <SelectSupplier
+                    onChange={(val, action) => {
+                      setFieldValue('supplier', val);
+                      setFieldValue('isNewSupplier', action.action === 'create-option');
+                    }}
+                    value={values.supplier}
+                  />
+                </WithLabelAndError>
+              </div>
+
+              <div className="w-3/12 px-2 mb-3">
+                <label className="mb-1 inline-block">Tanggal masuk</label>
+                <DatePickerComponent
+                  id="dateIn"
+                  name="dateIn"
+                  selected={values.dateIn}
+                  disabled={isSubmitting}
+                  onChange={(date) => setFieldValue('dateIn', date)}
                 />
+                {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn}</span>}
+              </div>
+              <div className="w-3/12 px-2 mb-3">
+                <label className="mb-1 inline-block">Catatan</label>
+                <TextField
+                  id="memo"
+                  name="memo"
+                  value={values.memo}
+                  placeholder="Masukan catatan"
+                  disabled={isSubmitting}
+                  onChange={handleChange}
+                  hasError={!!errors.memo}
+                />
+                {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
+              </div>
+
+              <div className="w-full px-2 mb-3">
+                <div className="mb-4">
+                  <Table columns={columns} data={data} />
+                </div>
+                <ButtonWithModal
+                  onSave={(data) => setFieldValue('stockAdjustment', [...values.stockAdjustment, data])}
+                />
+                {errors.stockAdjustment && touched.stockAdjustment && (
+                  <span className="text-xs text-red-500">{errors.stockAdjustment}</span>
+                )}
               </div>
             </div>
-            {errors.invoiceType && touched.invoiceType && (
-              <span className="text-xs text-red-500">{errors.invoiceType}</span>
-            )}
+          </div>
+          <div className="w-4/12">
+            <div className="border p-4 rounded-md shadow-md flex flex-wrap mb-4">
+              <div className="w-full px-2 mb-3">
+                <label className="mb-1 inline-block">Harga total</label>
+                <p className="text-2xl font-bold">{formatToIDR(totalPrice)}</p>
+              </div>
 
-            {errors.invoiceNumber && touched.invoiceNumber && (
-              <span className="text-xs text-red-500">{errors.invoiceNumber}</span>
-            )}
-          </div>
-          <div className="w-6/12 px-2 mb-3" />
-          <div className="w-6/12 px-2 mb-3">
-            <WithLabelAndError required touched={touched} errors={errors} name="supplier" label="Nama Supplier">
-              <SelectSupplier
-                onChange={(val, action) => {
-                  setFieldValue('supplier', val);
-                  setFieldValue('isNewSupplier', action.action === 'create-option');
-                }}
-                value={values.supplier}
-              />
-            </WithLabelAndError>
-          </div>
+              <div className="px-2 mb-2">
+                <span className="text-lg font-bold">Pembayaran</span>
+              </div>
 
-          <div className="w-3/12 px-2 mb-3">
-            <label className="mb-1 inline-block">Tanggal masuk</label>
-            <DatePickerComponent
-              id="dateIn"
-              name="dateIn"
-              selected={values.dateIn}
-              disabled={isSubmitting}
-              onChange={(date) => setFieldValue('dateIn', date)}
-            />
-            {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn}</span>}
-          </div>
-          <div className="w-3/12 px-2 mb-3">
-            <label className="mb-1 inline-block">Catatan</label>
-            <TextField
-              id="memo"
-              name="memo"
-              value={values.memo}
-              placeholder="Masukan catatan"
-              disabled={isSubmitting}
-              onChange={handleChange}
-              hasError={!!errors.memo}
-            />
-            {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
-          </div>
+              {values?.payments?.map((value, idx) => {
+                return (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <div className="pt-3 pb-3 flex flex-wrap" key={`${value.paymentMethod.value}-${idx}`}>
+                    <PaymentMethod
+                      errors={errors}
+                      touched={touched}
+                      isSubmitting={isSubmitting}
+                      values={values}
+                      setFieldValue={setFieldValue}
+                      index={idx}
+                    />
+                  </div>
+                );
+              })}
+              {values?.payments?.length < 2 && (
+                <Button
+                  variant="outlined"
+                  className="w-full mt-2"
+                  Icon={<Plus width={24} height={24} />}
+                  onClick={() => {
+                    setFieldValue('payments', [
+                      ...values.payments,
+                      {
+                        paymentMethod: { value: 'cash', label: 'Cash' },
+                        payAmount: null,
+                        paymentDue: null,
+                      },
+                    ]);
+                  }}
+                >
+                  Tambah metode pembayaran
+                </Button>
+              )}
 
-          <div className="w-full px-2 mb-3">
-            <div className="mb-4">
-              <Table columns={columns} data={data} />
+              <div className="flex items-end mt-8">
+                <Button onClick={() => back()} variant="secondary" className="mr-4">
+                  Batalkan
+                </Button>
+                <Button type="submit">Bayar</Button>
+              </div>
             </div>
-            <ButtonWithModal onSave={(data) => setFieldValue('stockAdjustment', [...values.stockAdjustment, data])} />
-            {errors.stockAdjustment && touched.stockAdjustment && (
-              <span className="text-xs text-red-500">{errors.stockAdjustment}</span>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-8 flex justify-between">
-          {values?.payments?.map((values, idx) => {
-            return (
-              <PaymentMethod
-                values={values}
-                setFieldValue={setFieldValue}
-                key={values.paymentMethod.value}
-                index={idx}
-              />
-            );
-          })}
-          {values.payments.length < 2 && (
-            <Button>
-              <Plus width={24} height={24} />
-              Tambah Metode Pembayaran
-            </Button>
-          )}
-
-          <div className="flex items-end">
-            <Button onClick={() => back()} variant="secondary" className="mr-4">
-              Batalkan
-            </Button>
-            <Button type="submit">Tambah Barang</Button>
           </div>
         </div>
       </form>
@@ -321,47 +367,11 @@ const AddStockPage: NextPage = () => {
   );
 };
 
-const PaymentMethod: React.FC<{
-  values: any;
-  setFieldValue: <T>(key: string, value: T) => void;
-  index: number;
-}> = ({ values, setFieldValue, index }) => {
-  return (
-    <div className="mr-4">
-      <label className="mb-1 block">Metode pembayaran</label>
-      <div className="flex">
-        <ThemedSelect
-          className="mr-4"
-          variant="contained"
-          name="paymentMethod"
-          onChange={(val) => {
-            setFieldValue('paymentMethod', val);
-          }}
-          value={values.paymentMethod}
-          additionalStyle={{
-            control: (provided) => ({ ...provided, minWidth: 240 }),
-          }}
-          options={PAYMENT_METHOD_OPTIONS}
-        />
-        {(values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[1].value ||
-          values.paymentMethod.value === PAYMENT_METHOD_OPTIONS[2].value) && (
-          <DatePickerComponent
-            name="paymentDue"
-            selected={values.paymentDue}
-            onChange={(date) => setFieldValue(`payments.[${index}].paymentDue`, date)}
-          />
-        )}
-      </div>
-    </div>
-  );
-};
-
 type ButtonWithModalFormValues = Omit<
   AddStockInTableValue,
-  'paymentDue' | 'paymentMethod' | 'item_name' | 'buyPrice' | 'discount' | 'qty' | 'supplier'
+  'paymentDue' | 'paymentMethod' | 'item_name' | 'discount' | 'buyPrice' | 'qty' | 'supplier'
 > & {
   buyPrice: number | string;
-  discount: number | string;
   item: Partial<Option<Item>> | null;
   qty: number | string;
   isNew: boolean;
@@ -378,7 +388,6 @@ const ButtonWithModal: React.FC<{
   const initialValues: ButtonWithModalFormValues = initVal || {
     item: null,
     buyPrice: '',
-    discount: '',
     qty: '',
     unit: '',
     memo: '',
@@ -433,15 +442,15 @@ const ButtonWithModal: React.FC<{
                   </WithLabelAndError>
                 </div>
                 <div className="w-4/12 mb-3 px-2">
-                  <WithLabelAndError label="ID Barang" name="itemId" errors={errors} touched={touched}>
-                    <TextField name="itemId" value={values.itemId} disabled={!values?.isNew} onChange={handleChange} />
+                  <WithLabelAndError label="ID Barang" name="itemId" errors={errors} touched={touched} required>
+                    <TextField name="itemId" value={values.itemId} onChange={handleChange} />
                   </WithLabelAndError>
                 </div>
 
                 <div className="w-full mb-3 px-2">
-                  <span className="block">Harga jual sebelumnya:</span>
+                  <span className="block">Harga beli sebelumnya:</span>
                   <span className="text-xl font-bold">
-                    {itemData?.data?.item?.sell_price ? formatToIDR(itemData?.data?.item?.sell_price ?? 0) : '-'}
+                    {itemData?.data?.item?.buy_price ? formatToIDR(itemData?.data?.item?.buy_price ?? 0) : '-'}
                   </span>
                 </div>
                 <div className="w-8/12 mb-3 px-2">
@@ -451,17 +460,6 @@ const ButtonWithModal: React.FC<{
                       value={values.buyPrice}
                       onChange={(val) => {
                         setFieldValue('buyPrice', val);
-                      }}
-                    />
-                  </WithLabelAndError>
-                </div>
-                <div className="w-4/12 mb-3 px-2">
-                  <WithLabelAndError label="Diskon" name="discount" errors={errors} touched={touched}>
-                    <CurrencyTextField
-                      name="discount"
-                      value={values.discount}
-                      onChange={(val) => {
-                        setFieldValue('discount', val);
                       }}
                     />
                   </WithLabelAndError>

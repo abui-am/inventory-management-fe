@@ -23,7 +23,15 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
   const queryClientRef = useRef<null | QueryClient>(null);
 
   if (!queryClientRef.current) {
-    queryClientRef.current = new QueryClient();
+    queryClientRef.current = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: 1000 * 60 * 5,
+          cacheTime: 1000 * 60 * 5,
+          refetchOnWindowFocus: false,
+        },
+      },
+    });
   }
 
   return (

@@ -16,6 +16,7 @@ export const useCreateStockIn = (): UseMutationResult<
 > => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
+  const query = useQueryClient();
   const mutator = useMutation(
     ['createStockin'],
     async (data: CreateStockInBody) => {
@@ -32,6 +33,8 @@ export const useCreateStockIn = (): UseMutationResult<
     },
     {
       onSuccess: (data) => {
+        query.invalidateQueries('transactions');
+        query.invalidateQueries('ledgers');
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {

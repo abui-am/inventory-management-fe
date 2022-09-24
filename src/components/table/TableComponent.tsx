@@ -165,12 +165,9 @@ export const DetailSale: React.FC<{
 };
 
 const ItemInfo: React.FC<{
-  info: Pick<
-    TransactionData,
-    'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'payments' | 'items' | 'discount'
-  >;
+  info: Pick<TransactionData, 'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'items' | 'discount'>;
 }> = ({ info }) => {
-  const { created_at, payments, transaction_code, invoice_number, discount } = info;
+  const { created_at, payments, transaction_code, invoice_number, discount, pa } = info;
   return (
     <>
       <div className="flex justify-between mb-4">
@@ -187,16 +184,18 @@ const ItemInfo: React.FC<{
         <span>{invoice_number}</span>
       </div>
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Metode Pembayaran</h6>
-        {/* <span>{payment_method}</span> */}
-      </div>
-      <div className="flex justify-between mb-4">
         <h6 className="text-blueGray-600">Discount:</h6>
         <span>{formatToIDR(discount)}</span>
       </div>
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Pembayaran:</h6>
-        <span>{formatToIDR(payments[0].payment_price)}</span>
+        <h6 className="text-blueGray-600">Pembayaran (metode):</h6>
+        <div>
+          {payments?.map((payment) => (
+            <p key={payment.payment_method + payment.cash}>{`${formatToIDR(payment?.payment_price)} (${
+              payment?.payment_method
+            })`}</p>
+          ))}
+        </div>
       </div>
     </>
   );

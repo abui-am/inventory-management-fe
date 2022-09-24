@@ -3,7 +3,11 @@ import clsx from 'clsx';
 import React from 'react';
 import { Check, X } from 'react-bootstrap-icons';
 
-const Bubble: React.FC<{ isValid: boolean }> = ({ isValid }) => {
+type BubbleProps = {
+  isValid: boolean;
+};
+
+const Bubble = ({ isValid }: BubbleProps): JSX.Element => {
   return (
     <div
       className={clsx(

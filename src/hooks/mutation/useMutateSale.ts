@@ -36,6 +36,8 @@ export const useCreateSale = (): UseMutationResult<
       onSuccess: (data) => {
         toast.success(data.message);
         query.invalidateQueries('transactions');
+        query.invalidateQueries('items');
+        query.invalidateQueries('ledgers');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

@@ -108,22 +108,23 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
         <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup, i) => {
             return (
-              <tr {...headerGroup.getHeaderGroupProps()} className="table-themed">
+              <tr {...headerGroup.getHeaderGroupProps()} className="table-themed break-words">
                 {headerGroup.headers.map((column: any) => {
                   return (
                     <th
                       {...column.getHeaderProps(
                         enableAutoSort
                           ? {
-                              className: clsx('py-6 px-4 text-left', column.collapse ? 'collapse' : ''),
+                              className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
                               ...column.getSortByToggleProps?.(),
                             }
                           : {
-                              className: clsx('py-6 px-4 text-left', column.collapse ? 'collapse' : ''),
+                              className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
                             }
                       )}
                       style={{
                         width: column.width,
+                        wordBreak: 'break-word',
                       }}
                     >
                       <span
@@ -150,6 +151,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                   !withoutStripe && index % 2 === 0 ? 'bg-blueGray-100' : '',
                   'rounded-lg',
                   'table-themed',
+                  'break-words',
                   withoutStripe && 'border-b border-blueGray-300'
                 )}
               >

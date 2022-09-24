@@ -141,7 +141,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     last_page_url,
   } = dataTrasaction?.data?.transactions ?? {};
   const data = dataRes.map(
-    ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }) => ({
+    ({ transaction_code, created_at, supplier, payment_method, pic, items, id, status, payments, ...props }) => ({
       col1: transaction_code,
       col2: formatDate(created_at, { withHour: true }),
       detail: (
@@ -149,10 +149,11 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
           <label className="block">Supplier:</label>
           <span className="text-base font-bold block mb-2">{supplier?.name}</span>
           <label className="block">Pembayaran (metode):</label>
-          <span className="text-base font-bold block mb-2">
-            {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))} (
-            {formatPaymentMethod(payment_method)})
-          </span>
+          {payments?.map((payment) => (
+            <span className="text-base font-bold block mb-2" key={payment.payment_method + payment.payment_price}>
+              {formatToIDR(payment.payment_price)} ({formatPaymentMethod(payment.payment_method)})
+            </span>
+          ))}
         </div>
       ),
       // col3: supplier?.name,
@@ -177,7 +178,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         </div>
       ),
       col8: (
-        <Action {...{ transaction_code, created_at, supplier, payment_method, pic, items, id, status, ...props }} />
+        <Action
+          {...{ transaction_code, payments, created_at, supplier, payment_method, pic, items, id, status, ...props }}
+        />
       ),
     })
   );

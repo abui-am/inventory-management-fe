@@ -28,7 +28,7 @@ export interface CreateTransactionBody {
   purchase_date: string;
   note: string;
   items: Item[];
-  payments?: Partial<Payment>[];
+  payments: Partial<Payment>[];
   transactionable_type: string;
 }
 

@@ -10,10 +10,16 @@ import useMyQuery from './useMyQuery';
 const useFetchItemById = (id: string): UseQueryResult<BackendRes<ItemResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
-  const fetcher = useMyQuery(['itemById', id, roles], async () => {
-    const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin', 'warehouse-admin']).get(`/items/${id}`);
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    ['itemById', id, roles],
+    async () => {
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin', 'warehouse-admin']).get(`/items/${id}`);
+      return res.data;
+    },
+    {
+      enabled: !!id,
+    }
+  );
 
   return fetcher;
 };
@@ -27,6 +33,7 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
     trashed: string;
     order_by: Record<string, string>;
     where: Record<string, unknown>;
+    where_greater_equal: Record<string, unknown>;
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<ItemsResponse>>
 ): UseQueryResult<BackendRes<ItemsResponse>> => {

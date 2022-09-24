@@ -44,7 +44,7 @@ const Supplier: NextPage<unknown> = () => {
   const data = dataRes.map(({ address, phone_number, name, total_receivable, id }) => ({
     name: `${name ?? ''}`,
     phoneNumber: phone_number && `+${phone_number}`,
-    totalReceivable: total_receivable ? formatCurrency({ value: total_receivable }) : '-',
+    totalCompanyDebt: total_receivable ? formatCurrency({ value: total_receivable }) : '-',
     address,
     action: (
       <div className="flex">
@@ -78,8 +78,8 @@ const Supplier: NextPage<unknown> = () => {
         accessor: 'phoneNumber', // accessor is the "key" in the data
       },
       {
-        Header: 'Total piutang',
-        accessor: 'totalReceivable', // accessor is the "key" in the data
+        Header: 'Total utang',
+        accessor: 'totalCompanyDebt', // accessor is the "key" in the data
       },
       {
         Header: 'Aksi',

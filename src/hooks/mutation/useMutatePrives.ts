@@ -30,6 +30,7 @@ export const useCreatePrive = (): UseMutationResult<BackendRes<any>, unknown, an
       onSuccess: (data) => {
         toast.success(data.message);
         query.invalidateQueries('prives');
+        query.invalidateQueries('ledgers');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

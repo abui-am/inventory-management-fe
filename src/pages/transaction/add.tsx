@@ -5,18 +5,20 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useMemo, useState } from 'react';
 import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { CurrencyTextField, DatePickerComponent, TextField, ThemedSelect, WithLabelAndError } from '@/components/Form';
+import { CurrencyTextField, DatePickerComponent, TextField, WithLabelAndError } from '@/components/Form';
 import ItemToBuyForm, { ItemToBuyFormValues } from '@/components/form/ItemToBuyForm';
-import Label from '@/components/Label';
 import Modal, { ModalActionWrapper } from '@/components/Modal';
 import { SelectCustomer, SelectSender } from '@/components/Select';
 import Table from '@/components/Table';
+import PaymentMethod, { Payment } from '@/components/transaction/PaymentMethod';
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateSale } from '@/hooks/mutation/useMutateSale';
 import { Option } from '@/typings/common';
+import { calculateChange } from '@/utils/change';
 import { formatToIDR } from '@/utils/format';
 import { validationSchemaTransaction } from '@/utils/validation/transaction';
 
@@ -31,12 +33,6 @@ export type AddStockInTableValue = {
   paymentDue: Date;
   supplier: Option;
   totalPrice: number;
-};
-
-export type Payment = {
-  paymentMethod: Option;
-  paymentDue: Date | string;
-  payAmount: number | null;
 };
 
 export type AddStockValue = {
@@ -73,26 +69,24 @@ const AddTransactionPage: NextPage = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [isOpenSummary, setIsOpenSummary] = useState(false);
 
-  const { values, resetForm, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
+  const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit, resetForm } = useFormik({
     validationSchema: validationSchemaTransaction,
     initialValues,
     validateOnChange: true,
     onSubmit: async (data, { setSubmitting }) => {
       try {
         setSubmitting(true);
-        await mutateAsync({
-          transactionable_type: 'customers',
+
+        const payload = {
+          transactionable_type: 'customers' as const,
           payments: data?.payments?.map((val) => ({
             payment_method: val?.paymentMethod.value,
             cash: +(val?.payAmount ?? '') ?? 0,
-            change:
-              val.paymentMethod.value === 'debt' || val?.paymentMethod.value === 'current_account'
-                ? 0
-                : +(val?.payAmount ?? '') - data.totalPrice,
+            change: 0,
             maturity_date:
-              val?.paymentMethod.value !== 'cash'
+              val?.paymentMethod.value !== 'cash' && val?.paymentMethod.value !== 'bank'
                 ? dayjs(val.paymentDue).format('YYYY-MM-DD HH:mm:ss')
-                : dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                : undefined,
           })),
           discount: data?.discount ?? 0,
           note: data.memo,
@@ -108,10 +102,30 @@ const AddTransactionPage: NextPage = () => {
               note: '',
             };
           }),
-        });
+        };
+
+        // find index where payment method is cash
+        const cashIndex = payload.payments.findIndex((val) => val.payment_method === 'cash');
+
+        if (cashIndex !== -1) {
+          const change = calculateChange(
+            payload.payments.reduce((acc, val) => acc + val.cash, 0),
+            data.totalPrice,
+            values?.discount ?? 0
+          );
+
+          if (change <= 0) {
+            console.log(change, data.totalPrice - (values?.discount ?? 0));
+            toast.error('Uang yang dibayarkan kurang dari total harga');
+            return;
+          }
+
+          payload.payments[cashIndex].change = change;
+        }
+
+        await mutateAsync(payload);
 
         setSubmitting(false);
-
         setIsOpenSummary(true);
       } catch (e) {
         console.log(e);
@@ -282,34 +296,46 @@ const AddTransactionPage: NextPage = () => {
                 <p className="text-2xl font-bold">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
               </div>
 
-              {values?.payments?.map((value, index) => {
-                return (
-                  <PaymentMethod
-                    isSubmitting={isSubmitting}
-                    setFieldValue={setFieldValue}
-                    errors={errors}
-                    touched={touched}
-                    values={values}
-                    index={index}
-                    key={value.paymentMethod.value}
-                  />
-                );
-              })}
-              <Button
-                Icon={<Plus width={24} height={24} />}
-                onClick={() => {
-                  setFieldValue('payments', [
-                    ...values.payments,
-                    {
-                      paymentMethod: { value: 'cash', label: 'Cash' },
-                      payAmount: 0,
-                      paymentDue: null,
-                    },
-                  ]);
-                }}
-              >
-                Tambah metode pembayaran
-              </Button>
+              <div className="px-2 mb-2">
+                <span className="text-lg font-bold">Pembayaran</span>
+              </div>
+
+              <div className="w-full px-2 flex flex-wrap">
+                {values?.payments?.map((value, index) => {
+                  return (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <div className="pt-3 pb-3 flex flex-wrap" key={`${value.paymentMethod.value}${index}`}>
+                      <PaymentMethod
+                        isSubmitting={isSubmitting}
+                        setFieldValue={setFieldValue}
+                        errors={errors}
+                        touched={touched}
+                        values={values}
+                        index={index}
+                      />
+                    </div>
+                  );
+                })}
+                {values?.payments?.length < 2 && (
+                  <Button
+                    variant="outlined"
+                    className="w-full mt-2"
+                    Icon={<Plus width={24} height={24} />}
+                    onClick={() => {
+                      setFieldValue('payments', [
+                        ...values.payments,
+                        {
+                          paymentMethod: { value: 'cash', label: 'Cash' },
+                          payAmount: null,
+                          paymentDue: null,
+                        },
+                      ]);
+                    }}
+                  >
+                    Tambah metode pembayaran
+                  </Button>
+                )}
+              </div>
 
               <div className="w-full px-2 mb-3">
                 <Button className="mt-4" fullWidth type="submit">
@@ -318,7 +344,9 @@ const AddTransactionPage: NextPage = () => {
                 <ModalSummary
                   onClose={() => {
                     setIsOpenSummary(false);
-                    resetForm();
+                    resetForm({
+                      values: initialValues,
+                    });
                   }}
                   isOpen={isOpenSummary}
                   values={values}
@@ -358,64 +386,6 @@ const AddTransactionPage: NextPage = () => {
   );
 };
 
-const PaymentMethod: React.FC<{
-  index: number;
-  values: any;
-
-  setFieldValue: (key: string, val: any) => void;
-  isSubmitting: boolean;
-  errors: Record<string, any>;
-  touched: Record<string, any>;
-}> = ({ index, values, setFieldValue, isSubmitting, errors, touched }) => {
-  console.log(values);
-  const value = values.payments[index];
-  return (
-    <>
-      <div className="w-full px-2 mb-4 flex justify-between ">
-        <div className="mr-4">
-          <label className="mb-1 block">Metode pembayaran</label>
-          <div className="flex">
-            <ThemedSelect
-              className="mr-4"
-              variant="contained"
-              name="paymentMethod"
-              onChange={(val) => {
-                setFieldValue(`payments.[${index}].paymentMethod`, val);
-              }}
-              value={value.paymentMethod}
-              additionalStyle={{
-                control: (provided) => ({ ...provided, minWidth: 240 }),
-              }}
-              options={PAYMENT_METHOD_OPTIONS}
-            />
-            {(value.paymentMethod === PAYMENT_METHOD_OPTIONS[1].value ||
-              value.paymentMethod === PAYMENT_METHOD_OPTIONS[2].value) && (
-              <DatePickerComponent
-                name="paymentDue"
-                selected={values.paymentDue}
-                onChange={(date) => setFieldValue(`payments.[${index}].paymentDue`, date)}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="w-full px-2 mb-3">
-        <Label required>Uang yang dibayarkan</Label>
-        <CurrencyTextField
-          id="payAmount"
-          name="payAmount"
-          value={value.payAmount}
-          placeholder="Masukan jumlah bayaran"
-          disabled={isSubmitting}
-          onChange={(val) => {
-            setFieldValue(`payments.[${index}].payAmount`, val);
-          }}
-        />
-        {errors.payAmount && touched.payAmount && <span className="text-xs text-red-500">{errors.payAmount}</span>}
-      </div>
-    </>
-  );
-};
 const AddNewItem: React.FC<{
   onSave: (values: ItemToBuyFormValues[]) => void;
   values: ItemToBuyFormValues[];
@@ -458,18 +428,25 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
         <label className="">Harga Total</label>
         <p className="font-bold mb-4">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
         <label className="">Dibayarkan</label>
-        {/* <p className="font-bold mb-4">{formatToIDR(+values.payAmount)}</p> */}
-        {/* {values.paymentMethod.value === 'debt' || values.paymentMethod.value === 'current_account' ? (
-          <>
-            <label className="">Pelanggan berhutang</label>
-            <p className="text-2xl font-bold mb-4">{formatToIDR(+finalPrice - +values.payAmount)}</p>
-          </>
-        ) : (
-          <>
-            <label className="">Kembalian</label>
-            <p className="text-2xl font-bold mb-4">{formatToIDR(+values.payAmount - finalPrice)}</p>
-          </>
-        )} */}
+        {values.payments?.map((val) => {
+          return (
+            <p className="font-bold mb-4" key={val.payAmount + val.paymentDue?.toString() + val.paymentMethod}>
+              {formatToIDR(+(val?.payAmount ?? 0))}({val.paymentMethod.label})
+            </p>
+          );
+        })}
+
+        <p>
+          Kembalian :{' '}
+          {formatToIDR(
+            calculateChange(
+              values.payments.reduce((prev, curr) => prev + (curr?.payAmount ?? 0), 0),
+              values.totalPrice,
+              values.discount ?? 0
+            )
+          )}
+        </p>
+
         <ModalActionWrapper>
           <Button className="mr-2" variant="secondary" onClick={handleClick}>
             Ke Halaman Transaksi

@@ -56,6 +56,7 @@ const useAuthMutation = (type: 'login' | 'register') => {
             expires: data?.rememberMe ? 30 : 1,
           });
           queryClient.invalidateQueries();
+
           toast.success(message);
           router.push('/');
         }

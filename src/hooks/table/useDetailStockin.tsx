@@ -19,7 +19,6 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
         col15: unit,
         col2: pivot.quantity,
         col3: formatToIDR(pivot.purchase_price),
-        col4: formatToIDR(pivot.discount as number),
         col5: formatToIDR(pivot.total_price),
       }));
     }
@@ -77,7 +76,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
           {
             Header: 'Harga',
             accessor: 'col3',
-            width: '20%',
+            width: '30%',
             style: {
               textAlign: 'right',
               display: 'block',
@@ -86,18 +85,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
               textAlign: 'right',
             },
           },
-          {
-            Header: 'Diskon',
-            accessor: 'col4',
-            width: '10%',
-            style: {
-              textAlign: 'right',
-              display: 'block',
-            },
-            bodyStyle: {
-              textAlign: 'right',
-            },
-          },
+
           {
             Header: 'Total Harga',
             accessor: 'col5',

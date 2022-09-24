@@ -30,6 +30,7 @@ export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditRespons
     {
       onSuccess: (data) => {
         query.invalidateQueries(['audits']);
+        query.invalidateQueries('ledgers');
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {

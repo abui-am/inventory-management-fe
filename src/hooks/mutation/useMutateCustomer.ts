@@ -14,6 +14,7 @@ export const useCreateCustomer = (): UseMutationResult<
   CreateCustomerBody
 > => {
   const { data: dataSelf } = useFetchMyself();
+  const query = useQueryClient();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
     ['createCustomer'],
@@ -32,6 +33,7 @@ export const useCreateCustomer = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
+        query.invalidateQueries('ledgers');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
