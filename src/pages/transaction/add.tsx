@@ -114,7 +114,7 @@ const AddTransactionPage: NextPage = () => {
             values?.discount ?? 0
           );
 
-          if (change <= 0) {
+          if (change < 0) {
             console.log(change, data.totalPrice - (values?.discount ?? 0));
             toast.error('Uang yang dibayarkan kurang dari total harga');
             return;
