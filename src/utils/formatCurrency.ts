@@ -5,7 +5,7 @@ type Props = {
 };
 
 const formatCurrency = ({ value, locale = 'id', prefix = 'IDR' }: Props) => {
-  if (!value) return '';
+  if (!value && value !== 0) return '';
   const formatted = new Intl.NumberFormat(locale).format(value);
   return `${prefix !== 'none' ? `${prefix} ` : ''}${formatted}`;
 };

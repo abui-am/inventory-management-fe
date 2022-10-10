@@ -31,6 +31,7 @@ export const useCreateExpense = (): UseMutationResult<BackendRes<any>, unknown, 
         toast.success(data.message);
         query.invalidateQueries('expenses');
         query.invalidateQueries('ledgers');
+        query.invalidateQueries('income-report');
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
