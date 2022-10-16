@@ -8,10 +8,10 @@ import formatCurrency from '@/utils/formatCurrency';
 const TableIncomeReport: React.FC = () => {
   const { data: dataItems } = useFetchIncomeReport({
     date_end: dayjs().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
-    date_start: dayjs().subtract(1).startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+    date_start: dayjs().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
   });
 
-  const data = dataItems?.data;
+  const data = dataItems?.data?.income_reports;
 
   return (
     <section className="flex justify-center">

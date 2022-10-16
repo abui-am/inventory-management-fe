@@ -11,9 +11,11 @@ export type Expense = {
 };
 
 export type IncomeReport = {
-  income: Income;
-  expenses: Expense[];
-  total_income: number;
-  total_expense: number;
-  total_profit: number;
+  income_reports: {
+    income: Income;
+    expenses: Expense[];
+    total_income: number;
+    total_expense: number;
+    total_profit: number;
+  };
 };
