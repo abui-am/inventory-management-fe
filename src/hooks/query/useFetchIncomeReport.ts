@@ -19,8 +19,8 @@ export const useFetchIncomeReport = <TQueryFnData = unknown, TError = unknown>(
     date_end: string;
     where: Record<string, unknown>;
   }> = {},
-  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<IncomeReport[]>>
-): UseQueryResult<BackendRes<IncomeReport[]>> => {
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<IncomeReport>>
+): UseQueryResult<BackendRes<IncomeReport>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(

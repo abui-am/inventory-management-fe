@@ -11,7 +11,7 @@ const TableIncomeReport: React.FC = () => {
     date_start: dayjs().subtract(1).startOf('day').format('YYYY-MM-DD HH:mm:ss'),
   });
 
-  const data = dataItems?.data[0];
+  const data = dataItems?.data;
 
   return (
     <section className="flex justify-center">
