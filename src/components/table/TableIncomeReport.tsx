@@ -64,7 +64,7 @@ const TableIncomeReport: React.FC = () => {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between w-full mb-2 p-2  rounded-lg bg-blue-50 border">
+            <div className="flex justify-between w-full mb-2 p-2  rounded-lg bg-gray-50 border">
               <label>Total Pendapatan: </label>
               <span>
                 <b>{formatCurrency({ value: data?.total_income ?? 0 })}</b>
@@ -91,7 +91,7 @@ const TableIncomeReport: React.FC = () => {
                   })}
                 </div>
               )}
-              <div className="flex justify-between w-full mb-2 p-2  rounded-lg bg-blue-50 border">
+              <div className="flex justify-between w-full mb-2 p-2  rounded-lg bg-gray-50-50 border">
                 <label>Total Beban: </label>
                 <span>
                   <b>{formatCurrency({ value: data?.total_expense ?? 0 })}</b>
