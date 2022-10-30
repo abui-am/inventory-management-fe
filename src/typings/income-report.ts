@@ -12,7 +12,7 @@ export type Expense = {
 
 export type IncomeReport = {
   income_report: {
-    income: Income;
+    incomes: Income;
     expenses: Expense[];
     total_income: number;
     total_expense: number;

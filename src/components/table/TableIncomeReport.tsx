@@ -47,19 +47,19 @@ const TableIncomeReport: React.FC = () => {
               <div className="flex justify-between w-full mb-2">
                 <label>Penjualan: </label>
                 <span>
-                  <b>{formatCurrency({ value: data?.income?.sales ?? 0 })}</b>
+                  <b>{formatCurrency({ value: data?.incomes?.sales ?? 0 })}</b>
                 </span>
               </div>
               <div className="flex justify-between w-full mb-2">
                 <label>HPP:</label>
                 <span>
-                  <b>{formatCurrency({ value: data?.income?.hpp ?? 0 })}</b>
+                  <b>{formatCurrency({ value: data?.incomes?.hpp ?? 0 })}</b>
                 </span>
               </div>
               <div className="flex justify-between w-full mb-2">
                 <label>Diskon Penjualan: </label>
                 <span>
-                  <b>{formatCurrency({ value: data?.income?.discounts ?? 0 })}</b>
+                  <b>{formatCurrency({ value: data?.incomes?.discounts ?? 0 })}</b>
                 </span>
               </div>
               <div className="flex justify-between w-full mb-2">
@@ -67,7 +67,7 @@ const TableIncomeReport: React.FC = () => {
                 <span>
                   <b>
                     {formatCurrency({
-                      value: data?.income?.discounts ?? 0 + (data?.income?.sales ?? 0) + (data?.income?.hpp ?? 0),
+                      value: data?.incomes?.discounts ?? 0 + (data?.incomes?.sales ?? 0) + (data?.incomes?.hpp ?? 0),
                     })}
                   </b>
                 </span>
