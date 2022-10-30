@@ -26,6 +26,7 @@ const TableIncomeReport: React.FC = () => {
             <span className="text-gray-900 font-bold">Tanggal:</span>
           </label>
           <DateRangePicker
+            showTimeSelect
             values={[from, to]}
             onChangeFrom={(date) => {
               setFrom(date);
@@ -62,16 +63,12 @@ const TableIncomeReport: React.FC = () => {
                   <b>{formatCurrency({ value: data?.incomes?.discounts ?? 0 })}</b>
                 </span>
               </div>
-              <div className="flex justify-between w-full mb-2">
-                <label>Total:</label>
-                <span>
-                  <b>
-                    {formatCurrency({
-                      value: (data?.incomes?.discounts ?? 0) + (data?.incomes?.sales ?? 0) + (data?.incomes?.hpp ?? 0),
-                    })}
-                  </b>
-                </span>
-              </div>
+            </div>
+            <div className="flex justify-between w-full mb-2 p-2  rounded-lg bg-blue-50 border">
+              <label>Total Pendapatan: </label>
+              <span>
+                <b>{formatCurrency({ value: data?.total_income ?? 0 })}</b>
+              </span>
             </div>
             <div>
               <h1 className="text-lg text-gray-900 font-bold mb-2">Beban</h1>
@@ -94,26 +91,19 @@ const TableIncomeReport: React.FC = () => {
                   })}
                 </div>
               )}
-            </div>
-            <div className="mt-4">
-              <h1 className="text-lg text-gray-900 font-bold mb-2">Total</h1>
-              <Divider />
-
-              <div className="flex justify-between w-full mb-2">
+              <div className="flex justify-between w-full mb-2 p-2  rounded-lg bg-blue-50 border">
                 <label>Total Beban: </label>
                 <span>
                   <b>{formatCurrency({ value: data?.total_expense ?? 0 })}</b>
                 </span>
               </div>
+            </div>
+            <div className="mt-8">
               <div className="flex justify-between w-full mb-2">
-                <label>Total Pendapatan: </label>
-                <span>
-                  <b>{formatCurrency({ value: data?.total_income ?? 0 })}</b>
-                </span>
-              </div>
-              <div className="flex justify-between w-full mb-2">
-                <label>Total Profit: </label>
-                <span>
+                <label className="text-lg">
+                  <b>Total Profit:</b>{' '}
+                </label>
+                <span className="text-lg">
                   <b>{formatCurrency({ value: data?.total_profit ?? 0 })}</b>
                 </span>
               </div>

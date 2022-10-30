@@ -132,11 +132,14 @@ const Checkbox: React.FC<InputHTMLAttributes<unknown>> = ({ children, ...props }
   );
 };
 
-const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...props }) => {
+const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, showTimeSelect, ...props }) => {
+  const ExampleCustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: string) => void }) => (
+    <input value={value} onChange={(e) => onChange(e.target.value)} style={{ border: 'solid 1px pink' }} />
+  );
   return (
     <div className="relative customDatePickerWidth">
       <DatePicker
-        dateFormat="dd/MM/yyyy"
+        dateFormat={showTimeSelect ? 'dd/MM/yyy HH:mm:ss' : 'dd/MM/yyyy'}
         className={clsx(
           'pl-11 border border-gray-300',
           'h-11 w-full rounded-md px-3 outline-none',
@@ -144,6 +147,8 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, ...pro
           'transition-all duration-150 ease-in',
           className
         )}
+        customTimeInput={ExampleCustomTimeInput}
+        showTimeSelect={showTimeSelect}
         {...props}
       />
       <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">
@@ -157,7 +162,8 @@ const DateRangePicker: React.FC<{
   values: [Date, Date];
   onChangeFrom: (date: Date) => void;
   onChangeTo: (date: Date) => void;
-}> = ({ values, onChangeFrom, onChangeTo }) => {
+  showTimeSelect?: boolean;
+}> = ({ values, onChangeFrom, onChangeTo, showTimeSelect }) => {
   return (
     <div className="flex">
       <DatePickerComponent
@@ -165,6 +171,8 @@ const DateRangePicker: React.FC<{
         onChange={(date: Date) => {
           onChangeFrom(date);
         }}
+        timeIntervals={showTimeSelect ? 1 : undefined}
+        showTimeSelect={showTimeSelect}
       />
       <span className="ml-2 mr-2 h-full flex items-center">-</span>
       <DatePickerComponent
@@ -172,6 +180,7 @@ const DateRangePicker: React.FC<{
           onChangeTo(date);
         }}
         selected={values[1]}
+        showTimeSelect={showTimeSelect}
       />
     </div>
   );
