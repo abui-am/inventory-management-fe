@@ -144,7 +144,7 @@ const TableExpense: React.FC = () => {
                 }}
                 className="ml-4"
               >
-                Tambah Pengeluaran
+                Tambah Beban
               </Button>
             </div>
           </div>

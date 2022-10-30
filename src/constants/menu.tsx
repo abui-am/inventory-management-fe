@@ -148,7 +148,7 @@ const MENU_LIST = [
   {
     id: 'expense',
     slug: '/expense',
-    displayName: 'Pengeluaran',
+    displayName: 'Beban',
     title: 'Keuangan',
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:expense',

@@ -124,7 +124,7 @@ const CreateExpense: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Tulis Pengeluaran</Button>
+          <Button type="submit">Tulis Beban</Button>
         </div>
       </div>
     </form>
