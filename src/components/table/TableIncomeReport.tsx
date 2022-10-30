@@ -67,7 +67,7 @@ const TableIncomeReport: React.FC = () => {
                 <span>
                   <b>
                     {formatCurrency({
-                      value: data?.incomes?.discounts ?? 0 + (data?.incomes?.sales ?? 0) + (data?.incomes?.hpp ?? 0),
+                      value: (data?.incomes?.discounts ?? 0) + (data?.incomes?.sales ?? 0) + (data?.incomes?.hpp ?? 0),
                     })}
                   </b>
                 </span>
