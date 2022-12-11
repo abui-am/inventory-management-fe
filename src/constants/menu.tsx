@@ -161,6 +161,14 @@ const MENU_LIST = [
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:income-report',
   },
+  {
+    id: 'laporan-perubahan-modal',
+    slug: '/laporan-perubahan-modal',
+    displayName: 'Laporan Perubahan Modal',
+    title: 'Keuangan',
+    icon: (props = {}): JSX.Element => <Coin {...props} />,
+    permission: 'control:capital-change-report',
+  },
 ];
 
 export default MENU_LIST;

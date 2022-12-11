@@ -27,7 +27,8 @@ export type PermissionList =
   | 'control:customer'
   | 'control:convert-balance'
   | 'control:expense'
-  | 'control:income-report';
+  | 'control:income-report'
+  | 'control:capital-change-report';
 
 const PermissionContext = React.createContext<{ state: State } | undefined>(undefined);
 
@@ -63,6 +64,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:convert-balance',
           'control:expense',
           'control:income-report',
+          'control:capital-change-report',
         ];
         break;
 
