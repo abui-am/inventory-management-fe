@@ -1,16 +1,41 @@
 // import Link from 'next/link';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
+import { useCreateCapitalReport } from '@/hooks/mutation/useMutateCapitalReport';
+import { useFetchCapitalReportInfo } from '@/hooks/query/useFetchCapitalReportDate';
+import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
 import formatCurrency from '@/utils/formatCurrency';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
 import { TextField } from '../Form';
 
-const TableIncomeReport: React.FC = () => {
+const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = ({ isView = false, reportDate }) => {
   const [takeProfit, setTakeProfit] = useState(0);
+  const { data } = useFetchCapitalReportInfo({
+    report_date: reportDate,
+  });
+  const { data: dataLedgerAcc } = useFetchUnpaginatedLedgerAccounts({});
+  const dataModal = dataLedgerAcc?.data?.ledger_accounts?.find((val) => val.name === 'Modal');
+  const { mutateAsync } = useCreateCapitalReport();
+  const router = useRouter();
+  const handleClick = async () => {
+    if (takeProfit >= 0) {
+      await mutateAsync({
+        taken_profit: takeProfit,
+      });
+      toast.success('Berhasil membuat laporan perubahan modal');
+      router.push('/laporan-perubahan-modal');
+    }
+  };
 
+  const currentCapital = +(dataModal?.balance ?? 0);
+  const capitalStored = data?.data?.capital_reports?.find((val) => val.title === 'Modal Disetor')?.amount ?? 0;
+  const capitalDitahan = data?.data?.capital_reports?.find((val) => val.title === 'Laba Ditahan')?.amount ?? 0;
+  const prive = data?.data?.capital_reports?.find((val) => val.title === 'Prive')?.amount ?? 0;
   return (
     <>
       <section className="flex justify-center">
@@ -28,7 +53,7 @@ const TableIncomeReport: React.FC = () => {
             <div className="flex justify-between w-full mb-2">
               <h1 className="text-lg text-gray-900 font-bold mb-2">Modal Awal</h1>
               <span>
-                <b>{formatCurrency({ value: 129950000 })}</b>
+                <b>{formatCurrency({ value: currentCapital })}</b>
               </span>
             </div>
             <Divider />
@@ -37,26 +62,45 @@ const TableIncomeReport: React.FC = () => {
               <div className="flex justify-between w-full mb-2">
                 <label>Laba disetor: </label>
                 <span>
-                  <b>{formatCurrency({ value: 1000_000 ?? 0 })}</b>
+                  <b>
+                    {formatCurrency({
+                      value: capitalStored,
+                    })}
+                  </b>
                 </span>
               </div>
               <div className="flex justify-between w-full mb-2">
                 <label>Laba ditahan:</label>
                 <span>
-                  <b>{formatCurrency({ value: 6000_000 ?? 0 })}</b>
+                  <b>
+                    {formatCurrency({
+                      value: capitalDitahan,
+                    })}
+                  </b>
                 </span>
               </div>
               <div className="flex justify-between w-full mb-2">
                 <label>Prive: </label>
                 <span>
-                  <b>-{formatCurrency({ value: 4000_000 ?? 0 })}</b>
+                  <b>
+                    {formatCurrency({
+                      value: prive,
+                    })}
+                  </b>
                 </span>
               </div>
             </div>
-            <div className="flex justify-between w-full mb-2 p-2 rounded-lg items-center bg-gray-50 border">
-              <label>Laba diambil owner: </label>
-              <TextField placeholder="Masukan laba diambil" onChange={(e) => setTakeProfit(+e.target.value)} />
-            </div>
+
+            {!isView && (
+              <div className="flex justify-between w-full mb-2 p-2 rounded-lg items-center bg-gray-50 border">
+                <label>Laba diambil owner: </label>
+                <TextField
+                  placeholder="Masukan laba diambil"
+                  value={takeProfit}
+                  onChange={(e) => setTakeProfit(+e.target.value)}
+                />
+              </div>
+            )}
 
             <div className="mt-8">
               <div className="flex justify-between w-full mb-2">
@@ -64,13 +108,21 @@ const TableIncomeReport: React.FC = () => {
                   <b>Modal Akhir:</b>{' '}
                 </label>
                 <span className="text-lg">
-                  <b>{formatCurrency({ value: 129950000 + 1000_000 + 6000_000 - 4000_000 - takeProfit ?? 0 })}</b>
+                  <b>
+                    {formatCurrency({
+                      value: currentCapital + capitalDitahan + capitalStored - prive - takeProfit ?? 0,
+                    })}
+                  </b>
                 </span>
               </div>
             </div>
-            <div className="mt-8">
-              <Button fullWidth>Buat Laporan Perubahan Modal</Button>
-            </div>
+            {!isView && (
+              <div className="mt-8">
+                <Button onClick={handleClick} fullWidth>
+                  Buat Laporan Perubahan Modal
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>
