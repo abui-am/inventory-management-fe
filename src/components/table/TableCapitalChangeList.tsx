@@ -35,28 +35,20 @@ const TableCapitalChangeList: React.FC = () => {
     per_page: pageSize,
   });
 
-  const {
-    data: dataRes,
-    from,
-    to,
-    total,
-    links,
-    next_page_url,
-    last_page_url,
-    prev_page_url,
-  } = dataFetch?.data?.report_dates ?? {};
+  const { from, to, total, links, next_page_url, last_page_url, prev_page_url } = {} as any;
+
+  const dataRes = dataFetch?.data?.report_dates;
   const router = useRouter();
 
   const handleOpen = () => {
     router.push('/laporan-perubahan-modal/create');
   };
-
   const data =
-    dataRes?.map(({ report_date }) => ({
-      name: `Laporan ${formatDate(report_date)}`,
-      date: formatDate(report_date),
+    dataRes?.map(({ end_date, start_date }) => ({
+      name: `Laporan ${formatDate(end_date)}`,
+      date: `${start_date ? `${formatDate(start_date)} -` : ''} ${formatDate(end_date)}`,
       action: (
-        <Link href={`/laporan-perubahan-modal/${report_date}`}>
+        <Link href={`/laporan-perubahan-modal/${end_date}`}>
           <Button>
             <Eye />
           </Button>
@@ -126,7 +118,7 @@ const TableCapitalChangeList: React.FC = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}

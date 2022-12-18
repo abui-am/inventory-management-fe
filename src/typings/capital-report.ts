@@ -1,7 +1,8 @@
 import { Link } from './common';
 
 export type ReportDateData = {
-  report_date: string;
+  start_date: string;
+  end_date: string;
 };
 
 export interface ReportDates {
@@ -21,7 +22,7 @@ export interface ReportDates {
 }
 
 export interface CapitalReportDateReport {
-  report_dates: ReportDates;
+  report_dates: ReportDateData[];
 }
 
 export type CapitalReportData = {
@@ -31,6 +32,9 @@ export type CapitalReportData = {
 
 export interface CapitalReportsInfoResponse {
   capital_reports: CapitalReportData[];
+  end_date: string;
+  start_date: string;
+  total_capital: 170009;
 }
 
 export type CreateCapitalReportPayload = {

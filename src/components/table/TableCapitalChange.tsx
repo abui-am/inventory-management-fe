@@ -1,7 +1,7 @@
 // import Link from 'next/link';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateCapitalReport } from '@/hooks/mutation/useMutateCapitalReport';
@@ -32,10 +32,17 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
     }
   };
 
-  const currentCapital = +(dataModal?.balance ?? 0);
+  const currentCapital = reportDate
+    ? data?.data?.capital_reports?.find((val) => val.title === 'Modal Awal')?.amount ?? 0
+    : +(dataModal?.balance ?? 0);
   const capitalStored = data?.data?.capital_reports?.find((val) => val.title === 'Modal Disetor')?.amount ?? 0;
+
   const capitalDitahan = data?.data?.capital_reports?.find((val) => val.title === 'Laba Ditahan')?.amount ?? 0;
   const prive = data?.data?.capital_reports?.find((val) => val.title === 'Prive')?.amount ?? 0;
+
+  useEffect(() => {
+    setTakeProfit(data?.data?.capital_reports?.find((val) => val.title === 'Laba Diambil Owner')?.amount ?? 0);
+  }, [data]);
   return (
     <>
       <section className="flex justify-center">
@@ -43,7 +50,10 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
           <label className="mb-4 block">
             <span className="text-gray-900 font-bold">Periode:</span>
           </label>
-          <h2>6 November 2022 12:15:23 - {dayjs().format('DD MMMM YYYY HH:mm:ss')}</h2>
+          <h2>
+            {dayjs(data?.data?.start_date).format('DD MMMM YYYY HH:mm:ss')} -{' '}
+            {dayjs(data?.data?.end_date).format('DD MMMM YYYY HH:mm:ss')}
+          </h2>
         </div>
       </section>
       <Divider />
@@ -89,9 +99,21 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
                   </b>
                 </span>
               </div>
+              {isView && (
+                <div className="flex justify-between w-full mb-2">
+                  <label>Laba diambil owner: </label>
+                  <span>
+                    <b>
+                      {formatCurrency({
+                        value: takeProfit,
+                      })}
+                    </b>
+                  </span>
+                </div>
+              )}
             </div>
 
-            {!isView && (
+            {!isView ? (
               <div className="flex justify-between w-full mb-2 p-2 rounded-lg items-center bg-gray-50 border">
                 <label>Laba diambil owner: </label>
                 <TextField
@@ -100,7 +122,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
                   onChange={(e) => setTakeProfit(+e.target.value)}
                 />
               </div>
-            )}
+            ) : null}
 
             <div className="mt-8">
               <div className="flex justify-between w-full mb-2">
@@ -109,9 +131,14 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
                 </label>
                 <span className="text-lg">
                   <b>
-                    {formatCurrency({
-                      value: currentCapital + capitalDitahan + capitalStored - prive - takeProfit ?? 0,
-                    })}
+                    {isView
+                      ? formatCurrency({
+                          // takeProfit udah minus kalau view, prive juga
+                          value: currentCapital + capitalDitahan + capitalStored + prive + takeProfit ?? 0,
+                        })
+                      : formatCurrency({
+                          value: currentCapital + capitalDitahan + capitalStored + prive - takeProfit ?? 0,
+                        })}
                   </b>
                 </span>
               </div>
