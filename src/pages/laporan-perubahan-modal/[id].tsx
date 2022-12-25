@@ -6,9 +6,10 @@ import TableCapitalChange from '@/components/table/TableCapitalChange';
 
 const IncomeReportPage = () => {
   const { query } = useRouter();
+
   return (
     <CardDashboard>
-      <TableCapitalChange isView reportDate={query.id as string} />
+      <TableCapitalChange isView endDate={query.id as string} startDate={query.start_date as string} />
     </CardDashboard>
   );
 };

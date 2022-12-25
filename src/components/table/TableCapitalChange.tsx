@@ -13,10 +13,15 @@ import { Button } from '../Button';
 import Divider from '../Divider';
 import { TextField } from '../Form';
 
-const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = ({ isView = false, reportDate }) => {
+const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDate?: string }> = ({
+  isView = false,
+  startDate,
+  endDate,
+}) => {
   const [takeProfit, setTakeProfit] = useState(0);
   const { data } = useFetchCapitalReportInfo({
-    report_date: reportDate,
+    start_date: startDate,
+    end_date: endDate,
   });
   const { data: dataLedgerAcc } = useFetchUnpaginatedLedgerAccounts({});
   const dataModal = dataLedgerAcc?.data?.ledger_accounts?.find((val) => val.name === 'Modal');
@@ -32,9 +37,10 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
     }
   };
 
-  const currentCapital = reportDate
-    ? data?.data?.capital_reports?.find((val) => val.title === 'Modal Awal')?.amount ?? 0
-    : +(dataModal?.balance ?? 0);
+  const currentCapital =
+    startDate && endDate
+      ? data?.data?.capital_reports?.find((val) => val.title === 'Modal Awal')?.amount ?? 0
+      : +(dataModal?.balance ?? 0);
   const capitalStored = data?.data?.capital_reports?.find((val) => val.title === 'Modal Disetor')?.amount ?? 0;
 
   const capitalDitahan = data?.data?.capital_reports?.find((val) => val.title === 'Laba Ditahan')?.amount ?? 0;

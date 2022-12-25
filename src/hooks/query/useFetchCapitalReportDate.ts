@@ -38,7 +38,8 @@ const useFetchCapitalReportDates = <TQueryFnData = unknown, TError = unknown>(
 
 const useFetchCapitalReportInfo = <TQueryFnData = unknown, TError = unknown>(
   data: Partial<{
-    report_date: string;
+    start_date: string;
+    end_date: string;
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<CapitalReportsInfoResponse>>
 ): UseQueryResult<BackendRes<CapitalReportsInfoResponse>> => {

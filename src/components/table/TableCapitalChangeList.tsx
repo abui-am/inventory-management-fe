@@ -50,7 +50,7 @@ const TableCapitalChangeList: React.FC = () => {
         withHour: true,
       })}`,
       action: (
-        <Link href={`/laporan-perubahan-modal/${end_date}`}>
+        <Link href={`/laporan-perubahan-modal/${end_date}?start_date=${start_date}`}>
           <Button>
             <Eye />
           </Button>
