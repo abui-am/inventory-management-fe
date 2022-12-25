@@ -44,9 +44,11 @@ const TableCapitalChangeList: React.FC = () => {
     router.push('/laporan-perubahan-modal/create');
   };
   const data =
-    dataRes?.map(({ end_date, start_date }) => ({
+    dataRes?.data.map(({ end_date, start_date }) => ({
       name: `Laporan ${formatDate(end_date)}`,
-      date: `${start_date ? `${formatDate(start_date)} -` : ''} ${formatDate(end_date)}`,
+      date: `${start_date ? `${formatDate(start_date, { withHour: true })} -` : ''} ${formatDate(end_date, {
+        withHour: true,
+      })}`,
       action: (
         <Link href={`/laporan-perubahan-modal/${end_date}`}>
           <Button>

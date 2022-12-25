@@ -22,7 +22,7 @@ export interface ReportDates {
 }
 
 export interface CapitalReportDateReport {
-  report_dates: ReportDateData[];
+  report_dates: ReportDates;
 }
 
 export type CapitalReportData = {

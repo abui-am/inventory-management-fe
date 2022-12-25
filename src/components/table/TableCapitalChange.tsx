@@ -52,7 +52,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; reportDate?: string }> = (
           </label>
           <h2>
             {dayjs(data?.data?.start_date).format('DD MMMM YYYY HH:mm:ss')} -{' '}
-            {dayjs(data?.data?.end_date).format('DD MMMM YYYY HH:mm:ss')}
+            {dayjs(data?.data?.end_date ?? new Date()).format('DD MMMM YYYY HH:mm:ss')}
           </h2>
         </div>
       </section>
