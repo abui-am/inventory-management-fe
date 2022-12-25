@@ -17,8 +17,7 @@ const AuditPage = () => {
 
   const { data: resLedgers } = useFetchLedgers({
     order_by: {
-      created_at: 'desc',
-      type: 'desc',
+      sequence: 'desc',
     },
     where_greater_equal: {
       created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',

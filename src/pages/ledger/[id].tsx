@@ -35,6 +35,7 @@ const AuditPage = () => {
     order_by: {
       created_at: 'desc',
       type: 'desc',
+      sequence: 'desc',
     },
     where: {
       description: type?.label ?? '',
