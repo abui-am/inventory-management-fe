@@ -1,6 +1,6 @@
 import { UseQueryResult } from 'react-query';
 
-import { GetLedgersResponse } from '@/typings/ledgers';
+import { GetLedgersResponse, GetLedgersResponseUnpaginated } from '@/typings/ledgers';
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
@@ -27,6 +27,21 @@ export const useFetchLedgers = (
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledgers', data);
+    return res.data;
+  });
+
+  return fetcher;
+};
+
+export const useFetchUnpaginatedLedgers = (
+  data: Partial<UseFetchLedgerProps> = {}
+): UseQueryResult<BackendRes<GetLedgersResponseUnpaginated>> => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
+  const fetcher = useMyQuery(['ledgers', 'unpaginated', data, roles], async () => {
+    const res = data.forceUrl
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
+      : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledgers', { ...data, paginated: false });
     return res.data;
   });
 

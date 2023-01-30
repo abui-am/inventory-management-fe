@@ -1,9 +1,10 @@
 /* eslint-disable react/no-array-index-key */
+import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
 import { BagX as FileX } from 'react-bootstrap-icons';
-import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 import { CardDashboard } from '@/components/Container';
 import { DatePickerComponent } from '@/components/Form';
@@ -11,9 +12,10 @@ import SimpleList from '@/components/List';
 import Table from '@/components/Table';
 import { HomeProvider, useHome } from '@/context/home-context';
 import { usePermission } from '@/context/permission-context';
+import { useFetchLedgers, useFetchUnpaginatedLedgers } from '@/hooks/query/useFetchLedgers';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { SalesResponseUnpaginated } from '@/typings/sale';
-import { formatDate, formatDateYYYYMMDD, formatToIDR } from '@/utils/format';
+import { formatDate, formatDateYYYYMMDD, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 type CardProps = {
   label: string;
   value: string | number;
@@ -22,6 +24,7 @@ type CardProps = {
 const HomeWithWrapper: React.FC = () => {
   const permiss = usePermission();
   const isHavingPermission = permiss.state.permission.includes('view:home');
+
   const router = useRouter();
   if (!isHavingPermission) {
     const roleIds = permiss.state.roles.map(({ id }) => id);
@@ -41,67 +44,71 @@ const HomeWithWrapper: React.FC = () => {
 };
 
 const Home: NextPage = () => {
-  const cardValues = [
-    { label: 'Pengeluaran', value: formatToIDR(98000) },
-    { label: 'pemasukan', value: formatToIDR(120000) },
-    { label: 'Jumlah transaksi', value: 20 },
-  ];
-
-  const data = [
-    {
-      name: 'Page A',
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: 'Page B',
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: 'Page C',
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: 'Page D',
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: 'Page E',
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: 'Page F',
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: 'Page G',
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
-
-  const dataPie = [
-    { name: 'Group A', value: 400 },
-    { name: 'Group B', value: 300 },
-    { name: 'Group C', value: 300 },
-    { name: 'Group D', value: 200 },
-  ];
+  // const dataPie = [
+  //   { name: 'Group A', value: 400 },
+  //   { name: 'Group B', value: 300 },
+  //   { name: 'Group C', value: 300 },
+  //   { name: 'Group D', value: 200 },
+  // ];
 
   const { state, dispatch } = useHome();
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  const { data: resPenjualan } = useFetchUnpaginatedLedgers({
+    order_by: {
+      created_at: 'desc',
+      type: 'desc',
+      sequence: 'desc',
+    },
+    where: {
+      description: 'Penjualan',
+    },
+    where_greater_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.startDate).startOf('day')) ?? '',
+    },
+    where_lower_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.endDate).endOf('day')) ?? '',
+    },
+  });
+
+  const { data: resPersediaan } = useFetchLedgers({
+    order_by: {
+      created_at: 'desc',
+      type: 'desc',
+      sequence: 'desc',
+    },
+    where: {
+      description: 'Persediaan',
+    },
+    where_greater_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.startDate).startOf('day')) ?? '',
+    },
+    where_lower_equal: {
+      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.endDate).endOf('day')) ?? '',
+    },
+  });
+
+  const { data: resTransaksi } = useFetchSales<SalesResponseUnpaginated>({
+    start_date: state.startDate,
+    end_date: state.endDate,
+    paginated: false,
+    order_by: {
+      created_at: 'asc',
+    },
+  });
+
+  const cardValues = [
+    { label: 'Pengeluaran', value: formatToIDR(resPersediaan?.data?.total?.debit ?? 0) },
+    { label: 'Pemasukan', value: formatToIDR(resPenjualan?.data?.total?.credit ?? 0) },
+    { label: 'Jumlah transaksi', value: resTransaksi?.data?.transactions?.length ?? 0 },
+  ];
+
+  const data =
+    resTransaksi?.data?.transactions?.map((val) => ({
+      name: val?.created_at ? formatDate(val?.created_at, { withHour: true }) : '-',
+      total: val.items.reduce((prev, next) => prev + next.pivot.total_price, 0),
+    })) ?? [];
+
+  // const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <div>
@@ -142,8 +149,7 @@ const Home: NextPage = () => {
                 <LineChart data={data}>
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-                  <Line type="monotone" dataKey="pv" stroke="#82ca9d" />
+                  <Line type="monotone" dataKey="total" stroke="#8884d8" />
                 </LineChart>
               </ResponsiveContainer>
             </CardDashboard>
@@ -152,11 +158,11 @@ const Home: NextPage = () => {
         <div className="w-full sm:w-4/12 p-3">
           <TopSale />
         </div>
-        <div className="w-full sm:w-8/12 p-3">
+        <div className="w-full  p-3">
           <LastTransaction />
         </div>
-        <div className="w-full sm:w-4/12 p-3">
-          <CardDashboard title="Kategori terpopuler" style={{ height: 489 }}>
+        {/* <div className="w-full sm:w-4/12 p-3"> */}
+        {/* <CardDashboard title="Kategori terpopuler" style={{ height: 489 }}>
             <ResponsiveContainer width="100%" height={308}>
               <PieChart className="mx-auto">
                 <Pie data={dataPie} innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5} dataKey="value">
@@ -180,8 +186,8 @@ const Home: NextPage = () => {
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-          </CardDashboard>
-        </div>
+          </CardDashboard> */}
+        {/* </div> */}
       </section>
     </div>
   );

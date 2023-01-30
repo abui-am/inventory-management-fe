@@ -33,9 +33,15 @@ export interface Ledgers {
 export interface Total {
   debit: number;
   credit: number;
+  difference: number;
 }
 
 export interface GetLedgersResponse {
   ledgers: Ledgers;
+  total: Total;
+}
+
+export interface GetLedgersResponseUnpaginated {
+  ledgers: Datum[];
   total: Total;
 }
