@@ -69,7 +69,7 @@ const PaymentMethod: React.FC<{
       </div>
 
       <div className="w-full  mb-3">
-        <Label required>Uang yang dibayarkan</Label>
+        <Label required>Jumlah</Label>
         <CurrencyTextField
           id="payAmount"
           name={`payments.[${index}].payAmount`}

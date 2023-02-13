@@ -1,4 +1,4 @@
-import { useFormik } from 'formik';
+import { Form, useFormik } from 'formik';
 import Link from 'next/link';
 import { object } from 'yup';
 
@@ -27,7 +27,13 @@ export default function Home(): JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 p-6">
-      <form onSubmit={handleSubmit} className="max-w-md flex-col justify-center items-center -mt-16">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className="max-w-md flex-col justify-center items-center -mt-16"
+      >
         <h1 className="text-4xl font-bold mb-10 text-center">
           Masuk ke <span className="text-blue-600">dashboard</span>
         </h1>

@@ -1,5 +1,4 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Eye, Pencil, Search } from 'react-bootstrap-icons';
 
@@ -38,7 +37,6 @@ const Customer: NextPage<unknown> = () => {
     to,
     total,
   } = dataCustomer?.data?.customers ?? {};
-  const { push } = useRouter();
   const [id, setId] = useState<string | null>(null);
   const data = dataRes.map(({ address, phone_number, total_debt, full_name, id }) => ({
     name: `${full_name ?? ''}`,
@@ -55,7 +53,7 @@ const Customer: NextPage<unknown> = () => {
         >
           <Eye width={24} height={24} />
         </Button>
-        <Button size="small" variant="secondary" className="ml-2" onClick={() => push(`/Customer/${id}/edit`)}>
+        <Button size="small" variant="secondary" className="ml-2">
           <Pencil width={24} height={24} />
         </Button>
       </div>

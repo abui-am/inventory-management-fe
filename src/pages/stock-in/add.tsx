@@ -127,9 +127,16 @@ const AddStockPage: NextPage = () => {
 
   const data = values.stockAdjustment.map(({ item, qty, buyPrice, unit, memo, isNew, itemId }) => ({
     col1: item?.label ?? '',
-    col2: qty,
-    col3: formatToIDR(+buyPrice),
-    col5: unit,
+    col2: (
+      <div>
+        <b className="text-sm">Jumlah :</b>
+        <p>
+          {qty} ({unit})
+        </p>
+        <b className="text-sm">Harga per unit:</b>
+        <span className="text-base block">{formatToIDR(+buyPrice)}</span>
+      </div>
+    ),
     col6: memo,
     action: (
       <div className="flex">
@@ -171,20 +178,11 @@ const AddStockPage: NextPage = () => {
         width: '20%',
       },
       {
-        Header: 'Qty',
+        Header: 'Jumlah & Harga',
         accessor: 'col2',
-        width: '10%',
+        width: '40%',
       },
-      {
-        Header: 'Harga beli',
-        accessor: 'col3',
-        width: '20%',
-      },
-      {
-        Header: 'Kemasan',
-        accessor: 'col5',
-        width: '10%',
-      },
+
       {
         Header: 'Catatan',
         accessor: 'col6',

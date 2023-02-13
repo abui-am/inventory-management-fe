@@ -49,6 +49,7 @@ export const SelectCustomer: React.FC<ThemedSelectProps> = ({
       />
       <Modal isOpen={isCreating} onRequestClose={() => setIsCreating(false)}>
         <CreateCustomerForm
+          onClose={() => setIsCreating(false)}
           initialValues={initValues}
           onSave={(data) => {
             setIsCreating(false);

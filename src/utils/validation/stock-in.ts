@@ -3,7 +3,7 @@ import { array, bool, number, object, string } from 'yup';
 export const validationSchemaStockIn = object().shape({
   invoiceType: object().nullable().required('*'),
 
-  invoiceNumber: number()
+  invoiceNumber: string()
     .nullable()
     .when('invoiceType.value', {
       is: 'manual',

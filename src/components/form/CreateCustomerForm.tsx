@@ -1,5 +1,4 @@
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
 import React from 'react';
 import toast from 'react-hot-toast';
 
@@ -20,7 +19,8 @@ const CreateCustomerForm: React.FC<{
   customerId?: string;
   initialValues: CreateCustomerFormValues;
   onSave: (data: CreateCustomerResponse) => void;
-}> = ({ customerId, initialValues: _initValues, onSave }) => {
+  onClose: () => void;
+}> = ({ onClose, customerId, initialValues: _initValues, onSave }) => {
   const { mutateAsync } = useCreateCustomer();
   const { mutateAsync: editCustomer } = useEditCustomer(customerId ?? '');
   const initialValues = {
@@ -28,8 +28,6 @@ const CreateCustomerForm: React.FC<{
     phoneNumber: _initValues.phoneNumber ?? '',
     address: _initValues.address ?? '',
   };
-
-  const { back } = useRouter();
 
   const isEdit = !!customerId;
 
@@ -89,7 +87,7 @@ const CreateCustomerForm: React.FC<{
       </section>
       <div className="mt-8 flex justify-end">
         <div className="flex">
-          <Button onClick={() => back()} variant="secondary" className="mr-4">
+          <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
           <Button type="submit">{isEdit ? 'Edit Customer' : 'Tambah Customer'}</Button>
