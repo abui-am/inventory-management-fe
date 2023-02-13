@@ -11,6 +11,7 @@ import {
 } from '@/typings/supplier';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -25,7 +26,7 @@ const useFetchSuppliers = (
 ): UseQueryResult<BackendRes<SuppliersResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
-  const fetcher = useMyQuery(['suppliers', data, roles], async () => {
+  const fetcher = useMyQuery([keys.suppliers, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
       : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/suppliers', data);
@@ -42,7 +43,7 @@ const useFetchSupplierById = (
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['suppliers', id],
+    [keys.suppliers, 'byId', id],
     async () => {
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).get(`/suppliers/${id}`);
       return res.data;
@@ -61,7 +62,7 @@ const useEditSupplier = (
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
 
   const mutator = useMutation(
-    ['editSupplier', editId],
+    [keys.suppliers, 'edit', editId],
     async (data: CreateSupplierBody) => {
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).patch(`/suppliers/${editId}`, data);
       query.invalidateQueries(['suppliers']);
@@ -70,6 +71,7 @@ const useEditSupplier = (
     {
       onSuccess: (data) => {
         toast.success(data.message);
+        query.invalidateQueries(keys.suppliers);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -88,9 +90,9 @@ const useCreateSupplier = (): UseMutationResult<
 > => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
-
+  const query = useQueryClient();
   const mutator = useMutation(
-    ['createEmployee'],
+    [keys.suppliers, 'create'],
     async (data: CreateSupplierBody) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
@@ -106,6 +108,7 @@ const useCreateSupplier = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
+        query.invalidateQueries(keys.suppliers);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

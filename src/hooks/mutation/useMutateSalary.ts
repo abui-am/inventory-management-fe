@@ -6,10 +6,12 @@ import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSalaryPayload, PayPayrollPayload } from '@/typings/salary';
 import { apiInstanceAdmin } from '@/utils/api';
 
+import keys from '../keys';
+
 export const useCreateSalary = (): UseMutationResult<BackendRes<any>, unknown, CreateSalaryPayload, unknown> => {
   const query = useQueryClient();
   const mutator = useMutation(
-    ['createSalary'],
+    [keys.salary, 'create'],
     async (data: CreateSalaryPayload) => {
       try {
         const res = await apiInstanceAdmin().put<CreateSalaryPayload, AxiosResponse<BackendRes<any>>>(
@@ -25,9 +27,10 @@ export const useCreateSalary = (): UseMutationResult<BackendRes<any>, unknown, C
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(['salary']);
-        query.refetchQueries(['salary']);
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.salary);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerAccounts);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -40,7 +43,7 @@ export const useCreateSalary = (): UseMutationResult<BackendRes<any>, unknown, C
 export const useUpdatePayroll = (): UseMutationResult<BackendRes<any>, unknown, PayPayrollPayload, unknown> => {
   const query = useQueryClient();
   const mutator = useMutation(
-    ['pay', 'salary'],
+    ['pay', keys.salary],
     async (data: PayPayrollPayload) => {
       try {
         const res = await apiInstanceAdmin().patch<PayPayrollPayload, AxiosResponse<BackendRes<any>>>(
@@ -56,7 +59,10 @@ export const useUpdatePayroll = (): UseMutationResult<BackendRes<any>, unknown, 
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('salary');
+        query.invalidateQueries(keys.salary);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerAccounts);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

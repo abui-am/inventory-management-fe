@@ -7,6 +7,8 @@ import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSaleBody } from '@/typings/sale';
 import { apiInstanceAdmin } from '@/utils/api';
 
+import keys from '../keys';
+
 export const useCreateAdvancePayrolls = (): UseMutationResult<
   BackendRes<any>,
   unknown,
@@ -15,7 +17,7 @@ export const useCreateAdvancePayrolls = (): UseMutationResult<
 > => {
   const query = useQueryClient();
   const mutator = useMutation(
-    ['createAdvancePayrolls'],
+    [keys.advancePayrolls, 'create'],
     async (data: CreateAdvancePayrollsPayload) => {
       try {
         const res = await apiInstanceAdmin().put<CreateSaleBody, AxiosResponse<BackendRes<any>>>(
@@ -31,9 +33,8 @@ export const useCreateAdvancePayrolls = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-
-        query.invalidateQueries('advance-payrolls');
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.advancePayrolls);
+        query.invalidateQueries(keys.ledgers);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

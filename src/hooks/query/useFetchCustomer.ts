@@ -4,6 +4,7 @@ import { CustomerDetailResponse, CustomersResponse } from '@/typings/customer';
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -19,7 +20,7 @@ export const useFetchCustomers = (
 ): UseQueryResult<BackendRes<CustomersResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['customers', data, roles], async () => {
+  const fetcher = useMyQuery([keys.customers, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
       : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/customers', data);
@@ -36,7 +37,7 @@ export const useFetchCustomerById = (
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['customer', id],
+    [keys.customers, id],
     async () => {
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).get(`/customers/${id}`);
       return res.data;

@@ -4,6 +4,7 @@ import { ItemResponse, ItemsResponse } from '@/typings/item';
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -11,7 +12,7 @@ const useFetchItemById = (id: string): UseQueryResult<BackendRes<ItemResponse>> 
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['itemById', id, roles],
+    [keys.items, 'byId', id, roles],
     async () => {
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin', 'warehouse-admin']).get(`/items/${id}`);
       return res.data;
@@ -40,7 +41,7 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['items', data, roles],
+    [keys.items, data, roles],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)

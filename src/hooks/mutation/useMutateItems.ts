@@ -6,6 +6,8 @@ import { CreateItemsBody, CreateItemsResponse } from '@/typings/item';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { apiInstanceAdmin } from '@/utils/api';
 
+import keys from '../keys';
+
 // eslint-disable-next-line import/prefer-default-export
 export const useCreateItems = (): UseMutationResult<
   BackendRes<CreateItemsResponse>,
@@ -15,7 +17,7 @@ export const useCreateItems = (): UseMutationResult<
 > => {
   const query = useQueryClient();
   const mutator = useMutation(
-    ['createItems'],
+    [keys.items, 'create'],
     async (data: CreateItemsBody) => {
       try {
         const res = await apiInstanceAdmin().put<CreateItemsBody, AxiosResponse<BackendRes<CreateItemsResponse>>>(
@@ -31,7 +33,9 @@ export const useCreateItems = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.incomeReport);
+        query.invalidateQueries(keys.items);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

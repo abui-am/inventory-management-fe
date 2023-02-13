@@ -4,6 +4,7 @@ import { BackendRes } from '@/typings/request';
 import { TransactionResponse, TransactionsResponse } from '@/typings/stock-in';
 import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -21,7 +22,7 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['transactions', data, roles],
+    [keys.transactions, data, roles],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, {
@@ -51,7 +52,7 @@ export const useFetchTransactionById = <TQueryFnData = unknown, TError = unknown
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<TransactionResponse>>
 ): UseQueryResult<BackendRes<TransactionResponse>> => {
   const fetcher = useMyQuery(
-    ['transaction', id],
+    [keys.transactions, 'byId', id],
     async () => {
       const res = await apiInstanceAdmin().get(`/transactions/${id}`);
       return res.data;

@@ -6,10 +6,12 @@ import { PayDebtPayload } from '@/typings/debts';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { apiInstanceAdmin } from '@/utils/api';
 
+import keys from '../keys';
+
 export const useUpdateDebt = (): UseMutationResult<BackendRes<any>, unknown, PayDebtPayload, unknown> => {
   const query = useQueryClient();
   const mutator = useMutation(
-    ['pay', 'debt'],
+    ['pay', keys.debts],
     async (data: PayDebtPayload) => {
       try {
         const res = await apiInstanceAdmin().patch<PayDebtPayload, AxiosResponse<BackendRes<any>>>(
@@ -25,7 +27,9 @@ export const useUpdateDebt = (): UseMutationResult<BackendRes<any>, unknown, Pay
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('debts');
+        query.invalidateQueries(keys.debts);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

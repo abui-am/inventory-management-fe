@@ -4,6 +4,7 @@ import { GetLedgersResponse, GetLedgersResponseUnpaginated } from '@/typings/led
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -23,7 +24,7 @@ export const useFetchLedgers = (
 ): UseQueryResult<BackendRes<GetLedgersResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['ledgers', data, roles], async () => {
+  const fetcher = useMyQuery([keys.ledgers, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledgers', data);
@@ -38,7 +39,7 @@ export const useFetchUnpaginatedLedgers = (
 ): UseQueryResult<BackendRes<GetLedgersResponseUnpaginated>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['ledgers', 'unpaginated', data, roles], async () => {
+  const fetcher = useMyQuery([keys.ledgers, 'unpaginated', data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledgers', { ...data, paginated: false });

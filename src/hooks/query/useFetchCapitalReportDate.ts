@@ -4,6 +4,7 @@ import { CapitalReportDateReport, CapitalReportsInfoResponse } from '@/typings/c
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -23,7 +24,7 @@ const useFetchCapitalReportDates = <TQueryFnData = unknown, TError = unknown>(
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['capital-report-dates', data, roles],
+    [keys.capitalReport, 'dates', data, roles],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().get(data.forceUrl)
@@ -46,7 +47,7 @@ const useFetchCapitalReportInfo = <TQueryFnData = unknown, TError = unknown>(
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['capital-report', data, roles],
+    [keys.capitalReport, data, roles],
     async () => {
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/capital-report', data);
       return res.data;

@@ -4,6 +4,7 @@ import { ExpensesResponse } from '@/typings/expense';
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -22,7 +23,7 @@ export const useFetchExpense = <TQueryFnData = unknown, TError = unknown>(
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery(
-    ['expenses', data, roles],
+    [keys.expenses, data, roles],
     async () => {
       const res = data.forceUrl
         ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)

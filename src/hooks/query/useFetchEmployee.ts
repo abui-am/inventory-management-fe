@@ -13,6 +13,7 @@ import {
 import { BackendRes, BackendResError } from '@/typings/request';
 import { apiInstanceAdmin, apiInstanceGeneral, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import useLogout from '../useLogout';
 import useMyQuery from './useMyQuery';
 
@@ -27,7 +28,7 @@ const useFetchEmployee = (
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['employee', data, roles], async () => {
+  const fetcher = useMyQuery([keys.employees, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: true })
       : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: true });
@@ -48,7 +49,7 @@ const useFetchUnpaginatedEmployee = (
 ): UseQueryResult<BackendRes<EmployeeUnpaginatedRes>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['employee', data, roles], async () => {
+  const fetcher = useMyQuery([keys.employees, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: false })
       : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: false });
@@ -63,7 +64,7 @@ const useFetchEmployeeById = (
   options?: UseQueryOptions<unknown, unknown, BackendRes<EmployeeDetailRes>>
 ): UseQueryResult<BackendRes<EmployeeDetailRes>> => {
   const fetcher = useMyQuery(
-    ['employee', id],
+    [keys.employees, id],
     async () => {
       const res = await apiInstanceAdmin().get(`/employees/${id}`);
       return res.data;
@@ -80,8 +81,9 @@ const useCreateEmployee = (): UseMutationResult<
   CreateEmployeePutBody,
   unknown
 > => {
+  const query = useQueryClient();
   const mutator = useMutation(
-    ['createEmployee'],
+    [keys.employees, 'create'],
     async (data: CreateEmployeePutBody) => {
       try {
         const res = await apiInstanceAdmin().put<CreateEmployeePutBody, AxiosResponse<BackendRes<unknown>>>(
@@ -97,6 +99,7 @@ const useCreateEmployee = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
+        query.invalidateQueries(keys.employees);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -112,9 +115,9 @@ const useEditEmployee = (
 ): UseMutationResult<Omit<BackendRes<unknown>, 'data'>, unknown, CreateEmployeePutBody, unknown> => {
   const query = useQueryClient();
 
-  const mutator = useMutation(['editEmployee', editId], async (data: CreateEmployeePutBody) => {
+  const mutator = useMutation([keys.employees, 'edit', editId], async (data: CreateEmployeePutBody) => {
     const res = await apiInstanceAdmin().patch(`/employees/${editId}`, data);
-    query.invalidateQueries(['employee']);
+    query.invalidateQueries(keys.employees);
     return res.data;
   });
 
@@ -126,7 +129,7 @@ const useFetchMyself = (
 ): UseQueryResult<BackendRes<UserRes>> => {
   const logout = useLogout();
   const fetcher = useMyQuery(
-    ['myself'],
+    [keys.myself],
     async () => {
       const res = await apiInstanceGeneral().post('/auth/self');
       return res.data;

@@ -6,6 +6,7 @@ import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateStockInBody, TransactionData } from '@/typings/stock-in';
 import { getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateStockIn = (): UseMutationResult<
@@ -18,7 +19,7 @@ export const useCreateStockIn = (): UseMutationResult<
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const query = useQueryClient();
   const mutator = useMutation(
-    ['createStockin'],
+    [keys.transactions, 'stock-in'],
     async (data: CreateStockInBody) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
@@ -33,8 +34,11 @@ export const useCreateStockIn = (): UseMutationResult<
     },
     {
       onSuccess: (data) => {
-        query.invalidateQueries('transactions');
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.sales);
+        query.invalidateQueries(keys.transactions);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerTopUp);
+        query.invalidateQueries(keys.incomeReport);
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {

@@ -7,6 +7,7 @@ import { CreateSaleBody, CreateSaleResponse } from '@/typings/sale';
 import { CreateStockInBody } from '@/typings/stock-in';
 import { apiInstanceAdmin, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateSale = (): UseMutationResult<
@@ -19,7 +20,7 @@ export const useCreateSale = (): UseMutationResult<
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
-    ['createSale'],
+    [keys.sales, 'create'],
     async (data: CreateSaleBody) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
@@ -35,9 +36,11 @@ export const useCreateSale = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('transactions');
-        query.invalidateQueries('items');
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.sales);
+        query.invalidateQueries(keys.transactions);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerTopUp);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -47,7 +50,7 @@ export const useCreateSale = (): UseMutationResult<
   return mutator;
 };
 
-export const useUpdateStockIn = (): UseMutationResult<
+export const useUpdateSale = (): UseMutationResult<
   Omit<BackendRes<CreateSaleResponse>, 'data'>,
   unknown,
   {
@@ -59,7 +62,7 @@ export const useUpdateStockIn = (): UseMutationResult<
   const queryClient = useQueryClient();
 
   const mutator = useMutation(
-    ['editSale'],
+    [keys.sales, 'edit'],
     async (data: { transactionId: string; data: unknown }) => {
       try {
         const res = await apiInstanceAdmin().patch<CreateStockInBody, AxiosResponse<BackendRes<unknown>>>(
@@ -75,7 +78,11 @@ export const useUpdateStockIn = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        queryClient.invalidateQueries('transactions');
+        queryClient.invalidateQueries(keys.sales);
+        queryClient.invalidateQueries(keys.transactions);
+        queryClient.invalidateQueries(keys.ledgers);
+        queryClient.invalidateQueries(keys.ledgerTopUp);
+        queryClient.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

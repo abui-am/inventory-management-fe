@@ -6,6 +6,7 @@ import { AuditsData, CreateItemsAuditBody, CreateItemsAuditResponse } from '@/ty
 import { BackendRes, BackendResError } from '@/typings/request';
 import { getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditResponse>, unknown, CreateItemsAuditBody> => {
@@ -13,7 +14,7 @@ export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditRespons
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
-    ['createAudit'],
+    [keys.audits],
     async (data: CreateItemsAuditBody) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).put<
@@ -29,8 +30,8 @@ export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditRespons
     },
     {
       onSuccess: (data) => {
-        query.invalidateQueries(['audits']);
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.audits);
+        query.invalidateQueries(keys.ledgers);
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {

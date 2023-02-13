@@ -6,6 +6,7 @@ import { CreateLedgerTopUpPayload } from '@/typings/ledger-top-up';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateLedgerTopUp = (): UseMutationResult<BackendRes<any>, unknown, any> => {
@@ -13,7 +14,7 @@ export const useCreateLedgerTopUp = (): UseMutationResult<BackendRes<any>, unkno
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const query = useQueryClient();
   const mutator = useMutation(
-    ['createLedgerTopUp'],
+    [keys.ledgerTopUp, 'create'],
     async (data: CreateLedgerTopUpPayload) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
@@ -29,8 +30,10 @@ export const useCreateLedgerTopUp = (): UseMutationResult<BackendRes<any>, unkno
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('ledgerTopUp');
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.ledgerTopUp);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerAccounts);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

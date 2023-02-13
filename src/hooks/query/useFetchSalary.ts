@@ -4,6 +4,7 @@ import { BackendRes } from '@/typings/request';
 import { SalaryResponse } from '@/typings/salary';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -20,7 +21,7 @@ export const useFetchSalary = (
 ): UseQueryResult<BackendRes<SalaryResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['salary', data, roles], async () => {
+  const fetcher = useMyQuery([keys.salary, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin']).post('/payrolls', data);

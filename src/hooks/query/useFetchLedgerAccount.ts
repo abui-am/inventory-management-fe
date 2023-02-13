@@ -4,6 +4,7 @@ import { GetLedgerAccountsResponse, GetUnpaginatedLedgerAccountsResponse } from 
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
@@ -19,7 +20,7 @@ export const useFetchLedgerAccounts = (
 ): UseQueryResult<BackendRes<GetLedgerAccountsResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['ledger-accounts', data, roles], async () => {
+  const fetcher = useMyQuery([keys.ledgerAccounts, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledger-accounts', data);
@@ -39,7 +40,7 @@ export const useFetchUnpaginatedLedgerAccounts = (
 ): UseQueryResult<BackendRes<GetUnpaginatedLedgerAccountsResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery(['ledger-accounts', data, roles], async () => {
+  const fetcher = useMyQuery([keys.ledgerAccounts, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledger-accounts', { ...data, paginated: false });

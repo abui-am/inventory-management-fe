@@ -6,6 +6,7 @@ import { CreateExpensePayload } from '@/typings/expense';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateExpense = (): UseMutationResult<BackendRes<any>, unknown, any> => {
@@ -13,7 +14,7 @@ export const useCreateExpense = (): UseMutationResult<BackendRes<any>, unknown, 
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const query = useQueryClient();
   const mutator = useMutation(
-    ['expenses'],
+    [keys.expenses],
     async (data: CreateExpensePayload) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
@@ -29,9 +30,9 @@ export const useCreateExpense = (): UseMutationResult<BackendRes<any>, unknown, 
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('expenses');
-        query.invalidateQueries('ledgers');
-        query.invalidateQueries('income-report');
+        query.invalidateQueries(keys.expenses);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

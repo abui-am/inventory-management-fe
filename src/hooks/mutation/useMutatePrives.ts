@@ -6,6 +6,7 @@ import { CreatePrivePayload } from '@/typings/prives';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreatePrive = (): UseMutationResult<BackendRes<any>, unknown, any> => {
@@ -13,7 +14,7 @@ export const useCreatePrive = (): UseMutationResult<BackendRes<any>, unknown, an
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const query = useQueryClient();
   const mutator = useMutation(
-    ['createPrive'],
+    [keys.prives, 'create'],
     async (data: CreatePrivePayload) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
@@ -29,8 +30,10 @@ export const useCreatePrive = (): UseMutationResult<BackendRes<any>, unknown, an
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('prives');
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.prives);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerAccounts);
+        query.invalidateQueries(keys.incomeReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

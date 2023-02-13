@@ -7,6 +7,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { BackendResError } from '@/typings/request';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
 
+import keys from '../keys';
+
 interface UseAuthMutationMutateProps {
   email: string;
   password: string;
@@ -55,7 +57,8 @@ const useAuthMutation = (type: 'login' | 'register') => {
           cookie.set('INVT-USERNAME', data.user.username, {
             expires: data?.rememberMe ? 30 : 1,
           });
-          queryClient.invalidateQueries();
+          queryClient.invalidateQueries(keys.ledgers);
+          queryClient.invalidateQueries(keys.myself);
 
           toast.success(message);
           router.push('/');
@@ -70,8 +73,9 @@ const useAuthMutation = (type: 'login' | 'register') => {
 };
 
 const useCreateAccount = () => {
+  const query = useQueryClient();
   return useMutation(
-    ['createUser'],
+    [keys.users, 'create'],
     async (formik: CreateAccountReqBody) => {
       try {
         const { data } = await apiInstanceAdmin().put(`users`, formik);
@@ -84,6 +88,8 @@ const useCreateAccount = () => {
     {
       onSuccess: async ({ message }) => {
         toast.success(message);
+        query.invalidateQueries(keys.users);
+        query.invalidateQueries(keys.employees);
       },
       onError: (e: AxiosError<BackendResError<unknown>>) => {
         toast.error(e.response?.data.message ?? '');
@@ -94,7 +100,7 @@ const useCreateAccount = () => {
 
 const useForgotPassword = () => {
   return useMutation(
-    ['forgotPassword'],
+    ['password', 'forgot'],
     async (formik: ForgotPasswordReqBody) => {
       try {
         const { data } = await apiInstance().post(`/auth/forgot`, formik);
@@ -118,7 +124,7 @@ const useForgotPassword = () => {
 const useResetPassword = () => {
   const router = useRouter();
   return useMutation(
-    ['resetPassword'],
+    ['password', 'reset'],
     async (formik: ResetPasswordReqBody) => {
       try {
         const { data } = await apiInstance().post(`/auth/reset`, formik);

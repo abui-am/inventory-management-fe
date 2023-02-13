@@ -6,6 +6,7 @@ import { CreateCustomerBody, CreateCustomerResponse } from '@/typings/customer';
 import { BackendRes, BackendResError } from '@/typings/request';
 import { apiInstanceAdmin, getApiBasedOnRoles } from '@/utils/api';
 
+import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
 
 export const useCreateCustomer = (): UseMutationResult<
@@ -17,7 +18,7 @@ export const useCreateCustomer = (): UseMutationResult<
   const query = useQueryClient();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const mutator = useMutation(
-    ['createCustomer'],
+    [keys.customers, 'create'],
     async (data: CreateCustomerBody) => {
       try {
         const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
@@ -33,7 +34,8 @@ export const useCreateCustomer = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries('ledgers');
+        query.invalidateQueries(keys.customers);
+        query.invalidateQueries(keys.ledgers);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -50,7 +52,9 @@ export const useEditCustomer = (
 
   const mutator = useMutation(['editCustomer', editId], async (data: CreateCustomerBody) => {
     const res = await apiInstanceAdmin().patch(`/customers/${editId}`, data);
-    query.invalidateQueries(['customers']);
+    query.invalidateQueries(keys.customers);
+    query.invalidateQueries(keys.ledgers);
+
     return res.data;
   });
 
