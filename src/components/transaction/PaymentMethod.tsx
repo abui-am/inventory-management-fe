@@ -33,7 +33,7 @@ const PaymentMethod: React.FC<{
 
   return (
     <>
-      <div className="w-1/2 inline mb-4">
+      <div className="w-1/2 inline mb-2">
         <label className="mb-1 block">Metode pembayaran</label>
         <div className="flex">
           <ThemedSelect
@@ -51,8 +51,7 @@ const PaymentMethod: React.FC<{
           />
         </div>
       </div>
-
-      <div className="w-1/2 inline mb-4">
+      <div className="w-1/2 inline mb-2">
         <Button variant="secondary" className="ml-auto block mt-4" onClick={handleDelete}>
           <TrashFill className="text-red-600 w-4 h-4" />
         </Button>
@@ -60,15 +59,18 @@ const PaymentMethod: React.FC<{
       <div className="w-full">
         {(values.payments[index].paymentMethod?.value === PAYMENT_METHOD_OPTIONS[1].value ||
           values.payments[index].paymentMethod?.value === PAYMENT_METHOD_OPTIONS[2].value) && (
-          <DatePickerComponent
-            name={`payments.[${index}].paymentDue`}
-            selected={values.payments[index].paymentDue}
-            onChange={(date) => setFieldValue(`payments.[${index}].paymentDue`, date)}
-          />
+          <div className="mb-2">
+            <label className="mb-1 block">Tanggal jatuh tempo</label>
+            <DatePickerComponent
+              name={`payments.[${index}].paymentDue`}
+              selected={values.payments[index].paymentDue}
+              onChange={(date) => setFieldValue(`payments.[${index}].paymentDue`, date)}
+            />
+          </div>
         )}
       </div>
 
-      <div className="w-full  mb-3">
+      <div className="w-full">
         <Label required>Jumlah</Label>
         <CurrencyTextField
           id="payAmount"

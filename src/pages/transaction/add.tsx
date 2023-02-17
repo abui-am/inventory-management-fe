@@ -115,7 +115,6 @@ const AddTransactionPage: NextPage = () => {
           );
 
           if (change < 0) {
-            console.log(change, data.totalPrice - (values?.discount ?? 0));
             toast.error('Uang yang dibayarkan kurang dari total harga');
             return;
           }
@@ -254,7 +253,7 @@ const AddTransactionPage: NextPage = () => {
 
           <div className="w-4/12">
             <div className="border p-4 rounded-md shadow-md flex flex-wrap -mx-2 mb-4">
-              <div className="w-full px-2 mb-3">
+              <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Diskon</label>
                 <CurrencyTextField
                   name="discount"
@@ -268,7 +267,7 @@ const AddTransactionPage: NextPage = () => {
                 {errors.discount && touched.discount && <span className="text-xs text-red-500">{errors.discount}</span>}
               </div>
 
-              <div className="w-full px-2 mb-3">
+              <div className="w-full px-2 mb-2">
                 <WithLabelAndError touched={touched} errors={errors} name="sender" label="Nama Pengirim" required>
                   <SelectSender
                     onChange={(val) => {
@@ -278,7 +277,7 @@ const AddTransactionPage: NextPage = () => {
                   />
                 </WithLabelAndError>
               </div>
-              <div className="w-full px-2 mb-3">
+              <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Catatan</label>
                 <TextField
                   id="memo"
@@ -291,7 +290,7 @@ const AddTransactionPage: NextPage = () => {
                 />
                 {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
               </div>
-              <div className="w-full px-2 mb-3">
+              <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Harga total</label>
                 <p className="text-2xl font-bold">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
               </div>
@@ -304,7 +303,7 @@ const AddTransactionPage: NextPage = () => {
                 {values?.payments?.map((value, index) => {
                   return (
                     // eslint-disable-next-line react/no-array-index-key
-                    <div className="pt-3 pb-3 flex flex-wrap" key={`${value.paymentMethod.value}${index}`}>
+                    <div className="pt pb-3 flex flex-wrap" key={`${value.paymentMethod.value}${index}`}>
                       <PaymentMethod
                         isSubmitting={isSubmitting}
                         setFieldValue={setFieldValue}
@@ -326,7 +325,10 @@ const AddTransactionPage: NextPage = () => {
                         ...values.payments,
                         {
                           paymentMethod: { value: 'cash', label: 'Cash' },
-                          payAmount: null,
+                          payAmount:
+                            values?.payments?.[0]?.paymentMethod?.value === 'cash'
+                              ? values?.totalPrice - (values?.payments?.[0]?.payAmount ?? 0)
+                              : null,
                           paymentDue: null,
                         },
                       ]);
