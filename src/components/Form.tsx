@@ -246,7 +246,7 @@ const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase
       isDisabled={!provinceId}
       loadOptions={async (val) => {
         const { data } = await mutateAsync({ search: val, where: { province_id: provinceId } });
-        return data.cities.data.map(({ id, name }) => ({ value: id, label: name }));
+        return data.cities.data.map(({ id, name, type }) => ({ value: id, label: `${type} ${name}` }));
       }}
       isClearable
     />

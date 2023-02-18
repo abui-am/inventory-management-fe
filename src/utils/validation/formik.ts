@@ -51,7 +51,7 @@ const schema = (type: string) => {
   }
 };
 
-const createSchema = <T>(initialValues: T): ObjectShape => {
+const createSchema = <T extends Record<any, any>>(initialValues: T): ObjectShape => {
   const fieldNames = Object.keys(initialValues);
   return !Array.isArray(fieldNames) || fieldNames.length === 0
     ? {}
