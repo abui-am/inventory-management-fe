@@ -5,6 +5,7 @@ import { Eye, Pencil, Search } from 'react-bootstrap-icons';
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
+import CreateCustomerForm from '@/components/form/CreateCustomerForm';
 import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
@@ -38,6 +39,8 @@ const Customer: NextPage<unknown> = () => {
     total,
   } = dataCustomer?.data?.customers ?? {};
   const [id, setId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+
   const data = dataRes.map(({ address, phone_number, total_debt, full_name, id }) => ({
     name: `${full_name ?? ''}`,
     phoneNumber: phone_number && `+${phone_number}`,
@@ -53,7 +56,14 @@ const Customer: NextPage<unknown> = () => {
         >
           <Eye width={24} height={24} />
         </Button>
-        <Button size="small" variant="secondary" className="ml-2">
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => {
+            setEditId(id);
+          }}
+          className="ml-2"
+        >
           <Pencil width={24} height={24} />
         </Button>
       </div>
@@ -94,6 +104,14 @@ const Customer: NextPage<unknown> = () => {
         }}
       />
 
+      {editId && (
+        <EditCustomerModal
+          editId={editId}
+          handleClose={() => {
+            setEditId(null);
+          }}
+        />
+      )}
       <div className="mt-2 mb-4 justify-between sm:flex">
         <h2 className="text-2xl font-bold mb-6 sm:mb-0">Daftar Customer</h2>
         <div className="flex flex-col items-end">
@@ -172,6 +190,29 @@ const ShowModal = ({ customerId, handleClose }: { customerId: string; handleClos
         </div>
       </Modal>
     </>
+  );
+};
+
+const EditCustomerModal = ({ editId, handleClose }: { editId: string; handleClose: () => void }) => {
+  const { data, isLoading } = useFetchCustomerById(editId);
+  const customer = data?.data?.customer;
+  return (
+    <Modal isOpen={!!editId} onRequestClose={handleClose}>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <CreateCustomerForm
+          initialValues={{
+            address: customer?.address ?? '',
+            fullName: customer?.full_name ?? '',
+            phoneNumber: customer?.phone_number ?? '',
+          }}
+          onClose={handleClose}
+          onSave={handleClose}
+          customerId={editId}
+        />
+      )}
+    </Modal>
   );
 };
 export default Customer;

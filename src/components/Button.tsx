@@ -32,6 +32,7 @@ type ButtonProps = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HT
   fullWidth?: boolean;
   Icon?: JSX.Element;
   size?: 'small' | 'medium';
+  loading?: boolean;
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
