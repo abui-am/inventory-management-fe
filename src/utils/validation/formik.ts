@@ -30,7 +30,7 @@ const schema = (type: string) => {
     case 'gender':
     case 'item':
     case 'paymentMethod':
-      return object().shape({ label: string(), value: mixed() }).required('Wajib diisi');
+      return object().shape({ label: string(), value: mixed() }).nullable().required('Wajib diisi');
 
     case 'email':
       return string().matches(

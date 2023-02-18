@@ -230,6 +230,7 @@ const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionType
         const { data } = await mutateAsync({ search: val });
         return data.provinces.data.map(({ id, name }) => ({ value: id, label: name }));
       }}
+      isClearable
     />
   );
 };
@@ -247,6 +248,7 @@ const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase
         const { data } = await mutateAsync({ search: val, where: { province_id: provinceId } });
         return data.cities.data.map(({ id, name }) => ({ value: id, label: name }));
       }}
+      isClearable
     />
   );
 };
@@ -263,6 +265,7 @@ const SelectSubdistrict: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionT
           const { data } = await mutateAsync({ search: val, where: { city_id: cityId } });
           return data.subdistricts.data.map(({ id, name }) => ({ value: id, label: name }));
         }}
+        isClearable
       />
     );
   };
@@ -280,6 +283,7 @@ const SelectVillage: React.FC<
         const { data } = await mutateAsync({ search: val, where: { subdistrict_id: subdistrictId } });
         return data.villages.data.map(({ id, name }) => ({ value: id, label: name }));
       }}
+      isClearable
     />
   );
 };
@@ -312,6 +316,7 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
 
         return [];
       }, 300)}
+      isClearable
     />
   );
 };
@@ -378,6 +383,7 @@ export const SelectItemsDetail = forwardRef(
         }, 300)}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         components={withDetail ? { SingleValue: SingleValue as any } : {}}
+        isClearable
       />
     );
   }
