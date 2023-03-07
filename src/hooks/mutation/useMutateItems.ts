@@ -36,6 +36,7 @@ export const useCreateItems = (): UseMutationResult<
         query.invalidateQueries(keys.ledgers);
         query.invalidateQueries(keys.incomeReport);
         query.invalidateQueries(keys.items);
+        query.invalidateQueries(keys.capitalReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

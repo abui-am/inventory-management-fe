@@ -63,6 +63,7 @@ export const useUpdatePayroll = (): UseMutationResult<BackendRes<any>, unknown, 
         query.invalidateQueries(keys.ledgers);
         query.invalidateQueries(keys.ledgerAccounts);
         query.invalidateQueries(keys.incomeReport);
+        query.invalidateQueries(keys.capitalReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

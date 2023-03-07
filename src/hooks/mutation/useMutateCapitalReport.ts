@@ -32,6 +32,7 @@ export const useCreateCapitalReport = (): UseMutationResult<BackendRes<any>, any
         toast.success(data.message);
         query.invalidateQueries(keys.ledgers);
         query.invalidateQueries(keys.capitalReport);
+        query.invalidateQueries(keys.capitalReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

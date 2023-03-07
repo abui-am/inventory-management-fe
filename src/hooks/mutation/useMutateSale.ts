@@ -83,6 +83,7 @@ export const useUpdateSale = (): UseMutationResult<
         queryClient.invalidateQueries(keys.ledgers);
         queryClient.invalidateQueries(keys.ledgerTopUp);
         queryClient.invalidateQueries(keys.incomeReport);
+        queryClient.invalidateQueries(keys.capitalReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

@@ -490,7 +490,7 @@ const ButtonWithModal: React.FC<{
                   Batalkan
                 </Button>
                 <Button variant="primary" type="submit">
-                  {withEditButton ? 'Tambah Penyesuaian' : 'Edit Penyesuaian'}
+                  {withEditButton ? 'Edit Penyesuaian' : 'Simpan Penyesuaian'}
                 </Button>
               </div>
             </div>

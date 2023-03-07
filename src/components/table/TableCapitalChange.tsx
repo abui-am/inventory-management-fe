@@ -23,6 +23,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
     start_date: startDate,
     end_date: endDate,
   });
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const { data: dataLedgerAcc } = useFetchUnpaginatedLedgerAccounts({});
   const dataModal = dataLedgerAcc?.data?.ledger_accounts?.find((val) => val.name === 'Modal');
   const { mutateAsync } = useCreateCapitalReport();
@@ -32,6 +33,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
       await mutateAsync({
         taken_profit: takeProfit,
       });
+      setIsConfirmed(false);
       toast.success('Berhasil membuat laporan perubahan modal');
       router.push('/laporan-perubahan-modal');
     }
@@ -76,7 +78,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
 
             <div className="mb-4">
               <div className="flex justify-between w-full mb-2">
-                <label>Laba disetor: </label>
+                <label>Modal disetor: </label>
                 <span>
                   <b>
                     {formatCurrency({
@@ -149,11 +151,24 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                 </span>
               </div>
             </div>
+            {isConfirmed && <div className="text-red-500">Pastikan semua data terisi dengan benar*</div>}
             {!isView && (
               <div className="mt-8">
-                <Button onClick={handleClick} fullWidth>
-                  Buat Laporan Perubahan Modal
-                </Button>
+                {isConfirmed ? (
+                  <Button onClick={handleClick} type="button" fullWidth>
+                    Konfirmasi
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsConfirmed(true);
+                    }}
+                    fullWidth
+                  >
+                    Buat Laporan Perubahan Modal
+                  </Button>
+                )}
               </div>
             )}
           </div>

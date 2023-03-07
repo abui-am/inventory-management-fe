@@ -40,14 +40,14 @@ const CreateTopUp: React.FC<{
   onSave?: (data: any) => void;
   onClose?: () => void;
 }> = ({ onSave, onClose }) => {
-  const { mutateAsync } = useCreateLedgerTopUp();
+  const { mutateAsync, isLoading } = useCreateLedgerTopUp();
   const initialValues: CreateTopUpFormValues = {
     ledger: null,
     amount: null,
     paymentMethod: null,
   };
   const { data: dataResLedger } = useFetchUnpaginatedLedgerAccounts();
-
+  const [isConfirmed, setConfirmed] = React.useState(false);
   const { values, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema: validationSchemaLedgerTopUp,
     initialValues,
@@ -60,6 +60,7 @@ const CreateTopUp: React.FC<{
         ledger_account_id: values.ledger?.value ?? '',
       };
       const res = await mutateAsync(jsonBody);
+      setConfirmed(false);
       setSubmitting(false);
       resetForm();
       onSave?.(res.data);
@@ -122,13 +123,29 @@ const CreateTopUp: React.FC<{
             </div>
           </div>
         </div>
+        {isConfirmed && <div className="text-red-500">Pastikan semuanya sudah terisi secara benar!</div>}
       </section>
       <div className="mt-8 flex justify-end">
         <div className="flex">
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Konversi</Button>
+          {!isConfirmed ? (
+            <Button
+              disabled={isLoading}
+              onClick={(e) => {
+                e.preventDefault();
+                setConfirmed(true);
+              }}
+              type="button"
+            >
+              Konversi
+            </Button>
+          ) : (
+            <Button disabled={isLoading} type="submit">
+              Konfirmasi
+            </Button>
+          )}
         </div>
       </div>
     </form>

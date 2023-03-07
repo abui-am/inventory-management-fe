@@ -39,6 +39,7 @@ export const useCreateStockIn = (): UseMutationResult<
         query.invalidateQueries(keys.ledgers);
         query.invalidateQueries(keys.ledgerTopUp);
         query.invalidateQueries(keys.incomeReport);
+        query.invalidateQueries(keys.capitalReport);
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {

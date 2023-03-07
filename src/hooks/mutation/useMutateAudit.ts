@@ -33,6 +33,7 @@ export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditRespons
         query.invalidateQueries(keys.audits);
         query.invalidateQueries(keys.ledgers);
         toast.success(data.message);
+        query.invalidateQueries(keys.capitalReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

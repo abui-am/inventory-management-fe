@@ -54,6 +54,7 @@ export const useEditCustomer = (
     const res = await apiInstanceAdmin().patch(`/customers/${editId}`, data);
     query.invalidateQueries(keys.customers);
     query.invalidateQueries(keys.ledgers);
+    query.invalidateQueries(keys.capitalReport);
 
     return res.data;
   });
