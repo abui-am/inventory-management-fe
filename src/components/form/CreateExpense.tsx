@@ -32,7 +32,7 @@ const CreateExpense: React.FC<{
   onSave?: (data: any) => void;
   onClose?: () => void;
 }> = ({ onSave, onClose }) => {
-  const { mutateAsync } = useCreateExpense();
+  const { mutateAsync, isLoading } = useCreateExpense();
   const initialValues: CreateExpenseFormValues = {
     amount: null,
     description: '',
@@ -124,7 +124,9 @@ const CreateExpense: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Tulis Beban</Button>
+          <Button disabled={isLoading} type="submit">
+            Tulis Beban
+          </Button>
         </div>
       </div>
     </form>

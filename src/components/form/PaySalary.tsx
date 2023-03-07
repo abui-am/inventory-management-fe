@@ -36,7 +36,7 @@ const PaySalaryForm: React.FC<{
   onSave?: (data: any) => void;
   onClose: (data: any) => void;
 }> = ({ onSave, onClose, payroll }) => {
-  const { mutateAsync } = useUpdatePayroll();
+  const { mutateAsync, isLoading } = useUpdatePayroll();
   const initialValues: PaySalaryFormValues = {
     salary: payroll.employee_salary,
     paidAmount: payroll.paid_amount,
@@ -143,7 +143,9 @@ const PaySalaryForm: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Bayar Gaji</Button>
+          <Button disabled={isLoading} type="submit">
+            Bayar Gaji
+          </Button>
         </div>
       </div>
     </form>

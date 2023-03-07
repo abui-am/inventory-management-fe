@@ -142,7 +142,7 @@ const CreateTopUp: React.FC<{
               Konversi
             </Button>
           ) : (
-            <Button disabled={isLoading} type="submit">
+            <Button variant="danger" disabled={isLoading} type="submit">
               Konfirmasi
             </Button>
           )}

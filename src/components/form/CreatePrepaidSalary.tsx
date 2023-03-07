@@ -25,7 +25,7 @@ const CreatePrepaidSalary: React.FC<{
   onSave?: (data: any) => void;
   onClose?: () => void;
 }> = ({ onSave, onClose }) => {
-  const { mutateAsync } = useCreateAdvancePayrolls();
+  const { mutateAsync, isLoading } = useCreateAdvancePayrolls();
   const initialValues: CreatePrepaidSalaryFormValues = {
     employee: null,
     amount: 0,
@@ -108,7 +108,9 @@ const CreatePrepaidSalary: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Tambah Gaji dibayar di Muka</Button>
+          <Button disabled={isLoading} type="submit">
+            Tambah Gaji dibayar di Muka
+          </Button>
         </div>
       </div>
     </form>

@@ -210,7 +210,7 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { items = [] } = useMemo(() => dataTrans?.data.transaction ?? { items: [] }, [isFetching]);
   const { columns, data, initialValues } = useDetailStockInAdaptor(items, true);
-  const { mutateAsync } = useUpdateStockIn();
+  const { mutateAsync, isLoading } = useUpdateStockIn();
   return (
     <>
       <Modal isOpen={!!transactionId} onRequestClose={onClose} variant="large">
@@ -232,7 +232,7 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () 
           <Form>
             <ResponsiveTable columns={columns} data={data} />
             <div className="mt-4 flex justify-end">
-              <Button variant="primary" type="submit">
+              <Button disabled={isLoading} variant="primary" type="submit">
                 Simpan Harga
               </Button>
             </div>

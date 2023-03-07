@@ -26,7 +26,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
   const [isConfirmed, setIsConfirmed] = useState(false);
   const { data: dataLedgerAcc } = useFetchUnpaginatedLedgerAccounts({});
   const dataModal = dataLedgerAcc?.data?.ledger_accounts?.find((val) => val.name === 'Modal');
-  const { mutateAsync } = useCreateCapitalReport();
+  const { mutateAsync, isLoading } = useCreateCapitalReport();
   const router = useRouter();
   const handleClick = async () => {
     if (takeProfit >= 0) {
@@ -155,11 +155,12 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
             {!isView && (
               <div className="mt-8">
                 {isConfirmed ? (
-                  <Button onClick={handleClick} type="button" fullWidth>
+                  <Button disabled={isLoading} variant="danger" onClick={handleClick} type="button" fullWidth>
                     Konfirmasi
                   </Button>
                 ) : (
                   <Button
+                    disabled={isLoading}
                     onClick={(e) => {
                       e.preventDefault();
                       setIsConfirmed(true);

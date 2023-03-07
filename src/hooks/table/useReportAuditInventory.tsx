@@ -102,11 +102,12 @@ export const ButtonChecklist = ({
   userId: string;
   updateCount: number;
 }) => {
-  const { mutateAsync } = useEditAudit(auditId);
+  const { mutateAsync, isLoading } = useEditAudit(auditId);
   return (
     <div className="flex">
       <Tippy content="Setujui hasil audit">
         <Button
+          disabled={isLoading}
           size="small"
           className="mr-2"
           onClick={() => {

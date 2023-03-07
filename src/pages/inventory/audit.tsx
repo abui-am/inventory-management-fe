@@ -67,7 +67,7 @@ const AuditPage = () => {
 };
 
 const CreateNewAudit = ({ date }: { date: Date }) => {
-  const { mutateAsync } = useAudit();
+  const { mutateAsync, isLoading } = useAudit();
 
   const handleClick = () => {
     mutateAsync({
@@ -89,7 +89,9 @@ const CreateNewAudit = ({ date }: { date: Date }) => {
                 <Button variant="secondary" onClick={handleClose} className="mr-2">
                   Batalkan
                 </Button>
-                <Button onClick={handleClick}>Buat Audit</Button>
+                <Button disabled={isLoading} onClick={handleClick}>
+                  Buat Audit
+                </Button>
               </ModalActionWrapper>
             </>
           );

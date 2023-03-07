@@ -29,7 +29,7 @@ const CreateAccountForm: React.FC<{
     roles: [],
   };
 
-  const { mutateAsync } = useCreateAccount();
+  const { mutateAsync, isLoading: isLoadingMutate } = useCreateAccount();
 
   const { values, handleChange, setSubmitting, handleSubmit, errors, touched, setFieldValue } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
@@ -94,7 +94,9 @@ const CreateAccountForm: React.FC<{
               <Button onClick={() => onCancel()} variant="secondary" className="mr-4">
                 Batalkan
               </Button>
-              <Button type="submit">{isEdit ? 'Edit Akun' : 'Buat Akun'}</Button>
+              <Button disabled={isLoadingMutate} type="submit">
+                {isEdit ? 'Edit Akun' : 'Buat Akun'}
+              </Button>
             </div>
           </div>
         </div>

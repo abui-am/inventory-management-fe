@@ -23,7 +23,7 @@ const CreateSupplierForm: React.FC<{
   };
   disableBack?: boolean;
 }> = ({ editId, isEdit = false, onSave, disableBack, initialValues: initVal }) => {
-  const { mutateAsync } = useCreateSupplier();
+  const { mutateAsync, isLoading: isLoadingMutate } = useCreateSupplier();
   const { mutateAsync: editSupplier } = useEditSupplier(editId ?? '');
   const { back } = useRouter();
 
@@ -103,7 +103,9 @@ const CreateSupplierForm: React.FC<{
           <Button onClick={() => back()} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">{isEdit ? 'Edit Supplier' : 'Tambah Supplier'}</Button>
+          <Button disabled={isLoadingMutate} type="submit">
+            {isEdit ? 'Edit Supplier' : 'Tambah Supplier'}
+          </Button>
         </div>
       </div>
     </form>

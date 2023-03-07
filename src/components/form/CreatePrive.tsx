@@ -34,7 +34,7 @@ const CreatePrive: React.FC<{
   onSave?: (data: any) => void;
   onClose?: () => void;
 }> = ({ prepaidSalaryId, onSave, onClose }) => {
-  const { mutateAsync } = useCreatePrive();
+  const { mutateAsync, isLoading } = useCreatePrive();
   const initialValues: CreatePriveFormValues = {
     description: '',
     amount: null,
@@ -130,7 +130,9 @@ const CreatePrive: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">Tambah Prive</Button>
+          <Button disabled={isLoading} type="submit">
+            Tambah Prive
+          </Button>
         </div>
       </div>
     </form>

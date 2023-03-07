@@ -21,8 +21,8 @@ const CreateCustomerForm: React.FC<{
   onSave: (data: CreateCustomerResponse) => void;
   onClose: () => void;
 }> = ({ onClose, customerId, initialValues: _initValues, onSave }) => {
-  const { mutateAsync } = useCreateCustomer();
-  const { mutateAsync: editCustomer, isLoading } = useEditCustomer(customerId ?? '');
+  const { mutateAsync, isLoading: isLoadingMutate } = useCreateCustomer();
+  const { mutateAsync: editCustomer } = useEditCustomer(customerId ?? '');
   const initialValues = {
     fullName: _initValues.fullName ?? '',
     phoneNumber: _initValues.phoneNumber ?? '',
@@ -90,7 +90,7 @@ const CreateCustomerForm: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button disabled={isLoading} type="submit">
+          <Button disabled={isLoadingMutate} type="submit">
             {isEdit ? 'Edit Customer' : 'Tambah Customer'}
           </Button>
         </div>

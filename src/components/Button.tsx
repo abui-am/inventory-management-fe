@@ -28,7 +28,7 @@ const RoundedButton: React.FC<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonE
 };
 
 type ButtonProps = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'gray' | 'outlined';
+  variant?: 'primary' | 'secondary' | 'gray' | 'outlined' | 'danger';
   fullWidth?: boolean;
   Icon?: JSX.Element;
   size?: 'small' | 'medium';
@@ -42,6 +42,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       secondary: 'hover:text-blue-600',
       gray: 'bg-blueGray-200 hover:text-white hover:bg-blue-600',
       outlined: 'border border-blue-600 rounded-md text-blue-600 hover:bg-blue-600 hover:text-white',
+      danger: 'bg-red-500 text-white hover:text-white hover:bg-red-600',
     };
 
     const classesDisabled = {
@@ -49,6 +50,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       secondary: 'disabled:cursor-auto',
       gray: 'disabled:cursor-auto',
       outlined: 'disabled:border-gray-600 disabled:text-gray-600',
+      danger: 'disabled:cursor-auto',
     };
     return (
       <button

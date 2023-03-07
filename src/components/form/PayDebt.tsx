@@ -28,7 +28,7 @@ const PayDebtForm: React.FC<{
   onClose: () => void;
   type: 'giro' | 'normal' | 'account-receivable';
 }> = ({ debt, type, onSave, onClose }) => {
-  const { mutateAsync } = useUpdateDebt();
+  const { mutateAsync, isLoading } = useUpdateDebt();
   const initialValues: PayDebtFormValues = {
     debtAmount: +debt?.amount ?? 0,
     paidAmount: +debt?.paid_amount ?? 0,
@@ -139,7 +139,7 @@ const PayDebtForm: React.FC<{
           <Button onClick={onClose} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">
+          <Button disabled={isLoading} type="submit">
             {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Lunaskan Piutang' : 'Bayar Utang'}
           </Button>
         </div>

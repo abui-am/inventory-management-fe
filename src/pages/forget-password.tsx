@@ -70,7 +70,7 @@ export default function Home(): JSX.Element {
             </WithLabelAndError>
           </div>
           <div>
-            <Button fullWidth type="submit">
+            <Button fullWidth disabled={isLoading} type="submit">
               Ubah Kata Sandi
             </Button>
             <div className="text-center text-blueGray-600 mt-2">

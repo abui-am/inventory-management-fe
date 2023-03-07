@@ -33,7 +33,7 @@ import { createOption, getOptionByValue } from '@/utils/options';
 import createSchema from '@/utils/validation/formik';
 
 const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ editId, isEdit = false }) => {
-  const { mutateAsync } = useCreateEmployee();
+  const { mutateAsync, isLoading: isLoadingMutate } = useCreateEmployee();
   const { mutateAsync: editEmployee } = useEditEmployee(editId ?? '');
   const { data, isLoading } = useFetchEmployeeById(editId ?? '', { enabled: isEdit });
   const editingEmployee = data?.data?.employee;
@@ -288,7 +288,9 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           <Button onClick={() => back()} variant="secondary" className="mr-4">
             Batalkan
           </Button>
-          <Button type="submit">{isEdit ? 'Edit Karyawan' : 'Tambah Karyawan'}</Button>
+          <Button disabled={isLoadingMutate} type="submit">
+            {isEdit ? 'Edit Karyawan' : 'Tambah Karyawan'}
+          </Button>
         </div>
       </div>
     </form>
