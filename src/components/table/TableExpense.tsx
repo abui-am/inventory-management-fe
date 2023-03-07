@@ -109,7 +109,7 @@ const TableExpense: React.FC = () => {
         data={data}
         search={() => (
           <div className="mt-2 mb-6 flex justify-between">
-            <h2 className="text-2xl font-bold">Riwayat Konversi</h2>
+            <h2 className="text-2xl font-bold">Riwayat Beban</h2>
             <div className="flex">
               <div className="flex flex-wrap">
                 <SelectSortBy

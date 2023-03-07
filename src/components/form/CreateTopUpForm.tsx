@@ -19,7 +19,7 @@ export type CreateTopUpFormValues = {
 
 export const paymentMethodOptions = [
   {
-    label: 'Cash',
+    label: 'Kas',
     value: 'cash',
   },
   {
@@ -48,18 +48,6 @@ const CreateTopUp: React.FC<{
   };
   const { data: dataResLedger } = useFetchUnpaginatedLedgerAccounts();
 
-  const typeOptions = useMemo(
-    () =>
-      dataResLedger?.data?.ledger_accounts
-        .map?.(({ name, id, ...props }) => ({
-          label: name,
-          value: id,
-          data: props,
-        }))
-        .filter((val) => ['Kas', 'Giro', 'Bank'].includes(val.label)) ?? [],
-    [dataResLedger]
-  );
-
   const { values, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema: validationSchemaLedgerTopUp,
     initialValues,
@@ -78,6 +66,20 @@ const CreateTopUp: React.FC<{
       toast(res.message);
     },
   });
+
+  const typeOptions = useMemo(
+    () =>
+      dataResLedger?.data?.ledger_accounts
+        .map?.(({ name, id, ...props }) => ({
+          label: name,
+          value: id,
+          data: props,
+        }))
+        .filter((val) =>
+          ['Kas', 'Giro', 'Bank'].filter((val) => val !== values?.paymentMethod?.label).includes(val.label)
+        ) ?? [],
+    [dataResLedger, values]
+  );
 
   return (
     <form onSubmit={handleSubmit} noValidate>
