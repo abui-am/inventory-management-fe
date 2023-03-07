@@ -14,7 +14,7 @@ export default function Home(): JSX.Element {
     confirmPassword: '',
   };
 
-  const { mutateAsync } = useResetPassword();
+  const { mutateAsync, isLoading } = useResetPassword();
   const { values, handleChange, errors, isSubmitting, handleSubmit, touched } = useFormik({
     validationSchema: object().shape(createSchema(initialValues)),
     initialValues,
