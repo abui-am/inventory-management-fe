@@ -65,7 +65,7 @@ const CreateExpense: React.FC<{
     <form onSubmit={handleSubmit} noValidate>
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
-          <h6 className="mb-3 text-lg font-bold">Konversi Saldo</h6>
+          <h6 className="mb-3 text-lg font-bold">Tambah Beban</h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <WithLabelAndError required touched={touched} errors={errors} name="name" label="Nama beban">
@@ -125,7 +125,7 @@ const CreateExpense: React.FC<{
             Batalkan
           </Button>
           <Button disabled={isLoading} type="submit">
-            Tulis Beban
+            Tambah Beban
           </Button>
         </div>
       </div>

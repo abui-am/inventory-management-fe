@@ -33,7 +33,11 @@ export const useCreateAdvancePayrolls = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-
+        query.invalidateQueries(keys.salary);
+        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries(keys.ledgerAccounts);
+        query.invalidateQueries(keys.incomeReport);
+        query.invalidateQueries(keys.advancePayrolls);
         query.invalidateQueries(keys.capitalReport);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {

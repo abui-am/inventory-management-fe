@@ -40,17 +40,21 @@ const CreatePrepaidSalary: React.FC<{
     initialValues,
     validateOnChange: true,
     onSubmit: async (values, { resetForm }) => {
-      setSubmitting(true);
-      const jsonBody: CreateAdvancePayrollsPayload = {
-        employee_id: values.employee?.value ?? '',
-        amount: values.amount,
-        payroll_month: formatDateYYYYMM(values.salaryDate),
-      };
-      const res = await mutateAsync(jsonBody);
-      setSubmitting(false);
-      resetForm();
-      onSave?.(res.data);
-      toast(res.message);
+      try {
+        setSubmitting(true);
+        const jsonBody: CreateAdvancePayrollsPayload = {
+          employee_id: values.employee?.value ?? '',
+          amount: values.amount,
+          payroll_month: formatDateYYYYMM(values.salaryDate),
+        };
+        const res = await mutateAsync(jsonBody);
+        setSubmitting(false);
+        resetForm();
+        onSave?.(res.data);
+        toast(res.message);
+      } catch (e) {
+        toast.error('Error');
+      }
     },
   });
 

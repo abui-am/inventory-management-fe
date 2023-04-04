@@ -45,8 +45,8 @@ export type AddStockInTableValue = {
 
 const AddStockPage: NextPage = () => {
   const { back } = useRouter();
-  const { mutateAsync } = useCreateStockIn();
-  const { mutateAsync: createItem } = useCreateItems();
+  const { mutateAsync, isLoading } = useCreateStockIn();
+  const { mutateAsync: createItem, isLoading: isLoadingItem } = useCreateItems();
   const { push } = useRouter();
 
   const initialValues = {
@@ -355,7 +355,9 @@ const AddStockPage: NextPage = () => {
                 <Button onClick={() => back()} variant="secondary" className="mr-4">
                   Batalkan
                 </Button>
-                <Button type="submit">Bayar</Button>
+                <Button disabled={isLoading || isLoadingItem} type="submit">
+                  Bayar
+                </Button>
               </div>
             </div>
           </div>

@@ -90,7 +90,7 @@ const CreatePrive: React.FC<{
             <div className="sm:col-span-2">
               <WithLabelAndError required touched={touched} errors={errors} name="amount" label="Jumlah penarikan">
                 <CurrencyTextField
-                  placeholder="Masukan nomor telepon"
+                  placeholder="Masukan jumlah penarikan"
                   value={values.amount?.toString()}
                   name="amount"
                   onChange={(amount) => setFieldValue('amount', amount)}

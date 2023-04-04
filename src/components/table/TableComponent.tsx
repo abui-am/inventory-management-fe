@@ -213,7 +213,7 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () 
   const { mutateAsync, isLoading } = useUpdateStockIn();
   return (
     <>
-      <Modal isOpen={!!transactionId} onRequestClose={onClose} variant="large">
+      <Modal isOpen={!!transactionId} onRequestClose={onClose} variant="screen">
         <h2 className="text-2xl font-bold mt-2 max">Tentukan Harga Jual</h2>
         <Formik
           initialValues={initialValues}
