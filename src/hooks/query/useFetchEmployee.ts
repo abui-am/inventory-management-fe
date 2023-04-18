@@ -23,7 +23,7 @@ const useFetchEmployee = (
     per_page: number;
     search: string;
     order_by: Record<string, string>;
-    where: Record<string, string>;
+    where: Record<string, string | boolean>;
   }> = {}
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const { data: dataSelf } = useFetchMyself();
@@ -112,10 +112,10 @@ const useCreateEmployee = (): UseMutationResult<
 
 const useEditEmployee = (
   editId: string
-): UseMutationResult<Omit<BackendRes<unknown>, 'data'>, unknown, CreateEmployeePutBody, unknown> => {
+): UseMutationResult<Omit<BackendRes<unknown>, 'data'>, unknown, Partial<CreateEmployeePutBody>, unknown> => {
   const query = useQueryClient();
 
-  const mutator = useMutation([keys.employees, 'edit', editId], async (data: CreateEmployeePutBody) => {
+  const mutator = useMutation([keys.employees, 'edit', editId], async (data: Partial<CreateEmployeePutBody>) => {
     const res = await apiInstanceAdmin().patch(`/employees/${editId}`, data);
     query.invalidateQueries(keys.employees);
     return res.data;

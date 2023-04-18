@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { KeyboardEvent, useState } from 'react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -10,7 +11,7 @@ import Modal from '@/components/Modal';
 import Tabs from '@/components/Tabs';
 import Tag from '@/components/Tag';
 import { usePermission } from '@/context/permission-context';
-import { useFetchEmployeeById, useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import { useEditEmployee, useFetchEmployeeById, useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useFetchUserById } from '@/hooks/query/useFetchUser';
 import { Employee } from '@/typings/employee';
 import { formatDate } from '@/utils/format';
@@ -20,11 +21,26 @@ const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
   const { query = {}, push } = useRouter();
   const { data, isLoading } = useFetchEmployeeById(query.id as string);
-  const { first_name, last_name, position, id, has_dashboard_account, user, ...rest } = data?.data.employee ?? {};
+  const { mutateAsync } = useEditEmployee(query.id as string);
+  const router = useRouter();
+  const { first_name, active, last_name, position, id, has_dashboard_account, user, ...rest } =
+    data?.data.employee ?? {};
   const { state } = usePermission();
-
+  const [openModal, setOpenModal] = useState(false);
   const { data: dataUser } = useFetchMyself();
   const isSelf = id === dataUser?.data?.user?.employee.id;
+
+  const handleConfirm = async () => {
+    try {
+      await mutateAsync({
+        active: false,
+      });
+      toast.success('Sukses');
+      router.push('/employee');
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const renderView = () => {
     switch (activeTab) {
       case 0:
@@ -44,19 +60,47 @@ const EmployeeDetails: NextPage = () => {
 
   return (
     <CardDashboard>
+      <Modal isOpen={openModal}>
+        <h3 className="text-base">Apakah kamu yakin untuk menontaktifkan karyawan?</h3>
+        <div className="mt-8 flex justify-end">
+          <div className="flex">
+            <Button
+              onClick={() => {
+                setOpenModal(false);
+              }}
+              variant="secondary"
+              className="mr-4"
+            >
+              Batalkan
+            </Button>
+            <Button disabled={isLoading} onClick={handleConfirm}>
+              Konfirmasi
+            </Button>
+          </div>
+        </div>
+      </Modal>
       <div className="flex mb-7 flex-col sm:flex-row">
-        <img
-          className="w-full h-full sm:w-60 sm:h-60"
-          alt="profile"
-          src="https://randomuser.me/api/portraits/women/44.jpg"
-        />
+        <img className="w-full h-full sm:w-60 sm:h-60 object-cover" alt="profile" src="/images/employee.png" />
         <div className="mt-6 sm:mt-2 sm:ml-10">
-          <h1 className="text-2xl font-bold mb-2">{`${first_name ?? ''} ${last_name ?? ''}`}</h1>
+          <h1 className="text-2xl font-bold mb-2">
+            {`${first_name ?? ''} ${last_name ?? ''}`} {!active && <span className="text-gray-500">(Tidak aktif)</span>}
+          </h1>
           <span className="text-blue-600 font-bold mb-6">{position}</span>
           <div className="flex mt-6">
             {(state.permission.includes('control:profile') || isSelf) && (
               <Button variant="gray" onClick={() => push(`/employee/${query.id}/edit`)}>
                 Edit Profile
+              </Button>
+            )}
+            {(state.permission.includes('control:profile') || isSelf) && active && (
+              <Button
+                className="ml-4"
+                variant="danger"
+                onClick={() => {
+                  setOpenModal(true);
+                }}
+              >
+                Deactivate
               </Button>
             )}
           </div>
@@ -159,6 +203,7 @@ const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: stri
       default:
     }
   }
+
   if (!hasDashboardAccount) {
     return (
       <>

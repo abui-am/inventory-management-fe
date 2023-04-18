@@ -138,7 +138,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                     onKeyUp={handleKeyUp}
                     role="button"
                   >
-                    <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" className="mr-2" />
+                    <Avatar url="/images/employee.png" className="mr-2" />
                   </div>
                   <Popup
                     open={showMenu}
@@ -154,7 +154,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                     <div className="flex flex-col divide-y w-72 py-1">
                       <div className="py-6 px-6">
                         <div className="flex">
-                          <Avatar url="https://randomuser.me/api/portraits/women/44.jpg" />
+                          <Avatar url="/images/employee.png" className="object-cover" />
                           <div className="pl-3">
                             <span className="text-base block">{`${first_name} ${last_name}`}</span>
                             <span className="text-sm text-blueGray-600 block">{`${(

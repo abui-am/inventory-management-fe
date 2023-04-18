@@ -24,6 +24,9 @@ const Home: NextPage<unknown> = () => {
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
+    where: {
+      active: true,
+    },
     per_page: pageSize,
     forceUrl: paginationUrl || undefined,
   });
