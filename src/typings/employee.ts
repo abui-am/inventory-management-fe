@@ -32,6 +32,16 @@ export type EmployeeData = {
   updated_at: Date;
 };
 
+export type EmployeeDataWithSalary = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  position: string;
+  salary: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type CreateEmployeePutBody = {
   first_name: string;
   last_name: string;

@@ -38,7 +38,7 @@ const AuditPage = () => {
       sequence: 'desc',
     },
     where: {
-      description: type?.label ?? '',
+      name: type?.label ?? '',
     },
     where_greater_equal: {
       created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',

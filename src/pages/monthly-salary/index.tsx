@@ -1,30 +1,25 @@
-import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { CashCoin } from 'react-bootstrap-icons';
 
-import { Button, ButtonWithModal } from '@/components/Button';
+import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
 import { DatePickerComponent, SelectSortBy, SelectSortType } from '@/components/Form';
-import PaySalaryForm from '@/components/form/PaySalary';
-import Modal, { ModalActionWrapper } from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { PAYROLLS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
-import { useCreateSalary } from '@/hooks/mutation/useMutateSalary';
 import { useFetchSalary } from '@/hooks/query/useFetchSalary';
+import useSalary from '@/hooks/table/useSalary';
 import { Option } from '@/typings/common';
-import { Datum } from '@/typings/salary';
-import { formatDateYYYYMM, formatToIDR } from '@/utils/format';
+import { formatDateYYYYMM } from '@/utils/format';
 
 const PrepaidSalaryPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(PAYROLLS_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [pageSize, setPageSize] = useState(10);
-
+  const router = useRouter();
   const [date, setDate] = useState(new Date());
   const { data: datasource } = useFetchSalary({
     per_page: pageSize,
@@ -49,80 +44,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
 
   const isCreateNew = dataRes.length === 0;
 
-  const data = dataRes.map(
-    ({ employee, paid_in_advance, employee_position: position, status, paid_amount, employee_salary, ...props }) => ({
-      name: (
-        <Link href={`/employee/${employee.id}`}>
-          <a className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</a>
-        </Link>
-      ),
-      position,
-      status: (
-        <div className={status === 'lunas' ? 'text-blue-600 font-bold' : ''}>
-          {`${status} ${paid_in_advance ? ' (dibayar dimuka)' : ''}`}
-        </div>
-      ),
-      paidAmount: formatToIDR(paid_amount),
-      salary: formatToIDR(employee_salary),
-      action: (
-        <PaySalary
-          payroll={{
-            employee,
-            paid_in_advance,
-            employee_position: position,
-            status,
-            paid_amount,
-            employee_salary,
-            ...props,
-          }}
-        />
-      ),
-    })
-  );
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Nama',
-        accessor: 'name', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Jabatan',
-        accessor: 'position',
-      },
-      {
-        Header: 'Status',
-        accessor: 'status',
-      },
-      {
-        Header: 'Dibayarkan',
-        accessor: 'paidAmount',
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
-      },
-      {
-        Header: 'Jumlah Gaji Bulanan',
-        accessor: 'salary',
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
-      },
-      {
-        Header: 'Aksi',
-        accessor: 'action',
-        width: '100px',
-      },
-    ],
-    []
-  );
+  const { columns, data } = useSalary(dataRes);
 
   return (
     <CardDashboard>
@@ -160,7 +82,24 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
         </div>
       </div>
       {isCreateNew ? (
-        <CreateNewPayrollList date={date} />
+        <section className="h-96 flex items-center flex-col justify-center">
+          <h3 className="text-xl block mb-4">
+            Anda belum membuat daftar gaji yang harus dibayar bulan {dayjs(date).format('MMMM YYYY')}
+          </h3>
+          <Button
+            onClick={() => {
+              router.push({
+                pathname: '/monthly-salary/preview',
+                query: {
+                  date: date?.toISOString(),
+                },
+              });
+            }}
+            className="mr-2"
+          >
+            Buat Daftar
+          </Button>
+        </section>
       ) : (
         <>
           <Table columns={columns} data={data} />
@@ -191,67 +130,6 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
         </>
       )}
     </CardDashboard>
-  );
-};
-
-const PaySalary: React.FC<{ payroll: Datum }> = ({ payroll }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  return (
-    <>
-      <Tippy content="Bayar gaji">
-        <Button className="ml-3" onClick={handleOpen}>
-          <CashCoin />
-        </Button>
-      </Tippy>
-
-      <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <PaySalaryForm onSave={handleClose} onClose={handleClose} payroll={payroll} />
-      </Modal>
-    </>
-  );
-};
-
-const CreateNewPayrollList = ({ date }: { date: Date }) => {
-  const { mutateAsync } = useCreateSalary();
-
-  return (
-    <section className="h-96 flex items-center flex-col justify-center">
-      <h3 className="text-xl block mb-4">
-        Anda belum membuat daftar gaji yang harus dibayar bulan {dayjs(date).format('MMMM YYYY')}
-      </h3>
-
-      <ButtonWithModal text="Buat Daftar">
-        {({ handleClose }) => {
-          const handleClick = () => {
-            mutateAsync({
-              month: formatDateYYYYMM(date),
-            });
-            handleClose();
-          };
-
-          return (
-            <>
-              <h2 className="text-xl font-bold mb-4">Konfirmasi</h2>
-              <ModalActionWrapper>
-                <Button variant="secondary" onClick={handleClose} className="mr-2">
-                  Batalkan
-                </Button>
-                <Button onClick={handleClick}>Buat Daftar</Button>
-              </ModalActionWrapper>
-            </>
-          );
-        }}
-      </ButtonWithModal>
-    </section>
   );
 };
 
