@@ -16,11 +16,12 @@ import { formatDateYYYYMM } from '@/utils/format';
 
 const PrepaidSalaryPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
+
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(PAYROLLS_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [pageSize, setPageSize] = useState(10);
   const router = useRouter();
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(router.query.date ? new Date(router.query.date as string) : new Date());
   const { data: datasource } = useFetchSalary({
     per_page: pageSize,
     where_payroll_month: formatDateYYYYMM(date),
