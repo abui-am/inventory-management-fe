@@ -324,11 +324,12 @@ const AddTransactionPage: NextPage = () => {
                       setFieldValue('payments', [
                         ...values.payments,
                         {
-                          paymentMethod: { value: 'cash', label: 'Cash' },
-                          payAmount:
-                            values?.payments?.[0]?.paymentMethod?.value === 'cash'
-                              ? values?.totalPrice - (values?.payments?.[0]?.payAmount ?? 0)
-                              : null,
+                          paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
+                            (val) => val.value !== values?.payments?.[0].paymentMethod?.value
+                          )[0],
+                          payAmount: values?.payments?.[0]
+                            ? values?.totalPrice - (values?.payments?.[0]?.payAmount ?? 0)
+                            : null,
                           paymentDue: null,
                         },
                       ]);

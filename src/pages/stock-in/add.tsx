@@ -340,8 +340,10 @@ const AddStockPage: NextPage = () => {
                     setFieldValue('payments', [
                       ...values.payments,
                       {
-                        paymentMethod: { value: 'cash', label: 'Cash' },
-                        payAmount: null,
+                        paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
+                          (val) => val.value !== values?.payments?.[0].paymentMethod?.value
+                        )[0],
+                        payAmount: values?.payments?.[0] ? totalPrice - (values?.payments?.[0]?.payAmount ?? 0) : null,
                         paymentDue: null,
                       },
                     ]);
