@@ -61,7 +61,12 @@ const AccountReceivable: NextPage<unknown> = () => {
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
-    action: <PayDebt debt={{ created_at, description, is_paid, paid_amount, amount, ...props }} />,
+    sisapiutang: formatToIDR(+amount - +paid_amount),
+
+    action:
+      +amount - +paid_amount > 0 ? (
+        <PayDebt debt={{ created_at, description, is_paid, paid_amount, amount, ...props }} />
+      ) : null,
   }));
   const columns = React.useMemo(
     () => [
@@ -78,6 +83,17 @@ const AccountReceivable: NextPage<unknown> = () => {
         accessor: 'status',
       },
       {
+        Header: 'Jumlah Piutang',
+        accessor: 'debtAmount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
+      },
+      {
         Header: 'Dibayarkan',
         accessor: 'paid',
         style: {
@@ -89,8 +105,8 @@ const AccountReceivable: NextPage<unknown> = () => {
         },
       },
       {
-        Header: 'Jumlah Piutang',
-        accessor: 'debtAmount',
+        Header: 'Sisa Piutang',
+        accessor: 'sisapiutang',
         style: {
           textAlign: 'right',
           display: 'block',
@@ -190,7 +206,7 @@ const PayDebt: React.FC<{ debt: Datum }> = ({ debt }) => {
 
   return (
     <>
-      <Tippy content="Bayar gaji">
+      <Tippy content="Terima Piutang">
         <Button className="ml-3" onClick={handleOpen}>
           <CashCoin />
         </Button>

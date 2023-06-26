@@ -95,7 +95,25 @@ const PaySalaryForm: React.FC<{
                   type="number"
                   disabled={values.payFull}
                 /> */}
-                <CurrencyTextField
+
+                {values.payFull ? (
+                  <div className="h-16 border rounded-md py-4 px-4 w-max">
+                    <span className="text-xl text-gray-900 font-bold block">
+                      <span className="text-gray-500 mr-3">IDR</span>
+                      {formatToIDR(values?.salary - values?.paidAmount)}
+                    </span>
+                  </div>
+                ) : (
+                  <CurrencyTextField
+                    name="amount"
+                    value={values.amount}
+                    onChange={(val) => {
+                      setFieldValue('amount', val);
+                    }}
+                    placeholder="0"
+                  />
+                )}
+                {/* <CurrencyTextField
                   disabled={values?.payFull}
                   name="amount"
                   value={values.amount}
@@ -103,7 +121,7 @@ const PaySalaryForm: React.FC<{
                     setFieldValue('amount', val);
                   }}
                   placeholder="0"
-                />
+                /> */}
               </WithLabelAndError>
               {!values.payFull && (
                 <div>

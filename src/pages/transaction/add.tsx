@@ -205,6 +205,8 @@ const AddTransactionPage: NextPage = () => {
     ],
     []
   );
+
+  const totalPriceAfterDiscount = values.totalPrice - (values?.discount ?? 0);
   return (
     <CardDashboard>
       <form onSubmit={handleSubmit}>
@@ -292,7 +294,7 @@ const AddTransactionPage: NextPage = () => {
               </div>
               <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Harga total</label>
-                <p className="text-2xl font-bold">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
+                <p className="text-2xl font-bold">{formatToIDR(totalPriceAfterDiscount)}</p>
               </div>
 
               <div className="px-2 mb-2">
@@ -325,10 +327,10 @@ const AddTransactionPage: NextPage = () => {
                         ...values.payments,
                         {
                           paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
-                            (val) => val.value !== values?.payments?.[0].paymentMethod?.value
+                            (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
                           )[0],
                           payAmount: values?.payments?.[0]
-                            ? values?.totalPrice - (values?.payments?.[0]?.payAmount ?? 0)
+                            ? totalPriceAfterDiscount - (values?.payments?.[0]?.payAmount ?? 0)
                             : null,
                           paymentDue: null,
                         },

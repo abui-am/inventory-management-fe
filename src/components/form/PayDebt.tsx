@@ -64,7 +64,7 @@ const PayDebtForm: React.FC<{
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
           <h6 className="mb-6 text-2xl font-bold">
-            {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Lunaskan Piutang' : 'Bayar Utang'}
+            {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Terima Piutang' : 'Bayar Utang'}
           </h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
@@ -87,15 +87,23 @@ const PayDebtForm: React.FC<{
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah yang mau dibayarkan">
-                <CurrencyTextField
-                  disabled={values?.payFull}
-                  name="amount"
-                  value={values.amount}
-                  onChange={(val) => {
-                    setFieldValue('amount', val);
-                  }}
-                  placeholder="0"
-                />
+                {values.payFull ? (
+                  <div className="h-16 border rounded-md py-4 px-4 w-max">
+                    <span className="text-xl text-gray-900 font-bold block">
+                      <span className="text-gray-500 mr-3">IDR</span>
+                      {formatToIDR(values?.unpaidAmount)}
+                    </span>
+                  </div>
+                ) : (
+                  <CurrencyTextField
+                    name="amount"
+                    value={values.amount}
+                    onChange={(val) => {
+                      setFieldValue('amount', val);
+                    }}
+                    placeholder="0"
+                  />
+                )}
               </WithLabelAndError>
 
               {!values.payFull && (
@@ -140,7 +148,7 @@ const PayDebtForm: React.FC<{
             Batalkan
           </Button>
           <Button disabled={isLoading} type="submit">
-            {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Lunaskan Piutang' : 'Bayar Utang'}
+            {type === 'giro' ? 'Bayar Utang Giro' : type === 'account-receivable' ? 'Terima Piutang' : 'Bayar Utang'}
           </Button>
         </div>
       </div>

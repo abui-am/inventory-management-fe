@@ -176,7 +176,6 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
       {withPagination && (
         <Pagination
           onClickGoToPage={(e) => {
-            console.log(e);
             gotoPage(e - 1);
           }}
           onChangePerPage={(val) => {

@@ -61,14 +61,16 @@ const PrivePage: NextPage<unknown> = () => {
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
-    action: (
-      <PayDebt
-        handleOpen={() => {
-          setDebt({ created_at, description, is_paid, paid_amount, amount, ...props });
-        }}
-        debt={{ created_at, description, is_paid, paid_amount, amount, ...props }}
-      />
-    ),
+    sisaUtang: formatToIDR(+amount - +paid_amount),
+    action:
+      +amount - +paid_amount > 0 ? (
+        <PayDebt
+          handleOpen={() => {
+            setDebt({ created_at, description, is_paid, paid_amount, amount, ...props });
+          }}
+          debt={{ created_at, description, is_paid, paid_amount, amount, ...props }}
+        />
+      ) : null,
   }));
 
   const [debt, setDebt] = useState<Datum | null>(null);
@@ -88,6 +90,17 @@ const PrivePage: NextPage<unknown> = () => {
         accessor: 'status',
       },
       {
+        Header: 'Jumlah Utang',
+        accessor: 'debtAmount',
+        style: {
+          textAlign: 'right',
+          display: 'block',
+        },
+        bodyStyle: {
+          textAlign: 'right',
+        },
+      },
+      {
         Header: 'Dibayarkan',
         accessor: 'paid',
         style: {
@@ -99,8 +112,8 @@ const PrivePage: NextPage<unknown> = () => {
         },
       },
       {
-        Header: 'Jumlah Utang',
-        accessor: 'debtAmount',
+        Header: 'Sisa Utang',
+        accessor: 'sisaUtang',
         style: {
           textAlign: 'right',
           display: 'block',

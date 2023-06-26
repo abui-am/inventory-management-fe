@@ -23,21 +23,24 @@ const useSalary = (salaries: Datum[]) => {
           {`${status} ${paid_in_advance ? ' (dibayar dimuka)' : ''}`}
         </div>
       ),
-      paidAmount: formatToIDR(paid_amount),
       salary: formatToIDR(employee_salary),
-      action: (
-        <PaySalary
-          payroll={{
-            employee,
-            paid_in_advance,
-            employee_position: position,
-            status,
-            paid_amount,
-            employee_salary,
-            ...props,
-          }}
-        />
-      ),
+      paidAmount: formatToIDR(paid_amount),
+      action:
+        // Hide if zero
+
+        +employee_salary - +paid_amount > 0 && (
+          <PaySalary
+            payroll={{
+              employee,
+              paid_in_advance,
+              employee_position: position,
+              status,
+              paid_amount,
+              employee_salary,
+              ...props,
+            }}
+          />
+        ),
     })
   );
   const columns = React.useMemo(

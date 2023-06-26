@@ -341,7 +341,7 @@ const AddStockPage: NextPage = () => {
                       ...values.payments,
                       {
                         paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
-                          (val) => val.value !== values?.payments?.[0].paymentMethod?.value
+                          (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
                         )[0],
                         payAmount: values?.payments?.[0] ? totalPrice - (values?.payments?.[0]?.payAmount ?? 0) : null,
                         paymentDue: null,
