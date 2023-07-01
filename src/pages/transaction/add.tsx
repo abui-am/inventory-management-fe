@@ -40,7 +40,7 @@ export type AddStockValue = {
   stockAdjustment: ItemToBuyFormValues[];
   memo: string;
   payments: Payment[];
-  discount: number | null;
+  discount: number | '';
   customer: Option<unknown> | null;
   sender: Option<unknown> | null;
   isNewSupplier: boolean;
@@ -55,7 +55,7 @@ const AddTransactionPage: NextPage = () => {
     memo: '',
     payments: [
       {
-        payAmount: null,
+        payAmount: '',
         paymentMethod: PAYMENT_METHOD_OPTIONS[0],
         paymentDue: new Date(),
       },
@@ -64,7 +64,7 @@ const AddTransactionPage: NextPage = () => {
     sender: null as Option<unknown> | null,
     isNewSupplier: false,
     totalPrice: 0,
-    discount: null as number | null,
+    discount: '' as number | '',
   };
   const [editId, setEditId] = useState<string | null>(null);
   const [isOpenSummary, setIsOpenSummary] = useState(false);
@@ -88,7 +88,7 @@ const AddTransactionPage: NextPage = () => {
                 ? dayjs(val.paymentDue).format('YYYY-MM-DD HH:mm:ss')
                 : undefined,
           })),
-          discount: data?.discount ?? 0,
+          discount: +(data?.discount ?? 0),
           note: data.memo,
           sender_id: data.sender?.value ?? '',
           transactionable_id: data.customer?.value ?? '',
@@ -111,7 +111,7 @@ const AddTransactionPage: NextPage = () => {
           const change = calculateChange(
             payload.payments.reduce((acc, val) => acc + val.cash, 0),
             data.totalPrice,
-            values?.discount ?? 0
+            +(values?.discount ?? 0)
           );
 
           if (change < 0) {
@@ -206,7 +206,7 @@ const AddTransactionPage: NextPage = () => {
     []
   );
 
-  const totalPriceAfterDiscount = values.totalPrice - (values?.discount ?? 0);
+  const totalPriceAfterDiscount = values.totalPrice - +(values?.discount ?? 0);
   return (
     <CardDashboard>
       <form onSubmit={handleSubmit}>
@@ -330,7 +330,7 @@ const AddTransactionPage: NextPage = () => {
                             (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
                           )[0],
                           payAmount: values?.payments?.[0]
-                            ? totalPriceAfterDiscount - (values?.payments?.[0]?.payAmount ?? 0)
+                            ? totalPriceAfterDiscount - +(values?.payments?.[0]?.payAmount ?? 0)
                             : null,
                           paymentDue: null,
                         },
@@ -429,9 +429,9 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
         <label className="">Nama Customer</label>
         <p className="font-bold mb-4">{values.customer?.label}</p>
         <label className="">Discount</label>
-        <p className="font-bold mb-4">{formatToIDR(values?.discount ?? 0)}</p>
+        <p className="font-bold mb-4">{formatToIDR(+(values?.discount ?? 0))}</p>
         <label className="">Harga Total</label>
-        <p className="font-bold mb-4">{formatToIDR(values.totalPrice - (values?.discount ?? 0))}</p>
+        <p className="font-bold mb-4">{formatToIDR(values.totalPrice - +(values?.discount ?? 0))}</p>
         <label className="">Dibayarkan</label>
         {values.payments?.map((val) => {
           return (
@@ -445,9 +445,9 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
           Kembalian :{' '}
           {formatToIDR(
             calculateChange(
-              values.payments.reduce((prev, curr) => prev + (curr?.payAmount ?? 0), 0),
+              values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
               values.totalPrice,
-              values.discount ?? 0
+              +(values.discount ?? 0)
             )
           )}
         </p>

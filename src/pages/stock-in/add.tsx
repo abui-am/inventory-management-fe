@@ -63,6 +63,7 @@ const AddStockPage: NextPage = () => {
     ] as Payment[],
     supplier: null as Option<unknown> | null,
     isNewSupplier: false,
+    payFull: false,
   };
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
     validationSchema: validationSchemaStockIn,
@@ -86,6 +87,30 @@ const AddStockPage: NextPage = () => {
       );
 
       const supplierId = supplier?.value ?? '';
+
+      // If payFull is true, then we will use the first payment method (only one payment method allowed)
+      const paymentsPayload = values.payFull
+        ? [
+            {
+              payment_method: values.payments?.[0]?.paymentMethod?.value,
+              maturity_date:
+                values.payments?.[0]?.paymentMethod?.value !== 'cash' &&
+                values.payments?.[0]?.paymentMethod?.value !== 'bank'
+                  ? dayjs(values.payments?.[0]?.paymentDue).format('YYYY-MM-DD HH:mm:ss')
+                  : undefined,
+              cash: totalPrice,
+              change: 0,
+            },
+          ]
+        : payments.map(({ paymentMethod, paymentDue, payAmount }) => ({
+            payment_method: paymentMethod.value,
+            maturity_date:
+              paymentMethod.value !== 'cash' && paymentMethod.value !== 'bank'
+                ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
+                : undefined,
+            cash: +(payAmount ?? 0),
+            change: 0,
+          }));
       const jsonBody: CreateStockInBody = {
         transactionable_type: 'suppliers',
         purchase_date: dayjs(dateIn).format('YYYY-MM-DD HH:mm:ss'),
@@ -93,15 +118,7 @@ const AddStockPage: NextPage = () => {
         note: memo,
         items: newItem.results,
         transactionable_id: supplierId,
-        payments: payments.map(({ paymentMethod, paymentDue, payAmount }) => ({
-          payment_method: paymentMethod.value,
-          maturity_date:
-            paymentMethod.value !== 'cash' && paymentMethod.value !== 'bank'
-              ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
-              : undefined,
-          cash: payAmount ?? 0,
-          change: 0,
-        })),
+        payments: paymentsPayload,
       };
 
       try {
@@ -327,11 +344,13 @@ const AddStockPage: NextPage = () => {
                       values={values}
                       setFieldValue={setFieldValue}
                       index={idx}
+                      totalPrice={totalPrice}
+                      withPayFull
                     />
                   </div>
                 );
               })}
-              {values?.payments?.length < 2 && (
+              {!values.payFull && values?.payments?.length < 2 && (
                 <Button
                   variant="outlined"
                   className="w-full mt-2"
@@ -343,7 +362,7 @@ const AddStockPage: NextPage = () => {
                         paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
                           (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
                         )[0],
-                        payAmount: values?.payments?.[0] ? totalPrice - (values?.payments?.[0]?.payAmount ?? 0) : null,
+                        payAmount: values?.payments?.[0] ? totalPrice - +(values?.payments?.[0]?.payAmount ?? 0) : null,
                         paymentDue: null,
                       },
                     ]);
