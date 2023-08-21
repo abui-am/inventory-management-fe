@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
-import { EXPENSES_SORT_BY_OPTIONS, LEDGER_TOP_UPS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { EXPENSES_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchExpense } from '@/hooks/query/useFetchExpense';
 import { Option } from '@/typings/common';
 import { formatDate, formatToIDR } from '@/utils/format';
@@ -117,7 +117,7 @@ const TableExpense: React.FC = () => {
                   onChange={(val) => {
                     setSortBy(val as Option<string[]>);
                   }}
-                  options={LEDGER_TOP_UPS_SORT_BY_OPTIONS}
+                  options={EXPENSES_SORT_BY_OPTIONS}
                 />
 
                 <SelectSortType

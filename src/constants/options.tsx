@@ -143,6 +143,11 @@ export const LEDGER_TOP_UPS_SORT_BY_OPTIONS = [
 
 export const EXPENSES_SORT_BY_OPTIONS = [
   {
+    label: 'Sortir berdasarkan terbaru',
+    value: 'created_at',
+    data: ['created_at'],
+  },
+  {
     label: 'Sortir berdasarkan nama',
     value: 'name',
     data: ['name'],
