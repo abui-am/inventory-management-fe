@@ -1,6 +1,7 @@
 import { TrashFill } from 'react-bootstrap-icons';
 
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
+import { useApp } from '@/context/app-context';
 import { Option } from '@/typings/common';
 import { formatToIDR } from '@/utils/format';
 
@@ -25,7 +26,9 @@ const PaymentMethod: React.FC<{
   touched: Record<string, any>;
 }> = ({ index, values, setFieldValue, isSubmitting, withPayFull, errors, touched, totalPrice }) => {
   const value = values.payments[index];
-
+  const {
+    state: { hideLabel },
+  } = useApp();
   const handleDelete = () => {
     setFieldValue(
       'payments',
@@ -47,7 +50,7 @@ const PaymentMethod: React.FC<{
             }}
             value={value.paymentMethod}
             additionalStyle={{
-              control: (provided) => ({ ...provided, minWidth: 240 }),
+              control: (provided) => ({ ...provided, minWidth: hideLabel ? 120 : 240 }),
             }}
             options={PAYMENT_METHOD_OPTIONS}
           />

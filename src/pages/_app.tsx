@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
 
+import { AppProvider } from '@/context/app-context';
 import { PermissionProvider } from '@/context/permission-context';
 import Layout from '@/layouts/Layout';
 import parseCookies from '@/utils/cookies';
@@ -38,12 +39,14 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
     <QueryClientProvider client={queryClientRef.current}>
       <Hydrate state={dehydrateState}>
         <PermissionProvider>
-          <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
-            <Layout>
-              <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
-              <Component {...pageProps} />
-            </Layout>
-          </main>
+          <AppProvider>
+            <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
+              <Layout>
+                <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
+                <Component {...pageProps} />
+              </Layout>
+            </main>
+          </AppProvider>
         </PermissionProvider>
       </Hydrate>
       <ReactQueryDevtools initialIsOpen={false} />

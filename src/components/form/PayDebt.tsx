@@ -4,6 +4,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 
 import { PAYMENT_METHOD_OPTIONS_DEBT } from '@/constants/options';
+import { useApp } from '@/context/app-context';
 import { useUpdateDebt } from '@/hooks/mutation/useMutateDebt';
 import { Option } from '@/typings/common';
 import { Datum, PayDebtPayload } from '@/typings/debts';
@@ -28,6 +29,9 @@ const PayDebtForm: React.FC<{
   onClose: () => void;
   type: 'giro' | 'normal' | 'account-receivable';
 }> = ({ debt, type, onSave, onClose }) => {
+  const {
+    state: { hideLabel },
+  } = useApp();
   const { mutateAsync, isLoading } = useUpdateDebt();
   const initialValues: PayDebtFormValues = {
     debtAmount: +debt?.amount ?? 0,
@@ -133,7 +137,7 @@ const PayDebtForm: React.FC<{
                   }}
                   value={values.paymentMethod}
                   additionalStyle={{
-                    control: (provided) => ({ ...provided, minWidth: 240 }),
+                    control: (provided) => ({ ...provided, minWidth: hideLabel ? 120 : 240 }),
                   }}
                   options={PAYMENT_METHOD_OPTIONS_DEBT}
                 />

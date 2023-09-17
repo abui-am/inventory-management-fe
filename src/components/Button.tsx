@@ -56,8 +56,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         type="button"
         className={clsx(
-          'rounded-md font-bold whitespace-nowrap relative transition-colors',
-          size === 'small' ? 'h-9 px-2 py-1' : 'h-11 px-4 py-2',
+          'rounded-md font-bold relative transition-colors',
+          size === 'small' ? 'min-h-9 px-2 py-1' : 'min-h-11 px-4 py-2',
           classes[variant],
           classesDisabled[variant],
           fullWidth ? 'w-full' : '',

@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
-import { List } from 'react-bootstrap-icons';
+import { ArrowLeft, List } from 'react-bootstrap-icons';
 import useCollapse from 'react-collapsed';
 import { useQueryClient } from 'react-query';
 
@@ -11,6 +11,7 @@ import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import MENU_LIST from '@/constants/menu';
+import { useApp } from '@/context/app-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { removeCookie } from '@/utils/cookies';
@@ -27,6 +28,8 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
   const { push } = useRouter();
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showNavbar });
   const { data } = useFetchMyself();
+  const { state, dispatch: dispatchApp } = useApp();
+  const { hideLabel } = state;
   const { data: dataUser } = data ?? {};
   const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
   function logout() {
@@ -78,14 +81,14 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
       <div className="min-h-screen max-w-screen overflow-hidden">
         <section id="MenuSmall" className="sm:hidden">
           <div {...getCollapseProps()}>
-            <Menu onMenuClick={setShowNavbar} activePage={activePage} />
+            <Menu onMenuClick={setShowNavbar} hideLabel={false} activePage={activePage} />
           </div>
         </section>
 
         <div className="flex min-h-screen max-w-screen">
           <div
             style={{
-              width: 240,
+              width: hideLabel ? 120 : 240,
               position: 'fixed',
               top: 0,
               bottom: 0,
@@ -94,13 +97,31 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
             }}
             className="flex-grow-0  flex-shrink-0 bg-blueGray-900 hidden sm:flex "
           >
-            <div className="p-8 pb-7">
+            <div className="p-8 pb-7 relative">
               <Link href="/">
                 <div className="flex -ml-5 cursor-pointer">
                   <img src="/logo.png" className="w-9 h-9 mr-2" alt="logo" />
-                  <h3 className="text-2xl font-bold text-white">Dashboard</h3>
+                  {!hideLabel && <h3 className="text-2xl font-bold text-white">Dashboard</h3>}
                 </div>
               </Link>
+              <div className="absolute right-0 h-full top-0">
+                <div className="flex gap-2 flex-col justify-center items-center h-full">
+                  <button
+                    onClick={() => dispatchApp({ type: 'setHideLabel', payload: !hideLabel })}
+                    type="button"
+                    className="w-6 h-6 shadow-md -mr-3 rounded-full bg-white flex justify-center items-center"
+                  >
+                    <ArrowLeft
+                      className="text-gray-900 transition-transform"
+                      style={{
+                        // rotate if hideLabel is true
+                        transitionDuration: '0.3s',
+                        transform: hideLabel ? 'rotate(180deg)' : 'rotate(0deg)',
+                      }}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
             <section
               id="menu"
@@ -110,11 +131,11 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
                 paddingBottom: 40,
               }}
             >
-              <Menu onMenuClick={setShowNavbar} activePage={activePage} />
+              <Menu hideLabel={hideLabel} onMenuClick={setShowNavbar} activePage={activePage} />
             </section>
           </div>
 
-          <div className="flex-1 p-0 sm:p-8 sm:ml-[240px]">
+          <div className={clsx('flex-1 p-0 sm:p-8', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
             <div className="p-6 flex justify-between mb-0 sm:p-0 sm:mb-6 max-w-screen">
               <Link href={titleHref}>
                 <a>

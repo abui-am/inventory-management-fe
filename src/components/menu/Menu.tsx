@@ -5,7 +5,11 @@ import MENU_LIST from '@/constants/menu';
 import { PermissionList, usePermission } from '@/context/permission-context';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
 
-const Menu: React.FC<{ activePage: number; onMenuClick: (menu: boolean) => void }> = ({ activePage, onMenuClick }) => {
+const Menu: React.FC<{ activePage: number; hideLabel: boolean; onMenuClick: (menu: boolean) => void }> = ({
+  activePage,
+  onMenuClick,
+  hideLabel,
+}) => {
   const { state } = usePermission();
   const getBubble = (id: string) => {
     switch (id) {
@@ -47,13 +51,15 @@ const Menu: React.FC<{ activePage: number; onMenuClick: (menu: boolean) => void 
                     })}
                   </div>
 
-                  <span
-                    className={`group-hover:text-blue-600 font-bold relative ${
-                      activePage === index ? 'text-white' : 'text-blueGray-400'
-                    }`}
-                  >
-                    {displayName}
-                  </span>
+                  {!hideLabel && (
+                    <span
+                      className={`group-hover:text-blue-600 font-bold relative ${
+                        activePage === index ? 'text-white' : 'text-blueGray-400'
+                      }`}
+                    >
+                      {displayName}
+                    </span>
+                  )}
                   {getBubble(id)}
                 </button>
               </a>
