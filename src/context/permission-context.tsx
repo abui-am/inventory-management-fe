@@ -37,9 +37,9 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
 
   roles.forEach((role) => {
     // eslint-disable-next-line default-case
-    switch (role.id) {
+    switch (role.name) {
       // super_admin
-      case 1:
+      case 'superadmin':
         permission = [
           ...permission,
           'control:profile',
@@ -69,10 +69,10 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
         break;
 
       // admin
-      case 2:
+      case 'admin':
         permission = [...permission, 'control:transaction', 'control:stock', 'control:supplier'];
         break;
-      case 4:
+      default:
         permission = [...permission, 'control:stock.confirmation', 'control:audit'];
         break;
     }
@@ -83,8 +83,10 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
 
 const PermissionProvider: React.FC = ({ children }) => {
   const { data } = useFetchMyself({ enabled: !!getCookie('INVT-TOKEN') });
+
   const permissionList = getPermission(data?.data.user.roles ?? []);
   const permission = permissionList;
+  console.log(data?.data.user.roles, 'liost');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const uniquePermission = [...(new Set(permission) as unknown as PermissionList[])];
