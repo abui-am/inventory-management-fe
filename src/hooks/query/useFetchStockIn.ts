@@ -40,7 +40,10 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
           });
       return res.data;
     },
-    options
+    {
+      enabled: !!roles,
+      ...options,
+    }
   );
 
   return fetcher;

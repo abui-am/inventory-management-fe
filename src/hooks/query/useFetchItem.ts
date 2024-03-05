@@ -39,7 +39,10 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
         : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).post('/items', data);
       return res.data;
     },
-    options
+    {
+      enabled: !!roles,
+      ...options,
+    }
   );
 
   return fetcher;
