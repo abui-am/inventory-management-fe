@@ -2,7 +2,7 @@ import Tippy from '@tippyjs/react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { Eye, PlusLg, Search } from 'react-bootstrap-icons';
+import { Download, Eye, PlusLg, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -12,10 +12,12 @@ import Table from '@/components/Table';
 import { DetailSale } from '@/components/table/TableComponent';
 import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { Option } from '@/typings/common';
 import { SaleTransactionsData } from '@/typings/sale';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
+import printInvoice from '@/utils/printInvoice';
 
 const TransactionPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
@@ -101,29 +103,34 @@ const TransactionPage: NextPage<unknown> = () => {
       ),
 
       col8: (
-        <Tippy content="Lihat detail">
-          <Button
-            size="small"
-            onClick={() => {
-              setTranscation({
-                transaction_code,
-                created_at,
-                sender,
-                discount,
-                payment_method,
-                payments,
-                pic,
-                items,
-                id,
-                status,
-                customer,
-                ...props,
-              });
-            }}
-          >
-            <Eye width={24} height={24} />
-          </Button>
-        </Tippy>
+        <div className="flex gap-2">
+          <Tippy content="Download Invoice">
+            <ButtonDownload transactionId={id} />
+          </Tippy>
+          <Tippy content="Lihat detail">
+            <Button
+              size="small"
+              onClick={() => {
+                setTranscation({
+                  transaction_code,
+                  created_at,
+                  sender,
+                  discount,
+                  payment_method,
+                  payments,
+                  pic,
+                  items,
+                  id,
+                  status,
+                  customer,
+                  ...props,
+                });
+              }}
+            >
+              <Eye width={24} height={24} />
+            </Button>
+          </Tippy>
+        </div>
       ),
     })
   );
@@ -244,4 +251,24 @@ const TransactionPage: NextPage<unknown> = () => {
   );
 };
 
+const ButtonDownload = ({ transactionId }: { transactionId: string }) => {
+  const { refetch: refetchDownload, isLoading } = useFetchInvoice(transactionId, {
+    enabled: false,
+  });
+  const handleDownload = async () => {
+    // download invoice
+
+    const { data } = await refetchDownload();
+
+    if (data) {
+      printInvoice(data);
+    }
+  };
+
+  return (
+    <Button disabled={isLoading} loading={isLoading} size="small" onClick={handleDownload}>
+      <Download width={24} height={24} />
+    </Button>
+  );
+};
 export default TransactionPage;

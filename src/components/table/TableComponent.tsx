@@ -1,8 +1,10 @@
 import { Form, Formik } from 'formik';
 import React, { useMemo } from 'react';
+import { Download } from 'react-bootstrap-icons';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
+import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import { useFetchTransactionById } from '@/hooks/query/useFetchStockIn';
 import { useDetailSaleAdaptor } from '@/hooks/table/useDetailSale';
 import { useDetailStockInAdaptor } from '@/hooks/table/useDetailStockin';
@@ -10,6 +12,7 @@ import { Status } from '@/typings/common';
 import { SaleTransactionsData } from '@/typings/sale';
 import { TransactionData } from '@/typings/stock-in';
 import { formatDate, formatToIDR } from '@/utils/format';
+import printInvoice from '@/utils/printInvoice';
 
 import { Button } from '../Button';
 import Modal from '../Modal';
@@ -30,6 +33,7 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
     items = [],
     discount,
     payments,
+    id,
   } = transactions ?? {};
   const { data: dataMyself } = useFetchMyself();
 
@@ -52,6 +56,7 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
                   transaction_code,
                   items,
                   discount: discount ?? 0,
+                  id,
                 }}
               />
             )}
@@ -109,6 +114,7 @@ export const DetailSale: React.FC<{
     items = [],
     discount,
     payments,
+    id,
   } = transactions ?? {};
 
   const { columns, data } = useDetailSaleAdaptor(items);
@@ -119,7 +125,7 @@ export const DetailSale: React.FC<{
         <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Transaksi Penjualan</h2>
         <div className="flex">
           <div className="flex-1">
-            <ItemInfo info={{ payments, created_at, invoice_number, transaction_code, items, discount }} />
+            <ItemInfo info={{ payments, created_at, invoice_number, transaction_code, items, discount, id }} />
           </div>
           <section className="ml-10 flex-1 p-6 rounded-lg border drop-shadow-lg bg-white" style={{ maxWidth: 228 }}>
             <div className="mb-2">
@@ -165,9 +171,14 @@ export const DetailSale: React.FC<{
 };
 
 const ItemInfo: React.FC<{
-  info: Pick<TransactionData, 'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'items' | 'discount'>;
+  info: Pick<
+    TransactionData,
+    'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'items' | 'discount'
+  > & {
+    id?: string;
+  };
 }> = ({ info }) => {
-  const { created_at, payments, transaction_code, invoice_number, discount } = info;
+  const { created_at, payments, transaction_code, invoice_number, discount, id } = info;
   return (
     <>
       <div className="flex justify-between mb-4">
@@ -197,6 +208,11 @@ const ItemInfo: React.FC<{
           ))}
         </div>
       </div>
+      {id && (
+        <div className="mb-4">
+          <ButtonDownload transactionId={id} />
+        </div>
+      )}
     </>
   );
 };
@@ -254,4 +270,30 @@ export const getTagValue = (status: Status) => {
     return 'Ditolak';
   }
   return 'Diterima';
+};
+
+const ButtonDownload = ({ transactionId }: { transactionId: string }) => {
+  const { refetch: refetchDownload, isLoading } = useFetchInvoice(transactionId, {
+    enabled: false,
+  });
+  const handleDownload = async () => {
+    // download invoice
+
+    const { data } = await refetchDownload();
+
+    if (data) {
+      printInvoice(data);
+    }
+  };
+
+  return (
+    <Button
+      disabled={isLoading}
+      loading={isLoading}
+      onClick={handleDownload}
+      Icon={<Download width={24} height={24} />}
+    >
+      Download Invoice
+    </Button>
+  );
 };

@@ -19,6 +19,7 @@ const keys = {
   transactions: 'transactions',
   suppliers: 'suppliers',
   users: 'users',
+  invoice: 'invoice',
 };
 
 export default keys;

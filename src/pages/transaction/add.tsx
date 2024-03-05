@@ -17,9 +17,11 @@ import Table from '@/components/Table';
 import PaymentMethod, { Payment } from '@/components/transaction/PaymentMethod';
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateSale } from '@/hooks/mutation/useMutateSale';
+import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import { Option } from '@/typings/common';
 import { calculateChange } from '@/utils/change';
 import { formatToIDR } from '@/utils/format';
+import printInvoice from '@/utils/printInvoice';
 import { validationSchemaTransaction } from '@/utils/validation/transaction';
 
 export type AddStockInTableValue = {
@@ -49,6 +51,8 @@ export type AddStockValue = {
 
 const AddTransactionPage: NextPage = () => {
   const { mutateAsync } = useCreateSale();
+  const [tempCreatedId, setTempCreatedId] = useState('');
+
   const initialValues = {
     dateIn: new Date(),
     stockAdjustment: [] as ItemToBuyFormValues[],
@@ -122,8 +126,12 @@ const AddTransactionPage: NextPage = () => {
           payload.payments[cashIndex].change = change;
         }
 
-        await mutateAsync(payload);
-
+        const {
+          data: {
+            transaction: { id },
+          },
+        } = await mutateAsync(payload);
+        setTempCreatedId(id);
         setSubmitting(false);
         setIsOpenSummary(true);
       } catch (e) {
@@ -347,7 +355,9 @@ const AddTransactionPage: NextPage = () => {
                   Simpan Transaksi
                 </Button>
                 <ModalSummary
+                  transactionId={tempCreatedId}
                   onClose={() => {
+                    setTempCreatedId('');
                     setIsOpenSummary(false);
                     resetForm({
                       values: initialValues,
@@ -411,57 +421,75 @@ const AddNewItem: React.FC<{
   );
 };
 
-const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: AddStockValue }> = ({
-  isOpen,
-  values,
-  onClose,
-}) => {
-  const router = useRouter();
-  const handleClick = () => {
-    router.push('/transaction');
+const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: AddStockValue; transactionId: string }> =
+  ({ isOpen, values, onClose, transactionId }) => {
+    const router = useRouter();
+    const handleClick = () => {
+      router.push('/transaction');
+    };
+
+    const { refetch: fetchBlobPdf, isLoading } = useFetchInvoice(transactionId, {
+      enabled: false,
+    });
+    const handlePrintInvoice = async () => {
+      const { data } = await fetchBlobPdf();
+      if (!data) return;
+      printInvoice(data);
+    };
+
+    // const finalPrice = values.totalPrice - (values?.discount ?? 0);
+    return (
+      <Modal isOpen={isOpen} ariaHideApp={false}>
+        <div className="justify-center flex flex-col">
+          <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
+          <label className="">Nama Customer</label>
+          <p className="font-bold mb-4">{values.customer?.label}</p>
+          <label className="">Discount</label>
+          <p className="font-bold mb-4">{formatToIDR(+(values?.discount ?? 0))}</p>
+          <label className="">Harga Total</label>
+          <p className="font-bold mb-4">{formatToIDR(values.totalPrice - +(values?.discount ?? 0))}</p>
+          <label className="">Dibayarkan</label>
+          {values.payments?.map((val) => {
+            return (
+              <p className="font-bold mb-4" key={val.payAmount + val.paymentDue?.toString() + val.paymentMethod}>
+                {formatToIDR(+(val?.payAmount ?? 0))}({val.paymentMethod.label})
+              </p>
+            );
+          })}
+
+          <p>
+            Kembalian :{' '}
+            {formatToIDR(
+              calculateChange(
+                values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
+                values.totalPrice,
+                +(values.discount ?? 0)
+              )
+            )}
+          </p>
+          <ModalActionWrapper>
+            <Button
+              disabled={isLoading}
+              className="mr-2 w-full"
+              variant="primary"
+              loading={isLoading}
+              onClick={handlePrintInvoice}
+            >
+              Print Invoice
+            </Button>
+          </ModalActionWrapper>
+          <ModalActionWrapper>
+            <Button className="mr-2" variant="secondary" onClick={handleClick}>
+              Ke Halaman Transaksi
+            </Button>
+            <Button variant="outlined" onClick={onClose}>
+              Tetap di halaman ini
+            </Button>
+          </ModalActionWrapper>
+        </div>
+      </Modal>
+    );
   };
-
-  // const finalPrice = values.totalPrice - (values?.discount ?? 0);
-  return (
-    <Modal isOpen={isOpen} ariaHideApp={false}>
-      <div className="justify-center flex flex-col">
-        <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
-        <label className="">Nama Customer</label>
-        <p className="font-bold mb-4">{values.customer?.label}</p>
-        <label className="">Discount</label>
-        <p className="font-bold mb-4">{formatToIDR(+(values?.discount ?? 0))}</p>
-        <label className="">Harga Total</label>
-        <p className="font-bold mb-4">{formatToIDR(values.totalPrice - +(values?.discount ?? 0))}</p>
-        <label className="">Dibayarkan</label>
-        {values.payments?.map((val) => {
-          return (
-            <p className="font-bold mb-4" key={val.payAmount + val.paymentDue?.toString() + val.paymentMethod}>
-              {formatToIDR(+(val?.payAmount ?? 0))}({val.paymentMethod.label})
-            </p>
-          );
-        })}
-
-        <p>
-          Kembalian :{' '}
-          {formatToIDR(
-            calculateChange(
-              values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
-              values.totalPrice,
-              +(values.discount ?? 0)
-            )
-          )}
-        </p>
-
-        <ModalActionWrapper>
-          <Button className="mr-2" variant="secondary" onClick={handleClick}>
-            Ke Halaman Transaksi
-          </Button>
-          <Button onClick={onClose}>Tetap di halaman ini</Button>
-        </ModalActionWrapper>
-      </div>
-    </Modal>
-  );
-};
 
 const ModalEditItem: React.FC<{
   editId: string;

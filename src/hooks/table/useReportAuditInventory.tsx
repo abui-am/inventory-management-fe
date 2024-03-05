@@ -1,6 +1,6 @@
 import Tippy from '@tippyjs/react';
 import React from 'react';
-import { ArrowCounterclockwise as ArrowIcon, Check } from 'react-bootstrap-icons';
+import { Check } from 'react-bootstrap-icons';
 
 import Bubble from '@/components/Bubble';
 import { Button } from '@/components/Button';
