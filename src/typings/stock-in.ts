@@ -30,6 +30,7 @@ export interface CreateTransactionBody {
   items: Item[];
   payments: Partial<Payment>[];
   transactionable_type: string;
+  shipping_cost?: number;
 }
 
 export type CreateStockInBody = Omit<CreateTransactionBody, 'transactionable_type'> & {

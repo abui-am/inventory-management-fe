@@ -4,6 +4,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useMemo, useState } from 'react';
 import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
@@ -41,6 +42,7 @@ export type AddStockInTableValue = {
   paymentMethod: string;
   paymentDue: Date;
   supplier: Option | null;
+  shippingCost: number | '';
 };
 
 const AddStockPage: NextPage = () => {
@@ -64,11 +66,18 @@ const AddStockPage: NextPage = () => {
     supplier: null as Option<unknown> | null,
     isNewSupplier: false,
     payFull: false,
+    shippingCost: '' as number | '',
   };
   const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
     validationSchema: validationSchemaStockIn,
     initialValues,
     onSubmit: async ({ dateIn, invoiceNumber, invoiceType, memo, payments, stockAdjustment, supplier }) => {
+      const isPaymentAndPriceSame =
+        values.payments?.reduce((acc, val) => acc + +(val?.payAmount ?? 0), 0) === totalPrice;
+      if (!isPaymentAndPriceSame) {
+        toast.error('Pembayaran tidak sama dengan harga, silahkan cek kembali');
+        return;
+      }
       const newItem = await promiseAll<Item>(
         stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, itemId }): Promise<Item> => {
           const baseData = {
@@ -119,6 +128,7 @@ const AddStockPage: NextPage = () => {
         items: newItem.results,
         transactionable_id: supplierId,
         payments: paymentsPayload,
+        shipping_cost: +values.shippingCost ?? 0,
       };
 
       try {
@@ -132,7 +142,9 @@ const AddStockPage: NextPage = () => {
 
         if (cashIndex !== -1) {
           jsonBody.payments[cashIndex].change =
-            jsonBody.payments.reduce((acc, val) => acc + (val?.cash ?? 0), 0) - totalPrice;
+            jsonBody.payments.reduce((acc, val) => acc + (val?.cash ?? 0), 0) -
+            totalPrice -
+            +(values.shippingCost ?? 0);
         }
         await mutateAsync(jsonBody);
         push('/stock-in');
@@ -142,7 +154,7 @@ const AddStockPage: NextPage = () => {
     },
   });
 
-  const data = values.stockAdjustment.map(({ item, qty, buyPrice, unit, memo, isNew, itemId }) => ({
+  const data = values.stockAdjustment.map(({ shippingCost, item, qty, buyPrice, unit, memo, isNew, itemId }) => ({
     col1: item?.label ?? '',
     col2: (
       <div>
@@ -158,7 +170,16 @@ const AddStockPage: NextPage = () => {
     action: (
       <div className="flex">
         <ButtonWithModal
-          initialValues={{ item, qty, buyPrice, unit, memo, isNew, itemId }}
+          initialValues={{
+            shippingCost,
+            item,
+            qty,
+            buyPrice,
+            unit,
+            memo,
+            isNew,
+            itemId,
+          }}
           withEditButton
           onSave={(val) => {
             // replace data
@@ -219,9 +240,11 @@ const AddStockPage: NextPage = () => {
       values.stockAdjustment.reduce((acc, curr) => {
         const { qty, buyPrice } = curr;
         return acc + +qty * +buyPrice;
-      }, 0),
-    [values.stockAdjustment]
+      }, 0) + +(values.shippingCost ?? 0),
+    [values.stockAdjustment, values.shippingCost]
   );
+
+  const disablePay = isLoading || isLoadingItem;
 
   return (
     <CardDashboard title="Barang Masuk Baru">
@@ -324,6 +347,21 @@ const AddStockPage: NextPage = () => {
           </div>
           <div className="w-4/12">
             <div className="border p-4 rounded-md shadow-md flex flex-wrap mb-4">
+              <div className="w-full px-2 mb-2">
+                <label className="mb-1 inline-block">Ongkos kirim</label>
+                <CurrencyTextField
+                  name="shippingCost"
+                  value={values.shippingCost}
+                  placeholder="Masukan ongkos kirim"
+                  disabled={isSubmitting}
+                  onChange={(val) => {
+                    setFieldValue('shippingCost', val);
+                  }}
+                />
+                {errors.shippingCost && touched.shippingCost && (
+                  <span className="text-xs text-red-500">{errors.shippingCost}</span>
+                )}
+              </div>
               <div className="w-full px-2 mb-3">
                 <label className="mb-1 inline-block">Harga total</label>
                 <p className="text-2xl font-bold">{formatToIDR(totalPrice)}</p>
@@ -376,7 +414,7 @@ const AddStockPage: NextPage = () => {
                 <Button onClick={() => back()} variant="secondary" className="mr-4">
                   Batalkan
                 </Button>
-                <Button disabled={isLoading || isLoadingItem} type="submit">
+                <Button disabled={disablePay} type="submit">
                   Bayar
                 </Button>
               </div>
@@ -414,6 +452,7 @@ const ButtonWithModal: React.FC<{
     memo: '',
     isNew: false,
     itemId: '',
+    shippingCost: '',
   };
 
   const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
@@ -474,6 +513,7 @@ const ButtonWithModal: React.FC<{
                     {itemData?.data?.item?.buy_price ? formatToIDR(itemData?.data?.item?.buy_price ?? 0) : '-'}
                   </span>
                 </div>
+
                 <div className="w-8/12 mb-3 px-2">
                   <WithLabelAndError required label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
                     <CurrencyTextField

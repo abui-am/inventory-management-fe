@@ -86,7 +86,6 @@ const PermissionProvider: React.FC = ({ children }) => {
 
   const permissionList = getPermission(data?.data.user.roles ?? []);
   const permission = permissionList;
-  console.log(data?.data.user.roles, 'liost');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const uniquePermission = [...(new Set(permission) as unknown as PermissionList[])];

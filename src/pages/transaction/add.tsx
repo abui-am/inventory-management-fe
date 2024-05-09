@@ -47,6 +47,7 @@ export type AddStockValue = {
   sender: Option<unknown> | null;
   isNewSupplier: boolean;
   totalPrice: number;
+  shippingCost: number | '';
 };
 
 const AddTransactionPage: NextPage = () => {
@@ -69,6 +70,7 @@ const AddTransactionPage: NextPage = () => {
     isNewSupplier: false,
     totalPrice: 0,
     discount: '' as number | '',
+    shippingCost: '' as number | '',
   };
   const [editId, setEditId] = useState<string | null>(null);
   const [isOpenSummary, setIsOpenSummary] = useState(false);
@@ -106,6 +108,7 @@ const AddTransactionPage: NextPage = () => {
               note: '',
             };
           }),
+          shipping_cost: +(data.shippingCost ?? 0),
         };
 
         // find index where payment method is cash
@@ -115,7 +118,8 @@ const AddTransactionPage: NextPage = () => {
           const change = calculateChange(
             payload.payments.reduce((acc, val) => acc + val.cash, 0),
             data.totalPrice,
-            +(values?.discount ?? 0)
+            +(values?.discount ?? 0),
+            +(values?.shippingCost ?? 0)
           );
 
           if (change < 0) {
@@ -214,7 +218,7 @@ const AddTransactionPage: NextPage = () => {
     []
   );
 
-  const totalPriceAfterDiscount = values.totalPrice - +(values?.discount ?? 0);
+  const totalPriceAfterDiscount = values.totalPrice + +(values.shippingCost ?? 0) - +(values?.discount ?? 0);
   return (
     <CardDashboard>
       <form onSubmit={handleSubmit}>
@@ -286,6 +290,22 @@ const AddTransactionPage: NextPage = () => {
                     value={values.sender}
                   />
                 </WithLabelAndError>
+              </div>
+
+              <div className="w-full px-2 mb-2">
+                <label className="mb-1 inline-block">Ongkos kirim</label>
+                <CurrencyTextField
+                  name="shippingCost"
+                  value={values.shippingCost}
+                  placeholder="Masukan ongkos kirim"
+                  disabled={isSubmitting}
+                  onChange={(val) => {
+                    setFieldValue('shippingCost', val);
+                  }}
+                />
+                {errors.shippingCost && touched.shippingCost && (
+                  <span className="text-xs text-red-500">{errors.shippingCost}</span>
+                )}
               </div>
               <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Catatan</label>
@@ -442,12 +462,15 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
       <Modal isOpen={isOpen} ariaHideApp={false}>
         <div className="justify-center flex flex-col">
           <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
-          <label className="">Nama Customer</label>
-          <p className="font-bold mb-4">{values.customer?.label}</p>
+          <label className="">Nama Customer</label>1<p className="font-bold mb-4">{values.customer?.label}</p>
           <label className="">Discount</label>
           <p className="font-bold mb-4">{formatToIDR(+(values?.discount ?? 0))}</p>
+          <label className="">Ongkos Kirim</label>
+          <p className="font-bold mb-4">{formatToIDR(+(values?.shippingCost ?? 0))}</p>
           <label className="">Harga Total</label>
-          <p className="font-bold mb-4">{formatToIDR(values.totalPrice - +(values?.discount ?? 0))}</p>
+          <p className="font-bold mb-4">
+            {formatToIDR(values.totalPrice - +(values?.discount ?? 0) - +(values?.shippingCost ?? 0))}
+          </p>
           <label className="">Dibayarkan</label>
           {values.payments?.map((val) => {
             return (
@@ -456,14 +479,14 @@ const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: Add
               </p>
             );
           })}
-
           <p>
             Kembalian :{' '}
             {formatToIDR(
               calculateChange(
                 values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
                 values.totalPrice,
-                +(values.discount ?? 0)
+                +(values.discount ?? 0),
+                +(values.shippingCost ?? 0)
               )
             )}
           </p>

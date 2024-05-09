@@ -33,4 +33,5 @@ export const validationSchemaTransaction = object().shape({
     .required('* Required'),
   isNewSupplier: bool().nullable(),
   totalPrice: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
+  shippingCost: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
 });
