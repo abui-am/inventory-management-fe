@@ -1,6 +1,7 @@
 // import Link from 'next/link';
 import dayjs from 'dayjs';
 import React from 'react';
+import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
 
 import { useFetchIncomeReport } from '@/hooks/query/useFetchIncomeReport';
 import formatCurrency from '@/utils/formatCurrency';
@@ -49,8 +50,12 @@ const TableIncomeReport: React.FC = () => {
                 <label>Penjualan: </label>
                 <span>
                   <b>{formatCurrency({ value: data?.incomes?.sales ?? 0 })}</b>
+                  {/* Sales per user collapse */}
                 </span>
               </div>
+
+              {data?.incomes?.sales_per_user ? <SalesPerUserCollapse data={data?.incomes?.sales_per_user} /> : null}
+
               <div className="flex justify-between w-full mb-2">
                 <label>HPP:</label>
                 <span>
@@ -115,4 +120,36 @@ const TableIncomeReport: React.FC = () => {
   );
 };
 
+const SalesPerUserCollapse: React.FC<{ data: Record<string, number> }> = ({ data }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <div className="flex flex-col gap-2 justify-between w-full mb-4">
+      <button
+        onClick={() => {
+          setIsOpen(!isOpen);
+        }}
+        type="button"
+        className="items-center text-blue-700 hover:text-blue-900 flex justify-between w-full border border-gray-200 rounded-md p-2"
+      >
+        <span>Penjualan per User</span>
+        {isOpen ? <ChevronUp /> : <ChevronDown />}
+      </button>
+      {isOpen && (
+        <div className="w-full p-4 border border-gray-200 rounded-md">
+          {Object.entries(data ?? {}).map(([key, value]) => (
+            <div className="flex justify-between w-full mb-2 rounded-md" key={key}>
+              <label>{key}</label>
+              <span className="font-bold">
+                {formatCurrency({
+                  value,
+                })}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 export default TableIncomeReport;

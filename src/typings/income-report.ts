@@ -2,6 +2,7 @@ export type Income = {
   sales: number;
   hpp: number;
   discounts: number;
+  sales_per_user: Record<string, number>;
 };
 
 export type Expense = {
