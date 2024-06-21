@@ -54,7 +54,9 @@ const TableIncomeReport: React.FC = () => {
                 </span>
               </div>
 
-              {data?.incomes?.sales_per_user ? <SalesPerUserCollapse data={data?.incomes?.sales_per_user} /> : null}
+              {data?.incomes?.sales_per_user ? (
+                <CurrencyCollapse title="Penjualan per User" data={data?.incomes?.sales_per_user} />
+              ) : null}
 
               <div className="flex justify-between w-full mb-2">
                 <label>HPP:</label>
@@ -84,13 +86,16 @@ const TableIncomeReport: React.FC = () => {
                 <div>
                   {data?.expenses?.map((item) => {
                     return (
-                      <div className="flex justify-between w-full mb-2" key={item.id}>
-                        <label>{item.name}</label>
-                        <span className="font-bold">
-                          {formatCurrency({
-                            value: item.amount,
-                          })}
-                        </span>
+                      <div key={item.id}>
+                        <div className="flex justify-between w-full mb-2">
+                          <label>{item.name}</label>
+                          <span className="font-bold">
+                            {formatCurrency({
+                              value: item.amount,
+                            })}
+                          </span>
+                        </div>
+                        <CurrencyCollapse title={`${item.name} per user`} data={item.expenses_per_user} />
                       </div>
                     );
                   })}
@@ -120,7 +125,7 @@ const TableIncomeReport: React.FC = () => {
   );
 };
 
-const SalesPerUserCollapse: React.FC<{ data: Record<string, number> }> = ({ data }) => {
+const CurrencyCollapse: React.FC<{ data: Record<string, number>; title }> = ({ data, title }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -132,7 +137,7 @@ const SalesPerUserCollapse: React.FC<{ data: Record<string, number> }> = ({ data
         type="button"
         className="items-center text-blue-700 hover:text-blue-900 flex justify-between w-full border border-gray-200 rounded-md p-2"
       >
-        <span>Penjualan per User</span>
+        <span>{title}</span>
         {isOpen ? <ChevronUp /> : <ChevronDown />}
       </button>
       {isOpen && (

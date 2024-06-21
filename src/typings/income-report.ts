@@ -9,6 +9,7 @@ export type Expense = {
   id: string;
   name: string;
   amount: number;
+  expenses_per_user: Record<string, number>;
 };
 
 export type IncomeReport = {
