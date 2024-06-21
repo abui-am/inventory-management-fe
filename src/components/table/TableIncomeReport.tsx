@@ -125,7 +125,7 @@ const TableIncomeReport: React.FC = () => {
   );
 };
 
-const CurrencyCollapse: React.FC<{ data: Record<string, number>; title }> = ({ data, title }) => {
+const CurrencyCollapse: React.FC<{ data: Record<string, number>; title: string }> = ({ data, title }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
