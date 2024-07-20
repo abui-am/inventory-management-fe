@@ -27,7 +27,6 @@ import {
   useFetchEmployeeById,
   useFetchMyself,
 } from '@/hooks/query/useFetchEmployee';
-import { Option } from '@/typings/common';
 import { CreateEmployeePutBody } from '@/typings/employee';
 import { createOption, getOptionByValue } from '@/utils/options';
 import createSchema from '@/utils/validation/formik';
@@ -58,14 +57,12 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           handphoneNumber: editingEmployee?.phone_number ?? '',
           address: editingEmployee?.addresses ? homeAddress?.complete_address : '',
           position: editingEmployee?.position ?? '',
-          province: homeAddress
-            ? createOption(province?.name ?? '', province?.id?.toString() ?? '')
-            : ({} as Partial<Option>),
-          city: city ? createOption(city?.name ?? '', city?.id?.toString() ?? '') : ({} as Partial<Option>),
+          province: homeAddress ? createOption(province?.name ?? '', province?.id?.toString() ?? '') : undefined,
+          city: city ? createOption(city?.name ?? '', city?.id?.toString() ?? '') : undefined,
           subdistrict: subdistrict
             ? createOption(subdistrict?.name ?? '', subdistrict?.id?.toString() ?? '')
-            : ({} as Partial<Option>),
-          village: village ? createOption(village?.name ?? '', village?.id?.toString() ?? '') : ({} as Partial<Option>),
+            : undefined,
+          village: village ? createOption(village?.name ?? '', village?.id?.toString() ?? '') : undefined,
         }
       : {
           salary: 0,
@@ -78,10 +75,10 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           handphoneNumber: '',
           address: '',
           position: '',
-          province: {} as Partial<Option>,
-          city: {} as Partial<Option>,
-          subdistrict: {} as Partial<Option>,
-          village: {} as Partial<Option>,
+          province: undefined,
+          city: undefined,
+          subdistrict: undefined,
+          village: undefined,
         };
 
   const isOwner = myself.data?.data?.user?.roles.map(({ name }) => name).includes('superadmin' as any);
@@ -108,7 +105,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
         active: true,
         addresses: [
           {
-            village_id: +(village?.value ?? 0),
+            village_id: village?.value ? +village.value : undefined,
             title: 'Alamat Rumah',
             complete_address: address ?? '',
           },
@@ -199,7 +196,7 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
           <h6 className="mb-3 text-lg font-bold">Kontak Pribadi</h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 inline-block">Email</label>
+              <Label required>Email</Label>
               <TextField placeholder="Email" value={values.email} name="email" onChange={handleChange} />
               {errors.email && touched.email && <span className="text-xs text-red-500">{errors.email}</span>}
             </div>

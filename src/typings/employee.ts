@@ -58,7 +58,7 @@ export type CreateEmployeePutBody = {
 };
 
 export interface Address {
-  village_id: number;
+  village_id?: number;
   title: string;
   complete_address: string;
 }
