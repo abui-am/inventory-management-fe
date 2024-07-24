@@ -152,9 +152,9 @@ const EmployeeInfo = ({
       <div className="flex mb-4">
         <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">{address?.title}:</div>
         <div className="flex-1">
-          {province && address && (
+          <div>{address?.complete_address ?? ''}</div>
+          {province && village && subdistrict && city && (
             <>
-              <div>{address?.complete_address ?? ''}</div>
               <div>{`Kelurahan ${village?.name ?? ''}, Kecamatan ${subdistrict?.name ?? ''}, ${city?.name ?? ''}, ${
                 province?.name ?? ''
               }`}</div>

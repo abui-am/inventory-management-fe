@@ -82,7 +82,17 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
         };
 
   const isOwner = myself.data?.data?.user?.roles.map(({ name }) => name).includes('superadmin' as any);
-  const validationSchema = useMemo(() => object().shape(createSchema(initialValues)), [initialValues]);
+  const validationSchema = useMemo(
+    () =>
+      object().shape({
+        ...createSchema(initialValues),
+        village: object().notRequired().nullable(),
+        subdistrict: object().notRequired().nullable(),
+        city: object().notRequired().nullable(),
+        province: object().notRequired().nullable(),
+      }),
+    [initialValues]
+  );
   const { values, handleChange, setSubmitting, handleSubmit, setFieldValue, errors, touched } = useFormik({
     validationSchema,
     initialValues,
