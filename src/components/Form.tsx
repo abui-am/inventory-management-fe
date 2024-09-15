@@ -140,6 +140,7 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, showTi
     <div className="relative customDatePickerWidth">
       <DatePicker
         dateFormat={showTimeSelect ? 'dd/MM/yyy HH:mm:ss' : 'dd/MM/yyyy'}
+        popperClassName="!z-10"
         className={clsx(
           'pl-11 border border-gray-300',
           'h-11 w-full rounded-md px-3 outline-none',

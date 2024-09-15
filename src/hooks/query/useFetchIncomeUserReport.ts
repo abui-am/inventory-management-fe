@@ -8,7 +8,7 @@ import keys from '../keys';
 import { useFetchMyself } from './useFetchEmployee';
 import useMyQuery from './useMyQuery';
 
-export const useFetchIncomeReport = <TQueryFnData = unknown, TError = unknown>(
+export const useFetchIncomeUserReport = <TQueryFnData = unknown, TError = unknown>(
   data: Partial<{
     date_start: string;
     date_end: string;
@@ -22,7 +22,10 @@ export const useFetchIncomeReport = <TQueryFnData = unknown, TError = unknown>(
   const fetcher = useMyQuery(
     [keys.incomeReport, 'user-report', data, roles],
     async () => {
-      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/income-report', data);
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post(
+        '/income-report/user-report',
+        data
+      );
       return res.data;
     },
     { ...options, enabled: !!roles }
