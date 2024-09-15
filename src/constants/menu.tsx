@@ -164,7 +164,7 @@ const MENU_LIST = [
   {
     id: 'income-user-report',
     slug: '/income-user-report',
-    displayName: 'Laporan Pendapatan User',
+    displayName: 'Laporan Pendapatan Per Kasir',
     title: 'Keuangan',
     icon: (props = {}): JSX.Element => <Coin {...props} />,
     permission: 'control:income-report',

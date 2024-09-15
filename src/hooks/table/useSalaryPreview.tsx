@@ -7,7 +7,7 @@ const useSalaryPreview = (previewSalaries: EmployeeDataWithSalary[]) => {
   const data = previewSalaries.map(({ first_name, last_name, id, position, salary }) => ({
     name: (
       <Link href={`/employee/${id}`}>
-        <a className="font-bold hover:text-blue-700">{`${first_name} ${last_name}`}</a>
+        <span className="font-bold hover:text-blue-700">{`${first_name} ${last_name}`}</span>
       </Link>
     ),
     position,

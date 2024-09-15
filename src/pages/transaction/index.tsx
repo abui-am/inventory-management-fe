@@ -194,11 +194,11 @@ const TransactionPage: NextPage<unknown> = () => {
                   placeholder="Cari nama transaksi"
                 />
                 <Link href="/transaction/add">
-                  <a>
+                  <span>
                     <Button className="ml-3" Icon={<PlusLg className="w-4" />}>
                       Tambah
                     </Button>
-                  </a>
+                  </span>
                 </Link>
               </div>
 
