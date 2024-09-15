@@ -21,3 +21,20 @@ export type IncomeReport = {
     total_profit: number;
   };
 };
+
+export type IncomeUserReport = {
+  income_report: {
+    name: 'Super Admin';
+    stock_in: {
+      purchases: number;
+      shipping_cost: number;
+      total_purchase: number;
+      payment_methods: {
+        cash: number;
+        bank: number;
+        debt: number;
+        current_account: number;
+      };
+    };
+  }[];
+};
