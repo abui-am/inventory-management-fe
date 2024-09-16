@@ -138,9 +138,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
           <div className={clsx('flex-1 p-0 sm:p-8', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
             <div className="p-6 flex justify-between mb-0 sm:p-0 sm:mb-6 max-w-screen">
               <Link href={titleHref}>
-                <a>
-                  <h1 className="text-2xl font-bold hover:underline">{title}</h1>
-                </a>
+                <h1 className="text-2xl font-bold hover:underline">{title}</h1>
               </Link>
 
               <div className="flex items-center">

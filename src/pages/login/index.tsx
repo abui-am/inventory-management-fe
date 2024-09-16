@@ -74,7 +74,7 @@ export default function Home(): JSX.Element {
               Ingat saya
             </Checkbox>
             <Link href="/login/recover">
-              <a className="hover:text-blue-700 text-blueGray-600 text-sm font-bold">Lupa kata sandi</a>
+              <span className="hover:text-blue-700 text-blueGray-600 text-sm font-bold">Lupa kata sandi</span>
             </Link>
           </div>
           <div>

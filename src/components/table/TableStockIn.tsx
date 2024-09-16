@@ -258,11 +258,9 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
                 />
                 {withCreateButton && (
                   <Link href="/stock-in/add">
-                    <a>
-                      <Button className="ml-3" Icon={<Calculator className="w-4" />}>
-                        Tambah
-                      </Button>
-                    </a>
+                    <Button className="ml-3" Icon={<Calculator className="w-4" />}>
+                      Tambah
+                    </Button>
                   </Link>
                 )}
               </div>

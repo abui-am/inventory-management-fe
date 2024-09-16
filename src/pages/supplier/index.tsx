@@ -110,11 +110,11 @@ const Supplier: NextPage<unknown> = () => {
               />
             </div>
             <Link href="/supplier/add">
-              <a>
+              <span>
                 <Button className="mb-4" Icon={<PlusLg className="w-4" />}>
                   Tambah
                 </Button>
-              </a>
+              </span>
             </Link>
           </div>
           <div className="flex flex-wrap justify-end -mr-4 -mb-4">

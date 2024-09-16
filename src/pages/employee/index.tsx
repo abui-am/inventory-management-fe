@@ -53,11 +53,9 @@ const Home: NextPage<unknown> = () => {
     col4: (
       <div className="flex" style={{ minWidth: 150 }}>
         <Link href={`/employee/${id}`}>
-          <a>
-            <Button size="small">
-              <Eye width={24} height={24} />
-            </Button>
-          </a>
+          <Button size="small">
+            <Eye width={24} height={24} />
+          </Button>
         </Link>
         <Button size="small" variant="secondary" className="ml-2" onClick={() => push(`/employee/${id}/edit`)}>
           <Pencil width={24} height={24} />
@@ -124,11 +122,9 @@ const Home: NextPage<unknown> = () => {
               />
             </div>
             <Link href="/employee/add">
-              <a>
-                <Button className="mb-4" Icon={<PlusLg className="w-4" />}>
-                  Tambah
-                </Button>
-              </a>
+              <Button className="mb-4" Icon={<PlusLg className="w-4" />}>
+                Tambah
+              </Button>
             </Link>
           </div>
         </div>

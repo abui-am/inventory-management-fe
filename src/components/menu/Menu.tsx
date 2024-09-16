@@ -40,29 +40,27 @@ const Menu: React.FC<{ activePage: number; hideLabel: boolean; onMenuClick: (men
         return (
           <div className="px-8 py-4 relative flex items-center" key={id}>
             <Link href={slug}>
-              <a>
-                <button onClick={() => onMenuClick(false)} type="button" className="group flex items-center text-left">
-                  <div className="mr-4">
-                    {icon({
-                      className: clsx(
-                        'group-hover:text-blue-600',
-                        activePage === index ? 'text-blue-600' : 'text-blueGray-400'
-                      ),
-                    })}
-                  </div>
+              <button onClick={() => onMenuClick(false)} type="button" className="group flex items-center text-left">
+                <div className="mr-4">
+                  {icon({
+                    className: clsx(
+                      'group-hover:text-blue-600',
+                      activePage === index ? 'text-blue-600' : 'text-blueGray-400'
+                    ),
+                  })}
+                </div>
 
-                  {!hideLabel && (
-                    <span
-                      className={`group-hover:text-blue-600 font-bold relative ${
-                        activePage === index ? 'text-white' : 'text-blueGray-400'
-                      }`}
-                    >
-                      {displayName}
-                    </span>
-                  )}
-                  {getBubble(id)}
-                </button>
-              </a>
+                {!hideLabel && (
+                  <span
+                    className={`group-hover:text-blue-600 font-bold relative ${
+                      activePage === index ? 'text-white' : 'text-blueGray-400'
+                    }`}
+                  >
+                    {displayName}
+                  </span>
+                )}
+                {getBubble(id)}
+              </button>
             </Link>
 
             {activePage === index && <div className="w-2 bg-blue-600 h-full absolute left-0" />}

@@ -53,7 +53,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
   const data = dataRes.map(({ employee, employee_position, payroll_month, created_at, amount }) => ({
     name: (
       <Link href={`/employee/${employee.id}`}>
-        <a className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</a>
+        <span className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</span>
       </Link>
     ),
     position: employee_position,

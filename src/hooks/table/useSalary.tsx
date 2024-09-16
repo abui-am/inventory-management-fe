@@ -14,7 +14,7 @@ const useSalary = (salaries: Datum[]) => {
     ({ employee, paid_in_advance, employee_position: position, status, paid_amount, employee_salary, ...props }) => ({
       name: (
         <Link href={`/employee/${employee.id}`}>
-          <a className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</a>
+          <span className="font-bold hover:text-blue-700">{`${employee?.first_name} ${employee?.last_name}`}</span>
         </Link>
       ),
       position,

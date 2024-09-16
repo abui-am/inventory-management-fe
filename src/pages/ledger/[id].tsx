@@ -23,7 +23,7 @@ const AuditPage = () => {
 
   const typeOptions = useMemo(
     () =>
-      dataResLedger?.data?.ledger_accounts.map?.(({ name, id, ...props }) => ({
+      dataResLedger?.data?.ledger_accounts?.map?.(({ name, id, ...props }) => ({
         label: name,
         value: id,
         data: props,
