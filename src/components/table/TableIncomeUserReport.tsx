@@ -1,6 +1,7 @@
 // import Link from 'next/link';
 import { Column, createColumnHelper, flexRender, getCoreRowModel, Table, useReactTable } from '@tanstack/react-table';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
 import React, { CSSProperties } from 'react';
 
 import { useFetchIncomeUserReport } from '@/hooks/query/useFetchIncomeUserReport';
@@ -9,6 +10,7 @@ import formatCurrency from '@/utils/formatCurrency';
 
 import Divider from '../Divider';
 import { DateRangePicker } from '../Form';
+import Tabs from '../Tabs';
 const getCommonPinningStyles = (
   column: Column<{
     title: string;
@@ -42,7 +44,18 @@ const TableIncomeUserReport: React.FC = () => {
     date_start: dayjs(from).format('YYYY-MM-DD HH:mm:ss'),
   });
 
-  console.log(dataIncomeUserReport);
+  const router = useRouter();
+
+  const handleChangeTabIndex = (index: number) => {
+    router.push({
+      pathname: '/income-user-report',
+      query: {
+        tabIndex: index,
+      },
+    });
+  };
+
+  const activeTabIndex = router.query.tabIndex ? +router.query.tabIndex : 0;
 
   return (
     <>
@@ -65,47 +78,64 @@ const TableIncomeUserReport: React.FC = () => {
       </section>
       <Divider />
       <div className="mb-4">
-        <h2 className="text-xl font-bold mb-4">Laporan Pendapatan</h2>
-        <div className="grid rounded-lg border border-gray-300 p-4">
-          {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 && dataIncomeUserReport?.data?.income_report ? (
-            <IncomeUserReportSection incomeUserReport={dataIncomeUserReport.data} />
-          ) : (
-            <div className="flex justify-center items-center">
-              <div className="text-center">
-                <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
-              </div>
-            </div>
-          )}
-        </div>
+        <Tabs
+          menus={['Laporan Pendapatan', 'Laporan Pembelian', 'Laporan Beban']}
+          activeIndex={activeTabIndex}
+          onClickTab={handleChangeTabIndex}
+        />
       </div>
-      <div className="mb-4">
-        <h2 className="text-xl font-bold mb-4">Laporan Pembelian</h2>
-        <div className="grid rounded-lg border border-gray-300 p-4">
-          {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 && dataIncomeUserReport?.data?.income_report ? (
-            <StockInUserReportSection stockInUserReport={dataIncomeUserReport.data} />
-          ) : (
-            <div className="flex justify-center items-center">
-              <div className="text-center">
-                <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
+      {activeTabIndex === 0 ? (
+        <div className="mb-4">
+          <h2 className="text-xl font-bold mb-4">Laporan Pendapatan</h2>
+          <div className="grid rounded-lg border border-gray-300 p-4">
+            {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 &&
+            dataIncomeUserReport?.data?.income_report ? (
+              <IncomeUserReportSection incomeUserReport={dataIncomeUserReport.data} />
+            ) : (
+              <div className="flex justify-center items-center">
+                <div className="text-center">
+                  <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-      <div className="mb-4">
-        <h2 className="text-xl font-bold mb-4">Laporan Beban</h2>
-        <div className="grid rounded-lg border border-gray-300 p-4">
-          {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 && dataIncomeUserReport?.data?.income_report ? (
-            <ExpenseUserReportSection expenseUserReport={dataIncomeUserReport.data} />
-          ) : (
-            <div className="flex justify-center items-center">
-              <div className="text-center">
-                <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
+      ) : null}
+
+      {activeTabIndex === 1 ? (
+        <div className="mb-4">
+          <h2 className="text-xl font-bold mb-4">Laporan Pembelian</h2>
+          <div className="grid rounded-lg border border-gray-300 p-4">
+            {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 &&
+            dataIncomeUserReport?.data?.income_report ? (
+              <StockInUserReportSection stockInUserReport={dataIncomeUserReport.data} />
+            ) : (
+              <div className="flex justify-center items-center">
+                <div className="text-center">
+                  <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      ) : null}
+      {activeTabIndex === 2 ? (
+        <div className="mb-4">
+          <h2 className="text-xl font-bold mb-4">Laporan Beban</h2>
+          <div className="grid rounded-lg border border-gray-300 p-4">
+            {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 &&
+            dataIncomeUserReport?.data?.income_report ? (
+              <ExpenseUserReportSection expenseUserReport={dataIncomeUserReport.data} />
+            ) : (
+              <div className="flex justify-center items-center">
+                <div className="text-center">
+                  <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
     </>
   );
 };
