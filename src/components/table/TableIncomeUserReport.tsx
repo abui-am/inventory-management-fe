@@ -11,12 +11,12 @@ import formatCurrency from '@/utils/formatCurrency';
 import Divider from '../Divider';
 import { DateRangePicker } from '../Form';
 import Tabs from '../Tabs';
-const getCommonPinningStyles = (
-  column: Column<{
-    title: string;
-    [key: string]: string;
-  }>
-): CSSProperties => {
+
+type ColumnData = {
+  title: string | JSX.Element;
+  [key: string]: string | JSX.Element;
+};
+const getCommonPinningStyles = (column: Column<ColumnData>): CSSProperties => {
   const isPinned = column.id === 'title' ? 'left' : '';
   return {
     backgroundColor: 'white',
@@ -31,10 +31,6 @@ const getCommonPinningStyles = (
   };
 };
 
-type ColumnData = {
-  title: string;
-  [key: string]: string;
-};
 const TableIncomeUserReport: React.FC = () => {
   const [from, setFrom] = React.useState(dayjs().startOf('day').toDate());
   const [to, setTo] = React.useState(dayjs().endOf('day').toDate());
@@ -204,7 +200,7 @@ const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: I
             : '-',
         };
       }, {}) as {
-        [k: string]: string;
+        [k: string]: string | JSX.Element;
       };
     };
 
@@ -220,7 +216,7 @@ const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: I
             : '-',
         };
       }, {}) as {
-        [k: string]: string;
+        [k: string]: string | JSX.Element;
       };
     };
 
@@ -242,7 +238,7 @@ const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: I
         ...extractData('total_income'),
       },
       {
-        title: 'Metode Pembayaran',
+        title: <b>Metode Pembayaran</b>,
       },
       {
         title: 'Kas',
@@ -338,7 +334,7 @@ const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: In
             : '-',
         };
       }, {}) as {
-        [k: string]: string;
+        [k: string]: string | JSX.Element;
       };
     };
 
@@ -354,7 +350,7 @@ const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: In
             : '-',
         };
       }, {}) as {
-        [k: string]: string;
+        [k: string]: string | JSX.Element;
       };
     };
 
@@ -373,7 +369,7 @@ const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: In
       },
 
       {
-        title: 'Metode Pembayaran',
+        title: <b>Metode Pembayaran</b>,
       },
       {
         title: 'Kas',
@@ -467,7 +463,7 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
             : '-',
         };
       }, {}) as {
-        [k: string]: string;
+        [k: string]: string | JSX.Element;
       };
     };
 
@@ -514,7 +510,7 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
     );
     const data = [
       {
-        title: 'Pembayaran',
+        title: <b>Pembayaran</b>,
       },
       ...(uniqueExpenses
         ? uniqueExpenses.map((name) => ({
@@ -527,7 +523,7 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
         ...extractData('total_expense'),
       },
       {
-        title: 'Metode Pembayaran',
+        title: <b>Metode Pembayaran</b>,
       },
       {
         title: 'Kas',
@@ -568,7 +564,7 @@ const CustomTable = ({
   table,
 }: {
   table: Table<{
-    title: string;
+    title: string | JSX.Element;
   }>;
 }) => {
   return (
