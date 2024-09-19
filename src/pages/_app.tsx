@@ -4,7 +4,7 @@ import 'tippy.js/dist/tippy.css'; // optional
 
 import dayjs from 'dayjs';
 import { AppProps } from 'next/app';
-import { AppContextType } from 'next/dist/next-server/lib/utils';
+import { AppContextType } from 'next/dist/shared/lib/utils';
 import { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from 'react-query';

@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect } from 'react';
 import * as React from 'react';
 
 // Hook
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function useOnClickOutside(ref: React.MutableRefObject<null | { contains: Function }>, handler: Function) {
   useEffect(
     () => {
