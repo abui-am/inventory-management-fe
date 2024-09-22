@@ -75,7 +75,7 @@ const TableIncomeUserReport: React.FC = () => {
       <Divider />
       <div className="mb-4">
         <Tabs
-          menus={['Laporan Pendapatan', 'Laporan Pembelian', 'Laporan Beban']}
+          menus={['Laporan Pendapatan', 'Laporan Pembelian', 'Laporan Beban', 'Total Balance']}
           activeIndex={activeTabIndex}
           onClickTab={handleChangeTabIndex}
         />
@@ -122,6 +122,23 @@ const TableIncomeUserReport: React.FC = () => {
             {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 &&
             dataIncomeUserReport?.data?.income_report ? (
               <ExpenseUserReportSection expenseUserReport={dataIncomeUserReport.data} />
+            ) : (
+              <div className="flex justify-center items-center">
+                <div className="text-center">
+                  <div className="text-blueGray-600 mb-1 block">Tidak ada data</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
+      {activeTabIndex === 3 ? (
+        <div className="mb-4">
+          <h2 className="text-xl font-bold mb-4">Total Balance</h2>
+          <div className="grid rounded-lg border border-gray-300 p-4">
+            {(dataIncomeUserReport?.data?.income_report?.length || 0) > 0 &&
+            dataIncomeUserReport?.data?.income_report ? (
+              <TotalBalanceSection incomeUserReport={dataIncomeUserReport.data} />
             ) : (
               <div className="flex justify-center items-center">
                 <div className="text-center">
@@ -555,6 +572,127 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
     debugTable: true,
     debugHeaders: true,
     debugColumns: true,
+    columnResizeMode: 'onChange',
+  });
+  return <CustomTable table={table} />;
+};
+
+const TotalBalanceSection = ({ incomeUserReport }: { incomeUserReport: IncomeUserReport }) => {
+  const columnHelper = createColumnHelper<ColumnData>();
+
+  const columns = React.useMemo(
+    () => [
+      columnHelper.accessor('title', {
+        header: () => 'Jumlah Balance',
+        cell: ({ getValue }) => {
+          return (
+            <div className="flex justify-between w-full mb-2">
+              <label className="text-lg">{getValue()}</label>
+            </div>
+          );
+        },
+      }),
+      // Perkasir
+      ...(incomeUserReport
+        ? incomeUserReport?.income_report?.map(({ name }) =>
+            columnHelper.accessor(name, {
+              header: () => name,
+              cell: ({ getValue }) => getValue() || '',
+              minSize: 200,
+            })
+          )
+        : []),
+    ],
+    [columnHelper, incomeUserReport]
+  );
+
+  const getData = () => {
+    const nameToDataMap = new Map(
+      incomeUserReport?.income_report?.map(({ name, income, stock_in, expense, balance }) => {
+        return [
+          name,
+          {
+            title: name,
+            income,
+            stock_in,
+            expense,
+            balance,
+          },
+        ];
+      })
+    );
+
+    const keys = Array.from(nameToDataMap.keys());
+
+    const extractData = (dataName: keyof Omit<IncomeUserReportChild['balance'], 'payment_methods'>) => {
+      return keys?.reduce((acc, key) => {
+        const value = nameToDataMap.get(key)?.balance?.[dataName];
+
+        return {
+          ...acc,
+          [key]: value
+            ? formatCurrency({
+                value,
+              })
+            : '-',
+        };
+      }, {}) as {
+        [k: string]: string | JSX.Element;
+      };
+    };
+
+    const extractDataPaymentMethods = (dataName: keyof IncomeUserReportChild['balance']['payment_methods']) => {
+      return keys?.reduce((acc, key) => {
+        const value = nameToDataMap.get(key)?.balance?.payment_methods?.[dataName];
+        return {
+          ...acc,
+          [key]: value
+            ? formatCurrency({
+                value,
+              })
+            : '-',
+        };
+      }, {}) as {
+        [k: string]: string | JSX.Element;
+      };
+    };
+
+    const data: ColumnData[] = [
+      {
+        title: <b>Metode Pembayaran</b>,
+      },
+      {
+        title: 'Kas',
+        ...extractDataPaymentMethods('cash'),
+      },
+      {
+        title: 'Bank',
+        ...extractDataPaymentMethods('bank'),
+      },
+      {
+        title: 'Debet',
+        ...extractDataPaymentMethods('debt'),
+      },
+      {
+        title: 'Giro',
+        ...extractDataPaymentMethods('current_account'),
+      },
+      {
+        title: <b>Total Balance</b>,
+        ...extractData('total_balance'),
+      },
+    ];
+
+    return data;
+  };
+
+  const data = getData();
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    debugTable: true,
+    debugHeaders: true,
     columnResizeMode: 'onChange',
   });
   return <CustomTable table={table} />;
