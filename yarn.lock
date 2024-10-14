@@ -3844,7 +3844,7 @@ react-bootstrap-icons@^1.5.0:
   dependencies:
     prop-types "^15.7.2"
 
-react-collapsed@^3.0.2:
+react-collapsed@3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/react-collapsed/-/react-collapsed-3.0.2.tgz#94ddf0415e9611003dc863db41417a6aec1898ab"
   integrity sha512-TecE2O/3b3Szcej2BkWlLIwvLBZBKGzCfcGVDnqrgVsq8SZe9q2uUc9c54qX3ctJ7wbj9yXJd2QgSZwWfRoAvQ==
