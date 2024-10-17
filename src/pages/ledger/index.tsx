@@ -19,7 +19,10 @@ const LedgerIndex = () => {
   useEffect(() => {
     if (typeOptions?.[0]?.label) router.push(`/ledger/${typeOptions?.[0]?.label}`);
   }, [router, typeOptions]);
-  return <div>Redirect...</div>;
+
+  if (!typeOptions?.[0]) {
+    return <div>Kosong, harap mengisi data terlebih dahulu</div>;
+  }
 };
 
 export default LedgerIndex;

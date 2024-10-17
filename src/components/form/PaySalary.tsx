@@ -45,7 +45,7 @@ const PaySalaryForm: React.FC<{
     transactionType: transactionTypeOptions[0],
   };
 
-  const { values, handleChange, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
+  const { values, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
     validationSchema: salarySchema,
     validateOnChange: true,
     validateOnBlur: true,
@@ -131,7 +131,13 @@ const PaySalaryForm: React.FC<{
 
               <div className="sm:col-span-2">
                 <div className="flex mt-2 items-center mb-2">
-                  <Checkbox name="payFull" onChange={handleChange} />
+                  <Checkbox
+                    name="payFull"
+                    onChange={(e: any) => {
+                      setFieldValue('amount', values?.salary - values?.paidAmount);
+                      setFieldValue('payFull', e.target.checked);
+                    }}
+                  />
                   <label className="text-base ml-1">Lunas</label>
                 </div>
               </div>

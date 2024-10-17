@@ -75,6 +75,11 @@ const AddStockPage: NextPage = () => {
       const isPaymentAndPriceSame =
         values.payments?.reduce((acc, val) => acc + +(val?.payAmount ?? 0), 0) === totalPrice;
       if (!isPaymentAndPriceSame) {
+        console.log(
+          values,
+          values.payments?.reduce((acc, val) => acc + +(val?.payAmount ?? 0), 0),
+          totalPrice
+        );
         toast.error('Pembayaran tidak sama dengan harga, silahkan cek kembali');
         return;
       }
@@ -82,8 +87,8 @@ const AddStockPage: NextPage = () => {
         stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, itemId }): Promise<Item> => {
           const baseData = {
             note: memo,
-            purchase_price: +buyPrice ?? 0,
-            quantity: +qty ?? 0,
+            purchase_price: +buyPrice || 0,
+            quantity: +qty || 0,
             item_id: itemId,
           };
           if (!isNew) return { id: item?.value ?? '', ...baseData };
@@ -128,7 +133,7 @@ const AddStockPage: NextPage = () => {
         items: newItem.results,
         transactionable_id: supplierId,
         payments: paymentsPayload,
-        shipping_cost: +values.shippingCost ?? 0,
+        shipping_cost: +values.shippingCost || 0,
       };
 
       try {

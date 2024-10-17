@@ -23,7 +23,7 @@ export const useFetchLedgerAccounts = (
   const fetcher = useMyQuery([keys.ledgerAccounts, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledger-accounts', data);
+      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/ledger-accounts', data);
     return res.data;
   });
 

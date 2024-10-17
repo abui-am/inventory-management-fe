@@ -104,6 +104,7 @@ const PaymentMethod: React.FC<{
               checked={values.payFull}
               name="payFull"
               onChange={(e: any) => {
+                setFieldValue(`payments.[${index}].payAmount`, totalPrice);
                 setFieldValue('payFull', e.target?.checked);
               }}
             />
