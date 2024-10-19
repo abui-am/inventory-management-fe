@@ -23,6 +23,8 @@ const LedgerIndex = () => {
   if (!typeOptions?.[0]) {
     return <div>Kosong, harap mengisi data terlebih dahulu</div>;
   }
+
+  return <div>Redirecting...</div>;
 };
 
 export default LedgerIndex;
