@@ -68,10 +68,12 @@ const CreateTopUp: React.FC<{
     },
   });
 
+  const ledgers = dataResLedger?.data?.ledger_accounts ?? [];
+
   const typeOptions = useMemo(
     () =>
-      dataResLedger?.data?.ledger_accounts
-        .map?.(({ name, id, ...props }) => ({
+      ledgers
+        ?.map(({ name, id, ...props }) => ({
           label: name,
           value: id,
           data: props,
@@ -79,7 +81,7 @@ const CreateTopUp: React.FC<{
         .filter((val) =>
           ['Kas', 'Giro', 'Bank'].filter((val) => val !== values?.paymentMethod?.label).includes(val.label)
         ) ?? [],
-    [dataResLedger, values]
+    [ledgers, values.paymentMethod.label]
   );
 
   return (
