@@ -266,7 +266,7 @@ const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: I
         ...extractDataPaymentMethods('bank'),
       },
       {
-        title: 'Debet',
+        title: 'Utang',
         ...extractDataPaymentMethods('debt'),
       },
       {
@@ -397,7 +397,7 @@ const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: In
         ...extractDataPaymentMethods('bank'),
       },
       {
-        title: 'Debet',
+        title: 'Utang',
         ...extractDataPaymentMethods('debt'),
       },
       {
@@ -551,7 +551,7 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
         ...extractDataPaymentMethods('bank'),
       },
       {
-        title: 'Debet',
+        title: 'Utang',
         ...extractDataPaymentMethods('debt'),
       },
       {
@@ -670,7 +670,7 @@ const TotalBalanceSection = ({ incomeUserReport }: { incomeUserReport: IncomeUse
         ...extractDataPaymentMethods('bank'),
       },
       {
-        title: 'Debet',
+        title: 'Utang',
         ...extractDataPaymentMethods('debt'),
       },
       {
