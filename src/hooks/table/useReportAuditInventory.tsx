@@ -6,8 +6,14 @@ import Bubble from '@/components/Bubble';
 import { Button } from '@/components/Button';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
-import { useEditAudit } from '../mutation/useMutateAudit';
 import { useFetchUnpaginatedAudits } from '../query/useFetchAudit';
+
+export type ModalConfirmationData = {
+  id: string;
+  user_id: string;
+  update_count: number;
+  audit_quantity: number;
+} | null;
 
 export const useReportAuditInventory = ({ date }: { date: string }) => {
   const { data: dataRes } = useFetchUnpaginatedAudits({
@@ -17,6 +23,8 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
 
     per_page: 10000,
   });
+
+  const [openModalConfirmationData, setOpenModalConfirmationData] = React.useState<ModalConfirmationData>(null);
 
   const getData = () => {
     return (
@@ -29,7 +37,6 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
           item_unit,
           audit_quantity,
           is_valid,
-
           update_count,
           is_approved,
         }) => ({
@@ -43,9 +50,19 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
             </div>
           ),
           diffValue: <div className="flex justify-end">{audit_quantity - item_quantity}</div>,
-          action: !is_valid && !is_approved && (
-            <ButtonChecklist userId={user_id} updateCount={update_count} auditId={id} auditQty={audit_quantity} />
-          ),
+          action:
+            !is_valid && !is_approved ? (
+              <ButtonChecklist
+                onClick={() => {
+                  setOpenModalConfirmationData({
+                    id,
+                    user_id,
+                    update_count,
+                    audit_quantity,
+                  });
+                }}
+              />
+            ) : null,
         })
       ) ?? []
     );
@@ -88,37 +105,18 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
     return getColumn();
   }, []);
 
-  return { data, columns, dataRes };
+  return { data, columns, dataRes, openModalConfirmationData, setOpenModalConfirmationData };
 };
 
-export const ButtonChecklist = ({
-  auditId,
-  auditQty,
-  updateCount,
-  userId,
-}: {
-  auditId: string;
-  auditQty: number;
-  userId: string;
-  updateCount: number;
-}) => {
-  const { mutateAsync, isLoading } = useEditAudit(auditId);
+export const ButtonChecklist = ({ onClick }: { onClick: () => void }) => {
   return (
     <div className="flex">
       <Tippy content="Setujui hasil audit">
         <Button
-          disabled={isLoading}
           size="small"
           className="mr-2"
           onClick={() => {
-            mutateAsync({
-              id: auditId,
-              update_count: updateCount,
-              is_approved: true,
-              audit_quantity: auditQty,
-              is_valid: true,
-              user_id: userId,
-            });
+            onClick?.();
           }}
         >
           <Check width={24} height={24} />

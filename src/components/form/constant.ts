@@ -12,6 +12,10 @@ export const validationSchemaCustomer = object().shape({
   phoneNumber: string().nullable(),
 });
 
+export const validationSchemaConfirmationAudit = object().shape({
+  auditQty: number().nullable().required('* Required'),
+});
+
 export const validationSchemaPrive = object().shape({
   description: string().nullable().required('* Required'),
   amount: number().moreThan(0, 'Harus lebih dari 0').nullable().required('* Required'),
