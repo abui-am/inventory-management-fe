@@ -17,7 +17,7 @@ import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
-const PrivePage: NextPage<unknown> = () => {
+const DebtGiroPage: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(DEBT_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
@@ -62,6 +62,7 @@ const PrivePage: NextPage<unknown> = () => {
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
     sisaUtang: formatToIDR(+amount - +paid_amount),
+    relatedModel: props.related_model.name,
     action:
       +amount - +paid_amount > 0 ? (
         <PayDebt
@@ -86,9 +87,14 @@ const PrivePage: NextPage<unknown> = () => {
         accessor: 'description',
       },
       {
+        Header: 'Atas Nama',
+        accessor: 'relatedModel',
+      },
+      {
         Header: 'Status',
         accessor: 'status',
       },
+
       {
         Header: 'Jumlah Utang',
         accessor: 'debtAmount',
@@ -234,4 +240,4 @@ const PayDebt: React.FC<{ debt: Datum; handleOpen: () => void }> = ({ debt, hand
   );
 };
 
-export default PrivePage;
+export default DebtGiroPage;

@@ -18,7 +18,8 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
   startDate,
   endDate,
 }) => {
-  const [takeProfit, setTakeProfit] = useState(0);
+  const [takeProfit, setTakeProfit] = useState<number | undefined>(undefined);
+  const [takeProfitError, setTakeProfitError] = useState<undefined | string>(undefined);
   const { data } = useFetchCapitalReportInfo({
     start_date: startDate,
     end_date: endDate,
@@ -29,7 +30,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
   const { mutateAsync, isLoading } = useCreateCapitalReport();
   const router = useRouter();
   const handleClick = async () => {
-    if (takeProfit >= 0) {
+    if (takeProfit && takeProfit >= 0) {
       await mutateAsync({
         taken_profit: takeProfit,
       });
@@ -49,7 +50,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
   const prive = data?.data?.capital_reports?.find((val) => val.title === 'Prive')?.amount ?? 0;
 
   useEffect(() => {
-    setTakeProfit(data?.data?.capital_reports?.find((val) => val.title === 'Laba Diambil Owner')?.amount ?? 0);
+    setTakeProfit(data?.data?.capital_reports?.find((val) => val.title === 'Laba Diambil Owner')?.amount);
   }, [data]);
   return (
     <>
@@ -92,7 +93,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                 <span>
                   <b>
                     {formatCurrency({
-                      value: capitalDitahan,
+                      value: capitalDitahan - (takeProfit || 0),
                     })}
                   </b>
                 </span>
@@ -113,7 +114,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                   <span>
                     <b>
                       {formatCurrency({
-                        value: takeProfit,
+                        value: takeProfit || 0,
                       })}
                     </b>
                   </span>
@@ -124,11 +125,24 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
             {!isView ? (
               <div className="flex justify-between w-full mb-2 p-2 rounded-lg items-center bg-gray-50 border">
                 <label>Laba diambil owner: </label>
-                <TextField
-                  placeholder="Masukan laba diambil"
-                  value={takeProfit}
-                  onChange={(e) => setTakeProfit(+e.target.value)}
-                />
+                <div className="max-w-[240px]">
+                  <TextField
+                    className="w-full max-w-[240px]"
+                    placeholder="Masukan laba diambil"
+                    type="number"
+                    value={takeProfit}
+                    onChange={(e) => {
+                      const value = e.target.value ? +e.target.value : undefined;
+                      setTakeProfit(value);
+                      if ((value || 0) < 0) {
+                        setTakeProfitError('Jumlah harus lebih besar dari 0');
+                      } else {
+                        setTakeProfitError(undefined);
+                      }
+                    }}
+                  />
+                  {takeProfitError && <span className="text-red-500 mt-2 block">{takeProfitError}</span>}
+                </div>
               </div>
             ) : null}
 
@@ -160,7 +174,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                   </Button>
                 ) : (
                   <Button
-                    disabled={isLoading}
+                    disabled={isLoading || !!takeProfitError}
                     onClick={(e) => {
                       e.preventDefault();
                       setIsConfirmed(true);

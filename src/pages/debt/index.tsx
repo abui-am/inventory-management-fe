@@ -61,6 +61,7 @@ const PrivePage: NextPage<unknown> = () => {
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
+    relatedModel: props.related_model.name,
     action: (
       <PayDebt
         handleOpen={() => {
@@ -82,6 +83,10 @@ const PrivePage: NextPage<unknown> = () => {
         accessor: 'description',
       },
       {
+        Header: 'Atas Nama',
+        accessor: 'relatedModel',
+      },
+      {
         Header: 'Status',
         accessor: 'status',
       },
@@ -96,6 +101,7 @@ const PrivePage: NextPage<unknown> = () => {
           textAlign: 'right',
         },
       },
+
       {
         Header: 'Jumlah Utang',
         accessor: 'debtAmount',

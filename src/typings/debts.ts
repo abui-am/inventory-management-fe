@@ -9,6 +9,10 @@ export interface Datum {
   paid_amount: string;
   created_at: Date;
   updated_at: Date;
+  related_model: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface Link {
