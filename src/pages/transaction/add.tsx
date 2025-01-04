@@ -151,7 +151,7 @@ const AddTransactionPage: NextPage = () => {
       price: (
         <div>
           <div>
-            Harga beli: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
+            Harga jual: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
           </div>
 
           <div>

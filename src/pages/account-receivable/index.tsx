@@ -55,14 +55,14 @@ const AccountReceivable: NextPage<unknown> = () => {
     prev_page_url,
     last_page_url,
   } = dataPrepaidSalary?.data.debts ?? {};
-  const data = dataRes.map(({ created_at, description, is_paid, paid_amount, amount, ...props }) => ({
+  const data = dataRes.map(({ created_at, description, is_paid, paid_amount, amount, related_model, ...props }) => ({
     date: formatDate(created_at, { withHour: true }),
     description,
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
     sisapiutang: formatToIDR(+amount - +paid_amount),
-
+    relatedModel: related_model.name,
     action:
       +amount - +paid_amount > 0 ? (
         <PayDebt debt={{ created_at, description, is_paid, paid_amount, amount, ...props }} />
@@ -77,6 +77,10 @@ const AccountReceivable: NextPage<unknown> = () => {
       {
         Header: 'Keterangan',
         accessor: 'description',
+      },
+      {
+        Header: 'Atas Nama',
+        accessor: 'relatedModel',
       },
       {
         Header: 'Status',
