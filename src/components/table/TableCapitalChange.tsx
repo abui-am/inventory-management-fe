@@ -93,7 +93,8 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                 <span>
                   <b>
                     {formatCurrency({
-                      value: capitalDitahan - (takeProfit || 0),
+                      // If isView then no need to substract takeProfit
+                      value: capitalDitahan - (isView ? 0 : takeProfit || 0),
                     })}
                   </b>
                 </span>
