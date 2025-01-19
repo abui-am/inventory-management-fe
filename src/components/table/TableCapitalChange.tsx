@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 
 import { useCreateCapitalReport } from '@/hooks/mutation/useMutateCapitalReport';
 import { useFetchCapitalReportInfo } from '@/hooks/query/useFetchCapitalReportDate';
-import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
 import formatCurrency from '@/utils/formatCurrency';
 
 import { Button } from '../Button';
@@ -25,8 +24,6 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
     end_date: endDate,
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const { data: dataLedgerAcc } = useFetchUnpaginatedLedgerAccounts({});
-  const dataModal = dataLedgerAcc?.data?.ledger_accounts?.find((val) => val.name === 'Modal');
   const { mutateAsync, isLoading } = useCreateCapitalReport();
   const router = useRouter();
   const handleClick = async () => {
@@ -40,10 +37,8 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
     }
   };
 
-  const currentCapital =
-    startDate && endDate
-      ? data?.data?.capital_reports?.find((val) => val.title === 'Modal Awal')?.amount ?? 0
-      : +(dataModal?.balance ?? 0);
+  const currentCapital = data?.data?.capital_reports?.find((val) => val.title === 'Modal Awal')?.amount ?? 0;
+
   const capitalStored = data?.data?.capital_reports?.find((val) => val.title === 'Modal Disetor')?.amount ?? 0;
 
   const capitalDitahan = data?.data?.capital_reports?.find((val) => val.title === 'Laba Ditahan')?.amount ?? 0;
@@ -157,10 +152,10 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                     {isView
                       ? formatCurrency({
                           // takeProfit udah minus kalau view, prive juga
-                          value: currentCapital + capitalDitahan + capitalStored + prive + takeProfit ?? 0,
+                          value: currentCapital + capitalDitahan + capitalStored + prive + (takeProfit ?? 0),
                         })
                       : formatCurrency({
-                          value: currentCapital + capitalDitahan + capitalStored + prive - takeProfit ?? 0,
+                          value: currentCapital + capitalDitahan + capitalStored + prive - (takeProfit ?? 0),
                         })}
                   </b>
                 </span>
