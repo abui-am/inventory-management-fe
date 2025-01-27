@@ -34,7 +34,7 @@ export interface CapitalReportsInfoResponse {
   capital_reports: CapitalReportData[];
   end_date: string;
   start_date: string;
-  total_capital: 170009;
+  total_capital: number;
 }
 
 export type CreateCapitalReportPayload = {

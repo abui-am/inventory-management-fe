@@ -43,7 +43,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
 
   const capitalDitahan = data?.data?.capital_reports?.find((val) => val.title === 'Laba Ditahan')?.amount ?? 0;
   const prive = data?.data?.capital_reports?.find((val) => val.title === 'Prive')?.amount ?? 0;
-
+  const totalCapital = data?.data?.total_capital || 0;
   useEffect(() => {
     setTakeProfit(data?.data?.capital_reports?.find((val) => val.title === 'Laba Diambil Owner')?.amount);
   }, [data]);
@@ -152,7 +152,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
                     {isView
                       ? formatCurrency({
                           // takeProfit udah minus kalau view, prive juga
-                          value: currentCapital + capitalDitahan + capitalStored + prive + (takeProfit ?? 0),
+                          value: totalCapital,
                         })
                       : formatCurrency({
                           value: currentCapital + capitalDitahan + capitalStored + prive - (takeProfit ?? 0),
