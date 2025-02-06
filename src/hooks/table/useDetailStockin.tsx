@@ -5,12 +5,17 @@ import { CurrencyTextField } from '@/components/Form';
 import { TrasactionItem } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
+import useWindowSize, { XL } from '../useWindowSize';
+
 export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAdjustment: boolean) => {
   const initialValues: {
     data: { id: string; sell_price: number }[];
   } = {
     data: [],
   };
+
+  const windowSize = useWindowSize();
+  const isXl = windowSize >= XL;
 
   const getData = () => {
     if (!withSellPriceAdjustment) {
@@ -25,9 +30,24 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
     return items.map(({ name, unit, pivot, id }, index) => ({
       name,
       unit,
-      qty: pivot.quantity,
-      purchasePrice: formatToIDR(pivot.purchase_price ?? 0),
-      purchasePriceMedian: formatToIDR(pivot.median_purchase_price ?? 0),
+      ...(isXl
+        ? {
+            qty: pivot.quantity,
+            purchasePrice: formatToIDR(pivot.purchase_price ?? 0),
+            purchasePriceMedian: formatToIDR(pivot.median_purchase_price ?? 0),
+          }
+        : {
+            detail: (
+              <div>
+                <label className="block">Quantity:</label>
+                <div className="text-base font-bold block mb-2">{pivot.quantity}</div>
+                <label className="block">Harga beli</label>
+                <div className="text-base font-bold block mb-2">{formatToIDR(pivot.purchase_price ?? 0)}</div>
+                <label className="block">Harga beli median</label>
+                <div className="text-base font-bold block mb-2">{formatToIDR(pivot.median_purchase_price ?? 0)}</div>
+              </div>
+            ),
+          }),
       sellPriceAdjustment: (
         <Field name={`data[${index}]`}>
           {(formik: FieldProps) => {
@@ -111,42 +131,52 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
           accessor: 'unit',
           width: '10%',
         },
-        {
-          Header: 'Jumlah',
-          accessor: 'qty',
-          width: '10%',
-          style: {
-            textAlign: 'right',
-            display: 'block',
-          },
-          bodyStyle: {
-            textAlign: 'right',
-          },
-        },
-        {
-          Header: 'Harga beli',
-          accessor: 'purchasePrice',
-          width: '15%',
-          style: {
-            textAlign: 'right',
-            display: 'block',
-          },
-          bodyStyle: {
-            textAlign: 'right',
-          },
-        },
-        {
-          Header: 'Harga beli median',
-          accessor: 'purchasePriceMedian',
-          width: '15%',
-          style: {
-            textAlign: 'right',
-            display: 'block',
-          },
-          bodyStyle: {
-            textAlign: 'right',
-          },
-        },
+        ...(isXl
+          ? [
+              {
+                Header: 'Jumlah',
+                accessor: 'qty',
+                width: '10%',
+                style: {
+                  textAlign: 'right',
+                  display: 'block',
+                },
+                bodyStyle: {
+                  textAlign: 'right',
+                },
+              },
+              {
+                Header: 'Harga beli',
+                accessor: 'purchasePrice',
+                width: '15%',
+                style: {
+                  textAlign: 'right',
+                  display: 'block',
+                },
+                bodyStyle: {
+                  textAlign: 'right',
+                },
+              },
+              {
+                Header: 'Harga beli median',
+                accessor: 'purchasePriceMedian',
+                width: '15%',
+                style: {
+                  textAlign: 'right',
+                  display: 'block',
+                },
+                bodyStyle: {
+                  textAlign: 'right',
+                },
+              },
+            ]
+          : [
+              {
+                Header: 'Detail',
+                accessor: 'detail',
+                width: '40%',
+              },
+            ]),
         {
           Header: 'Harga jual',
           accessor: 'sellPriceAdjustment',
@@ -162,7 +192,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
     };
 
     return getColumn();
-  }, [withSellPriceAdjustment]);
+  }, [isXl, withSellPriceAdjustment]);
 
   return { data, columns, initialValues };
 };

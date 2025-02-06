@@ -14,8 +14,9 @@ import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import useFetchSales from '@/hooks/query/useFetchSale';
+import useWindowSize, { XL } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
-import { SaleTransactionsData } from '@/typings/sale';
+import { Pic, SaleTransactionsData, Sender } from '@/typings/sale';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
 import printInvoice from '@/utils/printInvoice';
 
@@ -29,7 +30,8 @@ const TransactionPage: NextPage<unknown> = () => {
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
-
+  const windowSize = useWindowSize();
+  const isXl = windowSize >= XL;
   const { data: dataMyself } = useFetchMyself();
 
   const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
@@ -68,28 +70,8 @@ const TransactionPage: NextPage<unknown> = () => {
     }) => ({
       id: transaction_code,
       date: formatDate(created_at, { withHour: true }),
-      pic: isAdmin ? (
-        <div>
-          <label>Kasir:</label>
-          <a
-            href={`/employee/${pic.id}`}
-            className="block font-bold mb-2 hover:text-blue-600"
-          >{`${pic.employee.first_name} ${pic.employee.last_name}`}</a>
-          <label>Pengirim:</label>
-          <a
-            href={`/employee/${sender.id}`}
-            className="block font-bold hover:text-blue-600"
-          >{`${sender?.first_name} ${sender?.last_name}`}</a>
-        </div>
-      ) : (
-        <div>
-          <label>Kasir:</label>
-          <span className="block font-bold mb-2">{`${pic.employee.first_name} ${pic.employee.last_name}`}</span>
-          <label>Pengirim:</label>
-          <span className="block font-bold">{`${sender?.first_name} ${sender?.last_name}`}</span>
-        </div>
-      ),
-      customer: (
+      pic: <PIC pic={pic} sender={sender} isAdmin={!!isAdmin} />,
+      detail: (
         <div>
           <label className="block">Pembeli:</label>
           <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
@@ -99,6 +81,8 @@ const TransactionPage: NextPage<unknown> = () => {
           <span className="text-base font-bold block mb-2">
             {formatToIDR(payments?.[0]?.payment_price)} ({formatPaymentMethod(payment_method)})
           </span>
+
+          {!isXl ? <PIC pic={pic} sender={sender} isAdmin={!!isAdmin} /> : null}
         </div>
       ),
 
@@ -146,14 +130,18 @@ const TransactionPage: NextPage<unknown> = () => {
       },
       {
         Header: 'Detail Pembelian',
-        accessor: 'customer',
+        accessor: 'detail',
         width: '30%',
       },
 
-      {
-        Header: 'Kasir & Pengirim',
-        accessor: 'pic',
-      },
+      ...(isXl
+        ? [
+            {
+              Header: 'Kasir & Pengirim',
+              accessor: 'pic',
+            },
+          ]
+        : []),
 
       {
         Header: 'Aksi',
@@ -161,7 +149,7 @@ const TransactionPage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    []
+    [isXl]
   );
   return (
     <CardDashboard>
@@ -269,6 +257,30 @@ const ButtonDownload = ({ transactionId }: { transactionId: string }) => {
     <Button disabled={isLoading} loading={isLoading} size="small" onClick={handleDownload}>
       <Download width={24} height={24} />
     </Button>
+  );
+};
+
+const PIC = ({ pic, sender, isAdmin }: { pic: Pic; sender: Sender; isAdmin: boolean }) => {
+  return isAdmin ? (
+    <div>
+      <label>Kasir:</label>
+      <a
+        href={`/employee/${pic.id}`}
+        className="block font-bold mb-2 hover:text-blue-600"
+      >{`${pic.employee.first_name} ${pic.employee.last_name}`}</a>
+      <label>Pengirim:</label>
+      <a
+        href={`/employee/${sender.id}`}
+        className="block font-bold hover:text-blue-600"
+      >{`${sender?.first_name} ${sender?.last_name}`}</a>
+    </div>
+  ) : (
+    <div>
+      <label>Kasir:</label>
+      <span className="block font-bold mb-2">{`${pic.employee.first_name} ${pic.employee.last_name}`}</span>
+      <label>Pengirim:</label>
+      <span className="block font-bold">{`${sender?.first_name} ${sender?.last_name}`}</span>
+    </div>
   );
 };
 export default TransactionPage;

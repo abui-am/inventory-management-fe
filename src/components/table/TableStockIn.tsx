@@ -9,6 +9,7 @@ import { SORT_TYPE_OPTIONS, STOCK_IN_SORT_BY_OPTIONS } from '@/constants/options
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
+import useWindowSize, { XL } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { TransactionData } from '@/typings/stock-in';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
@@ -33,6 +34,10 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
+
+  const windowSize = useWindowSize();
+
+  const isXl = windowSize >= XL;
 
   const Action = (transaction: TransactionData) => {
     switch (variant) {
@@ -154,11 +159,18 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
               {formatToIDR(payment.payment_price)} ({formatPaymentMethod(payment.payment_method)})
             </span>
           ))}
+          {!isXl && (
+            <div className="mt-2">
+              <label className="block">Tanggal:</label>
+              <span className="text-base font-bold block mb-2">{formatDate(created_at, { withHour: true })}</span>
+              <label className="block">Kasir:</label>
+              <span className="text-base font-bold block mb-2">{`${pic.employee.first_name} ${pic.employee.last_name}`}</span>
+              <label className="block">Status:</label>
+              <Tag variant={status === 'accepted' ? 'primary' : 'secondary'}>{getTagValue(status)}</Tag>
+            </div>
+          )}
         </div>
       ),
-      // col3: supplier?.name,
-      // col4: payment_method,
-      // col5: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
       col6: isAdmin ? (
         <div>
           <a
@@ -191,33 +203,36 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         Header: 'Kode Transaksi',
         accessor: 'col1', // accessor is the "key" in the data
       },
-      {
-        Header: 'Tanggal',
-        accessor: 'col2',
-      },
+      ...(isXl
+        ? [
+            {
+              Header: 'Tanggal',
+              accessor: 'col2',
+            },
+          ]
+        : []),
       {
         Header: 'Detail Barang Masuk',
         accessor: 'detail',
         width: '40%',
       },
-      {
-        Header: 'Kasir',
-        accessor: 'col6',
-      },
-
-      {
-        Header: 'Status',
-        accessor: 'col7',
-        width: '150px',
-      },
-
+      ...(isXl
+        ? [
+            { Header: 'Kasir', accessor: 'col6' },
+            {
+              Header: 'Status',
+              accessor: 'col7',
+              width: '150px',
+            },
+          ]
+        : []),
       {
         Header: 'Aksi',
         accessor: 'col8',
         width: variant === 'all' ? '100px' : '180px',
       },
     ],
-    [variant]
+    [isXl, variant]
   );
 
   return (

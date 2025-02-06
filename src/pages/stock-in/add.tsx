@@ -255,7 +255,7 @@ const AddStockPage: NextPage = () => {
     <CardDashboard title="Barang Masuk Baru">
       <form onSubmit={handleSubmit}>
         <div className="flex flex-wrap -mx-2 mb-8">
-          <div className="w-8/12 pr-4 mb-4">
+          <div className="xl:w-8/12 w-full pr-4 mb-4">
             <div className="flex flex-wrap ">
               <div className="w-6/12 px-2 mb-3">
                 <Label required>Nomor faktur</Label>
@@ -350,7 +350,7 @@ const AddStockPage: NextPage = () => {
               </div>
             </div>
           </div>
-          <div className="w-4/12">
+          <div className="xl:w-4/12 w-full">
             <div className="border p-4 rounded-md shadow-md flex flex-wrap mb-4">
               <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Ongkos kirim</label>
@@ -379,7 +379,7 @@ const AddStockPage: NextPage = () => {
               {values?.payments?.map((value, idx) => {
                 return (
                   // eslint-disable-next-line react/no-array-index-key
-                  <div className="pt-3 pb-3 flex flex-wrap" key={`${value.paymentMethod.value}-${idx}`}>
+                  <div className="pt-3 pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}-${idx}`}>
                     <PaymentMethod
                       errors={errors}
                       touched={touched}

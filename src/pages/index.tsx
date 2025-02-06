@@ -14,6 +14,7 @@ import { HomeProvider, useHome } from '@/context/home-context';
 import { usePermission } from '@/context/permission-context';
 import { useFetchLedgers, useFetchUnpaginatedLedgers } from '@/hooks/query/useFetchLedgers';
 import useFetchSales from '@/hooks/query/useFetchSale';
+import useWindowSize, { XL } from '@/hooks/useWindowSize';
 import { SalesResponseUnpaginated } from '@/typings/sale';
 import { formatDate, formatDateYYYYMMDD, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 type CardProps = {
@@ -112,8 +113,8 @@ const Home: NextPage = () => {
 
   return (
     <div>
-      <section id="head" className="mb-6 sm:flex sm:mb-0">
-        <div className="flex-1 text-2xl font-bold mb-8 sm:mx-0 mx-6">Overview</div>
+      <section id="head" className="mb-6 xl:flex xl:mb-0">
+        <div className="flex-1 text-2xl font-bold mb-8 xl:mx-0 mx-6">Overview</div>
         <div className="flex-1 max-w-sm">
           <div className="flex items-center">
             <DatePickerComponent
@@ -133,8 +134,8 @@ const Home: NextPage = () => {
         </div>
       </section>
       <section id="body" className="flex flex-wrap -m-3">
-        <div className="w-full sm:w-8/12">
-          <div className="w-full flex-col flex sm:flex-row">
+        <div className="w-full xl:w-8/12">
+          <div className="w-full flex-col flex xl:flex-row">
             {cardValues.map(({ label, value }) => {
               return (
                 <div className="h-32 flex-1 p-3" key={label}>
@@ -155,7 +156,7 @@ const Home: NextPage = () => {
             </CardDashboard>
           </div>
         </div>
-        <div className="w-full sm:w-4/12 p-3">
+        <div className="w-full xl:w-4/12 p-3">
           <TopSale />
         </div>
         <div className="w-full  p-3">
@@ -235,7 +236,7 @@ const TopSale = () => {
   );
 
   return (
-    <CardDashboard title="Penjualan terbanyak" className="h-full">
+    <CardDashboard title="Penjualan terbanyak" className="xl:h-full">
       {topSaleItems.length === 0 && (
         <div className="w-full h-full flex items-center justify-center flex-col mb-8">
           <FileX className="h-24 w-24 mb-16 opacity-50" />
@@ -254,6 +255,8 @@ const TopSale = () => {
 };
 
 const LastTransaction = () => {
+  const windowSize = useWindowSize();
+  const isXl = windowSize >= XL;
   const { data } = useFetchSales({
     per_page: 6,
     order_by: {
@@ -264,9 +267,26 @@ const LastTransaction = () => {
     data?.data.transactions.data.map(({ transaction_code, created_at, payment_method, items, customer }) => ({
       id: transaction_code,
       date: formatDate(created_at, { withHour: true }),
-      purchaseMethod: payment_method,
-      payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
-      customer: customer.full_name,
+      ...(isXl
+        ? {
+            purchaseMethod: payment_method,
+            payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+            customer: customer.full_name,
+          }
+        : {
+            detail: (
+              <div>
+                <label className="block">Pembeli:</label>
+                <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
+                <label className="block">Metode pembayaran:</label>
+                <span className="text-base font-bold block mb-2">{payment_method}</span>
+                <label className="block">Jumlah pembayaran:</label>
+                <span className="text-base font-bold block mb-2">
+                  {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))}
+                </span>
+              </div>
+            ),
+          }),
     })) ?? [];
   const columns = useMemo(
     () => [
@@ -278,20 +298,29 @@ const LastTransaction = () => {
         Header: 'Tanggal',
         accessor: 'date',
       },
-      {
-        Header: 'Pembeli',
-        accessor: 'customer',
-      },
-      {
-        Header: 'Metode Pembayaran',
-        accessor: 'purchaseMethod',
-      },
-      {
-        Header: 'Pembayaran',
-        accessor: 'payAmount',
-      },
+      ...(isXl
+        ? [
+            {
+              Header: 'Pembeli',
+              accessor: 'customer',
+            },
+            {
+              Header: 'Metode Pembayaran',
+              accessor: 'purchaseMethod',
+            },
+            {
+              Header: 'Pembayaran',
+              accessor: 'payAmount',
+            },
+          ]
+        : [
+            {
+              Header: 'Detail',
+              accessor: 'detail',
+            },
+          ]),
     ],
-    []
+    [isXl]
   );
 
   return (

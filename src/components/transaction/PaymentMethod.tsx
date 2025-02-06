@@ -42,7 +42,7 @@ const PaymentMethod: React.FC<{
         <label className="mb-1 block">Metode pembayaran</label>
         <div className="flex">
           <ThemedSelect
-            className="mr-4"
+            className="mr-4 !w-full"
             variant="contained"
             name={`payments.[${index}].paymentMethod`}
             onChange={(val) => {

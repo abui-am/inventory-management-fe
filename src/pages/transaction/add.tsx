@@ -223,7 +223,7 @@ const AddTransactionPage: NextPage = () => {
     <CardDashboard>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-wrap -mx-2 mb-4">
-          <div className="w-8/12 pr-8 flex flex-wrap mb-4">
+          <div className="xl:w-8/12 w-full pr-8 flex flex-wrap mb-4">
             <div className="w-6/12 px-2 mb-3">
               <WithLabelAndError required touched={touched} errors={errors} name="customer" label="Nama Customer">
                 <SelectCustomer
@@ -265,7 +265,7 @@ const AddTransactionPage: NextPage = () => {
             </div>
           </div>
 
-          <div className="w-4/12">
+          <div className="xsl:w-4/12 w-full">
             <div className="border p-4 rounded-md shadow-md flex flex-wrap -mx-2 mb-4">
               <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Diskon</label>
@@ -333,7 +333,7 @@ const AddTransactionPage: NextPage = () => {
                 {values?.payments?.map((value, index) => {
                   return (
                     // eslint-disable-next-line react/no-array-index-key
-                    <div className="pt pb-3 flex flex-wrap" key={`${value.paymentMethod.value}${index}`}>
+                    <div className="pt pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}${index}`}>
                       <PaymentMethod
                         isSubmitting={isSubmitting}
                         setFieldValue={setFieldValue}

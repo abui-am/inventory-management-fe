@@ -39,6 +39,7 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: ModalVarian
       insetBlockStart: 40,
       insetBlockEnd: 40,
       width: '100vw',
+      inset: 0,
       maxWidth: getWidth(variant),
     },
   } as ReactModal.Styles;
