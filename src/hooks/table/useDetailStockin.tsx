@@ -5,7 +5,7 @@ import { CurrencyTextField } from '@/components/Form';
 import { TrasactionItem } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
-import useWindowSize, { XL } from '../useWindowSize';
+import useWindowSize, { MD } from '../useWindowSize';
 
 export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAdjustment: boolean) => {
   const initialValues: {
@@ -15,7 +15,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
   };
 
   const windowSize = useWindowSize();
-  const isXl = windowSize >= XL;
+  const isMd = windowSize >= MD;
 
   const getData = () => {
     if (!withSellPriceAdjustment) {
@@ -30,7 +30,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
     return items.map(({ name, unit, pivot, id }, index) => ({
       name,
       unit,
-      ...(isXl
+      ...(isMd
         ? {
             qty: pivot.quantity,
             purchasePrice: formatToIDR(pivot.purchase_price ?? 0),
@@ -131,7 +131,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
           accessor: 'unit',
           width: '10%',
         },
-        ...(isXl
+        ...(isMd
           ? [
               {
                 Header: 'Jumlah',
@@ -192,7 +192,7 @@ export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAd
     };
 
     return getColumn();
-  }, [isXl, withSellPriceAdjustment]);
+  }, [isMd, withSellPriceAdjustment]);
 
   return { data, columns, initialValues };
 };

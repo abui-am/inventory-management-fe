@@ -14,7 +14,7 @@ import { HomeProvider, useHome } from '@/context/home-context';
 import { usePermission } from '@/context/permission-context';
 import { useFetchLedgers, useFetchUnpaginatedLedgers } from '@/hooks/query/useFetchLedgers';
 import useFetchSales from '@/hooks/query/useFetchSale';
-import useWindowSize, { XL } from '@/hooks/useWindowSize';
+import useWindowSize, { MD, XL } from '@/hooks/useWindowSize';
 import { SalesResponseUnpaginated } from '@/typings/sale';
 import { formatDate, formatDateYYYYMMDD, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 type CardProps = {
@@ -256,7 +256,7 @@ const TopSale = () => {
 
 const LastTransaction = () => {
   const windowSize = useWindowSize();
-  const isXl = windowSize >= XL;
+  const isMd = windowSize >= MD;
   const { data } = useFetchSales({
     per_page: 6,
     order_by: {
@@ -267,7 +267,7 @@ const LastTransaction = () => {
     data?.data.transactions.data.map(({ transaction_code, created_at, payment_method, items, customer }) => ({
       id: transaction_code,
       date: formatDate(created_at, { withHour: true }),
-      ...(isXl
+      ...(isMd
         ? {
             purchaseMethod: payment_method,
             payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
@@ -298,7 +298,7 @@ const LastTransaction = () => {
         Header: 'Tanggal',
         accessor: 'date',
       },
-      ...(isXl
+      ...(isMd
         ? [
             {
               Header: 'Pembeli',
@@ -320,7 +320,7 @@ const LastTransaction = () => {
             },
           ]),
     ],
-    [isXl]
+    [isMd]
   );
 
   return (

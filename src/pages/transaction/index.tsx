@@ -14,7 +14,7 @@ import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import useFetchSales from '@/hooks/query/useFetchSale';
-import useWindowSize, { XL } from '@/hooks/useWindowSize';
+import useWindowSize, { MD } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Pic, SaleTransactionsData, Sender } from '@/typings/sale';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
@@ -31,7 +31,7 @@ const TransactionPage: NextPage<unknown> = () => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
   const windowSize = useWindowSize();
-  const isXl = windowSize >= XL;
+  const isMd = windowSize >= MD;
   const { data: dataMyself } = useFetchMyself();
 
   const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
@@ -82,7 +82,7 @@ const TransactionPage: NextPage<unknown> = () => {
             {formatToIDR(payments?.[0]?.payment_price)} ({formatPaymentMethod(payment_method)})
           </span>
 
-          {!isXl ? <PIC pic={pic} sender={sender} isAdmin={!!isAdmin} /> : null}
+          {!isMd ? <PIC pic={pic} sender={sender} isAdmin={!!isAdmin} /> : null}
         </div>
       ),
 
@@ -134,7 +134,7 @@ const TransactionPage: NextPage<unknown> = () => {
         width: '30%',
       },
 
-      ...(isXl
+      ...(isMd
         ? [
             {
               Header: 'Kasir & Pengirim',
@@ -149,7 +149,7 @@ const TransactionPage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    [isXl]
+    [isMd]
   );
   return (
     <CardDashboard>

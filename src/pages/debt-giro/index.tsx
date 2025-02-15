@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { XL } from '@/hooks/useWindowSize';
+import useWindowSize, { MD, XL } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
@@ -90,7 +90,7 @@ const DebtGiroPage: NextPage<unknown> = () => {
   const [debt, setDebt] = useState<Datum | null>(null);
   const windowSize = useWindowSize();
 
-  const isXl = windowSize >= XL;
+  const isMd = windowSize >= MD;
 
   const columns = React.useMemo(
     () => [
@@ -98,7 +98,7 @@ const DebtGiroPage: NextPage<unknown> = () => {
         Header: 'Tanggal',
         accessor: 'date', // accessor is the "key" in the data
       },
-      ...(isXl
+      ...(isMd
         ? [
             {
               Header: 'Keterangan',
@@ -158,7 +158,7 @@ const DebtGiroPage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    [isXl]
+    [isMd]
   );
   return (
     <CardDashboard>
