@@ -265,7 +265,7 @@ const AddTransactionPage: NextPage = () => {
             </div>
           </div>
 
-          <div className="xsl:w-4/12 w-full">
+          <div className="xl:w-4/12 w-full">
             <div className="border p-4 rounded-md shadow-md flex flex-wrap -mx-2 mb-4">
               <div className="w-full px-2 mb-2">
                 <label className="mb-1 inline-block">Diskon</label>
