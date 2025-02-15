@@ -13,6 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
+import useWindowSize, { XL } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
@@ -63,6 +64,18 @@ const DebtGiroPage: NextPage<unknown> = () => {
     debtAmount: formatToIDR(+amount),
     sisaUtang: formatToIDR(+amount - +paid_amount),
     relatedModel: props.related_model.name,
+    detail: (
+      <div className="mt-2">
+        <label className="block">Jumlah Utang:</label>
+        <div className="text-base font-bold block mb-2">{formatToIDR(+amount)}</div>
+        <label className="block">Keterangan:</label>
+        <div className="text-base font-bold block mb-2">{description}</div>
+        <label className="block">Atas Nama:</label>
+        <div className="text-base font-bold block mb-2">{props.related_model.name}</div>
+        <label className="block">Status:</label>
+        <div className="text-base font-bold block mb-2">{is_paid ? 'lunas' : 'belum lunas'}</div>
+      </div>
+    ),
     action:
       +amount - +paid_amount > 0 ? (
         <PayDebt
@@ -75,6 +88,9 @@ const DebtGiroPage: NextPage<unknown> = () => {
   }));
 
   const [debt, setDebt] = useState<Datum | null>(null);
+  const windowSize = useWindowSize();
+
+  const isXl = windowSize >= XL;
 
   const columns = React.useMemo(
     () => [
@@ -82,30 +98,38 @@ const DebtGiroPage: NextPage<unknown> = () => {
         Header: 'Tanggal',
         accessor: 'date', // accessor is the "key" in the data
       },
-      {
-        Header: 'Keterangan',
-        accessor: 'description',
-      },
-      {
-        Header: 'Atas Nama',
-        accessor: 'relatedModel',
-      },
-      {
-        Header: 'Status',
-        accessor: 'status',
-      },
-
-      {
-        Header: 'Jumlah Utang',
-        accessor: 'debtAmount',
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
-      },
+      ...(isXl
+        ? [
+            {
+              Header: 'Keterangan',
+              accessor: 'description',
+            },
+            {
+              Header: 'Atas Nama',
+              accessor: 'relatedModel',
+            },
+            {
+              Header: 'Status',
+              accessor: 'status',
+            },
+            {
+              Header: 'Jumlah Utang',
+              accessor: 'debtAmount',
+              style: {
+                textAlign: 'right',
+                display: 'block',
+              },
+              bodyStyle: {
+                textAlign: 'right',
+              },
+            },
+          ]
+        : [
+            {
+              Header: 'Detail',
+              accessor: 'detail',
+            },
+          ]),
       {
         Header: 'Dibayarkan',
         accessor: 'paid',
@@ -134,7 +158,7 @@ const DebtGiroPage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    []
+    [isXl]
   );
   return (
     <CardDashboard>
