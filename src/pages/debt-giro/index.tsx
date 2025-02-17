@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { LG, MD, XL } from '@/hooks/useWindowSize';
+import useWindowSize, { LG, MD } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
