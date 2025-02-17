@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { MD, XL } from '@/hooks/useWindowSize';
+import useWindowSize, { LG, MD, XL } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
@@ -56,9 +56,29 @@ const DebtGiroPage: NextPage<unknown> = () => {
     prev_page_url,
     last_page_url,
   } = dataDebt?.data.debts ?? {};
+
+  const [debt, setDebt] = useState<Datum | null>(null);
+  const windowSize = useWindowSize();
+
+  const isMd = windowSize >= MD;
+  const isLg = windowSize >= LG;
+
   const data = dataRes.map(({ created_at, description, is_paid, paid_amount, amount, ...props }) => ({
     date: formatDate(created_at, { withHour: true }),
-    description,
+    description: (
+      <div>
+        {isMd && !isLg ? (
+          <div>
+            <label className="block">Keterangan:</label>
+            <div className="text-base font-bold block mb-2">{description}</div>
+            <label className="block">Jumlah Utang:</label>
+            <div className="text-base font-bold block mb-2">{formatToIDR(+amount)}</div>
+          </div>
+        ) : (
+          description
+        )}
+      </div>
+    ),
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
@@ -87,11 +107,6 @@ const DebtGiroPage: NextPage<unknown> = () => {
       ) : null,
   }));
 
-  const [debt, setDebt] = useState<Datum | null>(null);
-  const windowSize = useWindowSize();
-
-  const isMd = windowSize >= MD;
-
   const columns = React.useMemo(
     () => [
       {
@@ -112,17 +127,21 @@ const DebtGiroPage: NextPage<unknown> = () => {
               Header: 'Status',
               accessor: 'status',
             },
-            {
-              Header: 'Jumlah Utang',
-              accessor: 'debtAmount',
-              style: {
-                textAlign: 'right',
-                display: 'block',
-              },
-              bodyStyle: {
-                textAlign: 'right',
-              },
-            },
+            ...(isLg
+              ? [
+                  {
+                    Header: 'Jumlah Utang',
+                    accessor: 'debtAmount',
+                    style: {
+                      textAlign: 'right',
+                      display: 'block',
+                    },
+                    bodyStyle: {
+                      textAlign: 'right',
+                    },
+                  },
+                ]
+              : []),
           ]
         : [
             {
@@ -158,7 +177,7 @@ const DebtGiroPage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    [isMd]
+    [isLg, isMd]
   );
   return (
     <CardDashboard>
