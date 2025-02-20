@@ -23,7 +23,8 @@ export const SelectCustomer: React.FC<ThemedSelectProps> = ({
   onChange,
   ...props
 }) => {
-  const { data } = useFetchCustomers();
+  const [search, setSearch] = React.useState('');
+  const { data } = useFetchCustomers({ search });
   const [isCreating, setIsCreating] = React.useState(false);
   const [initValues, setInitValues] = React.useState({
     fullName: '',
@@ -45,6 +46,9 @@ export const SelectCustomer: React.FC<ThemedSelectProps> = ({
           } else {
             onChange?.(e, act);
           }
+        }}
+        onInputChange={(val) => {
+          setSearch(val);
         }}
       />
       <Modal isOpen={isCreating} onRequestClose={() => setIsCreating(false)}>
