@@ -23,7 +23,7 @@ export const useFetchAudits = (
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
   const fetcher = useMyQuery([keys.audits, data, roles], async () => {
     const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin', 'warehouse-admin']).post('/items/audits', data);
     return res.data;
   });
@@ -45,7 +45,7 @@ export const useFetchUnpaginatedAudits = (
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
   const fetcher = useMyQuery(['audits', data, roles], async () => {
     const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles, ['superadmin', 'warehouse-admin']).post('/items/audits', {
           ...data,
           paginated: false,

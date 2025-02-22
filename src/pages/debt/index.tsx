@@ -13,6 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
+import useWindowSize, { MD } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
@@ -26,6 +27,8 @@ const PrivePage: NextPage<unknown> = () => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
 
+  const windowSize = useWindowSize();
+  const isMd = windowSize >= MD;
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
 
@@ -58,10 +61,29 @@ const PrivePage: NextPage<unknown> = () => {
   const data = dataRes.map(({ created_at, description, is_paid, paid_amount, amount, ...props }) => ({
     date: formatDate(created_at, { withHour: true }),
     description,
+    detail: (
+      <div className="mt-2">
+        <label className="block">Status:</label>
+        <div className="text-base font-bold block mb-2">
+          <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>
+        </div>
+        <label className="block">Keterangan:</label>
+        <div className="text-base font-bold block mb-2">{description}</div>
+        <label className="block">Atas Nama:</label>
+        <div className="text-base font-bold block mb-2">{props.related_model.name}</div>
+        {/* Dibayarkan */}
+        <label className="block">Dibayarkan:</label>
+        <div className="text-base font-bold block mb-2">{formatToIDR(+paid_amount)}</div>
+        {/* Jumlah Utang */}
+        <label className="block">Jumlah Utang:</label>
+        <div className="text-base font-bold block mb-2">{formatToIDR(+amount)}</div>
+      </div>
+    ),
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
     relatedModel: props.related_model.name,
+    dueDate: formatDate(props.due_date, { withHour: true }),
     action: (
       <PayDebt
         handleOpen={() => {
@@ -78,33 +100,54 @@ const PrivePage: NextPage<unknown> = () => {
         Header: 'Tanggal',
         accessor: 'date', // accessor is the "key" in the data
       },
-      {
-        Header: 'Keterangan',
-        accessor: 'description',
-      },
-      {
-        Header: 'Atas Nama',
-        accessor: 'relatedModel',
-      },
-      {
-        Header: 'Status',
-        accessor: 'status',
-      },
-      {
-        Header: 'Dibayarkan',
-        accessor: 'paid',
-        style: {
-          textAlign: 'right',
-          display: 'block',
-        },
-        bodyStyle: {
-          textAlign: 'right',
-        },
-      },
+      ...(!isMd
+        ? [
+            {
+              Header: 'Detail',
+              accessor: 'detail',
+            },
+          ]
+        : [
+            {
+              Header: 'Keterangan',
+              accessor: 'description',
+            },
+            {
+              Header: 'Atas Nama',
+              accessor: 'relatedModel',
+            },
+            {
+              Header: 'Status',
+              accessor: 'status',
+            },
+            {
+              Header: 'Dibayarkan',
+              accessor: 'paid',
+              style: {
+                textAlign: 'right',
+                display: 'block',
+              },
+              bodyStyle: {
+                textAlign: 'right',
+              },
+            },
+
+            {
+              Header: 'Jumlah Utang',
+              accessor: 'debtAmount',
+              style: {
+                textAlign: 'right',
+                display: 'block',
+              },
+              bodyStyle: {
+                textAlign: 'right',
+              },
+            },
+          ]),
 
       {
-        Header: 'Jumlah Utang',
-        accessor: 'debtAmount',
+        Header: 'Jatuh Tempo',
+        accessor: 'dueDate',
         style: {
           textAlign: 'right',
           display: 'block',
@@ -119,7 +162,7 @@ const PrivePage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    []
+    [isMd]
   );
   return (
     <CardDashboard>

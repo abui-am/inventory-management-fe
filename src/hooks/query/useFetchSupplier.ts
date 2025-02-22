@@ -28,7 +28,7 @@ const useFetchSuppliers = (
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
   const fetcher = useMyQuery([keys.suppliers, data, roles], async () => {
     const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl)
+      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
       : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/suppliers', data);
     return res.data;
   });

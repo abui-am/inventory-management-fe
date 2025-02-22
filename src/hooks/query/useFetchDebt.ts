@@ -22,6 +22,7 @@ export const useFetchDebt = (
 ): UseQueryResult<BackendRes<DebtResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
+
   const fetcher = useMyQuery([keys.debts, data, roles], async () => {
     const res = data.forceUrl
       ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
