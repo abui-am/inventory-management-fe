@@ -138,7 +138,7 @@ const PaySalaryForm: React.FC<{
                       setFieldValue('payFull', e.target.checked);
                     }}
                   />
-                  <label className="text-base ml-1">Lunas</label>
+                  <label className="text-base ml-1">Seluruhnya</label>
                 </div>
               </div>
 

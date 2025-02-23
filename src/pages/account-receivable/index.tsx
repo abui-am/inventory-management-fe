@@ -76,6 +76,8 @@ const AccountReceivable: NextPage<unknown> = () => {
         <div className="text-base font-bold block mb-2">{description}</div>
         <label className="block">Atas Nama:</label>
         <div className="text-base font-bold block mb-2">{related_model.name}</div>
+        <label className="block">Jatuh Tempo:</label>
+        <div className="text-base font-bold block mb-2">{formatDate(props.due_date, { withHour: true })}</div>
       </div>
     ),
     action:
@@ -112,6 +114,17 @@ const AccountReceivable: NextPage<unknown> = () => {
             {
               Header: 'Status',
               accessor: 'status',
+            },
+            {
+              Header: 'Jatuh Tempo',
+              accessor: 'dueDate',
+              style: {
+                textAlign: 'right',
+                display: 'block',
+              },
+              bodyStyle: {
+                textAlign: 'right',
+              },
             },
           ]
         : [

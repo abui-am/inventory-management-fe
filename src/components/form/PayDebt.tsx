@@ -34,15 +34,15 @@ const PayDebtForm: React.FC<{
   } = useApp();
   const { mutateAsync, isLoading } = useUpdateDebt();
   const initialValues: PayDebtFormValues = {
-    debtAmount: +debt?.amount ?? 0,
-    paidAmount: +debt?.paid_amount ?? 0,
+    debtAmount: debt?.amount ? +debt?.amount : 0,
+    paidAmount: debt?.paid_amount ? +debt?.paid_amount : 0,
     unpaidAmount: +debt?.amount - +debt?.paid_amount,
     payFull: false,
     amount: '',
     paymentMethod: PAYMENT_METHOD_OPTIONS_DEBT[0],
   };
 
-  const { values, handleChange, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
+  const { values, setFieldValue, setSubmitting, handleSubmit, errors, touched } = useFormik({
     validationSchema: validationSchemaPayDebt,
     initialValues,
     enableReinitialize: true,
@@ -125,7 +125,7 @@ const PayDebtForm: React.FC<{
                       setFieldValue('payFull', e.target.checked);
                     }}
                   />
-                  <label className="text-base ml-1">Lunas</label>
+                  <label className="text-base ml-1">Seluruhnya</label>
                 </div>
               </div>
               <WithLabelAndError
