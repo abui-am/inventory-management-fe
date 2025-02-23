@@ -73,12 +73,15 @@ const DebtGiroPage: NextPage<unknown> = () => {
             <div className="text-base font-bold block mb-2">{description}</div>
             <label className="block">Jumlah Utang:</label>
             <div className="text-base font-bold block mb-2">{formatToIDR(+amount)}</div>
+            <label className="block">Jatuh Tempo:</label>
+            <div className="text-base font-bold block mb-2">{formatDate(props.due_date, { withHour: true })}</div>
           </div>
         ) : (
           description
         )}
       </div>
     ),
+    dueDate: formatDate(props.due_date, { withHour: true }),
     status: <div className={is_paid ? 'text-blue-600 font-bold' : ''}>{is_paid ? 'lunas' : 'belum lunas'}</div>,
     paid: formatToIDR(+paid_amount),
     debtAmount: formatToIDR(+amount),
@@ -132,6 +135,17 @@ const DebtGiroPage: NextPage<unknown> = () => {
                   {
                     Header: 'Jumlah Utang',
                     accessor: 'debtAmount',
+                    style: {
+                      textAlign: 'right',
+                      display: 'block',
+                    },
+                    bodyStyle: {
+                      textAlign: 'right',
+                    },
+                  },
+                  {
+                    Header: 'Jatuh Tempo',
+                    accessor: 'dueDate',
                     style: {
                       textAlign: 'right',
                       display: 'block',

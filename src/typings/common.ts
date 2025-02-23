@@ -6,7 +6,7 @@ export interface Link {
 
 export type Option<T = any> = {
   label: string;
-  value: string | number;
+  value: string;
   data?: T;
 };
 
