@@ -27,13 +27,15 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
   const { mutateAsync, isLoading } = useCreateCapitalReport();
   const router = useRouter();
   const handleClick = async () => {
-    if (takeProfit && takeProfit >= 0) {
+    try {
       await mutateAsync({
-        taken_profit: takeProfit,
+        taken_profit: takeProfit || 0,
       });
       setIsConfirmed(false);
       toast.success('Berhasil membuat laporan perubahan modal');
       router.push('/laporan-perubahan-modal');
+    } catch (error) {
+      toast.error('Gagal membuat laporan perubahan modal');
     }
   };
 
