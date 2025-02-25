@@ -1,13 +1,17 @@
 import { Form, Formik } from 'formik';
 import React, { useMemo } from 'react';
 import { Download } from 'react-bootstrap-icons';
+import toast from 'react-hot-toast';
 
+import { useUpdateItem } from '@/hooks/mutation/useMutateItems';
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchInvoice from '@/hooks/query/useFetchInvoice';
+import { useFetchItemById } from '@/hooks/query/useFetchItem';
 import { useFetchTransactionById } from '@/hooks/query/useFetchStockIn';
 import { useDetailSaleAdaptor } from '@/hooks/table/useDetailSale';
 import { useDetailStockInAdaptor } from '@/hooks/table/useDetailStockin';
+import useItemPriceAdjustment from '@/hooks/table/useItemPriceAdjustment';
 import { Status } from '@/typings/common';
 import { SaleTransactionsData } from '@/typings/sale';
 import { TransactionData } from '@/typings/stock-in';
@@ -256,6 +260,46 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () 
         </Formik>
       </Modal>
     </>
+  );
+};
+
+export const SellPriceAdjustmentItem: React.FC<{ itemId: string; onClose: () => void }> = ({ itemId, onClose }) => {
+  const { data: dataItem } = useFetchItemById(itemId);
+  const { columns, data } = useItemPriceAdjustment({ item: dataItem?.data.item });
+  const { mutateAsync: mutateAsyncItem, isLoading: isLoadingItem } = useUpdateItem();
+  const initialValues = {
+    sellPrice: dataItem?.data.item?.sell_price,
+  };
+  return (
+    <Modal isOpen={!!itemId} onRequestClose={onClose} variant="screen">
+      <h2 className="text-2xl font-bold mt-2 max">Tentukan Harga Jual</h2>
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize
+        onSubmit={(values) => {
+          try {
+            mutateAsyncItem({
+              id: itemId,
+              data: {
+                sell_price: values.sellPrice,
+              },
+            });
+            onClose();
+          } catch (error) {
+            toast.error('Gagal mengubah harga jual');
+          }
+        }}
+      >
+        <Form>
+          <ResponsiveTable columns={columns} data={data} />
+          <div className="mt-4 flex justify-end">
+            <Button disabled={isLoadingItem} variant="primary" type="submit">
+              Simpan Harga
+            </Button>
+          </div>
+        </Form>
+      </Formik>
+    </Modal>
   );
 };
 

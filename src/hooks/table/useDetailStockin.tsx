@@ -2,12 +2,15 @@ import { Field, FieldProps } from 'formik';
 import React from 'react';
 
 import { CurrencyTextField } from '@/components/Form';
-import { TrasactionItem } from '@/typings/stock-in';
+import { TrasactionItem, TrasactionPivot } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
 import useWindowSize, { MD } from '../useWindowSize';
 
-export const useDetailStockInAdaptor = (items: TrasactionItem[], withSellPriceAdjustment: boolean) => {
+export type StockinAdaptorItem = Pick<TrasactionItem, 'name' | 'unit' | 'id'> & {
+  pivot: Pick<TrasactionPivot, 'quantity' | 'purchase_price' | 'total_price' | 'median_purchase_price'>;
+};
+export const useDetailStockInAdaptor = (items: StockinAdaptorItem[], withSellPriceAdjustment: boolean) => {
   const initialValues: {
     data: { id: string; sell_price: number }[];
   } = {

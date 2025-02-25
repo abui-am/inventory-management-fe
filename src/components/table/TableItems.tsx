@@ -1,19 +1,23 @@
 // import Link from 'next/link';
-import React, { useState } from 'react';
-import { Search } from 'react-bootstrap-icons';
+import React, { useMemo, useState } from 'react';
+import { Calculator, Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
 import { ITEMS_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
+import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { Option } from '@/typings/common';
 import { formatDate } from '@/utils/format';
 import formatCurrency from '@/utils/formatCurrency';
 
+import { Button } from '../Button';
 // import { Button } from '../Button';
 import { SelectSortBy, SelectSortType, TextField } from '../Form';
 import Pagination from '../Pagination';
+import { SellPriceAdjustmentItem } from './TableComponent';
 const TableItems: React.FC = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
+  const [itemId, setItemId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(ITEMS_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [pageSize, setPageSize] = useState(10);
@@ -28,6 +32,10 @@ const TableItems: React.FC = () => {
     search,
     per_page: pageSize,
   });
+  const { data: dataSelf } = useFetchMyself();
+  const isSuperAdmin = useMemo(() => {
+    return dataSelf?.data.user.roles.map(({ name }) => name).includes('superadmin');
+  }, [dataSelf]);
 
   const {
     data: dataRes = [],
@@ -39,7 +47,7 @@ const TableItems: React.FC = () => {
     last_page_url,
     prev_page_url,
   } = dataItems?.data?.items ?? {};
-  const data = dataRes.map(({ name, quantity, unit, item_id, updated_at, sell_price, buy_price }) => ({
+  const data = dataRes.map(({ id, name, quantity, unit, item_id, updated_at, sell_price, buy_price }) => ({
     name,
     quantity,
     item_id: item_id ?? '-',
@@ -47,7 +55,22 @@ const TableItems: React.FC = () => {
     hpp: buy_price ? formatCurrency({ value: buy_price }) : '-',
     unit,
     updated_at: formatDate(updated_at, { withHour: true }),
-    // action: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+    ...(isSuperAdmin
+      ? [
+          {
+            action: (
+              <Button
+                size="small"
+                onClick={() => {
+                  setItemId(id);
+                }}
+              >
+                <Calculator width={24} height={24} />
+              </Button>
+            ),
+          },
+        ]
+      : []),
   }));
 
   const columns = React.useMemo(
@@ -80,12 +103,26 @@ const TableItems: React.FC = () => {
         Header: 'Tanggal masuk terakhir',
         accessor: 'updated_at',
       },
+      ...(isSuperAdmin
+        ? [
+            {
+              Header: 'Aksi',
+              accessor: 'action',
+            },
+          ]
+        : []),
     ],
-    []
+    [isSuperAdmin]
   );
 
   return (
     <>
+      <SellPriceAdjustmentItem
+        itemId={itemId ?? ''}
+        onClose={() => {
+          setItemId(null);
+        }}
+      />
       <Table
         columns={columns}
         data={data}
