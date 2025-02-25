@@ -14,9 +14,15 @@ import { HomeProvider, useHome } from '@/context/home-context';
 import { usePermission } from '@/context/permission-context';
 import { useFetchLedgers, useFetchUnpaginatedLedgers } from '@/hooks/query/useFetchLedgers';
 import useFetchSales from '@/hooks/query/useFetchSale';
-import useWindowSize, { MD, XL } from '@/hooks/useWindowSize';
+import useWindowSize, { MD } from '@/hooks/useWindowSize';
 import { SalesResponseUnpaginated } from '@/typings/sale';
-import { formatDate, formatDateYYYYMMDD, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
+import {
+  formatDate,
+  formatDateYYYYMMDD,
+  formatDateYYYYMMDDHHmmss,
+  formatPaymentMethod,
+  formatToIDR,
+} from '@/utils/format';
 type CardProps = {
   label: string;
   value: string | number;
@@ -52,6 +58,18 @@ const Home: NextPage = () => {
   //   { name: 'Group D', value: 200 },
   // ];
 
+  const formatTick = (number: number) => {
+    if (number > 1000000000) {
+      return `${(number / 1000000000).toString()} Miliar`;
+    }
+    if (number > 1000000) {
+      return `${(number / 1000000).toString()} Juta`;
+    }
+    if (number > 1000) {
+      return `${(number / 1000).toString()} Ribu`;
+    }
+    return number.toString();
+  };
   const { state, dispatch } = useHome();
 
   const { data: resPenjualan } = useFetchUnpaginatedLedgers({
@@ -149,7 +167,12 @@ const Home: NextPage = () => {
               <ResponsiveContainer width="100%" height={308}>
                 <LineChart data={data}>
                   <XAxis dataKey="name" />
-                  <YAxis />
+                  <YAxis
+                    tickFormatter={formatTick}
+                    style={{
+                      fontSize: 10,
+                    }}
+                  />
                   <Line type="monotone" dataKey="total" stroke="#8884d8" />
                 </LineChart>
               </ResponsiveContainer>
@@ -248,7 +271,17 @@ const TopSale = () => {
       )}
       {(topSaleItems || []).map(({ name, id, quantity }) => {
         // eslint-disable-next-line react/no-array-index-key
-        return <SimpleList key={`${name}-${id}`} label={name} value={quantity} withTopDivider />;
+        return (
+          <SimpleList
+            key={`${name}-${id}`}
+            label={name}
+            value={
+              // Format qty to readable number
+              Number(quantity).toLocaleString('id-ID')
+            }
+            withTopDivider
+          />
+        );
       })}
     </CardDashboard>
   );
@@ -264,30 +297,33 @@ const LastTransaction = () => {
     },
   });
   const dataTable =
-    data?.data.transactions.data.map(({ transaction_code, created_at, payment_method, items, customer }) => ({
-      id: transaction_code,
-      date: formatDate(created_at, { withHour: true }),
-      ...(isMd
-        ? {
-            purchaseMethod: payment_method,
-            payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
-            customer: customer.full_name,
-          }
-        : {
-            detail: (
-              <div>
-                <label className="block">Pembeli:</label>
-                <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
-                <label className="block">Metode pembayaran:</label>
-                <span className="text-base font-bold block mb-2">{payment_method}</span>
-                <label className="block">Jumlah pembayaran:</label>
-                <span className="text-base font-bold block mb-2">
-                  {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))}
-                </span>
-              </div>
-            ),
-          }),
-    })) ?? [];
+    data?.data.transactions.data.map(({ transaction_code, created_at, payments, items, customer }) => {
+      const purchaseMethod = payments.map((payment) => formatPaymentMethod(payment.payment_method)).join(', ');
+      return {
+        id: transaction_code,
+        date: formatDate(created_at, { withHour: true }),
+        ...(isMd
+          ? {
+              purchaseMethod,
+              payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
+              customer: customer.full_name,
+            }
+          : {
+              detail: (
+                <div>
+                  <label className="block">Pembeli:</label>
+                  <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
+                  <label className="block">Metode pembayaran:</label>
+                  <span className="text-base font-bold block mb-2">{purchaseMethod}</span>
+                  <label className="block">Jumlah pembayaran:</label>
+                  <span className="text-base font-bold block mb-2">
+                    {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))}
+                  </span>
+                </div>
+              ),
+            }),
+      };
+    }) ?? [];
   const columns = useMemo(
     () => [
       {

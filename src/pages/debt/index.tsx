@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { MD } from '@/hooks/useWindowSize';
+import useWindowSize, { LG } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
@@ -28,7 +28,7 @@ const PrivePage: NextPage<unknown> = () => {
   }, {});
 
   const windowSize = useWindowSize();
-  const isMd = windowSize >= MD;
+  const isLg = windowSize >= LG;
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
 
@@ -100,14 +100,8 @@ const PrivePage: NextPage<unknown> = () => {
         Header: 'Tanggal',
         accessor: 'date', // accessor is the "key" in the data
       },
-      ...(!isMd
+      ...(isLg
         ? [
-            {
-              Header: 'Detail',
-              accessor: 'detail',
-            },
-          ]
-        : [
             {
               Header: 'Keterangan',
               accessor: 'description',
@@ -116,10 +110,7 @@ const PrivePage: NextPage<unknown> = () => {
               Header: 'Atas Nama',
               accessor: 'relatedModel',
             },
-            {
-              Header: 'Status',
-              accessor: 'status',
-            },
+
             {
               Header: 'Dibayarkan',
               accessor: 'paid',
@@ -143,7 +134,17 @@ const PrivePage: NextPage<unknown> = () => {
                 textAlign: 'right',
               },
             },
+          ]
+        : [
+            {
+              Header: 'Detail',
+              accessor: 'detail',
+            },
           ]),
+      {
+        Header: 'Status',
+        accessor: 'status',
+      },
 
       {
         Header: 'Jatuh Tempo',
@@ -162,7 +163,7 @@ const PrivePage: NextPage<unknown> = () => {
         width: '100px',
       },
     ],
-    [isMd]
+    [isLg]
   );
   return (
     <CardDashboard>

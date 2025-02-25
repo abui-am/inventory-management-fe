@@ -108,7 +108,7 @@ const PaymentMethod: React.FC<{
                 setFieldValue('payFull', e.target?.checked);
               }}
             />
-            <label className="text-base ml-1">Lunas</label>
+            <label className="text-base ml-1">Seluruhnya</label>
           </div>
         )}
         {errors.payments?.[index]?.payAmount && touched.payments?.[index]?.payAmount && (

@@ -66,6 +66,7 @@ const TransactionPage: NextPage<unknown> = () => {
       status,
       customer,
       discount,
+      purchase_date,
       ...props
     }) => ({
       id: transaction_code,
@@ -81,7 +82,8 @@ const TransactionPage: NextPage<unknown> = () => {
           <span className="text-base font-bold block mb-2">
             {formatToIDR(payments?.[0]?.payment_price)} ({formatPaymentMethod(payment_method)})
           </span>
-
+          <label className="block">Tanggal Penjualan:</label>
+          <span className="text-base font-bold block mb-2">{formatDate(purchase_date, { withHour: true })}</span>
           {!isMd ? <PIC pic={pic} sender={sender} isAdmin={!!isAdmin} /> : null}
         </div>
       ),
@@ -107,6 +109,7 @@ const TransactionPage: NextPage<unknown> = () => {
                   id,
                   status,
                   customer,
+                  purchase_date,
                   ...props,
                 });
               }}

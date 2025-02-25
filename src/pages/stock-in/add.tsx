@@ -106,7 +106,9 @@ const AddStockPage: NextPage = () => {
       const paymentsPayload = values.payFull
         ? [
             {
-              payment_method: values.payments?.[0]?.paymentMethod?.value,
+              payment_method: values.payments?.[0]?.paymentMethod?.value
+                ? `${values.payments?.[0]?.paymentMethod?.value}`
+                : '',
               maturity_date:
                 values.payments?.[0]?.paymentMethod?.value !== 'cash' &&
                 values.payments?.[0]?.paymentMethod?.value !== 'bank'
@@ -131,7 +133,7 @@ const AddStockPage: NextPage = () => {
         invoice_number: invoiceType.value === 'automatic' ? null : invoiceNumber,
         note: memo,
         items: newItem.results,
-        transactionable_id: supplierId,
+        transactionable_id: `${supplierId}`,
         payments: paymentsPayload,
         shipping_cost: +values.shippingCost || 0,
       };
