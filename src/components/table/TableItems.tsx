@@ -37,6 +37,8 @@ const TableItems: React.FC = () => {
     return dataSelf?.data.user.roles.map(({ name }) => name).includes('superadmin');
   }, [dataSelf]);
 
+  console.log(dataSelf, isSuperAdmin);
+
   const {
     data: dataRes = [],
     from,
@@ -56,21 +58,19 @@ const TableItems: React.FC = () => {
     unit,
     updated_at: formatDate(updated_at, { withHour: true }),
     ...(isSuperAdmin
-      ? [
-          {
-            action: (
-              <Button
-                size="small"
-                onClick={() => {
-                  setItemId(id);
-                }}
-              >
-                <Calculator width={24} height={24} />
-              </Button>
-            ),
-          },
-        ]
-      : []),
+      ? {
+          action: (
+            <Button
+              size="small"
+              onClick={() => {
+                setItemId(id);
+              }}
+            >
+              <Calculator width={24} height={24} />
+            </Button>
+          ),
+        }
+      : {}),
   }));
 
   const columns = React.useMemo(
