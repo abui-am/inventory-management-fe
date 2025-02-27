@@ -75,11 +75,6 @@ const AddStockPage: NextPage = () => {
       const isPaymentAndPriceSame =
         values.payments?.reduce((acc, val) => acc + +(val?.payAmount ?? 0), 0) === totalPrice;
       if (!isPaymentAndPriceSame) {
-        console.log(
-          values,
-          values.payments?.reduce((acc, val) => acc + +(val?.payAmount ?? 0), 0),
-          totalPrice
-        );
         toast.error('Pembayaran tidak sama dengan harga, silahkan cek kembali');
         return;
       }

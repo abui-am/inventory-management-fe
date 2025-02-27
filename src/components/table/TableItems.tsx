@@ -37,8 +37,6 @@ const TableItems: React.FC = () => {
     return dataSelf?.data.user.roles.map(({ name }) => name).includes('superadmin');
   }, [dataSelf]);
 
-  console.log(dataSelf, isSuperAdmin);
-
   const {
     data: dataRes = [],
     from,

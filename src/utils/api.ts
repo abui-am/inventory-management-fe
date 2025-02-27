@@ -46,7 +46,6 @@ function getApiByName(role: string) {
 }
 
 function apiInstanceAdmin({ token }: { token?: string } = {}): AxiosInstance {
-  console.log('TEST', process.env.NEXT_PUBLIC_SUPERADMIN_URL);
   return axios.create({
     baseURL: process.env.NEXT_PUBLIC_SUPERADMIN_URL,
     headers: {
