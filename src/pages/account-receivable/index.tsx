@@ -2,11 +2,11 @@ import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import React, { useState } from 'react';
-import { CashCoin } from 'react-bootstrap-icons';
+import { CashCoin, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
 import { CardDashboard } from '@/components/Container';
-import { DateRangePicker, SelectSortBy, SelectSortType } from '@/components/Form';
+import { DateRangePicker, SelectSortBy, SelectSortType, TextField } from '@/components/Form';
 import PayDebtForm from '@/components/form/PayDebt';
 import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
@@ -16,11 +16,14 @@ import { useFetchDebt } from '@/hooks/query/useFetchDebt';
 import useWindowSize, { LG } from '@/hooks/useWindowSize';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
+import { useDebounceValue } from '@/utils/debounce';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
 const AccountReceivable: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(DEBT_SORT_BY_OPTIONS[0]);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounceValue(search, 500);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
@@ -36,6 +39,7 @@ const AccountReceivable: NextPage<unknown> = () => {
     per_page: pageSize,
     order_by: params,
     paginated: true,
+    search: debouncedSearch,
     forceUrl: paginationUrl || undefined,
     where: {
       type: 'receivable',
@@ -180,8 +184,8 @@ const AccountReceivable: NextPage<unknown> = () => {
         columns={columns}
         data={data}
         search={() => (
-          <div className="mt-2 mb-4 flex justify-between">
-            <h2 className="text-2xl font-bold">Daftar Piutang Perusahaan</h2>
+          <div className="mt-2 mb-4 flex justify-between sm:flex-row flex-col">
+            <h2 className="text-2xl font-bold mb-4">Daftar Piutang Perusahaan</h2>
             <div className="flex flex-col items-end">
               <div className="flex flex-wrap mb-4">
                 <DateRangePicker
@@ -196,6 +200,17 @@ const AccountReceivable: NextPage<unknown> = () => {
               </div>
 
               <div className="flex flex-wrap justify-end -mr-4 -mb-4">
+                <div className="mr-4 mb-4">
+                  <TextField
+                    Icon={<Search />}
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
+                    variant="contained"
+                    placeholder="Cari..."
+                  />
+                </div>
                 <SelectSortBy
                   value={sortBy}
                   onChange={(val) => {

@@ -71,6 +71,7 @@ const AddTransactionPage: NextPage = () => {
     totalPrice: 0,
     discount: '' as number | '',
     shippingCost: '' as number | '',
+    payFull: false,
   };
   const [editId, setEditId] = useState<string | null>(null);
   const [isOpenSummary, setIsOpenSummary] = useState(false);
@@ -83,17 +84,30 @@ const AddTransactionPage: NextPage = () => {
       try {
         setSubmitting(true);
 
+        const payments = data?.payments?.map((val) => ({
+          payment_method: val?.paymentMethod.value,
+          cash: +(val?.payAmount ?? '') ?? 0,
+          change: 0,
+          maturity_date:
+            val?.paymentMethod.value !== 'cash' && val?.paymentMethod.value !== 'bank'
+              ? dayjs(val.paymentDue).format('YYYY-MM-DD HH:mm:ss')
+              : undefined,
+        }));
         const payload = {
           transactionable_type: 'customers' as const,
-          payments: data?.payments?.map((val) => ({
-            payment_method: val?.paymentMethod.value,
-            cash: +(val?.payAmount ?? '') ?? 0,
-            change: 0,
-            maturity_date:
-              val?.paymentMethod.value !== 'cash' && val?.paymentMethod.value !== 'bank'
-                ? dayjs(val.paymentDue).format('YYYY-MM-DD HH:mm:ss')
-                : undefined,
-          })),
+          payments:
+            // Replace payment if payFull is true and there is only one payment method
+            // with total price after discount and maturity date from the first payment
+            values?.payFull && values?.payments?.length === 1
+              ? [
+                  {
+                    payment_method: payments[0].payment_method,
+                    cash: totalPriceAfterDiscount,
+                    change: 0,
+                    maturity_date: payments[0].maturity_date,
+                  },
+                ]
+              : payments,
           discount: +(data?.discount ?? 0),
           note: data.memo,
           sender_id: data.sender?.value ?? '',
@@ -330,21 +344,24 @@ const AddTransactionPage: NextPage = () => {
               </div>
 
               <div className="w-full px-2 flex flex-wrap">
-                {values?.payments?.map((value, index) => {
-                  return (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <div className="pt pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}${index}`}>
-                      <PaymentMethod
-                        isSubmitting={isSubmitting}
-                        setFieldValue={setFieldValue}
-                        errors={errors}
-                        touched={touched}
-                        values={values}
-                        index={index}
-                      />
-                    </div>
-                  );
-                })}
+                {!values.payFull &&
+                  values?.payments?.map((value, index) => {
+                    return (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <div className="pt pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}${index}`}>
+                        <PaymentMethod
+                          withPayFull
+                          totalPrice={totalPriceAfterDiscount}
+                          isSubmitting={isSubmitting}
+                          setFieldValue={setFieldValue}
+                          errors={errors}
+                          touched={touched}
+                          values={values}
+                          index={index}
+                        />
+                      </div>
+                    );
+                  })}
                 {values?.payments?.length < 2 && (
                   <Button
                     variant="outlined"

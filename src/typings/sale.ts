@@ -10,7 +10,7 @@ export interface Payment {
 export interface Item {
   id: string;
   purchase_price: number;
-  sell_price: number;
+  sell_price?: number;
   discount?: unknown;
   quantity: number;
   note: string;

@@ -27,7 +27,7 @@ import {
 import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import { Item, ItemData } from '@/typings/item';
-import debounce from '@/utils/decounce';
+import debounce from '@/utils/debounce';
 import { formatToIDR } from '@/utils/format';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
