@@ -158,6 +158,13 @@ const AddTransactionPage: NextPage = () => {
     },
   });
 
+  const change = calculateChange(
+    values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
+    values.totalPrice,
+    +(values?.discount ?? 0),
+    +(values?.shippingCost ?? 0)
+  );
+
   const data = values?.stockAdjustment.map(({ item, qty, id }) => {
     return {
       col1: item?.label ?? '',
@@ -344,25 +351,24 @@ const AddTransactionPage: NextPage = () => {
               </div>
 
               <div className="w-full px-2 flex flex-wrap">
-                {!values.payFull &&
-                  values?.payments?.map((value, index) => {
-                    return (
-                      // eslint-disable-next-line react/no-array-index-key
-                      <div className="pt pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}${index}`}>
-                        <PaymentMethod
-                          withPayFull
-                          totalPrice={totalPriceAfterDiscount}
-                          isSubmitting={isSubmitting}
-                          setFieldValue={setFieldValue}
-                          errors={errors}
-                          touched={touched}
-                          values={values}
-                          index={index}
-                        />
-                      </div>
-                    );
-                  })}
-                {values?.payments?.length < 2 && (
+                {values?.payments?.map((value, index) => {
+                  return (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <div className="pt pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}${index}`}>
+                      <PaymentMethod
+                        withPayFull
+                        totalPrice={totalPriceAfterDiscount}
+                        isSubmitting={isSubmitting}
+                        setFieldValue={setFieldValue}
+                        errors={errors}
+                        touched={touched}
+                        values={values}
+                        index={index}
+                      />
+                    </div>
+                  );
+                })}
+                {!values.payFull && values?.payments?.length < 2 && (
                   <Button
                     variant="outlined"
                     className="w-full mt-2"
@@ -387,6 +393,13 @@ const AddTransactionPage: NextPage = () => {
                 )}
               </div>
 
+              {/* Kembalian */}
+              {values?.payments?.find((val) => val.paymentMethod.value === 'cash')?.payAmount && (
+                <div className="w-full px-2 mb-3 mt-3 flex justify-between gap-4">
+                  <label className="mb-1 inline-block">Kembalian:</label>
+                  <p className="text-lg font-bold">{formatToIDR(change)}</p>
+                </div>
+              )}
               <div className="w-full px-2 mb-3">
                 <Button className="mt-4" fullWidth type="submit">
                   Simpan Transaksi
