@@ -100,7 +100,6 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
                 </Button>
               </div>
             </Tippy>
-            <ButtonCancelTransaction transactionId={transaction.id} />
           </div>
         );
       default:
