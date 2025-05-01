@@ -301,18 +301,27 @@ const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBas
   ...props
 }) => {
   const { mutateAsync: search } = useSearchItems();
+  const { data } = useFetchItems({
+    where_greater_equal: {
+      quantity: 1,
+    },
+  });
+  const formatItemsToOption = (items: ItemData[]) => {
+    return items?.map(({ name, id, item_id, ...props }) => ({
+      label: `${name} (ID: ${item_id ?? '-'})`,
+      value: id,
+      data: { name, id, item_id, ...props },
+    }));
+  };
   return (
     <CreatableAsyncSelect
       {...props}
       styles={getThemedSelectStyle(variant, additionalStyle)}
+      defaultOptions={formatItemsToOption(data?.data.items.data ?? [])}
       loadOptions={debounce(async (val) => {
         if (val) {
           const { data } = await search({ search: val });
-          return data.items.data.map(({ id, item_id, name, ...rest }) => ({
-            value: id,
-            label: `${name} (ID:${item_id ?? '-'})`,
-            data: { item_id, ...rest },
-          }));
+          return formatItemsToOption(data?.items?.data);
         }
 
         return [];

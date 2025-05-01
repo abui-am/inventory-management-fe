@@ -41,6 +41,7 @@ export const useCreateSale = (): UseMutationResult<
         query.invalidateQueries(keys.ledgers);
         query.invalidateQueries(keys.ledgerTopUp);
         query.invalidateQueries(keys.incomeReport);
+        query.invalidateQueries(keys.items);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

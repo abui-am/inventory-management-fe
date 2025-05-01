@@ -91,6 +91,7 @@ export const useUpdateStockIn = (): UseMutationResult<
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries('transactions');
+        queryClient.invalidateQueries(keys.items);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
