@@ -1,3 +1,5 @@
+const { withSentryConfig } = require('@sentry/nextjs');
+
 /**
  * @type {import('next').NextConfig}
  */
@@ -13,4 +15,9 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+// Source map hanya diunggah kalau SENTRY_AUTH_TOKEN tersedia (mis. di Vercel);
+// tanpa itu build tetap jalan dan stack trace di Sentry tinggal versi minified.
+module.exports = withSentryConfig(nextConfig, {
+  silent: true,
+  dryRun: !process.env.SENTRY_AUTH_TOKEN,
+});
