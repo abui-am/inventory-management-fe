@@ -1,4 +1,4 @@
-import { UseQueryResult } from 'react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 
 import { GetLedgerAccountsResponse, GetUnpaginatedLedgerAccountsResponse } from '@/typings/ledger-accounts';
 import { BackendRes } from '@/typings/request';

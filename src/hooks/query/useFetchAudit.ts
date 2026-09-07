@@ -1,4 +1,4 @@
-import { UseQueryResult } from 'react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 
 import { ItemAuditsResponse, ItemUnpaginatedAuditsResponse } from '@/typings/audit';
 import { BackendRes } from '@/typings/request';

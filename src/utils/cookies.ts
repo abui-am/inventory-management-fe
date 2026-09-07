@@ -25,25 +25,22 @@ export const removeCookie = (key: string): void => {
   }
 };
 
-export const getCookie = (key: string, req?: NextRequest): string | { [k: string]: string } => {
+export const getCookie = (key: string, req?: NextRequest): string | undefined => {
   return process.browser ? getCookieFromBrowser(key) : getCookieFromServer(key, req);
 };
 
-const getCookieFromBrowser = (key: string) => {
+const getCookieFromBrowser = (key: string): string | undefined => {
   return jscookie.get(key);
 };
 
-const getCookieFromServer = (key: string, req: NextRequest | undefined) => {
+// Cookie di aplikasi ini selalu berisi string mentah (token, user id, username),
+// bukan JSON — lihat cookie.set() di hooks/mutation/useAuth.ts.
+const getCookieFromServer = (key: string, req: NextRequest | undefined): string | undefined => {
   if (!req?.headers.cookie) {
     return undefined;
   }
 
-  const rawCookie = parse(req?.headers.cookie ?? '');
-  const value = rawCookie[key];
-
-  if (!value) return null;
-
-  return JSON.parse(value);
+  return parse(req.headers.cookie)[key];
 };
 
 export default parseCookies;

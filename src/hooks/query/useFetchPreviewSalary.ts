@@ -1,4 +1,4 @@
-import { UseQueryResult } from 'react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 
 import { BackendRes } from '@/typings/request';
 import { PreviewSalaryResponse } from '@/typings/salary';

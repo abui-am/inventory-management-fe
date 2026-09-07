@@ -250,7 +250,10 @@ export const PAYMENT_METHOD_OPTIONS_DEBT = [
   },
 ];
 
-export const PER_PAGE_OPTIONS = [
+// Beda dengan Option di typings/common.ts: value-nya angka, bukan string.
+export type PerPageOption = { label: string; value: number };
+
+export const PER_PAGE_OPTIONS: PerPageOption[] = [
   { label: 'Munculkan 5', value: 5 },
   { label: 'Munculkan 10', value: 10 },
   { label: 'Munculkan 20', value: 20 },

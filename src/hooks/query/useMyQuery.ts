@@ -1,4 +1,4 @@
-import { QueryFunction, QueryKey, useQuery, UseQueryOptions, UseQueryResult } from 'react-query';
+import { QueryFunction, QueryKey, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 const useMyQuery = <TQueryFnData = unknown, TError = unknown, TData = TQueryFnData>(
   queryKey: QueryKey,

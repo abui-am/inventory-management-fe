@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Select from 'react-select';
 
-import { PER_PAGE_OPTIONS } from '@/constants/options';
+import { PER_PAGE_OPTIONS, PerPageOption } from '@/constants/options';
 import { Link } from '@/typings/common';
 
 import { Button } from './Button';
@@ -14,7 +14,7 @@ type PaginationProps = {
   links: Link[] | [];
   stats: PaginationStats;
   onClickGoToPage?: (page: number) => void;
-  onChangePerPage?: (option: { label: string; value: number } | null) => void;
+  onChangePerPage?: (option: PerPageOption | null) => void;
 };
 
 type PaginationStats = {

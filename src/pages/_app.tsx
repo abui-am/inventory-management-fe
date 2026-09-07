@@ -2,14 +2,13 @@ import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tippy.js/dist/tippy.css'; // optional
 
+import { dehydrate, DehydratedState, Hydrate, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import dayjs from 'dayjs';
 import { AppProps } from 'next/app';
 import { AppContextType } from 'next/dist/shared/lib/utils';
 import { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
-import { dehydrate, DehydratedState, Hydrate } from 'react-query/hydration';
 
 import { AppProvider } from '@/context/app-context';
 import { PermissionProvider } from '@/context/permission-context';

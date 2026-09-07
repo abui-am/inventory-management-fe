@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSalaryPayload, PayPayrollPayload } from '@/typings/salary';
@@ -27,10 +27,10 @@ export const useCreateSalary = (): UseMutationResult<BackendRes<any>, unknown, C
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.salary);
-        query.invalidateQueries(keys.ledgers);
-        query.invalidateQueries(keys.ledgerAccounts);
-        query.invalidateQueries(keys.incomeReport);
+        query.invalidateQueries([keys.salary]);
+        query.invalidateQueries([keys.ledgers]);
+        query.invalidateQueries([keys.ledgerAccounts]);
+        query.invalidateQueries([keys.incomeReport]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -59,11 +59,11 @@ export const useUpdatePayroll = (): UseMutationResult<BackendRes<any>, unknown, 
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.salary);
-        query.invalidateQueries(keys.ledgers);
-        query.invalidateQueries(keys.ledgerAccounts);
-        query.invalidateQueries(keys.incomeReport);
-        query.invalidateQueries(keys.capitalReport);
+        query.invalidateQueries([keys.salary]);
+        query.invalidateQueries([keys.ledgers]);
+        query.invalidateQueries([keys.ledgerAccounts]);
+        query.invalidateQueries([keys.incomeReport]);
+        query.invalidateQueries([keys.capitalReport]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

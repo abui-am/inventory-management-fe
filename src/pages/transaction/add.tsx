@@ -86,7 +86,9 @@ const AddTransactionPage: NextPage = () => {
 
         const payments = data?.payments?.map((val) => ({
           payment_method: val?.paymentMethod.value,
-          cash: +(val?.payAmount ?? '') ?? 0,
+          // `+x ?? 0` tidak pernah jalan: unary plus selalu number (NaN untuk input non-angka),
+          // jadi NaN lolos ke payload. Number(...) || 0 menutup keduanya.
+          cash: Number(val?.payAmount ?? 0) || 0,
           change: 0,
           maturity_date:
             val?.paymentMethod.value !== 'cash' && val?.paymentMethod.value !== 'bank'
@@ -118,7 +120,7 @@ const AddTransactionPage: NextPage = () => {
             return {
               id: value?.item?.value ?? '',
               purchase_price: value?.item?.data.sell_price ?? 0,
-              quantity: +value.qty ?? 0,
+              quantity: Number(value.qty) || 0,
               note: '',
             };
           }),

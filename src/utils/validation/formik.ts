@@ -1,5 +1,4 @@
-import { date, mixed, number, object, string } from 'yup';
-import { ObjectShape } from 'yup/lib/object';
+import { date, mixed, number, object, ObjectShape, string } from 'yup';
 
 const schema = (type: string) => {
   switch (type) {

@@ -10,7 +10,7 @@ import { SelectSortBy, SelectSortType, TextField } from '@/components/Form';
 import Modal from '@/components/Modal';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
-import { PER_PAGE_OPTIONS, SORT_TYPE_OPTIONS, SUPPLIER_SORT_BY_OPTIONS } from '@/constants/options';
+import { PER_PAGE_OPTIONS, PerPageOption, SORT_TYPE_OPTIONS, SUPPLIER_SORT_BY_OPTIONS } from '@/constants/options';
 import { useFetchSupplierById, useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
 import { Option } from '@/typings/common';
 import formatCurrency from '@/utils/formatCurrency';
@@ -20,7 +20,7 @@ const Supplier: NextPage<unknown> = () => {
   const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(SUPPLIER_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
-  const [perPage, setPerPage] = useState<Option | null>(PER_PAGE_OPTIONS[1]);
+  const [perPage, setPerPage] = useState<PerPageOption | null>(PER_PAGE_OPTIONS[1]);
 
   const { data: dataSupplier } = useFetchSuppliers({
     search: searchQuery,

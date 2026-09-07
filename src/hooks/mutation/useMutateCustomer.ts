@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreateCustomerBody, CreateCustomerResponse } from '@/typings/customer';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -34,8 +34,8 @@ export const useCreateCustomer = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.customers);
-        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries([keys.customers]);
+        query.invalidateQueries([keys.ledgers]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -52,9 +52,9 @@ export const useEditCustomer = (
 
   const mutator = useMutation(['editCustomer', editId], async (data: CreateCustomerBody) => {
     const res = await apiInstanceAdmin().patch(`/customers/${editId}`, data);
-    query.invalidateQueries(keys.customers);
-    query.invalidateQueries(keys.ledgers);
-    query.invalidateQueries(keys.capitalReport);
+    query.invalidateQueries([keys.customers]);
+    query.invalidateQueries([keys.ledgers]);
+    query.invalidateQueries([keys.capitalReport]);
 
     return res.data;
   });

@@ -1,4 +1,4 @@
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { CustomersResponse } from '@/typings/customer';
 import { ItemsResponse } from '@/typings/item';

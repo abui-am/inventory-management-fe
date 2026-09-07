@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import {
   CreateEmployeePutBody,
@@ -99,7 +99,7 @@ const useCreateEmployee = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.employees);
+        query.invalidateQueries([keys.employees]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -117,7 +117,7 @@ const useEditEmployee = (
 
   const mutator = useMutation([keys.employees, 'edit', editId], async (data: Partial<CreateEmployeePutBody>) => {
     const res = await apiInstanceAdmin().patch(`/employees/${editId}`, data);
-    query.invalidateQueries(keys.employees);
+    query.invalidateQueries([keys.employees]);
     return res.data;
   });
 

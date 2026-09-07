@@ -32,3 +32,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# codegraph index (tokless)
+.codegraph/

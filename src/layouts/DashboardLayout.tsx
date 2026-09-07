@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, List } from 'react-bootstrap-icons';
 import useCollapse from 'react-collapsed';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';

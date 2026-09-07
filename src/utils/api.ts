@@ -2,15 +2,14 @@ import axios, { AxiosInstance } from 'axios';
 
 import { getCookie } from './cookies';
 
-function apiInstance({ token }: { token?: string } = {}): AxiosInstance {
-  console.log(process.env);
+// Instance untuk route publik (login, forgot/reset password, regions).
+// Tidak mengirim token: backend tidak membaca query param `key`, dan token
+// di query string akan bocor ke access log & history browser.
+function apiInstance(): AxiosInstance {
   return axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
-    },
-    params: {
-      key: token || getCookie('INVT_TOKEN'),
     },
   });
 }

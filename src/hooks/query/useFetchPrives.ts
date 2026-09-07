@@ -1,4 +1,4 @@
-import { UseQueryResult } from 'react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 
 import { PrivesResponse } from '@/typings/prives';
 import { BackendRes } from '@/typings/request';

@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import {
@@ -71,7 +71,7 @@ const useEditSupplier = (
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.suppliers);
+        query.invalidateQueries([keys.suppliers]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -108,7 +108,7 @@ const useCreateSupplier = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.suppliers);
+        query.invalidateQueries([keys.suppliers]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

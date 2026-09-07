@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateStockInBody, TransactionData } from '@/typings/stock-in';
@@ -34,12 +34,12 @@ export const useCreateStockIn = (): UseMutationResult<
     },
     {
       onSuccess: (data) => {
-        query.invalidateQueries(keys.sales);
-        query.invalidateQueries(keys.transactions);
-        query.invalidateQueries(keys.ledgers);
-        query.invalidateQueries(keys.ledgerTopUp);
-        query.invalidateQueries(keys.incomeReport);
-        query.invalidateQueries(keys.capitalReport);
+        query.invalidateQueries([keys.sales]);
+        query.invalidateQueries([keys.transactions]);
+        query.invalidateQueries([keys.ledgers]);
+        query.invalidateQueries([keys.ledgerTopUp]);
+        query.invalidateQueries([keys.incomeReport]);
+        query.invalidateQueries([keys.capitalReport]);
         toast.success(data.message);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
@@ -90,8 +90,8 @@ export const useUpdateStockIn = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        queryClient.invalidateQueries('transactions');
-        queryClient.invalidateQueries(keys.items);
+        queryClient.invalidateQueries(['transactions']);
+        queryClient.invalidateQueries([keys.items]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

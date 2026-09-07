@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import cookie from 'js-cookie';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { BackendResError } from '@/typings/request';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
@@ -57,8 +57,8 @@ const useAuthMutation = (type: 'login' | 'register') => {
           cookie.set('INVT-USERNAME', data.user.username, {
             expires: data?.rememberMe ? 30 : 1,
           });
-          queryClient.invalidateQueries(keys.ledgers);
-          queryClient.invalidateQueries(keys.myself);
+          queryClient.invalidateQueries([keys.ledgers]);
+          queryClient.invalidateQueries([keys.myself]);
 
           toast.success(message);
           router.push('/');
@@ -88,8 +88,8 @@ const useCreateAccount = () => {
     {
       onSuccess: async ({ message }) => {
         toast.success(message);
-        query.invalidateQueries(keys.users);
-        query.invalidateQueries(keys.employees);
+        query.invalidateQueries([keys.users]);
+        query.invalidateQueries([keys.employees]);
       },
       onError: (e: AxiosError<BackendResError<unknown>>) => {
         toast.error(e.response?.data.message ?? '');

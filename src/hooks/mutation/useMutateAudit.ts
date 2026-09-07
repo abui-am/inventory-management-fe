@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { AuditsData, CreateItemsAuditBody, CreateItemsAuditResponse } from '@/typings/audit';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -30,10 +30,10 @@ export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditRespons
     },
     {
       onSuccess: (data) => {
-        query.invalidateQueries(keys.audits);
-        query.invalidateQueries(keys.ledgers);
+        query.invalidateQueries([keys.audits]);
+        query.invalidateQueries([keys.ledgers]);
         toast.success(data.message);
-        query.invalidateQueries(keys.capitalReport);
+        query.invalidateQueries([keys.capitalReport]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

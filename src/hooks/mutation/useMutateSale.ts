@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from 'react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSaleBody, CreateSaleResponse } from '@/typings/sale';
@@ -36,12 +36,12 @@ export const useCreateSale = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        query.invalidateQueries(keys.sales);
-        query.invalidateQueries(keys.transactions);
-        query.invalidateQueries(keys.ledgers);
-        query.invalidateQueries(keys.ledgerTopUp);
-        query.invalidateQueries(keys.incomeReport);
-        query.invalidateQueries(keys.items);
+        query.invalidateQueries([keys.sales]);
+        query.invalidateQueries([keys.transactions]);
+        query.invalidateQueries([keys.ledgers]);
+        query.invalidateQueries([keys.ledgerTopUp]);
+        query.invalidateQueries([keys.incomeReport]);
+        query.invalidateQueries([keys.items]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');
@@ -79,12 +79,12 @@ export const useUpdateSale = (): UseMutationResult<
     {
       onSuccess: (data) => {
         toast.success(data.message);
-        queryClient.invalidateQueries(keys.sales);
-        queryClient.invalidateQueries(keys.transactions);
-        queryClient.invalidateQueries(keys.ledgers);
-        queryClient.invalidateQueries(keys.ledgerTopUp);
-        queryClient.invalidateQueries(keys.incomeReport);
-        queryClient.invalidateQueries(keys.capitalReport);
+        queryClient.invalidateQueries([keys.sales]);
+        queryClient.invalidateQueries([keys.transactions]);
+        queryClient.invalidateQueries([keys.ledgers]);
+        queryClient.invalidateQueries([keys.ledgerTopUp]);
+        queryClient.invalidateQueries([keys.incomeReport]);
+        queryClient.invalidateQueries([keys.capitalReport]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

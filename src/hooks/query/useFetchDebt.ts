@@ -1,4 +1,4 @@
-import { UseQueryResult } from 'react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 
 import { DebtResponse } from '@/typings/debts';
 import { BackendRes } from '@/typings/request';
