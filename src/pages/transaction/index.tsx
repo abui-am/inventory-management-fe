@@ -245,7 +245,10 @@ const TransactionPage: NextPage<unknown> = () => {
 };
 
 const ButtonDownload = ({ transactionId }: { transactionId: string }) => {
-  const { refetch: refetchDownload, isLoading } = useFetchInvoice(transactionId, {
+  // isFetching, bukan isLoading: di react-query v4 query dengan `enabled: false`
+  // berstatus 'loading' selamanya karena belum pernah punya data, jadi isLoading
+  // tidak pernah false dan tombolnya disabled permanen.
+  const { refetch: refetchDownload, isFetching } = useFetchInvoice(transactionId, {
     enabled: false,
   });
   const handleDownload = async () => {
@@ -259,7 +262,7 @@ const ButtonDownload = ({ transactionId }: { transactionId: string }) => {
   };
 
   return (
-    <Button disabled={isLoading} loading={isLoading} size="small" onClick={handleDownload}>
+    <Button loading={isFetching} size="small" onClick={handleDownload}>
       <Download width={24} height={24} />
     </Button>
   );

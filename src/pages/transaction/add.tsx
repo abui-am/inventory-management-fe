@@ -490,7 +490,10 @@ const ModalSummary: React.FC<
     router.push('/transaction');
   };
 
-  const { refetch: fetchBlobPdf, isLoading } = useFetchInvoice(transactionId, {
+  // isFetching, bukan isLoading: di react-query v4 query dengan `enabled: false`
+  // berstatus 'loading' selamanya karena belum pernah punya data, jadi isLoading
+  // tidak pernah false dan tombolnya disabled permanen.
+  const { refetch: fetchBlobPdf, isFetching } = useFetchInvoice(transactionId, {
     enabled: false,
   });
   const handlePrintInvoice = async () => {
@@ -538,13 +541,7 @@ const ModalSummary: React.FC<
           )}
         </p>
         <ModalActionWrapper>
-          <Button
-            disabled={isLoading}
-            className="mr-2 w-full"
-            variant="primary"
-            loading={isLoading}
-            onClick={handlePrintInvoice}
-          >
+          <Button className="mr-2 w-full" variant="primary" loading={isFetching} onClick={handlePrintInvoice}>
             Print Invoice
           </Button>
         </ModalActionWrapper>

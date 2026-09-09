@@ -1,7 +1,28 @@
 import dayjs, { Dayjs } from 'dayjs';
 
+/**
+ * Jumlah desimal SENGAJA dikunci, jangan dilepas.
+ *
+ * Tanpa `minimumFractionDigits`/`maximumFractionDigits`, jumlah desimal untuk IDR
+ * diambil dari data CLDR runtime — dan Node dengan Chrome tidak sepakat:
+ *
+ *   Node 20 (CLDR 47) → "Rp 0,00"   "Rp 17.422.500,00"
+ *   Chrome 152        → "Rp 0"      "Rp 17.422.500"
+ *
+ * Artinya setiap halaman yang menampilkan rupiah merender teks berbeda di server dan
+ * di klien. React 18 menanggapi ketidakcocokan teks dengan membuang seluruh pohon SSR
+ * dan me-render ulang dari nol (error #425/#418/#423) — halaman tetap tampil, tapi
+ * hasil server terbuang dan interaktif jadi lebih lambat.
+ *
+ * Nol desimal juga yang benar untuk rupiah dan sudah dipakai di seluruh UI.
+ */
 export function formatToIDR(number: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(number);
 }
 
 export function formatDate(date: Date | string, { withHour = false }: { withHour?: boolean } = {}) {

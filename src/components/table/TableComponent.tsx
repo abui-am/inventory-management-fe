@@ -319,7 +319,10 @@ export const getTagValue = (status: Status) => {
 };
 
 function ButtonDownload({ transactionId }: { transactionId: string }) {
-  const { refetch: refetchDownload, isLoading } = useFetchInvoice(transactionId, {
+  // isFetching, bukan isLoading: di react-query v4 query dengan `enabled: false`
+  // berstatus 'loading' selamanya karena belum pernah punya data, jadi isLoading
+  // tidak pernah false dan tombolnya disabled permanen.
+  const { refetch: refetchDownload, isFetching } = useFetchInvoice(transactionId, {
     enabled: false,
   });
   const handleDownload = async () => {
@@ -333,12 +336,7 @@ function ButtonDownload({ transactionId }: { transactionId: string }) {
   };
 
   return (
-    <Button
-      disabled={isLoading}
-      loading={isLoading}
-      onClick={handleDownload}
-      Icon={<Download width={24} height={24} />}
-    >
+    <Button loading={isFetching} onClick={handleDownload} Icon={<Download width={24} height={24} />}>
       Download Invoice
     </Button>
   );
