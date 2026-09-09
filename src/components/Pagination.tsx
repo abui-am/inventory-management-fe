@@ -1,11 +1,10 @@
 import { PropsWithChildren, useState } from 'react';
-import Select from 'react-select';
 
 import { PER_PAGE_OPTIONS, PerPageOption } from '@/constants/options';
 import { Link } from '@/typings/common';
 
 import { Button } from './Button';
-import { TextField } from './Form';
+import { TextField, ThemedSelect } from './Form';
 
 const PAGER_LABELS = ['&laquo; Previous', 'Next &raquo;'];
 
@@ -45,32 +44,35 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
     onClickGoToPage?.(goTo);
   };
   return (
-    <div className="bg-white px-4 pt-6 flex items-center justify-between border-t border-gray-200">
+    <div className="flex items-center justify-between border-t border-border pt-3">
       <div className="flex-1 flex justify-between sm:hidden">
         <button
           type="button"
           onClick={() => {
             if (onClickPrevious) onClickPrevious();
           }}
-          className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          className="inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-3 text-base font-semibold transition-colors duration-fast hover:bg-surface-raised"
         >
-          Previous
+          Sebelumnya
         </button>
         <button
           type="button"
           onClick={() => {
             if (onClickNext) onClickNext();
           }}
-          className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          className="ml-3 inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-3 text-base font-semibold transition-colors duration-fast hover:bg-surface-raised"
         >
-          Next
+          Berikutnya
         </button>
       </div>
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{stats.from}</span> to <span className="font-medium">{stats.to}</span>{' '}
-            of <span className="font-medium">{stats.total}</span> results
+          {/* Sebelumnya berbahasa Inggris ("Showing 1 to 10 of 50 results") di antarmuka
+              yang seluruhnya berbahasa Indonesia. */}
+          <p className="text-sm text-foreground-muted">
+            Menampilkan <span className="font-semibold text-foreground">{stats.from}</span>–
+            <span className="font-semibold text-foreground">{stats.to}</span> dari{' '}
+            <span className="font-semibold text-foreground">{stats.total}</span>
           </p>
         </div>
         <div>
@@ -81,12 +83,12 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
               onClick={() => {
                 if (onClickPrevious) onClickPrevious();
               }}
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="relative inline-flex items-center border border-border-strong bg-surface px-2 text-foreground-muted transition-colors duration-fast hover:bg-surface-raised hover:text-foreground h-8 rounded-l-md"
             >
-              <span className="sr-only">Previous</span>
+              <span className="sr-only">Sebelumnya</span>
 
               <svg
-                className="h-5 w-5"
+                className="h-4 w-4"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -120,12 +122,12 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
               onClick={() => {
                 if (onClickNext) onClickNext();
               }}
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="relative inline-flex items-center border border-border-strong bg-surface px-2 text-foreground-muted transition-colors duration-fast hover:bg-surface-raised hover:text-foreground h-8 rounded-r-md"
             >
-              <span className="sr-only">Next</span>
+              <span className="sr-only">Berikutnya</span>
 
               <svg
-                className="h-5 w-5"
+                className="h-4 w-4"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -140,25 +142,31 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
             </button>
             <div>
               <div className="flex ml-2">
-                <TextField placeholder="10" onChange={(e) => setGoTo(+e.target.value)} className="w-20" type="number" />
+                <TextField
+                  placeholder="Hal."
+                  aria-label="Lompat ke halaman"
+                  onChange={(e) => setGoTo(+e.target.value)}
+                  className="w-16"
+                  type="number"
+                />
                 <Button className="ml-2" onClick={handleClick}>
                   Pergi
                 </Button>
                 <div className="ml-2">
-                  <Select
+                  {/* ThemedSelect, bukan react-select polos: yang polos memakai gaya
+                      bawaannya sendiri dan tetap putih di mode gelap. */}
+                  <ThemedSelect
                     menuPlacement="top"
                     defaultValue={PER_PAGE_OPTIONS[1]}
                     onChange={(e) => {
                       if (onChangePerPage) {
-                        onChangePerPage(e);
+                        // ThemedSelect mengetik option-nya longgar (bisa multi); di sini
+                        // selalu single dan bentuknya PerPageOption.
+                        onChangePerPage(e as PerPageOption | null);
                       }
                     }}
                     styles={{
-                      control: (base) => ({
-                        ...base,
-                        height: 44,
-                        width: 180,
-                      }),
+                      control: (base) => ({ ...base, width: 150 }),
                     }}
                     options={PER_PAGE_OPTIONS}
                   />
@@ -179,9 +187,9 @@ const PageButton: React.FC<PropsWithChildren<{ variant: 'active' | 'inactive'; o
 }) => {
   const classes = {
     inactive:
-      'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium',
+      'relative inline-flex h-8 items-center border border-border-strong bg-surface px-3 text-base text-foreground-muted transition-colors duration-fast hover:bg-surface-raised hover:text-foreground',
     active:
-      'z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium',
+      'relative z-10 inline-flex h-8 items-center border border-accent bg-accent-subtle px-3 text-base font-semibold text-accent',
   };
 
   return (

@@ -3,14 +3,15 @@ import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { KeyboardEvent, LegacyRef, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import React, { KeyboardEvent, LegacyRef, PropsWithChildren, useRef, useState } from 'react';
 import { ArrowLeft, List } from 'react-bootstrap-icons';
 import { useCollapse } from 'react-collapsed';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
-import MENU_LIST from '@/constants/menu';
+import CommandPalette from '@/components/ui/command-palette';
+import ThemeToggle from '@/components/ui/theme-toggle';
 import { useApp } from '@/context/app-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
@@ -26,8 +27,6 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
   titleHref,
   children,
 }) => {
-  const [activePage, setActivePage] = useState(0);
-  const { pathname } = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [onHover, setOnHover] = useState(false);
   const [showNavbar, setShowNavbar] = useState(false);
@@ -64,16 +63,11 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
   });
   const handleKeyUp = useKeyPressEnter(() => setShowMenu((show) => !show));
 
-  useEffect(() => {
-    const index = MENU_LIST.findIndex(({ slug }) => `${pathname.split('/')[1]}` === slug.split('/')[1]);
-    setActivePage(index);
-  }, [pathname]);
-
   return (
     <>
-      <div className="h-16 flex items-center bg-blueGray-900 justify-between px-6 py-4 sm:hidden">
+      <div className="flex h-14 items-center justify-between border-b border-border bg-surface px-4 sm:hidden">
         <Link href="/">
-          <h3 className="font-bold text-white cursor-pointer">Dashboard</h3>
+          <h3 className="cursor-pointer font-semibold">Putra Pribumi</h3>
         </Link>
 
         <Button
@@ -82,14 +76,14 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
             onClick: () => setShowNavbar((val) => !val),
           })}
         >
-          <List width={24} height={24} className="text-white" />
+          <List width={20} height={20} />
         </Button>
       </div>
 
       <div className="min-h-screen max-w-screen overflow-hidden">
         <section id="MenuSmall" className="sm:hidden">
           <div {...getCollapseProps()}>
-            <Menu onMenuClick={setShowNavbar} hideLabel={false} activePage={activePage} />
+            <Menu onMenuClick={setShowNavbar} hideLabel={false} />
           </div>
         </section>
 
@@ -103,13 +97,13 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
               left: 0,
               flexDirection: 'column',
             }}
-            className="flex-grow-0  flex-shrink-0 bg-blueGray-900 hidden sm:flex "
+            className="hidden flex-shrink-0 flex-grow-0 border-r border-border bg-surface-raised sm:flex"
           >
-            <div className="p-8 pb-7 relative">
+            <div className="relative px-3 py-3">
               <Link href="/">
-                <div className="flex -ml-5 cursor-pointer">
-                  <img src="/logo.png" width={36} height={36} className="w-9 h-9 mr-2" alt="logo" />
-                  {!hideLabel && <h3 className="text-2xl font-bold text-white">Dashboard</h3>}
+                <div className="flex cursor-pointer items-center gap-2 px-2">
+                  <img src="/logo.png" width={24} height={24} className="h-6 w-6" alt="" />
+                  {!hideLabel && <h3 className="truncate text-base font-semibold tracking-tight">Putra Pribumi</h3>}
                 </div>
               </Link>
               <div className="absolute right-0 h-full top-0">
@@ -117,10 +111,12 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                   <button
                     onClick={() => dispatchApp({ type: 'setHideLabel', payload: !hideLabel })}
                     type="button"
-                    className="w-6 h-6 shadow-md -mr-3 rounded-full bg-white flex justify-center items-center"
+                    aria-label={hideLabel ? 'Lebarkan menu' : 'Ciutkan menu'}
+                    className="-mr-3 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface text-foreground-muted shadow-sm transition-colors duration-fast hover:text-foreground"
                   >
                     <ArrowLeft
-                      className="text-gray-900 transition-transform"
+                      size={12}
+                      className="transition-transform"
                       style={{
                         // rotate if hideLabel is true
                         transitionDuration: '0.3s',
@@ -133,23 +129,26 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
             </div>
             <section
               id="menu"
-              style={{
-                overflowX: 'scroll',
-                height: '100%',
-                paddingBottom: 40,
-              }}
+              // overflowX: 'scroll' adalah sumbu yang salah — sidebar tidak pernah meluap
+              // ke samping, dan di macOS itu memunculkan batang gulir horizontal permanen
+              // di kaki menu. Yang meluap adalah sumbu tegak.
+              className="h-full overflow-y-auto overflow-x-hidden"
             >
-              <Menu hideLabel={hideLabel} onMenuClick={setShowNavbar} activePage={activePage} />
+              <Menu hideLabel={hideLabel} onMenuClick={setShowNavbar} />
             </section>
           </div>
 
           <div className={clsx('flex-1 w-0 p-0 sm:p-8', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
-            <div className="p-6 flex justify-between mb-0 sm:p-0 sm:mb-6 max-w-screen">
+            <div className="max-w-screen mb-0 flex items-center justify-between gap-3 p-4 sm:mb-5 sm:p-0">
               <Link href={titleHref}>
-                <h1 className="text-2xl font-bold hover:underline">{title}</h1>
+                <h1 className="text-xl font-semibold tracking-tight hover:underline">{title}</h1>
               </Link>
 
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
+                {/* Sampai Fase 4 selesai, pengalih tema hanya berpengaruh di halaman yang
+                    sudah dipindahkan ke token; sisanya masih dipaksa terang di _app. */}
+                <CommandPalette />
+                <ThemeToggle />
                 <div>
                   <div
                     className={clsx('h-11 pl-0 flex items-center')}
@@ -178,20 +177,20 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                     }}
                     placement="bottom-end"
                   >
-                    <div className="flex flex-col divide-y w-72 py-1">
-                      <div className="py-6 px-6">
+                    <div className="flex w-64 flex-col divide-y divide-border py-1">
+                      <div className="px-4 py-4">
                         <div className="flex">
                           <Avatar url="/images/employee.png" className="object-cover" />
                           <div className="pl-3">
-                            <span className="text-base block">{`${first_name} ${last_name}`}</span>
-                            <span className="text-sm text-blueGray-600 block">{`${(
+                            <span className="block text-base font-medium">{`${first_name} ${last_name}`}</span>
+                            <span className="block text-sm text-foreground-muted">{`${(
                               dataUser?.user?.roles.map(({ name }) => name) ?? []
                             ).toString()}`}</span>
                           </div>
                         </div>
                       </div>
                       <div
-                        className="py-2 px-6 hover:bg-blue-600 hover:text-white"
+                        className="cursor-pointer px-4 py-2 text-base transition-colors duration-fast hover:bg-surface-raised"
                         onClick={() => push(`/employee/${id}`)}
                         onKeyUp={keyHandlerAccount}
                         tabIndex={0}
@@ -200,7 +199,7 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                         Akun
                       </div>
                       <div
-                        className="py-2 px-6 hover:bg-blue-600 hover:text-white"
+                        className="cursor-pointer px-4 py-2 text-base transition-colors duration-fast hover:bg-surface-raised"
                         tabIndex={0}
                         role="button"
                         onKeyUp={keyHandler}

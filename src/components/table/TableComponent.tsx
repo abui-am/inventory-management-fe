@@ -15,7 +15,7 @@ import useItemPriceAdjustment from '@/hooks/table/useItemPriceAdjustment';
 import { Status } from '@/typings/common';
 import { SaleTransactionsData } from '@/typings/sale';
 import { TransactionData } from '@/typings/stock-in';
-import { formatDate, formatToIDR } from '@/utils/format';
+import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
 import printInvoice from '@/utils/printInvoice';
 import reportError from '@/utils/reportError';
 
@@ -64,18 +64,21 @@ export const DetailStockIn: React.FC<
             />
           )}
         </div>
-        <section className="ml-10 flex-1 p-6 rounded-lg border drop-shadow-lg bg-white" style={{ maxWidth: 228 }}>
+        <section
+          className="ml-10 flex-1 rounded-lg border border-border bg-surface p-4 shadow-sm"
+          style={{ maxWidth: 228 }}
+        >
           <div className="mb-2">
-            <span className="text-blueGray-600 mb-1 block">Supplier:</span>
+            <span className="mb-1 block text-sm text-foreground-muted">Supplier:</span>
             <div>{supplier?.name}</div>
           </div>
           <div className="mb-2">
-            <span className="text-blueGray-600 mb-1 block">Kasir:</span>
+            <span className="mb-1 block text-sm text-foreground-muted">Kasir:</span>
             {isAdmin ? (
               <div>
                 <a
                   href={`/employee/${pic?.id}`}
-                  className="block font-bold hover:text-blue-600"
+                  className="block font-semibold hover:text-accent"
                 >{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</a>
               </div>
             ) : (
@@ -83,7 +86,7 @@ export const DetailStockIn: React.FC<
             )}
           </div>
           <div className="mb-2">
-            <span className="text-blueGray-600 mb-1 block">Status:</span>
+            <span className="mb-1 block text-sm text-foreground-muted">Status:</span>
             <div>
               <Tag variant={status === 'accepted' ? 'primary' : 'secondary'}>{getTagValue(status ?? 'pending')}</Tag>
             </div>
@@ -130,19 +133,22 @@ export const DetailSale: React.FC<
         <div className="flex-1">
           <ItemInfo info={{ payments, created_at, invoice_number, transaction_code, items, discount, id }} />
         </div>
-        <section className="ml-10 flex-1 p-6 rounded-lg border drop-shadow-lg bg-white" style={{ maxWidth: 228 }}>
+        <section
+          className="ml-10 flex-1 rounded-lg border border-border bg-surface p-4 shadow-sm"
+          style={{ maxWidth: 228 }}
+        >
           <div className="mb-2">
-            <span className="text-blueGray-600 mb-1 block">Customer:</span>
+            <span className="mb-1 block text-sm text-foreground-muted">Customer:</span>
             <div>{customer?.full_name}</div>
           </div>
           <div className="mb-2">
-            <span className="text-blueGray-600 mb-1 block">Pengirim:</span>
+            <span className="mb-1 block text-sm text-foreground-muted">Pengirim:</span>
             <div>
               {isAdmin ? (
                 <div>
                   <a
                     href={`/employee/${sender.id}`}
-                    className="block font-bold hover:text-blue-600"
+                    className="block font-semibold hover:text-accent"
                   >{`${sender?.first_name} ${sender?.last_name}`}</a>
                 </div>
               ) : (
@@ -151,12 +157,12 @@ export const DetailSale: React.FC<
             </div>
           </div>
           <div className="mb-2">
-            <span className="text-blueGray-600 mb-1 block">Kasir:</span>
+            <span className="mb-1 block text-sm text-foreground-muted">Kasir:</span>
             {isAdmin ? (
               <div>
                 <a
                   href={`/employee/${pic.id}`}
-                  className="block font-bold hover:text-blue-600"
+                  className="block font-semibold hover:text-accent"
                 >{`${pic?.employee?.first_name} ${pic?.employee?.last_name}`}</a>
               </div>
             ) : (
@@ -186,29 +192,31 @@ const ItemInfo: React.FC<
   return (
     <>
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Tanggal</h6>
+        <h6 className="text-sm text-foreground-muted">Tanggal</h6>
         <span>{formatDate(created_at ?? new Date(), { withHour: true })}</span>
       </div>
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Kode Transaksi</h6>
+        <h6 className="text-sm text-foreground-muted">Kode Transaksi</h6>
         <span>{transaction_code}</span>
       </div>
 
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Nomor Faktur</h6>
+        <h6 className="text-sm text-foreground-muted">Nomor Faktur</h6>
         <span>{invoice_number}</span>
       </div>
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Discount:</h6>
+        <h6 className="text-sm text-foreground-muted">Discount:</h6>
         <span>{formatToIDR(discount)}</span>
       </div>
       <div className="flex justify-between mb-4">
-        <h6 className="text-blueGray-600">Pembayaran (metode):</h6>
+        <h6 className="text-sm text-foreground-muted">Pembayaran (metode):</h6>
         <div>
           {payments?.map((payment) => (
-            <p key={payment.payment_method + payment.cash}>{`${formatToIDR(payment?.payment_price)} (${
-              payment?.payment_method
-            })`}</p>
+            // Tanpa formatPaymentMethod, nilai mentah dari backend bocor ke layar:
+            // "debt", "current_account", bukan "Utang", "Giro".
+            <p key={payment.payment_method + payment.cash}>{`${formatToIDR(
+              payment?.payment_price
+            )} (${formatPaymentMethod(payment?.payment_method ?? '')})`}</p>
           ))}
         </div>
       </div>

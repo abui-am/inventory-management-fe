@@ -18,6 +18,7 @@ import ReactModal from 'react-modal';
 import { AppProvider } from '@/context/app-context';
 import { PermissionProvider } from '@/context/permission-context';
 import Layout from '@/layouts/Layout';
+import { ThemeablePage } from '@/typings/page';
 
 // Devtools hanya ada di dev, tapi ikut dirender di server dan masuk ke dalam akar
 // hidrasi — itu sumber "Text content does not match server-rendered HTML" yang
@@ -52,15 +53,6 @@ function AppCrashFallback(): JSX.Element {
     </div>
   );
 }
-
-/**
- * Halaman yang sudah dipindahkan ke token menandai dirinya `themeable = true`.
- * Sisanya dipaksa terang: isinya masih memakai warna literal Tailwind
- * (`bg-white`, `text-blueGray-900`) yang tidak ikut berganti tema, jadi kalau
- * ground-nya menggelap sementara isinya tidak, teksnya tidak terbaca.
- * Batasan ini dilepas per halaman saat dipindahkan di Fase 4.
- */
-type ThemeablePage = { themeable?: boolean };
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const themeable = (Component as ThemeablePage).themeable ?? false;
