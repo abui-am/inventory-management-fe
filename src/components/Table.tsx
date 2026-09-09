@@ -42,7 +42,7 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
 // Header tabel: 24px padding vertikal yang lama membuat satu baris judul setinggi tiga
 // baris data. Uppercase kecil memisahkan header dari isi tanpa perlu garis tambahan.
 const HEADER_CELL =
-  'px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.07em] text-foreground-subtle break-words';
+  'px-3 py-2.5 text-left text-xs font-bold uppercase tracking-[0.07em] text-foreground-subtle break-words';
 
 const ResponsiveTable: React.FC<
   PropsWithChildren<TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }>
@@ -110,7 +110,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
         {filter && filter()}
       </div>
       <table {...getTableProps()} className="table-fixed w-full w-sm">
-        <thead className="border-b border-border">
+        <thead className="border-b border-border bg-surface-raised">
           {headerGroups.map((headerGroup, i) => {
             // react-table v7 menaruh `key` di dalam objek props. Sejak React 18, key yang
             // ikut ter-spread memicu warning — key harus diteruskan langsung ke JSX.
@@ -171,7 +171,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                   // Sebelumnya `key: Math.random()`: key baru tiap render memaksa React
                   // melepas dan memasang ulang setiap sel, bukan memperbaruinya.
                   const { key: cellKey, ...cellProps } = cell.getCellProps({
-                    className: (cell.column as any).collapse ? 'px-3 py-2 collapse' : 'px-3 py-2',
+                    className: (cell.column as any).collapse ? 'px-3 py-2.5 collapse' : 'px-3 py-2.5',
                     style: (cell.column as any).bodyStyle,
                   });
                   return (

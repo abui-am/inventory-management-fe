@@ -1,12 +1,17 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { PropsWithChildren, useState } from 'react';
 
 import { PER_PAGE_OPTIONS, PerPageOption } from '@/constants/options';
+import { cn } from '@/lib/cn';
 import { Link } from '@/typings/common';
 
 import { Button } from './Button';
 import { TextField, ThemedSelect } from './Form';
 
 const PAGER_LABELS = ['&laquo; Previous', 'Next &raquo;'];
+
+/** Di atas ini, mengklik nomor satu per satu jadi menyiksa, jadi kotak lompat dimunculkan. */
+const MANY_PAGES = 9;
 
 type PaginationProps = {
   onClickNext: () => void;
@@ -24,6 +29,9 @@ type PaginationStats = {
   total: string;
 };
 
+const pagerButton =
+  'inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-base transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40';
+
 const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
   onClickNext,
   onClickPrevious,
@@ -39,176 +47,93 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
   // punya tombol panah sendiri, jadi keduanya disaring di sini — sebelumnya tiap halaman
   // menyalin filter yang sama.
   const navigableLinks = links.filter(({ label }) => !PAGER_LABELS.includes(label));
+  const showGoTo = !!onClickGoToPage && navigableLinks.length > MANY_PAGES;
 
-  const handleClick = () => {
-    onClickGoToPage?.(goTo);
-  };
   return (
-    <div className="flex items-center justify-between border-t border-border pt-3">
-      <div className="flex-1 flex justify-between sm:hidden">
-        <button
-          type="button"
-          onClick={() => {
-            if (onClickPrevious) onClickPrevious();
-          }}
-          className="inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-3 text-base font-semibold transition-colors duration-fast hover:bg-surface-raised"
-        >
-          Sebelumnya
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (onClickNext) onClickNext();
-          }}
-          className="ml-3 inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-3 text-base font-semibold transition-colors duration-fast hover:bg-surface-raised"
-        >
-          Berikutnya
-        </button>
-      </div>
-      <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-        <div>
-          {/* Sebelumnya berbahasa Inggris ("Showing 1 to 10 of 50 results") di antarmuka
-              yang seluruhnya berbahasa Indonesia. */}
-          <p className="text-sm text-foreground-muted">
-            Menampilkan <span className="font-semibold text-foreground">{stats.from}</span>–
-            <span className="font-semibold text-foreground">{stats.to}</span> dari{' '}
-            <span className="font-semibold text-foreground">{stats.total}</span>
-          </p>
-        </div>
-        <div>
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-            <button
-              tabIndex={0}
-              type="button"
-              onClick={() => {
-                if (onClickPrevious) onClickPrevious();
-              }}
-              className="relative inline-flex items-center border border-border-strong bg-surface px-2 text-foreground-muted transition-colors duration-fast hover:bg-surface-raised hover:text-foreground h-8 rounded-l-md"
-            >
-              <span className="sr-only">Sebelumnya</span>
+    <div className="flex flex-col gap-3 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Sebelumnya berbahasa Inggris ("Showing 1 to 10 of 50 results") di antarmuka
+          yang seluruhnya berbahasa Indonesia. */}
+      <p className="text-sm text-foreground-muted">
+        <span className="font-semibold text-foreground">
+          {stats.from}–{stats.to}
+        </span>{' '}
+        dari <span className="font-semibold text-foreground">{stats.total}</span>
+      </p>
 
-              <svg
-                className="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
+      <div className="flex flex-wrap items-center gap-2">
+        {showGoTo && (
+          <div className="flex items-center gap-1.5">
+            <TextField
+              placeholder="Hal."
+              aria-label="Lompat ke halaman"
+              onChange={(e) => setGoTo(+e.target.value)}
+              className="w-16"
+              type="number"
+            />
+            <Button size="small" variant="outlined" onClick={() => onClickGoToPage?.(goTo)}>
+              Pergi
+            </Button>
+          </div>
+        )}
+
+        {onChangePerPage && (
+          <ThemedSelect
+            menuPlacement="top"
+            aria-label="Jumlah baris per halaman"
+            defaultValue={PER_PAGE_OPTIONS[1]}
+            // ThemedSelect mengetik option-nya longgar (bisa multi); di sini selalu single.
+            onChange={(e) => onChangePerPage(e as PerPageOption | null)}
+            options={PER_PAGE_OPTIONS}
+            styles={{ control: (base) => ({ ...base, width: 118 }) }}
+          />
+        )}
+
+        <nav className="flex items-center gap-1" aria-label="Navigasi halaman">
+          <button
+            type="button"
+            onClick={onClickPrevious}
+            className={cn(pagerButton, 'border-border-strong bg-surface text-foreground-muted hover:bg-surface-raised')}
+          >
+            <span className="sr-only">Sebelumnya</span>
+            <ChevronLeft size={16} aria-hidden />
+          </button>
+
+          {navigableLinks.map(({ label, active, url }) =>
+            // Laravel menyisipkan "..." sebagai link tanpa url. Merendernya sebagai tombol
+            // memberi target klik yang tidak melakukan apa-apa.
+            url ? (
+              <button
+                key={label}
+                type="button"
+                aria-current={active ? 'page' : undefined}
+                onClick={() => onClickPageButton(url)}
+                className={cn(
+                  pagerButton,
+                  active
+                    ? 'border-accent bg-accent text-accent-foreground font-semibold'
+                    : 'border-border-strong bg-surface text-foreground-muted hover:bg-surface-raised hover:text-foreground'
+                )}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+                {label}
+              </button>
+            ) : (
+              <span key={label} className="px-1 text-sm text-foreground-subtle" aria-hidden>
+                …
+              </span>
+            )
+          )}
 
-            {navigableLinks.map(({ label, active, url }) => {
-              return (
-                <PageButton
-                  key={label}
-                  variant={active ? 'active' : 'inactive'}
-                  onClickPageButton={() => {
-                    onClickPageButton(url);
-                  }}
-                >
-                  {label}
-                </PageButton>
-              );
-            })}
-
-            <button
-              tabIndex={0}
-              type="button"
-              onClick={() => {
-                if (onClickNext) onClickNext();
-              }}
-              className="relative inline-flex items-center border border-border-strong bg-surface px-2 text-foreground-muted transition-colors duration-fast hover:bg-surface-raised hover:text-foreground h-8 rounded-r-md"
-            >
-              <span className="sr-only">Berikutnya</span>
-
-              <svg
-                className="h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-            <div>
-              <div className="flex ml-2">
-                <TextField
-                  placeholder="Hal."
-                  aria-label="Lompat ke halaman"
-                  onChange={(e) => setGoTo(+e.target.value)}
-                  className="w-16"
-                  type="number"
-                />
-                <Button className="ml-2" onClick={handleClick}>
-                  Pergi
-                </Button>
-                <div className="ml-2">
-                  {/* ThemedSelect, bukan react-select polos: yang polos memakai gaya
-                      bawaannya sendiri dan tetap putih di mode gelap. */}
-                  <ThemedSelect
-                    menuPlacement="top"
-                    defaultValue={PER_PAGE_OPTIONS[1]}
-                    onChange={(e) => {
-                      if (onChangePerPage) {
-                        // ThemedSelect mengetik option-nya longgar (bisa multi); di sini
-                        // selalu single dan bentuknya PerPageOption.
-                        onChangePerPage(e as PerPageOption | null);
-                      }
-                    }}
-                    styles={{
-                      control: (base) => ({ ...base, width: 150 }),
-                    }}
-                    options={PER_PAGE_OPTIONS}
-                  />
-                </div>
-              </div>
-            </div>
-          </nav>
-        </div>
+          <button
+            type="button"
+            onClick={onClickNext}
+            className={cn(pagerButton, 'border-border-strong bg-surface text-foreground-muted hover:bg-surface-raised')}
+          >
+            <span className="sr-only">Berikutnya</span>
+            <ChevronRight size={16} aria-hidden />
+          </button>
+        </nav>
       </div>
     </div>
-  );
-};
-
-const PageButton: React.FC<PropsWithChildren<{ variant: 'active' | 'inactive'; onClickPageButton: () => void }>> = ({
-  variant,
-  onClickPageButton,
-  children,
-}) => {
-  const classes = {
-    inactive:
-      'relative inline-flex h-8 items-center border border-border-strong bg-surface px-3 text-base text-foreground-muted transition-colors duration-fast hover:bg-surface-raised hover:text-foreground',
-    active:
-      'relative z-10 inline-flex h-8 items-center border border-accent bg-accent-subtle px-3 text-base font-semibold text-accent',
-  };
-
-  return (
-    // Dulu <a href="#">: tiap klik nomor halaman menambah "#" ke URL (merusak tombol Back)
-    // dan melompat ke atas halaman, padahal ini tombol — bukan tautan.
-    // aria-current juga dipasang di SEMUA tombol, jadi screen reader mengumumkan setiap
-    // nomor sebagai "halaman saat ini". Sekarang hanya yang aktif.
-    <button
-      type="button"
-      aria-current={variant === 'active' ? 'page' : undefined}
-      className={classes[variant]}
-      onClick={() => {
-        if (onClickPageButton) {
-          onClickPageButton();
-        }
-      }}
-    >
-      {children}
-    </button>
   );
 };
 

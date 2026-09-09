@@ -253,8 +253,11 @@ export const PAYMENT_METHOD_OPTIONS_DEBT = [
 // Beda dengan Option di typings/common.ts: value-nya angka, bukan string.
 export type PerPageOption = { label: string; value: number };
 
+// "Munculkan 10" terpotong jadi "Munc…" di kotak selebar toolbar. Konteksnya sudah
+// jelas dari tempatnya berdiri — di samping penomoran halaman.
 export const PER_PAGE_OPTIONS: PerPageOption[] = [
-  { label: 'Munculkan 5', value: 5 },
-  { label: 'Munculkan 10', value: 10 },
-  { label: 'Munculkan 20', value: 20 },
+  { label: '5 / hal', value: 5 },
+  { label: '10 / hal', value: 10 },
+  { label: '20 / hal', value: 20 },
+  { label: '50 / hal', value: 50 },
 ];

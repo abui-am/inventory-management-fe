@@ -12,6 +12,7 @@ import Popup from '@/components/Dropdown';
 import Avatar from '@/components/Image';
 import CommandPalette from '@/components/ui/command-palette';
 import ThemeToggle from '@/components/ui/theme-toggle';
+import MENU_LIST, { MENU_GROUPS } from '@/constants/menu';
 import { useApp } from '@/context/app-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
@@ -35,6 +36,11 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
   const { push } = useRouter();
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded: showNavbar });
   const { data } = useFetchMyself();
+  // Grup diambil dari rute, bukan dikirim pemanggil: Layout sudah mencari item menunya
+  // untuk judul, dan menambah satu prop lagi berarti dua tempat yang bisa berselisih.
+  const segment = useRouter().pathname.split('/')[1];
+  const activeItem = MENU_LIST.find((item) => item.slug.split('/')[1] === segment);
+  const groupLabel = MENU_GROUPS.find((g) => g.id === activeItem?.group)?.label;
   const { state, dispatch: dispatchApp } = useApp();
   const { hideLabel } = state;
   const { data: dataUser } = data ?? {};
@@ -140,9 +146,21 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
 
           <div className={clsx('flex-1 w-0 p-0 sm:p-8', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
             <div className="max-w-screen mb-0 flex items-center justify-between gap-3 p-4 sm:mb-5 sm:p-0">
-              <Link href={titleHref}>
-                <h1 className="text-xl font-semibold tracking-tight hover:underline">{title}</h1>
-              </Link>
+              {/* Breadcrumb, bukan judul telanjang: dengan menu dikelompokkan, nama halaman
+                  saja tidak memberi tahu di cabang mana pengguna berada. */}
+              <nav aria-label="Remah roti" className="flex min-w-0 items-baseline gap-1.5">
+                {groupLabel && (
+                  <>
+                    <span className="truncate text-base text-foreground-muted">{groupLabel}</span>
+                    <span className="text-foreground-subtle" aria-hidden>
+                      /
+                    </span>
+                  </>
+                )}
+                <Link href={titleHref}>
+                  <a className="truncate text-xl font-semibold tracking-tight hover:underline">{title}</a>
+                </Link>
+              </nav>
 
               <div className="flex items-center gap-2">
                 {/* Sampai Fase 4 selesai, pengalih tema hanya berpengaruh di halaman yang
