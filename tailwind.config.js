@@ -11,42 +11,43 @@ const withAlpha = (v) => `hsl(var(${v}) / <alpha-value>)`;
 
 module.exports = {
   darkMode: 'class',
-  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+    // Tremor mengirim kelas Tailwind di dalam berkas terkompilasinya. Tanpa baris ini
+    // kelas-kelas itu tidak pernah ter-generate dan charnya tampil tanpa gaya.
+    './node_modules/@tremor/**/*.{js,ts,jsx,tsx,mjs}',
+  ],
   theme: {
-    // Skala tipografi: lima ukuran, tidak lebih. Padat — base 13px, bukan 16px.
-    fontSize: {
-      xs: ['0.6875rem', { lineHeight: '1rem' }],      // 11 / 16 — eyebrow, micro
-      sm: ['0.75rem', { lineHeight: '1.125rem' }],    // 12 / 18 — sekunder
-      base: ['0.8125rem', { lineHeight: '1.25rem' }], // 13 / 20 — teks antarmuka
-      lg: ['1rem', { lineHeight: '1.375rem' }],       // 16 / 22 — judul bagian
-      xl: ['1.375rem', { lineHeight: '1.75rem' }],    // 22 / 28 — judul halaman, angka besar
-    },
-    // Skala spasi: kelipatan 4 sampai 24, lalu melompat. Cukup untuk UI padat.
-    spacing: {
-      0: '0', px: '1px',
-      0.5: '0.125rem', 1: '0.25rem', 1.5: '0.375rem', 2: '0.5rem', 2.5: '0.625rem',
-      3: '0.75rem', 4: '1rem', 5: '1.25rem', 6: '1.5rem', 8: '2rem', 10: '2.5rem',
-      12: '3rem', 16: '4rem', 20: '5rem', 24: '6rem', 32: '8rem',
-    },
-    borderRadius: {
-      none: '0',
-      sm: 'calc(var(--radius) - 4px)',
-      md: 'calc(var(--radius) - 2px)',
-      lg: 'var(--radius)',
-      xl: 'calc(var(--radius) + 4px)',
-      full: '9999px',
-    },
-    boxShadow: {
-      none: 'none',
-      sm: 'var(--shadow-sm)',
-      md: 'var(--shadow-md)',
-    },
-    transitionDuration: {
-      DEFAULT: '160ms',
-      fast: '120ms',
-      slow: '200ms',
-    },
+    // CATATAN PENTING: semua di bawah ini ada di `extend`, BUKAN mengganti `theme`.
+    // Menuliskannya langsung di `theme` akan MENGHAPUS skala bawaan Tailwind, dan
+    // aplikasi ini masih memakai banyak di antaranya (`text-2xl` 39x, `h-11` 12x,
+    // `w-48` 12x, palet `blueGray` 52x). Skala di bawah adalah arah design system;
+    // halaman lama tetap jalan sampai dipindahkan di Fase 4.
     extend: {
+      // Lima ukuran design system. Kunci xs–xl sengaja ditimpa; 2xl ke atas tetap
+      // memakai bawaan Tailwind supaya halaman yang belum dipindahkan tidak rusak.
+      fontSize: {
+        xs: ['0.6875rem', { lineHeight: '1rem' }],      // 11 / 16 — eyebrow, micro
+        sm: ['0.75rem', { lineHeight: '1.125rem' }],    // 12 / 18 — sekunder
+        base: ['0.8125rem', { lineHeight: '1.25rem' }], // 13 / 20 — teks antarmuka
+        lg: ['1rem', { lineHeight: '1.375rem' }],       // 16 / 22 — judul bagian
+        xl: ['1.375rem', { lineHeight: '1.75rem' }],    // 22 / 28 — judul halaman, angka
+      },
+      borderRadius: {
+        sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 2px)',
+        lg: 'var(--radius)',
+        xl: 'calc(var(--radius) + 4px)',
+      },
+      boxShadow: {
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+      },
+      transitionDuration: {
+        DEFAULT: '160ms',
+        fast: '120ms',
+        slow: '200ms',
+      },
       colors: {
         background: withAlpha('--background'),
         surface: {
@@ -91,6 +92,13 @@ module.exports = {
           subtle: withAlpha('--info-subtle'),
         },
         ring: withAlpha('--ring'),
+
+        // Palet lama. Masih dipakai 52x di halaman yang belum dipindahkan ke token;
+        // dihapus setelah Fase 4 selesai.
+        blueGray: {
+          50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1',
+          400: '#94A3B8', 500: '#64748B', 600: '#475569', 800: '#1E293B', 900: '#0F172A',
+        },
       },
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
@@ -104,5 +112,17 @@ module.exports = {
       },
     },
   },
+  // Tremor merangkai nama kelas warnanya saat runtime (bg-indigo-500, stroke-cyan-500,
+  // fill-…), jadi pemindai Tailwind tidak pernah melihatnya di sumber. Tanpa safelist
+  // chart tampil abu-abu. Dibatasi pada dua warna yang benar-benar dipakai.
+  safelist: [
+    {
+      pattern: /^(bg|text|border|ring|stroke|fill)-(indigo|cyan)-(50|100|200|300|400|500|600|700|800|900)$/,
+      variants: ['hover', 'ui-selected'],
+    },
+    {
+      pattern: /^(bg|text|border|ring|stroke|fill)-(gray|slate)-(50|100|200|300|400|500|600|700|800|900)$/,
+    },
+  ],
   plugins: [require('tailwindcss-animate')],
 };

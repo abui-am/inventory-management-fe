@@ -1,7 +1,9 @@
+import { AreaChart, BarList } from '@tremor/react';
 import { AlertTriangle, ArrowDownToLine, Check, ChevronDown, Eye, Loader2, Plus, Search, Trash2 } from 'lucide-react';
 import Head from 'next/head';
 import { ReactNode } from 'react';
 
+import CommandPalette from '@/components/ui/command-palette';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import { cn } from '@/lib/cn';
 
@@ -312,6 +314,69 @@ function IconSection() {
   );
 }
 
+/* ── Tremor & command palette ─────────────────────────────────────────────── */
+
+const ARUS = [
+  { hari: 'Sen', Masuk: 1840000, Keluar: 1120000 },
+  { hari: 'Sel', Masuk: 2260000, Keluar: 1480000 },
+  { hari: 'Rab', Masuk: 1970000, Keluar: 1310000 },
+  { hari: 'Kam', Masuk: 3140000, Keluar: 1720000 },
+  { hari: 'Jum', Masuk: 2680000, Keluar: 1590000 },
+  { hari: 'Sab', Masuk: 4120000, Keluar: 1860000 },
+  { hari: 'Min', Masuk: 2410000, Keluar: 1440000 },
+];
+
+const rupiah = (n: number) => `Rp ${Intl.NumberFormat('id-ID').format(n)}`;
+// Sumbu Y hanya muat label pendek; rupiah penuh membuatnya berdesakan dan terpotong.
+function rupiahSingkat(n: number): string {
+  if (n === 0) return '0';
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} jt`;
+  return `${n / 1000} rb`;
+}
+
+function TremorSection() {
+  return (
+    <Section
+      id="tremor"
+      title="Tremor & command palette"
+      note="Keduanya mensyaratkan React 18, jadi baru bisa dipakai setelah upgrade. Chart memakai palet Tremor yang dipetakan ke warna token, bukan warna bawaannya. Command palette dibuka dengan Cmd/Ctrl+K dan sumbernya MENU_LIST yang sama dengan sidebar."
+    >
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Panel className="lg:col-span-2 flex flex-col gap-3">
+          <div className="flex items-baseline justify-between">
+            <span className="text-lg font-semibold">Arus kas pekan ini</span>
+            <span className="font-mono text-sm tabular text-foreground-muted">Rp 18.420.000</span>
+          </div>
+          <AreaChart
+            data={ARUS}
+            index="hari"
+            categories={['Masuk', 'Keluar']}
+            colors={['indigo', 'cyan']}
+            valueFormatter={rupiahSingkat}
+            showAnimation={false}
+            className="h-56"
+          />
+        </Panel>
+
+        <Panel className="flex flex-col gap-3">
+          <span className="text-lg font-semibold">Barang terlaris</span>
+          <BarList
+            data={[
+              { name: 'Beras Premium 5 kg', value: 3600000 },
+              { name: 'Minyak Goreng 2 L', value: 1350000 },
+              { name: 'Telur Ayam 1 kg', value: 1312000 },
+              { name: 'Gula Pasir 1 kg', value: 870000 },
+            ]}
+            valueFormatter={rupiah}
+            color="indigo"
+            showAnimation={false}
+          />
+        </Panel>
+      </div>
+    </Section>
+  );
+}
+
 /* ── pratinjau arah ───────────────────────────────────────────────────────── */
 
 function PreviewSection() {
@@ -462,6 +527,7 @@ const NAV = [
   ['tipografi', 'Tipografi'],
   ['spasi', 'Spasi & gerak'],
   ['ikon', 'Ikon'],
+  ['tremor', 'Tremor & ⌘K'],
   ['pratinjau', 'Pratinjau arah'],
 ] as const;
 
@@ -491,7 +557,10 @@ function StyleguidePage(): JSX.Element {
                 </a>
               ))}
             </nav>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <CommandPalette />
+              <ThemeToggle />
+            </div>
           </div>
         </header>
 
@@ -504,6 +573,7 @@ function StyleguidePage(): JSX.Element {
           <ColorSection />
           <ScaleSection />
           <IconSection />
+          <TremorSection />
           <PreviewSection />
         </main>
       </div>
