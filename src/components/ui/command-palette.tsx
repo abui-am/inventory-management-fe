@@ -35,17 +35,19 @@ export function CommandPalette(): JSX.Element {
 
   return (
     <>
+      {/* SPEC-07/08: chip ⌘K saja — 28px, tanpa teks "Cari halaman" dan tanpa ikon.
+          Label tetap ada lewat aria-label supaya tetap terbaca screen reader. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
+        aria-label="Cari halaman"
         className={cn(
-          'inline-flex h-8 items-center gap-2 rounded-lg border border-border-strong bg-surface px-2.5',
-          'text-sm text-foreground-subtle transition duration-fast hover:bg-surface-raised'
+          'inline-flex h-7 items-center gap-1.25 rounded-control border border-border-strong bg-surface px-2',
+          'text-sm text-foreground-subtle transition-colors duration-fast hover:bg-surface-raised hover:text-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40'
         )}
       >
-        <Search size={14} strokeWidth={1.75} aria-hidden />
-        Cari halaman
-        <kbd className="rounded-sm border border-border bg-surface-raised px-1 font-mono text-xs">⌘K</kbd>
+        <span className="font-mono text-xs">⌘K</span>
       </button>
 
       <Command.Dialog

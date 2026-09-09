@@ -27,6 +27,10 @@ module.exports = {
       // Lima ukuran design system. Kunci xs–xl sengaja ditimpa; 2xl ke atas tetap
       // memakai bawaan Tailwind supaya halaman yang belum dipindahkan tidak rusak.
       fontSize: {
+        // Ukuran ke-6, punya peran sendiri: teks uppercase ber-tracking — header kolom
+        // tabel, eyebrow, angka di tab. Memaksanya ke xs (11px) membuat header kolom
+        // setara teks sekunder dan hierarkinya hilang.
+        '2xs': ['0.625rem', { lineHeight: '0.875rem' }], // 10 / 14 — header kolom, eyebrow
         xs: ['0.6875rem', { lineHeight: '1rem' }],      // 11 / 16 — eyebrow, micro
         sm: ['0.75rem', { lineHeight: '1.125rem' }],    // 12 / 18 — sekunder
         base: ['0.8125rem', { lineHeight: '1.25rem' }], // 13 / 20 — teks antarmuka
@@ -40,7 +44,24 @@ module.exports = {
         'tremor-title': ['1rem', { lineHeight: '1.375rem' }],
         'tremor-metric': ['1.375rem', { lineHeight: '1.75rem' }],
       },
+      // Desain memakai langkah ganjil yang tidak ada di skala 4px bawaan. Ditambahkan
+      // sebagai langkah bernama (n x 4px, konvensi Tailwind sendiri) supaya nilainya
+      // persis desain tanpa `[7px]` bertebaran di markup.
+      spacing: {
+        0.75: '3px',
+        1.25: '5px',
+        1.75: '7px',
+        2.25: '9px',
+        4.5: '18px',
+      },
       borderRadius: {
+        // Desain punya hierarki radius bersarang sendiri: pill < kontrol < grup < kartu.
+        // Dinamai menurut perannya, bukan angkanya, supaya tidak bersaing dengan
+        // skala sm/md/lg/xl yang diturunkan dari --radius.
+        pill: '5px',
+        control: '7px',
+        group: '9px',
+        card: '10px',
         'tremor-small': 'calc(var(--radius) - 4px)',
         'tremor-default': 'calc(var(--radius) - 2px)',
         'tremor-full': '9999px',

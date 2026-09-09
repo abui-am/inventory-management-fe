@@ -9,7 +9,8 @@ import { cn } from '@/lib/cn';
  * papan warna dan status yang benar-benar butuh perhatian tetap menonjol.
  */
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 whitespace-nowrap rounded-sm px-2 py-0.5 text-sm font-semibold [&_svg]:size-3',
+  // SPEC-35: 11px/600, padding 1px 7px, radius 5px, gap 4px, line-height 18px.
+  'inline-flex items-center gap-1 whitespace-nowrap rounded-pill px-1.75 py-px text-xs font-semibold leading-[18px] [&_svg]:size-3',
   {
     variants: {
       variant: {

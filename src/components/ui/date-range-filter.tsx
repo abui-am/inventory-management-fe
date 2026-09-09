@@ -22,15 +22,17 @@ const Trigger = forwardRef<HTMLButtonElement, { value?: string; onClick?: () => 
       ref={ref}
       type="button"
       onClick={onClick}
+      // SPEC-20: 32px, radius 7, gap 8px, teks foreground-muted — sejajar dengan
+      // kotak cari dan tombol di sebelahnya.
       className={cn(
-        'inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-border-strong bg-surface px-2.5 text-base',
-        'transition-colors duration-fast hover:bg-surface-raised',
+        'inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-control border border-border-strong bg-surface px-2.5',
+        'text-base text-foreground-muted transition-colors duration-fast hover:bg-surface-raised',
         'focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-ring/25'
       )}
     >
-      <CalendarDays size={16} className="text-foreground-subtle" aria-hidden />
+      <CalendarDays size={14} strokeWidth={1.9} className="text-foreground-subtle" aria-hidden />
       {label}
-      <ChevronDown size={14} className="text-foreground-subtle" aria-hidden />
+      <ChevronDown size={12} strokeWidth={2.2} className="text-foreground-subtle" aria-hidden />
     </button>
   )
 );

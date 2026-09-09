@@ -30,11 +30,19 @@ const buttonVariants = cva(
         'destructive-outline': 'border border-destructive bg-surface text-destructive hover:bg-destructive-subtle',
       },
       size: {
-        sm: 'h-8 px-2.5 text-sm [&_svg]:size-3.5',
+        // xs dan sm mengikuti dua tingkat kontrol di berkas desain, persis:
+        //   .btn.sm -> 28px, padding 0 9px, 12px, radius 6px
+        //   .btn    -> 32px, padding 0 12px, 13px, radius 7px
+        // Tingkat 28px ditambahkan untuk area padat (toolbar, sel tabel); default 36px
+        // dan lg 40px tetap seperti sebelumnya supaya halaman lain tidak bergeser.
+        xs: 'h-7 px-2.25 text-sm [&_svg]:size-3.5',
+        sm: 'h-8 rounded-control px-3 text-base [&_svg]:size-3.5',
         default: 'h-9 px-3 text-base [&_svg]:size-4',
         lg: 'h-10 px-4 text-base [&_svg]:size-4',
         icon: 'h-9 w-9 [&_svg]:size-4',
         'icon-sm': 'h-8 w-8 [&_svg]:size-3.5',
+        // 26x26 dengan garis tipis — tombol aksi di dalam baris tabel.
+        'icon-xs': 'size-[26px] border border-border text-foreground-muted [&_svg]:size-3.5',
       },
       fullWidth: {
         true: 'w-full',

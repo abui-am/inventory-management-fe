@@ -68,6 +68,44 @@
   display: none;
 }
 
+/* Popper menyisipkan <div class="react-datepicker__tab-loop"> sebagai saudara INLINE
+   dari pemicunya. Di dalam toolbar yang flex, div itu ikut menempati lebar begitu
+   kalender dibuka, dan tombol di sebelahnya bergeser. Dikeluarkan dari alur. */
+.react-datepicker__tab-loop {
+  position: absolute;
+}
+
+/* Panah ganti bulan sejajar dengan garis teks bulannya. Bawaan react-datepicker
+   menaruhnya di top:2px sementara labelnya punya padding sendiri, jadi keduanya
+   tidak pernah segaris. */
+.react-datepicker__header {
+  padding-top: 8px;
+  padding-bottom: 6px;
+}
+
+.react-datepicker__current-month {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.react-datepicker__navigation {
+  top: 8px;
+  height: 20px;
+  width: 20px;
+}
+
+.react-datepicker__navigation-icon {
+  top: 0;
+}
+
+.react-datepicker__navigation-icon::before {
+  height: 6px;
+  width: 6px;
+  border-width: 1.5px 1.5px 0 0;
+  top: 7px;
+}
+
 .react-datepicker__time-container,
 .react-datepicker__time-container .react-datepicker__time {
   background-color: hsl(var(--surface));

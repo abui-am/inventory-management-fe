@@ -27,7 +27,8 @@ export function FilterTabs({
 }): JSX.Element {
   return (
     <div
-      className="flex flex-wrap items-center gap-0.5 rounded-lg border border-border bg-surface-raised p-0.5"
+      // SPEC-12: gap 3px, padding 3px, radius 9px, TANPA border.
+      className="flex flex-wrap items-center gap-0.75 rounded-group bg-surface-raised p-0.75"
       role="tablist"
       aria-label={ariaLabel}
     >
@@ -41,18 +42,22 @@ export function FilterTabs({
             aria-selected={active}
             onClick={() => onChange(tab.value)}
             className={cn(
-              'inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-base transition-colors duration-fast',
+              // SPEC-13: 28px, padding 0 10px, radius 7px, 12px, gap 6px.
+              'inline-flex h-7 items-center gap-1.5 rounded-control px-2.5 text-sm transition-colors duration-fast',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
+              // SPEC-15: border transparan pada tab nonaktif — bukan tanpa border, supaya
+              // lebarnya tidak bergeser 2px saat tab berpindah.
               active
-                ? 'bg-surface font-semibold text-foreground shadow-sm'
-                : 'text-foreground-muted hover:text-foreground'
+                ? 'border border-border bg-surface font-semibold text-foreground shadow-sm'
+                : 'border border-transparent bg-transparent font-medium text-foreground-muted hover:text-foreground'
             )}
           >
             {tab.label}
             {tab.count !== undefined && (
-              <span className={cn('text-sm tabular-nums', active ? 'text-foreground-muted' : 'text-foreground-subtle')}>
-                {tab.count}
-              </span>
+              // SPEC-16: 10px mono, foreground-subtle untuk tab aktif MAUPUN nonaktif.
+              // Karena hurufnya lebih kecil dari labelnya sementara kotaknya di-center,
+              // garis dasarnya duduk lebih tinggi — itulah kesan "agak ke atas".
+              <span className="font-mono text-2xs tabular-nums text-foreground-subtle">{tab.count}</span>
             )}
           </button>
         );

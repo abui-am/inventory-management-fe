@@ -45,6 +45,9 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
   const { hideLabel } = state;
   const { data: dataUser } = data ?? {};
   const { first_name, last_name, id } = dataUser?.user?.employee ?? {};
+  const initials =
+    `${first_name?.[0] ?? ''}${last_name?.[0] ?? ''}`.toUpperCase() ||
+    (dataUser?.user?.username ?? '?').slice(0, 2).toUpperCase();
   function logout() {
     setShowMenu(false);
     removeCookie('INVT-TOKEN');
@@ -144,45 +147,48 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
             </section>
           </div>
 
-          <div className={clsx('flex-1 w-0 p-0 sm:p-8', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
-            <div className="max-w-screen mb-0 flex items-center justify-between gap-3 p-4 sm:mb-5 sm:p-0">
+          <div className={clsx('flex w-0 flex-1 flex-col', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
+            {/* SPEC-01: bar 50px, border-bawah membentang penuh lebar konten — karena itu
+                ia berada DI LUAR padding isi, bukan di dalamnya. */}
+            <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-5">
               {/* Breadcrumb, bukan judul telanjang: dengan menu dikelompokkan, nama halaman
                   saja tidak memberi tahu di cabang mana pengguna berada. */}
-              <nav aria-label="Remah roti" className="flex min-w-0 items-baseline gap-1.5">
+              {/* SPEC-02..05: 13px, gap 7px; "Penjualan" dan "/" foreground-subtle,
+                  nama halaman weight 600 — bukan judul besar. */}
+              <nav aria-label="Remah roti" className="flex min-w-0 items-center gap-1.75 text-base">
                 {groupLabel && (
                   <>
-                    <span className="truncate text-base text-foreground-muted">{groupLabel}</span>
+                    <span className="truncate text-foreground-subtle">{groupLabel}</span>
                     <span className="text-foreground-subtle" aria-hidden>
                       /
                     </span>
                   </>
                 )}
                 <Link href={titleHref}>
-                  <a className="truncate text-xl font-semibold tracking-tight hover:underline">{title}</a>
+                  <a className="truncate font-semibold hover:underline">{title}</a>
                 </Link>
               </nav>
 
-              <div className="flex items-center gap-2">
-                {/* Sampai Fase 4 selesai, pengalih tema hanya berpengaruh di halaman yang
-                    sudah dipindahkan ke token; sisanya masih dipaksa terang di _app. */}
+              {/* SPEC-06: gap 9px. Pengalih tema disisipkan di antara chip dan avatar —
+                  tidak ada di referensi, dipertahankan atas permintaan. */}
+              <div className="flex items-center gap-2.25">
                 <CommandPalette />
                 <ThemeToggle />
                 <div>
+                  {/* SPEC-09: lingkaran 26px berisi inisial, bukan foto. Foto stok yang
+                      sama untuk semua orang tidak memberi tahu siapa yang sedang masuk. */}
                   <div
-                    className={clsx('h-11 pl-0 flex items-center')}
+                    className="flex size-[26px] cursor-pointer items-center justify-center rounded-full bg-accent-subtle text-2xs font-extrabold text-accent"
                     ref={refElement as LegacyRef<HTMLDivElement> | undefined}
                     onClick={() => setShowMenu((show) => !show)}
                     tabIndex={0}
-                    onMouseEnter={() => {
-                      setOnHover(true);
-                    }}
-                    onMouseLeave={() => {
-                      setOnHover(false);
-                    }}
+                    onMouseEnter={() => setOnHover(true)}
+                    onMouseLeave={() => setOnHover(false)}
                     onKeyUp={handleKeyUp}
                     role="button"
+                    aria-label={`Akun ${first_name ?? ''} ${last_name ?? ''}`.trim()}
                   >
-                    <Avatar url="/images/employee.png" className="mr-2" />
+                    {initials}
                   </div>
                   <Popup
                     open={showMenu}
@@ -229,8 +235,11 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                   </Popup>
                 </div>
               </div>
-            </div>
-            {children}
+            </header>
+
+            {/* SPEC-10: padding isi 14px atas-bawah, 18px kiri-kanan. Sebelumnya 32px
+                seragam — angka lama yang tidak berasal dari desain mana pun. */}
+            <div className="min-w-0 flex-1 px-4.5 py-3.5">{children}</div>
           </div>
         </div>
       </div>

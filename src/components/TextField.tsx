@@ -1,4 +1,11 @@
-import React, { DetailedHTMLProps, InputHTMLAttributes, PropsWithChildren, TextareaHTMLAttributes, useId } from 'react';
+import React, {
+  ChangeEvent,
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  PropsWithChildren,
+  TextareaHTMLAttributes,
+  useId,
+} from 'react';
 
 import { Checkbox as UICheckbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -22,7 +29,10 @@ const TextField: React.FC<
       Icon?: JSX.Element;
     }
   >
-> = ({ className, hasError, Icon, variant = 'outlined', ...props }) => (
+  // `size` dilepas dari sebaran: atribut HTML `size` (angka) bentrok dengan prop varian
+  // ukuran milik Input. Tidak ada satu pun pemanggil yang memakai atribut aslinya.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = ({ className, hasError, Icon, variant = 'outlined', size: _size, ...props }) => (
   <div className="relative">
     {Icon && (
       <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-foreground-subtle [&_svg]:size-4">
@@ -69,7 +79,8 @@ const PhoneNumberTextField: React.FC<
       onChange: (phoneNumber: string) => void;
     }
   >
-> = ({ onChange, className, hasError, value, ...props }) => (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = ({ onChange, className, hasError, value, size: _size, ...props }) => (
   <div className="flex">
     <span className="inline-flex h-9 items-center rounded-l-md border border-r-0 border-border-strong bg-surface-raised px-2.5 text-base text-foreground-muted">
       +62
@@ -79,7 +90,7 @@ const PhoneNumberTextField: React.FC<
       aria-invalid={hasError || undefined}
       aria-describedby={hasError && props.name ? `${props.name}-error` : undefined}
       {...props}
-      onChange={(e) => onChange?.(`62${e.target.value}`)}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange?.(`62${e.target.value}`)}
       type="number"
       value={value?.toString().slice(2)}
       className={cn('rounded-l-none', className)}

@@ -324,24 +324,34 @@ export const SelectItemsDetail = forwardRef(
 const ThemedSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   variant = 'outlined',
   additionalStyle = {},
+  styles,
   ...props
 }) => {
   const [portal, setPortal] = useState<HTMLElement>();
-  const extraProps = {
-    styles: { menuPortal: (base: any) => ({ ...base, zIndex: 9999 }) },
-    menuShouldScrollIntoView: true,
-    menuPortalTarget: portal,
-  };
 
   useEffect(() => {
     setPortal(document?.body);
   }, []);
 
+  // `styles` sengaja DIKELUARKAN dari sebaran props.
+  //
+  // Sebelumnya `{...props}` disebar setelah `styles=`, jadi begitu pemanggil mengirim
+  // `styles` — walau hanya untuk satu bagian seperti `control` — seluruh tema
+  // react-select terbuang dan select kembali ke warna bawaannya yang biru. Itu juga
+  // membuang `menuPortal` zIndex di bawah, sehingga menu tertimpa elemen lain.
+  // Sekarang ketiganya digabung, tema tetap jadi dasarnya.
+  const merged = {
+    menuPortal: (base: Record<string, unknown>) => ({ ...base, zIndex: 9999 }),
+    ...getThemedSelectStyle(variant, additionalStyle),
+    ...(styles ?? {}),
+  } as ThemedSelectProps['styles'];
+
   return (
     <NormalSelect
-      {...extraProps}
+      menuShouldScrollIntoView
+      menuPortalTarget={portal}
       isSearchable={false}
-      styles={getThemedSelectStyle(variant, additionalStyle)}
+      styles={merged}
       // react-select merender input-nya sendiri di dalam container, jadi label harus
       // menunjuk ke `inputId` — bukan `id`, yang hanya memberi id ke div pembungkus.
       inputId={props.inputId ?? props.name}
