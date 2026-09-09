@@ -1,0 +1,413 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="display:flex;min-height:900px">
+<div style="width:222px;flex-shrink:0;background:var(--background);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px 10px;gap:1px">
+  <div style="display:flex;align-items:center;gap:8px;padding:4px 6px 12px">
+    <div style="width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-foreground);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">P</div>
+    <div style="display:flex;flex-direction:column;min-width:0">
+      <div style="font-size:13px;font-weight:700;line-height:15px">Putra Pribumi</div>
+      <div style="font-size:11px;color:var(--foreground-subtle);line-height:14px">Pemilik</div>
+    </div>
+  </div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Beranda</div>
+  <div class="navsec">Penjualan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11L21 7H6"/></svg>Transaksi</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11L21 7H6"/></svg>Customer</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11L21 7H6"/></svg>Piutang</div>
+  <div class="navsec">Pembelian</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Barang Masuk</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Konfirmasi</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Supplier</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Utang</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>Utang Giro</div>
+  <div class="navsec">Persediaan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Barang</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Harga Jual</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Audit Barang</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Laporan Audit</div>
+  <div class="navsec">Keuangan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Jurnal Umum</div>
+  <div class="nav on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Buku Besar</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Beban</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Konversi Saldo</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Laporan Pendapatan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Laporan per Kasir</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.4"/><path d="M4 7v10c0 1.9 3.6 3.4 8 3.4s8-1.5 8-3.4V7"/></svg>Perubahan Modal</div>
+  <div class="navsec">Karyawan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>Karyawan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>Gaji Karyawan</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>Gaji di Muka</div>
+  <div class="nav"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>Prive</div>
+</div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:50px;flex-shrink:0;border-bottom:1px solid var(--border);display:flex;
+  align-items:center;justify-content:space-between;padding:0 20px;background:var(--background)">
+  <div style="display:flex;align-items:center;gap:7px;font-size:13px">
+    <span style="color:var(--foreground-subtle)">Keuangan</span>
+    <span style="color:var(--foreground-subtle)">/</span>
+    <span style="font-weight:600">Buku Besar</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:9px">
+    <div class="field" style="height:28px;font-size:12px;color:var(--foreground-subtle);gap:5px;padding:0 8px">
+      <span class="mono" style="font-size:11px">⌘K</span></div>
+    <div style="width:26px;height:26px;border-radius:50%;background:var(--accent-subtle);color:var(--accent);
+      display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800">SA</div>
+  </div>
+</div>
+    <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:10px">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <div class="field" style="color:var(--foreground-muted);gap:8px">Akun: <strong style="color:var(--foreground)">Kas</strong> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="field" style="color:var(--foreground-muted);gap:8px">1—9 Sep 2026 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      </div>
+      <button class="btn ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4 20h16"/></svg> Unduh</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:10px">
+      <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+        <span class="eyebrow">Total debit</span>
+        <span class="mono" style="font-size:19px;font-weight:600;color:var(--destructive);letter-spacing:-0.02em">5.825.000</span>
+      </div>
+      <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+        <span class="eyebrow">Total kredit</span>
+        <span class="mono" style="font-size:19px;font-weight:600;color:var(--success);letter-spacing:-0.02em">3.470.000</span>
+      </div>
+      <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+        <span class="eyebrow">Saldo akhir</span>
+        <span class="mono" style="font-size:19px;font-weight:600;letter-spacing:-0.02em">21.645.000</span>
+      </div>
+      <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+        <span class="eyebrow">Modal bersih</span>
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <span class="mono" style="font-size:19px;font-weight:600;letter-spacing:-0.02em">21.069.000</span>
+          <span class="pill" style="background:var(--success-subtle);color:var(--success)">+5,1%</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:10px;align-items:start">
+
+      <div class="card" style="grid-column:span 3;padding:0;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:var(--surface-raised)">
+            <th class="th" style="padding-top:9px">Tanggal</th><th class="th" style="padding-top:9px">Ref</th>
+            <th class="th" style="padding-top:9px">Keterangan</th>
+            <th class="th" style="padding-top:9px;text-align:right">Debit</th>
+            <th class="th" style="padding-top:9px;text-align:right">Kredit</th>
+            <th class="th" style="padding-top:9px;text-align:right">Saldo</th>
+          </tr></thead>
+          <tbody>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">01 Sep</td>
+            <td class="td mono" style="font-weight:500">JU-0901</td>
+            <td class="td">Modal awal periode</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;font-weight:600">24.000.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">02 Sep</td>
+            <td class="td mono" style="font-weight:500">BM-0902</td>
+            <td class="td">Pembelian — CV Sumber Pangan</td>
+            <td class="td mono" style="text-align:right;color:var(--destructive)">2.175.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;font-weight:600">21.825.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">03 Sep</td>
+            <td class="td mono" style="font-weight:500">TRX-0031</td>
+            <td class="td">Penjualan tunai</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;color:var(--success)">640.000</td>
+            <td class="td mono" style="text-align:right;font-weight:600">22.465.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">04 Sep</td>
+            <td class="td mono" style="font-weight:500">BB-0904</td>
+            <td class="td">Beban listrik</td>
+            <td class="td mono" style="text-align:right;color:var(--destructive)">450.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;font-weight:600">22.015.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">05 Sep</td>
+            <td class="td mono" style="font-weight:500">TRX-0033</td>
+            <td class="td">Penjualan tunai</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;color:var(--success)">1.104.000</td>
+            <td class="td mono" style="text-align:right;font-weight:600">23.119.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">06 Sep</td>
+            <td class="td mono" style="font-weight:500">GJ-0906</td>
+            <td class="td">Gaji karyawan</td>
+            <td class="td mono" style="text-align:right;color:var(--destructive)">3.200.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;font-weight:600">19.919.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">08 Sep</td>
+            <td class="td mono" style="font-weight:500">TRX-0037</td>
+            <td class="td">Penjualan — Kas &amp; Giro</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;color:var(--success)">1.240.000</td>
+            <td class="td mono" style="text-align:right;font-weight:600">21.159.000</td>
+          </tr>
+          <tr>
+            <td class="td mono" style="color:var(--foreground-muted);white-space:nowrap">09 Sep</td>
+            <td class="td mono" style="font-weight:500">TRX-0038</td>
+            <td class="td">Penjualan tunai</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td mono" style="text-align:right;color:var(--success)">486.000</td>
+            <td class="td mono" style="text-align:right;font-weight:600">21.645.000</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:13px;font-weight:600">Saldo akun</span>
+          <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;justify-content:space-between;gap:8px">
+            <span style="font-size:12px">Kas</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:var(--success)">8.420.000</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--surface-raised)">
+            <div style="width:68%;height:100%;border-radius:2px;background:var(--success)"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;justify-content:space-between;gap:8px">
+            <span style="font-size:12px">Bank</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:var(--success)">9.115.000</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--surface-raised)">
+            <div style="width:74%;height:100%;border-radius:2px;background:var(--success)"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;justify-content:space-between;gap:8px">
+            <span style="font-size:12px">Piutang</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:var(--info)">1.286.000</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--surface-raised)">
+            <div style="width:18%;height:100%;border-radius:2px;background:var(--info)"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;justify-content:space-between;gap:8px">
+            <span style="font-size:12px">Persediaan</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:var(--info)">6.940.000</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--surface-raised)">
+            <div style="width:56%;height:100%;border-radius:2px;background:var(--info)"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;justify-content:space-between;gap:8px">
+            <span style="font-size:12px">Utang usaha</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:var(--destructive)">3.450.000</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--surface-raised)">
+            <div style="width:28%;height:100%;border-radius:2px;background:var(--destructive)"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;justify-content:space-between;gap:8px">
+            <span style="font-size:12px">Utang giro</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:var(--destructive)">1.242.000</span>
+          </div>
+          <div style="height:4px;border-radius:2px;background:var(--surface-raised)">
+            <div style="width:12%;height:100%;border-radius:2px;background:var(--destructive)"></div>
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column:span 4;padding:13px 15px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px;font-weight:600">Debit &amp; kredit harian</span>
+          <div style="display:flex;gap:11px">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--foreground-muted)">
+              <span style="width:7px;height:7px;border-radius:2px;background:var(--destructive)"></span>Debit</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--foreground-muted)">
+              <span style="width:7px;height:7px;border-radius:2px;background:var(--success)"></span>Kredit</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:38%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:22%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Sen</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:52%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:31%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Sel</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:44%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:58%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Rab</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:71%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:40%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Kam</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:63%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:48%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Jum</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:96%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:35%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Sab</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:96px;display:flex;align-items:flex-end;gap:2px">
+              <div style="flex:1;height:58%;background:var(--destructive);border-radius:3px 3px 0 0;opacity:.85"></div>
+              <div style="flex:1;height:62%;background:var(--success);border-radius:3px 3px 0 0;opacity:.85"></div>
+            </div>
+            <span style="font-size:10px;color:var(--foreground-subtle)">Min</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Gelap","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Terang';
+    return { theme: t === 'Gelap' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>

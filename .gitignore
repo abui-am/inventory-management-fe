@@ -40,5 +40,8 @@ yarn-error.log*
 .codegraph/
 
 # Kanvas desain hasil seed — 2,6 MB artefak yang bisa dibangkitkan ulang
-# dari berkas *.dc.html + canvas.json di design/.
+# dari berkas *.dc.html + canvas.json di design/. Artboard-nya sendiri harus
+# ikut terversion: tanpa negasi di bawah, pola *.html ikut menelan *.dc.html
+# dan sumber kanvas cuma ada di mesin ini.
 /design/*.html
+!/design/*.dc.html

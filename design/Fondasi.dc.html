@@ -1,0 +1,459 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root light" style="padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <span class="eyebrow">Fondasi</span>
+    <h1 style="margin:0;font-size:23px;line-height:29px;font-weight:800;letter-spacing:-0.025em">Token — sudah terpasang di kode</h1>
+    <p style="margin:0;max-width:84ch;font-size:13px;line-height:20px;color:var(--foreground-muted)">
+      Nilai di bawah dibangkitkan langsung dari <span class="mono">src/styles/tokens.css</span>, bukan disalin —
+      jadi kanvas ini tidak bisa melenceng dari yang benar-benar jalan. Nama variabelnya pun sama persis.
+      Ke-27 pasangnya lolos kontras WCAG AA di kedua tema; pemeriksaannya bisa diulang lewat
+      <span class="mono">npm run check:contrast</span>.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px;align-items:start">
+  <div class="root light" style="border-radius:12px;border:1px solid var(--border);overflow:hidden">
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:14px;font-weight:700">Mode terang</span>
+        <span class="mono pill" style="background:var(--surface-raised);color:var(--foreground-muted)">.light</span>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Permukaan</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--background);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--background<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Ground halaman</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--surface);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--surface<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Kartu, panel, baris tabel</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--surface-raised);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--surface-raised<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Hover, header tabel, isian lembut</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--surface-sunken);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--surface-sunken<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Cekungan — kode, area input</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Garis</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--border);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--border-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--border<span style="color:var(--foreground-subtle)"> / --border-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Garis default</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--border-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--border-subtle<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Pemisah baris</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--border-strong);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--border-strong<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Tepi kontrol</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Teks</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--foreground);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--foreground-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--foreground<span style="color:var(--foreground-subtle)"> / --foreground-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Teks utama</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--foreground-muted);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--foreground-muted<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Label, keterangan</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--foreground-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--foreground-subtle<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Placeholder, meta</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Aksi</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--accent);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--accent-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--accent<span style="color:var(--foreground-subtle)"> / --accent-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Satu-satunya warna aksi</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--accent-hover);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--accent-hover<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Keadaan hover</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--accent-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--accent-subtle<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Latar state aktif</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--ring);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--ring<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Ring fokus</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Makna</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--success);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--success-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--success<span style="color:var(--foreground-subtle)"> / --success-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Kredit, lunas</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--warning);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--warning-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--warning<span style="color:var(--foreground-subtle)"> / --warning-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Menunggu, jatuh tempo</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--destructive);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--destructive-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--destructive<span style="color:var(--foreground-subtle)"> / --destructive-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Debit, hapus, gagal</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--info);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--info-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--info<span style="color:var(--foreground-subtle)"> / --info-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Ditinjau, seri kedua grafik</span>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:6px 0"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <button class="btn">Simpan</button>
+        <button class="btn ghost">Batal</button>
+        <button class="btn" style="background:var(--destructive);border-color:var(--destructive);color:var(--destructive-foreground)">Hapus</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="pill" style="background:var(--warning-subtle);color:var(--warning)">Menunggu</span>
+        <span class="pill" style="background:var(--info-subtle);color:var(--info)">Ditinjau</span>
+        <span class="pill" style="background:var(--success-subtle);color:var(--success)">Diterima</span>
+        <span class="pill" style="background:var(--destructive-subtle);color:var(--destructive)">Ditolak</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="field mono" style="flex:1">1.500.000</div>
+        <div class="field mono" style="flex:1;border-color:var(--destructive);box-shadow:0 0 0 3px var(--destructive-subtle)">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="root dark" style="border-radius:12px;border:1px solid var(--border);overflow:hidden">
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:14px;font-weight:700">Mode gelap</span>
+        <span class="mono pill" style="background:var(--surface-raised);color:var(--foreground-muted)">.dark</span>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Permukaan</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--background);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--background<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Ground halaman</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--surface);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--surface<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Kartu, panel, baris tabel</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--surface-raised);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--surface-raised<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Hover, header tabel, isian lembut</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--surface-sunken);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--surface-sunken<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Cekungan — kode, area input</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Garis</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--border);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--border-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--border<span style="color:var(--foreground-subtle)"> / --border-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Garis default</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--border-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--border-subtle<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Pemisah baris</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--border-strong);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--border-strong<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Tepi kontrol</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Teks</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--foreground);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--foreground-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--foreground<span style="color:var(--foreground-subtle)"> / --foreground-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Teks utama</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--foreground-muted);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--foreground-muted<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Label, keterangan</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--foreground-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--foreground-subtle<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Placeholder, meta</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Aksi</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--accent);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--accent-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--accent<span style="color:var(--foreground-subtle)"> / --accent-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Satu-satunya warna aksi</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--accent-hover);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--accent-hover<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Keadaan hover</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--accent-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--accent-subtle<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Latar state aktif</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--ring);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--ring<span style="color:var(--foreground-subtle)"></span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Ring fokus</span>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:4px">Makna</div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--success);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--success-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--success<span style="color:var(--foreground-subtle)"> / --success-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Kredit, lunas</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--warning);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--warning-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--warning<span style="color:var(--foreground-subtle)"> / --warning-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Menunggu, jatuh tempo</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--destructive);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--destructive-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--destructive<span style="color:var(--foreground-subtle)"> / --destructive-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Debit, hapus, gagal</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:26px;border-radius:6px;background:var(--info);border:1px solid var(--border);flex-shrink:0"></div><div style="width:30px;height:26px;border-radius:6px;background:var(--info-subtle);border:1px solid var(--border);flex-shrink:0"></div>
+        <div style="display:flex;flex-direction:column;min-width:0">
+          <span class="mono" style="font-size:11px;font-weight:500">--info<span style="color:var(--foreground-subtle)"> / --info-subtle</span></span>
+          <span style="font-size:10px;color:var(--foreground-subtle)">Ditinjau, seri kedua grafik</span>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:6px 0"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <button class="btn">Simpan</button>
+        <button class="btn ghost">Batal</button>
+        <button class="btn" style="background:var(--destructive);border-color:var(--destructive);color:var(--destructive-foreground)">Hapus</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="pill" style="background:var(--warning-subtle);color:var(--warning)">Menunggu</span>
+        <span class="pill" style="background:var(--info-subtle);color:var(--info)">Ditinjau</span>
+        <span class="pill" style="background:var(--success-subtle);color:var(--success)">Diterima</span>
+        <span class="pill" style="background:var(--destructive-subtle);color:var(--destructive)">Ditolak</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="field mono" style="flex:1">1.500.000</div>
+        <div class="field mono" style="flex:1;border-color:var(--destructive);box-shadow:0 0 0 3px var(--destructive-subtle)">0</div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px">
+    <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:5px">
+      <span class="eyebrow">Tipografi</span>
+      <span style="font-size:12px;line-height:19px;color:var(--foreground-muted)">
+        Lima ukuran: 11 / 12 / 13 / 16 / 22. Base 13px, bukan 16 — aplikasi ini padat.
+        Plus Jakarta Sans untuk antarmuka, JetBrains Mono tabular untuk angka uang.
+      </span>
+    </div>
+    <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:5px">
+      <span class="eyebrow">Radius &amp; bayangan</span>
+      <span style="font-size:12px;line-height:19px;color:var(--foreground-muted)">
+        Empat radius diturunkan dari satu <span class="mono">--radius</span>. Bayangan hanya dua —
+        kedalaman datang dari garis 1px, bukan dari blur.
+      </span>
+    </div>
+    <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:5px">
+      <span class="eyebrow">Yang belum sinkron</span>
+      <span style="font-size:12px;line-height:19px;color:var(--foreground-muted)">
+        Layar-layar di kanvas ini masih usulan; halaman aplikasi yang sebenarnya belum dipindahkan
+        ke token. Sampai itu terjadi, dark mode dikunci per halaman lewat <span class="mono">themeable</span>.
+      </span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

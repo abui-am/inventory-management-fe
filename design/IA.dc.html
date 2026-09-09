@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <span class="eyebrow">Arsitektur informasi</span>
+      <h1 style="margin:0;font-size:23px;line-height:29px;font-weight:800;letter-spacing:-0.025em">24 menu datar menjadi 6 grup</h1>
+      <p style="margin:0;max-width:76ch;font-size:13px;line-height:20px;color:var(--foreground-muted)">
+        Hanya 7 dari 24 item yang punya pengelompokan hari ini. Grup di bawah mengikuti alur uang di toko:
+        barang masuk menimbulkan utang, transaksi menimbulkan piutang, keduanya bermuara di jurnal.
+      </p>
+    </div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <sc-for list="{{roleTabs}}" as="r" hint-placeholder-count="3">
+        <div onClick="{{r.pick}}" style="cursor:pointer;font-size:12px;font-weight:600;padding:5px 11px;border-radius:7px;
+          border:1px solid {{r.bd}};background:{{r.bg}};color:{{r.fg}}">{{r.label}}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:16px;align-items:flex-start">
+
+    <div style="width:196px;flex-shrink:0;display:flex;flex-direction:column;gap:7px">
+      <span class="eyebrow" style="color:var(--destructive)">Sekarang — datar</span>
+      <div class="card" style="padding:8px;display:flex;flex-direction:column;gap:0">
+        <sc-for list="{{flat}}" as="m" hint-placeholder-count="24">
+          <div style="font-size:11.5px;color:var(--foreground-muted);padding:2.5px 7px">{{m}}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="width:228px;flex-shrink:0;display:flex;flex-direction:column;gap:7px">
+      <span class="eyebrow" style="color:var(--success)">Usulan — {{roleName}}</span>
+      <div class="card" style="padding:8px;display:flex;flex-direction:column;gap:1px">
+        <sc-for list="{{groups}}" as="g" hint-placeholder-count="6">
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+              <div class="navsec">{{g.name}}</div>
+            </sc-if>
+            <sc-for list="{{g.items}}" as="it" hint-placeholder-count="4">
+              <div class="nav {{it.cls}}" style="height:26px">
+                <span style="width:5px;height:5px;border-radius:50%;background:{{it.dot}};flex-shrink:0"></span>
+                {{it.label}}
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
+      <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:14px;font-weight:700">{{note.title}}</span>
+        <span style="font-size:12.5px;line-height:19px;color:var(--foreground-muted)">{{note.body}}</span>
+        <div style="height:1px;background:var(--border)"></div>
+        <div style="display:flex;gap:22px">
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span class="eyebrow">Item terlihat</span>
+            <span class="mono" style="font-size:19px;font-weight:700;color:var(--success)">{{note.count}}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span class="eyebrow">Sekarang</span>
+            <span class="mono" style="font-size:19px;font-weight:700;color:var(--destructive)">{{note.before}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--warning-subtle);border:1px solid var(--warning);border-radius:9px;
+        padding:11px 13px;display:flex;flex-direction:column;gap:4px">
+        <span class="eyebrow" style="color:var(--warning)">Perlu keputusanmu</span>
+        <span style="font-size:12px;line-height:18px;color:var(--foreground-muted)">{{note.decision}}</span>
+      </div>
+
+      <div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:13px;font-weight:600">Yang tidak berubah</span>
+        <span style="font-size:12px;line-height:18px;color:var(--foreground-muted)">
+          Ke-24 halaman tetap ada, tidak ada yang dihapus atau digabung. Rute URL-nya juga tidak berubah,
+          jadi tautan lama dan bookmark tetap hidup. Yang berubah hanya susunan dan penamaan di sidebar.
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Terang","section":"Tampilan"},"peran":{"editor":"enum","options":["Pemilik","Kasir","Gudang"],"default":"Pemilik","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Terang';
+    const role = this.state?.role ?? this.props.peran ?? 'Pemilik';
+    const pick = (r) => () => this.setState({ role: r });
+
+    const flat = ['Beranda','Karyawan','Transaksi','Barang Masuk','Konfirmasi Barang Masuk','Penyesuaian Harga Jual',
+      'Barang','Supplier','Customer','Audit Barang','Laporan Audit','Gaji Karyawan','Gaji dibayar di Muka','Prive',
+      'Utang','Utang Giro','Piutang','Jurnal umum','Buku Besar','Konversi Saldo','Beban','Laporan Pendapatan',
+      'Laporan Pendapatan Per Kasir','Laporan Perubahan Modal'];
+
+    const owner = [
+      { name: '', items: ['Beranda'] },
+      { name: 'Penjualan', items: ['Transaksi','Customer','Piutang'] },
+      { name: 'Pembelian', items: ['Barang Masuk','Konfirmasi','Supplier','Utang','Utang Giro'] },
+      { name: 'Persediaan', items: ['Barang','Harga Jual','Audit Barang','Laporan Audit'] },
+      { name: 'Keuangan', items: ['Jurnal Umum','Buku Besar','Beban','Konversi Saldo','Laporan Pendapatan','Laporan per Kasir','Perubahan Modal'] },
+      { name: 'Karyawan', items: ['Karyawan','Gaji Karyawan','Gaji di Muka','Prive'] },
+    ];
+    const kasir = [
+      { name: '', items: ['Beranda Kasir'] },
+      { name: 'Penjualan', items: ['Transaksi','Customer'] },
+      { name: 'Pembelian', items: ['Barang Masuk','Supplier'] },
+    ];
+    const gudang = [
+      { name: '', items: ['Beranda Gudang'] },
+      { name: 'Gudang', items: ['Konfirmasi','Audit Barang'] },
+    ];
+    const byRole = { Pemilik: owner, Kasir: kasir, Gudang: gudang }[role];
+    const active = { Pemilik: 'Beranda', Kasir: 'Beranda Kasir', Gudang: 'Konfirmasi' }[role];
+
+    const notes = {
+      Pemilik: {
+        title: 'Pemilik — 24 item, kini bertingkat',
+        body: 'Isinya sama persis. Yang berubah pengelompokannya. Grup Keuangan berisi 7 item dan jadi yang terpanjang — kalau kamu lebih sering membuka laporan daripada jurnal, urutan di dalamnya sebaiknya dibalik.',
+        count: '24', before: '24 datar',
+        decision: 'Enam grup, bukan lima seperti rencana awal saya: menggabung Pembelian dan Persediaan menghasilkan satu grup berisi 9 item — terlalu berat untuk dipindai.',
+      },
+      Kasir: {
+        title: 'Kasir — dari 3 item tanpa beranda',
+        body: 'Role admin hari ini hanya punya control:transaction, control:stock, dan control:supplier — dan tidak punya view:home, jadi Beranda tertutup. Sidebar nyaris kosong dan halaman pertamanya kosong.',
+        count: '5', before: '3 tanpa beranda',
+        decision: 'Menambah Beranda Kasir dan Customer berarti mengubah getPermission() di permission-context.tsx. Itu perubahan hak akses, bukan tampilan — butuh persetujuanmu, idealnya juga pemilik toko.',
+      },
+      Gudang: {
+        title: 'Gudang — dari 2 item plus redirect hardcoded',
+        body: 'Role default hanya dapat control:stock.confirmation dan control:audit, tanpa beranda, lalu dilempar paksa ke /stock-in-confirmation lewat roleIds.includes(4) yang di-hardcode di pages/index.tsx.',
+        count: '3', before: '2 + redirect',
+        decision: 'Redirect berbasis angka role id itu rapuh. Beranda gudang berisi antrian konfirmasi hari ini membuat redirect paksa tidak lagi diperlukan.',
+      },
+    };
+
+    const groups = byRole.map((g) => ({
+      name: g.name, hasLabel: !!g.name,
+      items: g.items.map((label) => ({
+        label, cls: label === active ? 'on' : '',
+        dot: label === active ? 'var(--accent)' : 'var(--border-strong)',
+      })),
+    }));
+
+    const roleTabs = ['Pemilik','Kasir','Gudang'].map((r) => ({
+      label: r, pick: pick(r),
+      bg: r === role ? 'var(--accent)' : 'var(--surface)',
+      fg: r === role ? 'var(--accent-foreground)' : 'var(--foreground-muted)',
+      bd: r === role ? 'var(--accent)' : 'var(--border-strong)',
+    }));
+
+    return { theme: t === 'Gelap' ? 'dark' : 'light', flat, groups, roleTabs, roleName: role, note: notes[role] };
+  }
+}
+</script>
+</body>
+</html>
