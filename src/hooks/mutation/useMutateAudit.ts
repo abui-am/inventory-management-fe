@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { AuditsData, CreateItemsAuditBody, CreateItemsAuditResponse } from '@/typings/audit';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -16,17 +16,12 @@ export const useAudit = (): UseMutationResult<BackendRes<CreateItemsAuditRespons
   const mutator = useMutation(
     [keys.audits],
     async (data: CreateItemsAuditBody) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).put<
-          CreateItemsAuditBody,
-          AxiosResponse<BackendRes<CreateItemsAuditResponse>>
-        >('/items/audits', data);
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).put<
+        CreateItemsAuditBody,
+        AxiosResponse<BackendRes<CreateItemsAuditResponse>>
+      >('/items/audits', data);
 
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      return res.data;
     },
     {
       onSuccess: (data) => {

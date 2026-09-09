@@ -7,6 +7,7 @@ import { useFetchEmployeeById } from '@/hooks/query/useFetchEmployee';
 import { CreateAdvancePayrollsPayload } from '@/typings/advance-payrolls';
 import { Option } from '@/typings/common';
 import { formatDateYYYYMM, formatToIDR } from '@/utils/format';
+import reportError from '@/utils/reportError';
 import { prepaidSalarySchema } from '@/utils/validation/pre-paid-salary';
 
 import { Button } from '../Button';
@@ -21,7 +22,6 @@ export type CreatePrepaidSalaryFormValues = {
 };
 
 const CreatePrepaidSalary: React.FC<{
-  prepaidSalaryId?: string;
   onSave?: (data: any) => void;
   onClose?: () => void;
 }> = ({ onSave, onClose }) => {
@@ -53,6 +53,7 @@ const CreatePrepaidSalary: React.FC<{
         onSave?.(res.data);
         toast(res.message);
       } catch (e) {
+        reportError(e, { form: 'CreatePrepaidSalary' });
         toast.error('Error');
       }
     },

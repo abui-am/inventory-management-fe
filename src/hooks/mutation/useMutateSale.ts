@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSaleBody, CreateSaleResponse } from '@/typings/sale';
@@ -22,16 +22,11 @@ export const useCreateSale = (): UseMutationResult<
   const mutator = useMutation(
     [keys.sales, 'create'],
     async (data: CreateSaleBody) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
-          CreateSaleBody,
-          AxiosResponse<BackendRes<CreateSaleResponse>>
-        >('/transactions', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
+        CreateSaleBody,
+        AxiosResponse<BackendRes<CreateSaleResponse>>
+      >('/transactions', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {
@@ -65,16 +60,11 @@ export const useUpdateSale = (): UseMutationResult<
   const mutator = useMutation(
     [keys.sales, 'edit'],
     async (data: { transactionId: string; data: unknown }) => {
-      try {
-        const res = await apiInstanceAdmin().patch<CreateStockInBody, AxiosResponse<BackendRes<unknown>>>(
-          `/transactions/${data.transactionId}`,
-          data.data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().patch<CreateStockInBody, AxiosResponse<BackendRes<unknown>>>(
+        `/transactions/${data.transactionId}`,
+        data.data
+      );
+      return res.data;
     },
     {
       onSuccess: (data) => {

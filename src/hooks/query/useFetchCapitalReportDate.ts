@@ -31,7 +31,7 @@ const useFetchCapitalReportDates = <TQueryFnData = unknown, TError = unknown>(
         : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).get('/capital-report/report-date');
       return res.data;
     },
-    options
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;
@@ -52,7 +52,7 @@ const useFetchCapitalReportInfo = <TQueryFnData = unknown, TError = unknown>(
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/capital-report', data);
       return res.data;
     },
-    options
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

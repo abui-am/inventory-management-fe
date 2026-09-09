@@ -4,8 +4,8 @@ import { Check, Pencil } from 'react-bootstrap-icons';
 
 import Bubble from '@/components/Bubble';
 import { Button, ButtonWithModal } from '@/components/Button';
-import { TextField } from '@/components/Form';
 import { ModalActionWrapper } from '@/components/Modal';
+import { TextField } from '@/components/TextField';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
 import { useEditAudit } from '../mutation/useMutateAudit';
@@ -65,7 +65,7 @@ export const useAuditInventory = ({ date }: { date: string }) => {
   return { data, columns, ...props };
 };
 
-const TextFieldEditAudit = ({
+function TextFieldEditAudit({
   auditId,
   initialValue,
   isValid,
@@ -83,7 +83,7 @@ const TextFieldEditAudit = ({
   userId: string;
   itemQty: number;
   updateCount: number;
-}) => {
+}) {
   const { mutateAsync: editAudit } = useEditAudit(auditId);
   const [isEditing, setIsEditing] = React.useState(forceEdit);
   const [value, setValue] = React.useState(initialValue === 0 ? '' : initialValue);
@@ -166,4 +166,4 @@ const TextFieldEditAudit = ({
       </Tippy>
     </div>
   );
-};
+}

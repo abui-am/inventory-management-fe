@@ -13,17 +13,20 @@ import Table from '@/components/Table';
 import { PER_PAGE_OPTIONS, PerPageOption, SORT_TYPE_OPTIONS, SUPPLIER_SORT_BY_OPTIONS } from '@/constants/options';
 import { useFetchSupplierById, useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
 import { Option } from '@/typings/common';
+import { useDebounceValue } from '@/utils/debounce';
 import formatCurrency from '@/utils/formatCurrency';
 
 const Supplier: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  // 500 ms: tanpa ini tiap ketikan mengirim satu request pencarian
+  const debouncedSearchQuery = useDebounceValue(searchQuery, 500);
   const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(SUPPLIER_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [perPage, setPerPage] = useState<PerPageOption | null>(PER_PAGE_OPTIONS[1]);
 
   const { data: dataSupplier } = useFetchSuppliers({
-    search: searchQuery,
+    search: debouncedSearchQuery,
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
@@ -147,7 +150,7 @@ const Supplier: NextPage<unknown> = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}
@@ -162,7 +165,7 @@ const Supplier: NextPage<unknown> = () => {
   );
 };
 
-const ShowModal = ({ supplierId, handleClose }: { supplierId: string; handleClose: () => void }) => {
+function ShowModal({ supplierId, handleClose }: { supplierId: string; handleClose: () => void }) {
   const isOpen = !!supplierId;
   const { data } = useFetchSupplierById(supplierId, {
     enabled: isOpen,
@@ -170,23 +173,21 @@ const ShowModal = ({ supplierId, handleClose }: { supplierId: string; handleClos
   const supplier = data?.data?.supplier;
 
   return (
-    <>
-      <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Supplier</h2>
-        <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Supplier:</span>
-          <div>{supplier?.name}</div>
-        </div>
-        <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Nomor HP:</span>
-          <div>{supplier?.phone_number}</div>
-        </div>
-        <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Alamat:</span>
-          <div>{supplier?.address}</div>
-        </div>
-      </Modal>
-    </>
+    <Modal isOpen={isOpen} onRequestClose={handleClose}>
+      <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Supplier</h2>
+      <div className="mb-2">
+        <span className="text-blueGray-600 mb-1 block">Supplier:</span>
+        <div>{supplier?.name}</div>
+      </div>
+      <div className="mb-2">
+        <span className="text-blueGray-600 mb-1 block">Nomor HP:</span>
+        <div>{supplier?.phone_number}</div>
+      </div>
+      <div className="mb-2">
+        <span className="text-blueGray-600 mb-1 block">Alamat:</span>
+        <div>{supplier?.address}</div>
+      </div>
+    </Modal>
   );
-};
+}
 export default Supplier;

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
-import { TextField, WithLabelAndError } from '@/components/Form';
+import { TextField, WithLabelAndError } from '@/components/TextField';
 import { useResetPassword } from '@/hooks/mutation/useAuth';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import createSchema from '@/utils/validation/formik';

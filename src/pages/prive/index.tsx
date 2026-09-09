@@ -142,7 +142,7 @@ const PrivePage: NextPage<unknown> = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl((next_page_url as string) ?? '');
         }}
@@ -154,7 +154,7 @@ const PrivePage: NextPage<unknown> = () => {
   );
 };
 
-const AddPrive = () => {
+function AddPrive() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
@@ -175,6 +175,6 @@ const AddPrive = () => {
       </Modal>
     </>
   );
-};
+}
 
 export default PrivePage;

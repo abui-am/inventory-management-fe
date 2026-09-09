@@ -111,7 +111,6 @@ const CreateExpense: React.FC<{
                   value={values.paymentMethod}
                   options={paymentMethodOptions}
                   name="paymentMethod"
-                  getPopupContainer={(trigger: any) => trigger.parentNode}
                   onChange={(value) => setFieldValue('paymentMethod', value)}
                 />
               </WithLabelAndError>

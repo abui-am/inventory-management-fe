@@ -5,7 +5,7 @@ import { CurrencyTextField } from '@/components/Form';
 import { TrasactionItem, TrasactionPivot } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 
-import useWindowSize, { MD } from '../useWindowSize';
+import useBreakpoint, { MD } from '../useBreakpoint';
 
 export type StockinAdaptorItem = Pick<TrasactionItem, 'name' | 'unit' | 'id'> & {
   pivot: Pick<TrasactionPivot, 'quantity' | 'purchase_price' | 'total_price' | 'median_purchase_price'>;
@@ -17,8 +17,7 @@ export const useDetailStockInAdaptor = (items: StockinAdaptorItem[], withSellPri
     data: [],
   };
 
-  const windowSize = useWindowSize();
-  const isMd = windowSize >= MD;
+  const isMd = useBreakpoint(MD);
 
   const getData = () => {
     if (!withSellPriceAdjustment) {

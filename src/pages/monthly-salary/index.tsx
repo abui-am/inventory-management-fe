@@ -120,7 +120,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
             onClickPageButton={(url) => {
               setPaginationUrl(url);
             }}
-            links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+            links={links ?? []}
             onClickNext={() => {
               setPaginationUrl((next_page_url as string) ?? '');
             }}

@@ -63,6 +63,19 @@ module.exports = {
       },
     ],
     'no-shadow': 'off',
+
+    // Aturan airbnb di bawah ini dibuat untuk React + propTypes, bukan TypeScript.
+    // Di repo ini TypeScript sudah menjamin hal yang sama, jadi mereka hanya
+    // menghasilkan ratusan error gaya tanpa menangkap bug.
+    'react/function-component-definition': 'off', // arrow FC dan function declaration sama-sama dipakai
+    'react/require-default-props': 'off', // prop opsional TS diberi default lewat destructuring
+    'react/no-unused-prop-types': 'off', // tidak bisa melacak prop dari type alias generik
+    // `search`/`filter` pada <Table> adalah render prop — dipanggil sebagai fungsi,
+    // bukan dirender sebagai JSX, sehingga tidak ada remount.
+    'react/no-unstable-nested-components': ['error', { allowAsProps: true }],
+    // Versi dasar menandai `(a = {}, b?: T)` padahal parameter opsional TS sah di posisi akhir.
+    'default-param-last': 'off',
+    '@typescript-eslint/default-param-last': 'error',
     'prettier/prettier': [
       'error',
       {

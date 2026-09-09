@@ -4,7 +4,9 @@ import NextErrorComponent from 'next/error';
 
 type ErrorPageProps = { statusCode: number };
 
-const ErrorPage = ({ statusCode }: ErrorPageProps): JSX.Element => <NextErrorComponent statusCode={statusCode} />;
+function ErrorPage({ statusCode }: ErrorPageProps): JSX.Element {
+  return <NextErrorComponent statusCode={statusCode} />;
+}
 
 // Error yang terjadi saat render di server tidak lewat sentry.client.config — halaman
 // _error adalah satu-satunya tempat menangkapnya di Pages Router.

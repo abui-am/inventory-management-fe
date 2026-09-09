@@ -14,7 +14,7 @@ import { ModalConfirmationData, useReportAuditInventory } from '@/hooks/table/us
 import { AuditsData, CreateItemsAuditResponse } from '@/typings/audit';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
-const AuditPage = () => {
+function AuditPage() {
   const [date, setDate] = React.useState(new Date());
 
   const { columns, data, openModalConfirmationData, setOpenModalConfirmationData } = useReportAuditInventory({
@@ -69,15 +69,15 @@ const AuditPage = () => {
       </section>
     </div>
   );
-};
+}
 
-const ModalConfirmationAudit = ({
+function ModalConfirmationAudit({
   openModalConfirmationData,
   setOpenModalConfirmationData,
 }: {
   openModalConfirmationData: ModalConfirmationData;
   setOpenModalConfirmationData: Dispatch<SetStateAction<ModalConfirmationData>>;
-}) => {
+}) {
   return (
     <Modal isOpen={!!openModalConfirmationData} onRequestClose={() => setOpenModalConfirmationData(null)}>
       <ConfirmationAuditForm
@@ -89,7 +89,7 @@ const ModalConfirmationAudit = ({
       />
     </Modal>
   );
-};
+}
 
 const ConfirmationAuditForm: React.FC<{
   openModalConfirmationData: ModalConfirmationData;

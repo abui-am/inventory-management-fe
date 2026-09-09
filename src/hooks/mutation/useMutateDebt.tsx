@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { PayDebtPayload } from '@/typings/debts';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -13,16 +13,11 @@ export const useUpdateDebt = (): UseMutationResult<BackendRes<any>, unknown, Pay
   const mutator = useMutation(
     ['pay', keys.debts],
     async (data: PayDebtPayload) => {
-      try {
-        const res = await apiInstanceAdmin().patch<PayDebtPayload, AxiosResponse<BackendRes<any>>>(
-          `/debts/${data?.id}`,
-          data?.data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().patch<PayDebtPayload, AxiosResponse<BackendRes<any>>>(
+        `/debts/${data?.id}`,
+        data?.data
+      );
+      return res.data;
     },
     {
       onSuccess: (data) => {

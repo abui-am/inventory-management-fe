@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { LG, MD } from '@/hooks/useWindowSize';
+import useBreakpoint, { LG, MD } from '@/hooks/useBreakpoint';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
@@ -58,10 +58,9 @@ const DebtGiroPage: NextPage<unknown> = () => {
   } = dataDebt?.data.debts ?? {};
 
   const [debt, setDebt] = useState<Datum | null>(null);
-  const windowSize = useWindowSize();
 
-  const isMd = windowSize >= MD;
-  const isLg = windowSize >= LG;
+  const isMd = useBreakpoint(MD);
+  const isLg = useBreakpoint(LG);
 
   const data = dataRes.map(({ created_at, description, is_paid, paid_amount, amount, ...props }) => ({
     date: formatDate(created_at, { withHour: true }),
@@ -261,17 +260,17 @@ const DebtGiroPage: NextPage<unknown> = () => {
           to: `${to ?? '0'}`,
           total: `${total ?? '0'}`,
         }}
-        onClickGoToPage={(val: any) => {
+        onClickGoToPage={(val) => {
           setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
-        onChangePerPage={(page: any) => {
+        onChangePerPage={(page) => {
           setPaginationUrl('');
           setPageSize(page?.value ?? 0);
         }}
-        onClickPageButton={(url: any) => {
+        onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl((next_page_url as string) ?? '');
         }}
@@ -284,16 +283,14 @@ const DebtGiroPage: NextPage<unknown> = () => {
 };
 
 const PayDebt: React.FC<{ debt: Datum; handleOpen: () => void }> = ({ debt, handleOpen }) => {
+  if (debt.is_paid) return null;
+
   return (
-    <>
-      {!debt.is_paid && (
-        <Tippy content="Bayar utang giro">
-          <Button className="ml-3" onClick={handleOpen}>
-            <CashCoin />
-          </Button>
-        </Tippy>
-      )}
-    </>
+    <Tippy content="Bayar utang giro">
+      <Button className="ml-3" onClick={handleOpen}>
+        <CashCoin />
+      </Button>
+    </Tippy>
   );
 };
 

@@ -9,7 +9,7 @@ import DashboardLayout from './DashboardLayout';
 
 const Layout: React.FC = ({ children }) => {
   const { pathname, events } = useRouter();
-  const excludedUrl = ['/login', '/login/recover', '/forget-password'];
+  const excludedUrl = ['/login', '/login/recover', '/forget-password', '/styleguide'];
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState<{ displayName: string; title?: string; slug: string }>({
     displayName: '',

@@ -20,12 +20,16 @@ export const useFetchCustomers = (
 ): UseQueryResult<BackendRes<CustomersResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery([keys.customers, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/customers', data);
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.customers, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
+        : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/customers', data);
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };
@@ -42,7 +46,7 @@ export const useFetchCustomerById = (
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).get(`/customers/${id}`);
       return res.data;
     },
-    options
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

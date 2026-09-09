@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreatePrivePayload } from '@/typings/prives';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -16,16 +16,11 @@ export const useCreatePrive = (): UseMutationResult<BackendRes<any>, unknown, an
   const mutator = useMutation(
     [keys.prives, 'create'],
     async (data: CreatePrivePayload) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
-          CreatePrivePayload,
-          AxiosResponse<BackendRes<CreatePrivePayload>>
-        >('/prives', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
+        CreatePrivePayload,
+        AxiosResponse<BackendRes<CreatePrivePayload>>
+      >('/prives', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

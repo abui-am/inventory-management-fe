@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreateLedgerTopUpPayload } from '@/typings/ledger-top-up';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -16,16 +16,11 @@ export const useCreateLedgerTopUp = (): UseMutationResult<BackendRes<any>, unkno
   const mutator = useMutation(
     [keys.ledgerTopUp, 'create'],
     async (data: CreateLedgerTopUpPayload) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
-          CreateLedgerTopUpPayload,
-          AxiosResponse<BackendRes<CreateLedgerTopUpPayload>>
-        >('/ledger-top-ups', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
+        CreateLedgerTopUpPayload,
+        AxiosResponse<BackendRes<CreateLedgerTopUpPayload>>
+      >('/ledger-top-ups', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

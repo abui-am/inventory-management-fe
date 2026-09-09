@@ -9,7 +9,7 @@ import { SORT_TYPE_OPTIONS, STOCK_IN_SORT_BY_OPTIONS } from '@/constants/options
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
-import useWindowSize, { MD } from '@/hooks/useWindowSize';
+import useBreakpoint, { MD } from '@/hooks/useBreakpoint';
 import { Option } from '@/typings/common';
 import { TransactionData } from '@/typings/stock-in';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
@@ -35,11 +35,12 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
 
-  const windowSize = useWindowSize();
+  const isMd = useBreakpoint(MD);
 
-  const isMd = windowSize >= MD;
-
-  const Action = (transaction: TransactionData) => {
+  // Namanya renderAction, bukan Action: ini render helper yang mengembalikan JSX, bukan
+  // komponen React. Menamainya seperti komponen mengundang pemakaian <Action /> yang
+  // menyebabkan remount tiap render.
+  function renderAction(transaction: TransactionData) {
     switch (variant) {
       case 'all':
         return (
@@ -114,7 +115,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
           </div>
         );
     }
-  };
+  }
   const queryVariant =
     variant !== 'all'
       ? {
@@ -202,23 +203,22 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
           <Tag variant={status === 'accepted' ? 'primary' : 'secondary'}>{getTagValue(status)}</Tag>
         </div>
       ),
-      col8: (
-        <Action
-          {...{
-            purchase_date,
-            transaction_code,
-            payments,
-            created_at,
-            supplier,
-            payment_method,
-            pic,
-            items,
-            id,
-            status,
-            ...props,
-          }}
-        />
-      ),
+      // Dipanggil sebagai fungsi, bukan <Action />. Sebagai JSX, komponen yang didefinisikan
+      // di dalam TableStockIn punya identitas baru tiap render, jadi React melepas dan
+      // memasang ulang seluruh subtree-nya — modal yang sedang terbuka di dalamnya ikut tertutup.
+      col8: renderAction({
+        purchase_date,
+        transaction_code,
+        payments,
+        created_at,
+        supplier,
+        payment_method,
+        pic,
+        items,
+        id,
+        status,
+        ...props,
+      }),
     })
   );
 
@@ -334,7 +334,7 @@ const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCre
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}

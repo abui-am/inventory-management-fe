@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreateAdvancePayrollsPayload } from '@/typings/advance-payrolls';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -19,16 +19,11 @@ export const useCreateAdvancePayrolls = (): UseMutationResult<
   const mutator = useMutation(
     [keys.advancePayrolls, 'create'],
     async (data: CreateAdvancePayrollsPayload) => {
-      try {
-        const res = await apiInstanceAdmin().put<CreateSaleBody, AxiosResponse<BackendRes<any>>>(
-          '/advance-payrolls',
-          data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().put<CreateSaleBody, AxiosResponse<BackendRes<any>>>(
+        '/advance-payrolls',
+        data
+      );
+      return res.data;
     },
     {
       onSuccess: (data) => {

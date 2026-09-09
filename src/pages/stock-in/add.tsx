@@ -30,6 +30,7 @@ import { Option } from '@/typings/common';
 import { CreateStockInBody, Item } from '@/typings/stock-in';
 import { formatToIDR } from '@/utils/format';
 import promiseAll from '@/utils/promiseAll';
+import reportError from '@/utils/reportError';
 import { validationSchemaStockIn, validationSchemaStockInItem } from '@/utils/validation/stock-in';
 
 export type AddStockInTableValue = {
@@ -151,7 +152,8 @@ const AddStockPage: NextPage = () => {
         await mutateAsync(jsonBody);
         push('/stock-in');
       } catch (e) {
-        console.error(e);
+        reportError(e, { form: 'stock-in/add' });
+        toast.error('Gagal menyimpan barang masuk');
       }
     },
   });
@@ -461,12 +463,13 @@ const ButtonWithModal: React.FC<{
     validationSchema: validationSchemaStockInItem,
     initialValues,
     enableReinitialize: !!initVal,
-    onSubmit: async (values, { resetForm }) => {
-      if (onSave) {
-        onSave(values);
-      }
-      resetForm();
+    onSubmit: (values, { resetForm }) => {
+      // Tutup & reset dulu, baru lapor ke parent. onSave() memanggil setFieldValue di parent,
+      // yang membangun ulang baris tabel dan melepas komponen ini — kalau setIsOpen dipanggil
+      // setelahnya, React memperingatkan "state update on an unmounted component".
       setIsOpen(false);
+      resetForm();
+      onSave(values);
     },
   });
 

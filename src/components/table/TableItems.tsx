@@ -168,7 +168,7 @@ const TableItems: React.FC = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}

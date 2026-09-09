@@ -28,7 +28,8 @@ const AppProvider: React.FC = ({ children }) => {
   };
   const [state, dispatch] = React.useReducer(homeReducer, defValue);
 
-  const value = { state, dispatch };
+  // `dispatch` stabil dari useReducer, jadi value hanya berubah saat state berubah.
+  const value = React.useMemo(() => ({ state, dispatch }), [state]);
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 

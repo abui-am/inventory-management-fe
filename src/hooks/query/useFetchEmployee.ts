@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
+import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import {
   CreateEmployeePutBody,
@@ -28,12 +28,16 @@ const useFetchEmployee = (
 ): UseQueryResult<BackendRes<EmployeeRes>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery([keys.employees, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: true })
-      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: true });
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.employees, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: true })
+        : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: true });
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };
@@ -49,12 +53,16 @@ const useFetchUnpaginatedEmployee = (
 ): UseQueryResult<BackendRes<EmployeeUnpaginatedRes>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery([keys.employees, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: false })
-      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: false });
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.employees, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, { ...data, paginated: false })
+        : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/employees', { ...data, paginated: false });
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };
@@ -85,16 +93,11 @@ const useCreateEmployee = (): UseMutationResult<
   const mutator = useMutation(
     [keys.employees, 'create'],
     async (data: CreateEmployeePutBody) => {
-      try {
-        const res = await apiInstanceAdmin().put<CreateEmployeePutBody, AxiosResponse<BackendRes<unknown>>>(
-          '/employees',
-          data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().put<CreateEmployeePutBody, AxiosResponse<BackendRes<unknown>>>(
+        '/employees',
+        data
+      );
+      return res.data;
     },
     {
       onSuccess: (data) => {
@@ -136,8 +139,8 @@ const useFetchMyself = (
     },
     {
       staleTime: Infinity,
-      onError: (err: any) => {
-        if (err?.response.status === 401) {
+      onError: (err: unknown) => {
+        if ((err as AxiosError)?.response?.status === 401) {
           logout();
         }
       },

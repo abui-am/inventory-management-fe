@@ -7,6 +7,8 @@ import { Link } from '@/typings/common';
 import { Button } from './Button';
 import { TextField } from './Form';
 
+const PAGER_LABELS = ['&laquo; Previous', 'Next &raquo;'];
+
 type PaginationProps = {
   onClickNext: () => void;
   onClickPrevious: () => void;
@@ -34,30 +36,35 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   const [goTo, setGoTo] = useState(0);
 
+  // Laravel menyertakan tombol "Previous"/"Next" di dalam `links`. Komponen ini sudah
+  // punya tombol panah sendiri, jadi keduanya disaring di sini — sebelumnya tiap halaman
+  // menyalin filter yang sama.
+  const navigableLinks = links.filter(({ label }) => !PAGER_LABELS.includes(label));
+
   const handleClick = () => {
     onClickGoToPage?.(goTo);
   };
   return (
     <div className="bg-white px-4 pt-6 flex items-center justify-between border-t border-gray-200">
       <div className="flex-1 flex justify-between sm:hidden">
-        <a
-          href="#"
+        <button
+          type="button"
           onClick={() => {
             if (onClickPrevious) onClickPrevious();
           }}
           className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
         >
           Previous
-        </a>
-        <a
-          href="#"
+        </button>
+        <button
+          type="button"
           onClick={() => {
             if (onClickNext) onClickNext();
           }}
           className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
         >
           Next
-        </a>
+        </button>
       </div>
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
@@ -93,7 +100,7 @@ const Pagination: React.FC<PaginationProps> = ({
               </svg>
             </button>
 
-            {links.map(({ label, active, url }) => {
+            {navigableLinks.map(({ label, active, url }) => {
               return (
                 <PageButton
                   key={label}
@@ -178,9 +185,13 @@ const PageButton: React.FC<{ variant: 'active' | 'inactive'; onClickPageButton: 
   };
 
   return (
-    <a
-      href="#"
-      aria-current="page"
+    // Dulu <a href="#">: tiap klik nomor halaman menambah "#" ke URL (merusak tombol Back)
+    // dan melompat ke atas halaman, padahal ini tombol — bukan tautan.
+    // aria-current juga dipasang di SEMUA tombol, jadi screen reader mengumumkan setiap
+    // nomor sebagai "halaman saat ini". Sekarang hanya yang aktif.
+    <button
+      type="button"
+      aria-current={variant === 'active' ? 'page' : undefined}
       className={classes[variant]}
       onClick={() => {
         if (onClickPageButton) {
@@ -189,7 +200,7 @@ const PageButton: React.FC<{ variant: 'active' | 'inactive'; onClickPageButton: 
       }}
     >
       {children}
-    </a>
+    </button>
   );
 };
 

@@ -12,17 +12,20 @@ import Table from '@/components/Table';
 import { CUSTOMER_SORT_BY_OPTIONS, PER_PAGE_OPTIONS, PerPageOption, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchCustomerById, useFetchCustomers } from '@/hooks/query/useFetchCustomer';
 import { Option } from '@/typings/common';
+import { useDebounceValue } from '@/utils/debounce';
 import formatCurrency from '@/utils/formatCurrency';
 
 const Customer: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  // 500 ms: tanpa ini tiap ketikan mengirim satu request pencarian
+  const debouncedSearchQuery = useDebounceValue(searchQuery, 500);
   const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(CUSTOMER_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [perPage, setPerPage] = useState<PerPageOption | null>(PER_PAGE_OPTIONS[1]);
 
   const { data: dataCustomer } = useFetchCustomers({
-    search: searchQuery,
+    search: debouncedSearchQuery,
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
@@ -155,7 +158,7 @@ const Customer: NextPage<unknown> = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}
@@ -170,7 +173,7 @@ const Customer: NextPage<unknown> = () => {
   );
 };
 
-const ShowModal = ({ customerId, handleClose }: { customerId: string; handleClose: () => void }) => {
+function ShowModal({ customerId, handleClose }: { customerId: string; handleClose: () => void }) {
   const isOpen = !!customerId;
   const { data } = useFetchCustomerById(customerId, {
     enabled: isOpen,
@@ -178,27 +181,25 @@ const ShowModal = ({ customerId, handleClose }: { customerId: string; handleClos
   const customer = data?.data?.customer;
 
   return (
-    <>
-      <Modal isOpen={isOpen} onRequestClose={handleClose}>
-        <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Customer</h2>
-        <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Customer:</span>
-          <div>{customer?.full_name}</div>
-        </div>
-        <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Nomor HP:</span>
-          <div>{customer?.phone_number}</div>
-        </div>
-        <div className="mb-2">
-          <span className="text-blueGray-600 mb-1 block">Alamat:</span>
-          <div>{customer?.address}</div>
-        </div>
-      </Modal>
-    </>
+    <Modal isOpen={isOpen} onRequestClose={handleClose}>
+      <h2 className="text-2xl font-bold mb-6 mt-2 max">Detail Customer</h2>
+      <div className="mb-2">
+        <span className="text-blueGray-600 mb-1 block">Customer:</span>
+        <div>{customer?.full_name}</div>
+      </div>
+      <div className="mb-2">
+        <span className="text-blueGray-600 mb-1 block">Nomor HP:</span>
+        <div>{customer?.phone_number}</div>
+      </div>
+      <div className="mb-2">
+        <span className="text-blueGray-600 mb-1 block">Alamat:</span>
+        <div>{customer?.address}</div>
+      </div>
+    </Modal>
   );
-};
+}
 
-const EditCustomerModal = ({ editId, handleClose }: { editId: string; handleClose: () => void }) => {
+function EditCustomerModal({ editId, handleClose }: { editId: string; handleClose: () => void }) {
   const { data, isLoading } = useFetchCustomerById(editId);
   const customer = data?.data?.customer;
   return (
@@ -219,5 +220,5 @@ const EditCustomerModal = ({ editId, handleClose }: { editId: string; handleClos
       )}
     </Modal>
   );
-};
+}
 export default Customer;

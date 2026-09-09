@@ -10,8 +10,8 @@ const printInvoice = async (file: string) => {
 
   iframe.style.display = 'none';
   iframe.src = url;
-  iframe.onload = function () {
-    setTimeout(function () {
+  iframe.onload = () => {
+    setTimeout(() => {
       iframe.focus();
       iframe.contentWindow?.print();
     }, 1);

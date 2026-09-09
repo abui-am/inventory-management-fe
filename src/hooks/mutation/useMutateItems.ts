@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreateItemsBody, CreateItemsResponse } from '@/typings/item';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -21,16 +21,11 @@ export const useCreateItems = (): UseMutationResult<
   const mutator = useMutation(
     [keys.items, 'create'],
     async (data: CreateItemsBody) => {
-      try {
-        const res = await apiInstanceAdmin().put<CreateItemsBody, AxiosResponse<BackendRes<CreateItemsResponse>>>(
-          '/items',
-          data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().put<CreateItemsBody, AxiosResponse<BackendRes<CreateItemsResponse>>>(
+        '/items',
+        data
+      );
+      return res.data;
     },
     {
       onSuccess: (data) => {
@@ -63,16 +58,11 @@ export const useUpdateItem = (): UseMutationResult<
   const mutator = useMutation(
     [keys.items, 'update'],
     async (data: { id: string; data: Partial<Item> }) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).patch<
-          Partial<Item>,
-          AxiosResponse<BackendRes<CreateItemsResponse>>
-        >(`/items/${data.id}`, data.data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).patch<
+        Partial<Item>,
+        AxiosResponse<BackendRes<CreateItemsResponse>>
+      >(`/items/${data.id}`, data.data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

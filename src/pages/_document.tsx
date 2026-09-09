@@ -6,12 +6,17 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
+          {/*
+            Plus Jakarta Sans — dirancang di Jakarta, hangat tapi rapi di ukuran kecil,
+            jadi terasa ramah tanpa jadi lucu-lucuan. JetBrains Mono khusus angka uang:
+            tabular, sehingga kolom rupiah rata secara vertikal.
+            Hanya bobot yang dipakai yang diminta.
+          */}
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
           <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
             rel="stylesheet"
           />
-          <link href="https://fonts.googleapis.com/css2?family=Inter&display=optional" rel="stylesheet" />
         </Head>
         <body>
           <Main />

@@ -1,37 +1,29 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import { useEffect } from 'react';
-import * as React from 'react';
+import { RefObject, useEffect } from 'react';
 
-// Hook
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-function useOnClickOutside(ref: React.MutableRefObject<null | { contains: Function }>, handler: Function) {
-  useEffect(
-    () => {
-      const listener = (event: MouseEvent | TouchEvent) => {
-        // Do nothing if clicking ref's element or descendent elements
-        if (!ref?.current || ref?.current?.contains(event.target)) {
-          return;
-        }
+type OutsideEvent = MouseEvent | TouchEvent;
 
-        handler(event);
-      };
+// Panggil `handler` ketika klik/tap terjadi di luar elemen `ref`.
+function useOnClickOutside(ref: RefObject<Node | null>, handler: (event: OutsideEvent) => void): void {
+  useEffect(() => {
+    const listener = (event: OutsideEvent) => {
+      // Abaikan klik pada elemen ref itu sendiri maupun turunannya.
+      if (!ref.current || ref.current.contains(event.target as Node)) {
+        return;
+      }
 
-      document.addEventListener('mousedown', listener);
-      document.addEventListener('touchstart', listener);
+      handler(event);
+    };
 
-      return () => {
-        document.removeEventListener('mousedown', listener);
-        document.removeEventListener('touchstart', listener);
-      };
-    },
-    // Add ref and handler to effect dependencies
-    // It's worth noting that because passed in handler is a new ...
-    // ... function on every render that will cause this effect ...
-    // ... callback/cleanup to run every render. It's not a big deal ...
-    // ... but to optimize you can wrap handler in useCallback before ...
-    // ... passing it into this hook.
-    [ref, handler]
-  );
+    document.addEventListener('mousedown', listener);
+    document.addEventListener('touchstart', listener);
+
+    return () => {
+      document.removeEventListener('mousedown', listener);
+      document.removeEventListener('touchstart', listener);
+    };
+    // `handler` biasanya fungsi baru tiap render, sehingga efek ini ikut dipasang ulang.
+    // Bungkus handler di useCallback pada pemanggil bila ingin menghindarinya.
+  }, [ref, handler]);
 }
 
 export default useOnClickOutside;

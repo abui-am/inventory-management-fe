@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -5,7 +6,6 @@ import { useRouter } from 'next/router';
 import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, List } from 'react-bootstrap-icons';
 import useCollapse from 'react-collapsed';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
@@ -100,7 +100,7 @@ const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title
             <div className="p-8 pb-7 relative">
               <Link href="/">
                 <div className="flex -ml-5 cursor-pointer">
-                  <img src="/logo.png" className="w-9 h-9 mr-2" alt="logo" />
+                  <img src="/logo.png" width={36} height={36} className="w-9 h-9 mr-2" alt="logo" />
                   {!hideLabel && <h3 className="text-2xl font-bold text-white">Dashboard</h3>}
                 </div>
               </Link>

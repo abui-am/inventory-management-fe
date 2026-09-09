@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { LG } from '@/hooks/useWindowSize';
+import useBreakpoint, { LG } from '@/hooks/useBreakpoint';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { useDebounceValue } from '@/utils/debounce';
@@ -29,8 +29,7 @@ const AccountReceivable: NextPage<unknown> = () => {
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
-  const windowSize = useWindowSize();
-  const isLg = windowSize >= LG;
+  const isLg = useBreakpoint(LG);
 
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
@@ -237,17 +236,17 @@ const AccountReceivable: NextPage<unknown> = () => {
           to: `${to ?? '0'}`,
           total: `${total ?? '0'}`,
         }}
-        onClickGoToPage={(val: any) => {
+        onClickGoToPage={(val) => {
           setPaginationUrl(`${(last_page_url as string)?.split('?')[0]}?page=${val}`);
         }}
-        onChangePerPage={(page: any) => {
+        onChangePerPage={(page) => {
           setPaginationUrl('');
           setPageSize(page?.value ?? 0);
         }}
-        onClickPageButton={(url: any) => {
+        onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl((next_page_url as string) ?? '');
         }}

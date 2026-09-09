@@ -86,14 +86,21 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
 const PermissionProvider: React.FC = ({ children }) => {
   const { data } = useFetchMyself({ enabled: !!getCookie('INVT-TOKEN') });
 
-  const permissionList = getPermission(data?.data.user.roles ?? []);
-  const permission = permissionList;
+  const roles = data?.data.user.roles;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const uniquePermission = [...(new Set(permission) as unknown as PermissionList[])];
+  // Provider ini membungkus seluruh app. Tanpa memo, getPermission() + Set + objek value
+  // dihitung ulang tiap render dan memaksa semua consumer usePermission() ikut re-render.
+  const value = React.useMemo<{ state: State }>(() => {
+    const rolesList = roles ?? [];
+    return {
+      state: {
+        permission: Array.from(new Set(getPermission(rolesList))),
+        roles: rolesList,
+      },
+    };
+  }, [roles]);
 
-  const value: State = { permission: uniquePermission, roles: data?.data.user.roles ?? [] };
-  return <PermissionContext.Provider value={{ state: value }}>{children}</PermissionContext.Provider>;
+  return <PermissionContext.Provider value={value}>{children}</PermissionContext.Provider>;
 };
 
 function usePermission() {

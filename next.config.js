@@ -9,9 +9,9 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   eslint: {
-    // TODO: masih 387 lint error (mayoritas autofixable: prettier, function-component-definition,
-    // import sort). Nyalakan gate ini setelah lint dibersihkan.
-    ignoreDuringBuilds: true,
+    // Lint bersih (0 error, sisa 33 warning `no-explicit-any` yang tidak menggagalkan build),
+    // jadi gate ini dinyalakan supaya build gagal kalau ada error baru masuk.
+    ignoreDuringBuilds: false,
   },
 };
 

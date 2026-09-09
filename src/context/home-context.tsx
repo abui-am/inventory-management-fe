@@ -30,7 +30,8 @@ const HomeProvider: React.FC = ({ children }) => {
   const defValue: State = { startDate: dayjs().add(-7, 'day').toDate(), endDate: new Date() };
   const [state, dispatch] = React.useReducer(homeReducer, defValue);
 
-  const value = { state, dispatch };
+  // `dispatch` stabil dari useReducer, jadi value hanya berubah saat state berubah.
+  const value = React.useMemo(() => ({ state, dispatch }), [state]);
   return <HomeContext.Provider value={value}>{children}</HomeContext.Provider>;
 };
 

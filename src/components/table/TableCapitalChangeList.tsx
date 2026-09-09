@@ -35,9 +35,11 @@ const TableCapitalChangeList: React.FC = () => {
     per_page: pageSize,
   });
 
-  const { from, to, total, links, next_page_url, last_page_url, prev_page_url } = {} as any;
-
   const dataRes = dataFetch?.data?.report_dates;
+
+  // Sebelumnya baris ini berbunyi `= {} as any`, jadi seluruh nilai paginasi selalu
+  // undefined: footer menampilkan "0 to 0 of 0" dan tombol halaman tidak pernah muncul.
+  const { from, to, total, links, next_page_url, last_page_url, prev_page_url } = dataRes ?? {};
   const router = useRouter();
 
   const handleOpen = () => {
@@ -120,7 +122,7 @@ const TableCapitalChangeList: React.FC = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}
@@ -128,7 +130,7 @@ const TableCapitalChangeList: React.FC = () => {
           setPaginationUrl(prev_page_url ?? '');
         }}
         onClickGoToPage={(val) => {
-          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
+          setPaginationUrl(`${(last_page_url ?? '').split('?')[0]}?page=${val}`);
         }}
         onChangePerPage={(page) => {
           setPaginationUrl('');

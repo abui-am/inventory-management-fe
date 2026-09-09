@@ -30,7 +30,7 @@ export const useFetchLedgerTopUps = <TQueryFnData = unknown, TError = unknown>(
         : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/ledger-top-ups', data);
       return res.data;
     },
-    options
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

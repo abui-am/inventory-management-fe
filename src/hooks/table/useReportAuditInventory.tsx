@@ -108,7 +108,7 @@ export const useReportAuditInventory = ({ date }: { date: string }) => {
   return { data, columns, dataRes, openModalConfirmationData, setOpenModalConfirmationData };
 };
 
-export const ButtonChecklist = ({ onClick }: { onClick: () => void }) => {
+export function ButtonChecklist({ onClick }: { onClick: () => void }) {
   return (
     <div className="flex">
       <Tippy content="Setujui hasil audit">
@@ -140,4 +140,4 @@ export const ButtonChecklist = ({ onClick }: { onClick: () => void }) => {
       </Tippy> */}
     </div>
   );
-};
+}

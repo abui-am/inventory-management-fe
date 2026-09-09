@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import {
@@ -26,12 +26,16 @@ const useFetchSuppliers = (
 ): UseQueryResult<BackendRes<SuppliersResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
-  const fetcher = useMyQuery([keys.suppliers, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/suppliers', data);
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.suppliers, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
+        : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/suppliers', data);
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };
@@ -48,7 +52,7 @@ const useFetchSupplierById = (
       const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).get(`/suppliers/${id}`);
       return res.data;
     },
-    options
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;
@@ -94,16 +98,11 @@ const useCreateSupplier = (): UseMutationResult<
   const mutator = useMutation(
     [keys.suppliers, 'create'],
     async (data: CreateSupplierBody) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
-          CreateSupplierBody,
-          AxiosResponse<BackendRes<CreateSupplierResponse>>
-        >('/suppliers', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
+        CreateSupplierBody,
+        AxiosResponse<BackendRes<CreateSupplierResponse>>
+      >('/suppliers', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

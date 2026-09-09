@@ -3,8 +3,10 @@ import Tippy from '@tippyjs/react';
 import clsx from 'clsx';
 import React, { ButtonHTMLAttributes, DetailedHTMLProps, forwardRef, RefObject, useState } from 'react';
 import { X } from 'react-bootstrap-icons';
+import toast from 'react-hot-toast';
 
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
+import reportError from '@/utils/reportError';
 
 import Modal, { ModalActionWrapper } from './Modal';
 
@@ -83,14 +85,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-export const ButtonWithModal = ({
+export function ButtonWithModal({
   text,
   children,
   ...props
 }: {
   text: any;
   children: ((val: { handleClose: () => void }) => JSX.Element) | JSX.Element;
-} & ButtonProps & { ref?: RefObject<HTMLButtonElement> }): JSX.Element => {
+} & ButtonProps & { ref?: RefObject<HTMLButtonElement> }): JSX.Element {
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
@@ -111,7 +113,7 @@ export const ButtonWithModal = ({
       </Button>
     </>
   );
-};
+}
 
 const ButtonCancelTransaction: React.FC<{ content?: string; transactionId: string }> = ({ content, transactionId }) => {
   const { mutateAsync: updateStockIn } = useUpdateStockIn();
@@ -130,7 +132,8 @@ const ButtonCancelTransaction: React.FC<{ content?: string; transactionId: strin
               });
               handleClose();
             } catch (e) {
-              console.error(e);
+              reportError(e, { action: 'decline-transaction' });
+              toast.error('Gagal menolak transaksi');
             }
           };
           return (

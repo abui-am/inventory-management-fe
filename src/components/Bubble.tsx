@@ -7,7 +7,7 @@ type BubbleProps = {
   isValid: boolean;
 };
 
-const Bubble = ({ isValid }: BubbleProps): JSX.Element => {
+function Bubble({ isValid }: BubbleProps): JSX.Element {
   return (
     <div
       className={clsx(
@@ -20,6 +20,6 @@ const Bubble = ({ isValid }: BubbleProps): JSX.Element => {
       </Tippy>
     </div>
   );
-};
+}
 
 export default Bubble;

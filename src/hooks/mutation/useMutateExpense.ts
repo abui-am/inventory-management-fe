@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreateExpensePayload } from '@/typings/expense';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -16,16 +16,11 @@ export const useCreateExpense = (): UseMutationResult<BackendRes<any>, unknown, 
   const mutator = useMutation(
     [keys.expenses],
     async (data: CreateExpensePayload) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
-          CreateExpensePayload,
-          AxiosResponse<BackendRes<any>>
-        >('/expenses', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin']).put<
+        CreateExpensePayload,
+        AxiosResponse<BackendRes<any>>
+      >('/expenses', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

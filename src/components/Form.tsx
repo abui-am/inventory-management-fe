@@ -1,14 +1,5 @@
 import clsx from 'clsx';
-import React, {
-  DetailedHTMLProps,
-  forwardRef,
-  InputHTMLAttributes,
-  LegacyRef,
-  PropsWithChildren,
-  TextareaHTMLAttributes,
-  useEffect,
-  useState,
-} from 'react';
+import React, { forwardRef, LegacyRef, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 import NumberFormat, { NumberFormatProps, NumberFormatValues } from 'react-number-format';
@@ -31,7 +22,7 @@ import debounce from '@/utils/debounce';
 import { formatToIDR } from '@/utils/format';
 import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
 
-import Label from './Label';
+import { Checkbox, PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from './TextField';
 
 const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
   children,
@@ -68,74 +59,20 @@ export type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
     disableMargin?: boolean;
   };
 
-const TextField: React.FC<
-  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
-    variant?: 'outlined' | 'contained';
-    hasError?: boolean;
-    Icon?: JSX.Element;
-  }
-> = ({ className, hasError, Icon, variant = 'outlined', ...props }) => {
-  const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
-  const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
-  return (
-    <div className="relative h-11">
-      {Icon && (
-        <div className="absolute h-4 flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">{Icon}</div>
-      )}
-
-      <input
-        {...props}
-        className={clsx(
-          Icon ? 'pl-11' : '',
-          errorStyle,
-          variation,
-          'h-11 w-full rounded-md px-3 outline-none',
-          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-          'transition-all duration-150 ease-in',
-          className
-        )}
-      />
-    </div>
-  );
-};
-
-const TextArea: React.FC<TextareaHTMLAttributes<unknown>> = ({ className, ...props }) => {
-  return (
-    <textarea
-      {...props}
-      rows={3}
-      className={clsx(
-        'resize-none w-full border-gray-300 border rounded-md px-3 py-2 outline-none',
-        'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-        'transition-all duration-150 ease-in',
-        className
-      )}
-    />
-  );
-};
-
-const Checkbox: React.FC<InputHTMLAttributes<unknown>> = ({ children, ...props }) => {
-  const [checked, setChecked] = useState(false);
-  return (
-    <div className="flex relative items-center text-sm">
-      <input
-        onClick={() => setChecked((val) => !val)}
-        type="checkbox"
-        className={`mr-2 h-4 w-4 border border-gray-300 rounded-sm checked:bg-blue-600 checked:border-transparent focus:outline-none ${
-          !checked ? 'appearance-none' : ''
-        }`}
-        {...props}
-      />
-      {/* <div className="bg-white border-2 rounded-md border-grey-300 h-4 w-4 flex flex-shrink-0 justify-center items-center mr-2 hover:border-blue-500" /> */}
-      {children}
-    </div>
-  );
-};
+// Di luar DatePickerComponent: react-datepicker merender ini sebagai komponen, jadi kalau
+// didefinisikan di dalam render ia punya identitas baru tiap render dan input waktu di-remount —
+// fokus dan posisi kursor hilang saat user sedang mengetik jam.
+// (Sebelumnya bernama ExampleCustomTimeInput dengan `border: solid 1px pink`, salinan mentah
+// dari contoh di dokumentasi react-datepicker.)
+const CustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: string) => void }) => (
+  <input
+    value={value}
+    onChange={(e) => onChange(e.target.value)}
+    className="h-9 w-full rounded-md border border-gray-300 px-2 outline-none focus:ring-2 focus:ring-blue-600"
+  />
+);
 
 const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, showTimeSelect, ...props }) => {
-  const ExampleCustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: string) => void }) => (
-    <input value={value} onChange={(e) => onChange(e.target.value)} style={{ border: 'solid 1px pink' }} />
-  );
   return (
     <div className="relative customDatePickerWidth">
       <DatePicker
@@ -148,7 +85,7 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, showTi
           'transition-all duration-150 ease-in',
           className
         )}
-        customTimeInput={ExampleCustomTimeInput}
+        customTimeInput={<CustomTimeInput value="" onChange={() => undefined} />}
         showTimeSelect={showTimeSelect}
         {...props}
       />
@@ -187,40 +124,6 @@ const DateRangePicker: React.FC<{
   );
 };
 
-const PhoneNumberTextField: React.FC<
-  Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
-    hasError: boolean;
-    onChange: (phoneNumber: string) => void;
-  }
-> = ({ onChange, className, hasError, value, ...props }) => {
-  const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
-  return (
-    <div className="flex">
-      <div className="flex items-center top-0 bottom-0 m-auto text-blueGray-400 px-3 border h-11 border-r-0 border-gray-300 rounded-tl-md rounded-bl-md">
-        +62
-      </div>
-
-      <input
-        {...props}
-        onChange={(e) => {
-          if (onChange) {
-            onChange(`62${e.target.value}`);
-          }
-        }}
-        type="number"
-        value={value?.toString().slice(2)}
-        className={clsx(
-          errorStyle,
-          'h-11 w-full px-3 outline-none rounded-tr-md rounded-br-md border-gray-300 border',
-          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-          'transition-all duration-150 ease-in',
-          className
-        )}
-      />
-    </div>
-  );
-};
-
 const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
   const { mutateAsync } = useSearchProvince();
 
@@ -254,22 +157,23 @@ const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase
   );
 };
 
-const SelectSubdistrict: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { cityId: string }> =
-  (props) => {
-    const { mutateAsync } = useSearchSubdistrict();
-    const { cityId } = props;
-    return (
-      <Select
-        {...props}
-        isDisabled={!cityId}
-        loadOptions={async (val) => {
-          const { data } = await mutateAsync({ search: val, where: { city_id: cityId } });
-          return data.subdistricts.data.map(({ id, name }) => ({ value: id, label: name }));
-        }}
-        isClearable
-      />
-    );
-  };
+const SelectSubdistrict: React.FC<
+  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { cityId: string }
+> = (props) => {
+  const { mutateAsync } = useSearchSubdistrict();
+  const { cityId } = props;
+  return (
+    <Select
+      {...props}
+      isDisabled={!cityId}
+      loadOptions={async (val) => {
+        const { data } = await mutateAsync({ search: val, where: { city_id: cityId } });
+        return data.subdistricts.data.map(({ id, name }) => ({ value: id, label: name }));
+      }}
+      isClearable
+    />
+  );
+};
 
 const SelectVillage: React.FC<
   Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { subdistrictId: string }
@@ -295,43 +199,52 @@ const SelectRole: React.FC<ThemedSelectProps> = (props) => {
   return <ThemedSelect {...props} options={options} />;
 };
 
+// Satu bentuk option barang dipakai SelectItems dan SelectItemsDetail. Sebelumnya fungsi ini
+// disalin di dalam masing-masing komponen, jadi ikut dibuat ulang tiap render.
+const formatItemsToOption = (items: ItemData[] = []) =>
+  items?.map(({ name, id, item_id, ...rest }) => ({
+    label: `${name} (ID: ${item_id ?? '-'})`,
+    value: id,
+    data: { name, id, item_id, ...rest },
+  })) ?? [];
+
 const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = ({
   variant = 'outlined',
   additionalStyle,
   ...props
 }) => {
   const { mutateAsync: search } = useSearchItems();
-  const { data } = useFetchItems({
-    where_greater_equal: {
-      quantity: 1,
-    },
-  });
-  const formatItemsToOption = (items: ItemData[]) => {
-    return items?.map(({ name, id, item_id, ...props }) => ({
-      label: `${name} (ID: ${item_id ?? '-'})`,
-      value: id,
-      data: { name, id, item_id, ...props },
-    }));
-  };
+  // Tanpa filter quantity: select ini hanya dipakai di halaman Barang Masuk, dan barang yang
+  // stoknya habis justru yang paling perlu bisa dipilih untuk direstock. Filter
+  // `where_greater_equal: { quantity: 1 }` menyembunyikannya dan memaksa operator membuat
+  // barang duplikat. (SelectItemsDetail — dipakai untuk penjualan — tetap memfilter.)
+  const { data } = useFetchItems();
+
+  // debounce() menyimpan timer-nya di closure. Kalau dipanggil langsung di dalam render,
+  // tiap re-render menghasilkan closure baru dengan timer baru, sehingga clearTimeout tidak
+  // pernah membatalkan timer render sebelumnya dan request tidak benar-benar ter-debounce.
+  const loadOptions = useMemo(
+    () =>
+      debounce(async (val: string) => {
+        if (!val) return [];
+        const { data: searchData } = await search({ search: val });
+        return formatItemsToOption(searchData?.items?.data ?? []);
+      }, 300),
+    [search]
+  );
+
   return (
     <CreatableAsyncSelect
       {...props}
       styles={getThemedSelectStyle(variant, additionalStyle)}
       defaultOptions={formatItemsToOption(data?.data.items.data ?? [])}
-      loadOptions={debounce(async (val) => {
-        if (val) {
-          const { data } = await search({ search: val });
-          return formatItemsToOption(data?.items?.data);
-        }
-
-        return [];
-      }, 300)}
+      loadOptions={loadOptions}
       isClearable
     />
   );
 };
 
-const SingleValue = (props: SingleValueProps<{ label: string; value: string; data: Item }>) => {
+function SingleValue(props: SingleValueProps<{ label: string; value: string; data: Item }>) {
   const { data, children } = props;
 
   return (
@@ -346,7 +259,7 @@ const SingleValue = (props: SingleValueProps<{ label: string; value: string; dat
       </div>
     </components.SingleValue>
   );
-};
+}
 
 export const SelectItemsDetail = forwardRef(
   (
@@ -360,14 +273,23 @@ export const SelectItemsDetail = forwardRef(
       },
     });
 
-    const formatItemsToOption = (items: ItemData[]) => {
-      return items?.map(({ name, id, item_id, ...props }) => ({
-        label: `${name} (ID: ${item_id ?? '-'})`,
-        value: id,
-        data: { name, id, item_id, ...props },
-      }));
-    };
     const defaultOptions = formatItemsToOption(data?.data.items.data ?? []);
+
+    // Sama seperti di SelectItems: debounce harus dibuat sekali, bukan tiap render.
+    const loadOptions = useMemo(
+      () =>
+        debounce(async (val: string) => {
+          const { data: searchData } = await search({
+            search: val,
+            where_greater_equal: {
+              quantity: 1,
+            },
+          });
+
+          return formatItemsToOption(searchData?.items?.data ?? []);
+        }, 300),
+      [search]
+    );
 
     return (
       <Select
@@ -380,17 +302,7 @@ export const SelectItemsDetail = forwardRef(
             height: 64,
           }),
         }}
-        loadOptions={debounce(async (val) => {
-          const { data } = await search({
-            search: val,
-            where_greater_equal: {
-              quantity: 1,
-            },
-          });
-
-          return formatItemsToOption(data?.items?.data);
-          // return data.items.data.map(({ id, name, ...rest }) => ({ value: id, label: name, data: rest }));
-        }, 300)}
+        loadOptions={loadOptions}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         components={withDetail ? { SingleValue: SingleValue as any } : {}}
         isClearable
@@ -416,6 +328,9 @@ const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', addit
       {...extraProps}
       isSearchable={false}
       styles={getThemedSelectStyle(variant, additionalStyle)}
+      // react-select merender input-nya sendiri di dalam container, jadi label harus
+      // menunjuk ke `inputId` — bukan `id`, yang hanya memberi id ke div pembungkus.
+      inputId={props.inputId ?? props.name}
       {...props}
     />
   );
@@ -491,6 +406,7 @@ const CurrencyTextField: React.FC<CurrencyTextFieldProps> = ({
         thousandSeparator={thousandSeparator}
         decimalSeparator={decimalSeparator}
         onValueChange={customOnChange}
+        id={props.id ?? props.name}
         {...props}
       />
     );
@@ -513,25 +429,10 @@ const CurrencyTextField: React.FC<CurrencyTextFieldProps> = ({
         isNumericString={isNumericString}
         thousandSeparator={thousandSeparator}
         decimalSeparator={decimalSeparator}
+        id={props.id ?? props.name}
         {...props}
       />
     </div>
-  );
-};
-
-const WithLabelAndError: React.FC<{
-  label: string;
-  errors: Record<string, unknown>;
-  touched: Record<string, unknown>;
-  name: string;
-  required?: boolean;
-}> = ({ label, children, errors, touched, name, required }) => {
-  return (
-    <>
-      <Label required={required}>{label}</Label>
-      {children}
-      {errors[name] && touched[name] && <span className="text-xs text-red-500">{errors[name] as string}</span>}
-    </>
   );
 };
 

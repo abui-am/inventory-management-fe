@@ -20,7 +20,7 @@ export const useFetchInvoice = (
       });
       return res.data;
     },
-    options
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

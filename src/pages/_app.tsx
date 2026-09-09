@@ -1,25 +1,49 @@
 import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tippy.js/dist/tippy.css'; // optional
+import 'dayjs/locale/id';
 
-import { dehydrate, DehydratedState, Hydrate, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as Sentry from '@sentry/nextjs';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import dayjs from 'dayjs';
 import { AppProps } from 'next/app';
-import { AppContextType } from 'next/dist/shared/lib/utils';
+import { ThemeProvider } from 'next-themes';
 import { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
+import ReactModal from 'react-modal';
 
 import { AppProvider } from '@/context/app-context';
 import { PermissionProvider } from '@/context/permission-context';
 import Layout from '@/layouts/Layout';
-import parseCookies from '@/utils/cookies';
-require('dayjs/locale/id');
 dayjs.locale('id'); // optional
 
-type MyAppProps = AppProps & { dehydrateState: DehydratedState };
+// react-modal perlu tahu elemen root supaya bisa memberi aria-hidden ke konten di belakang
+// modal. Tanpa ini setiap modal melempar error a11y ke console dan screen reader tetap
+// membacakan halaman di belakangnya. `#__next` hanya ada di browser.
+if (typeof window !== 'undefined') {
+  ReactModal.setAppElement('#__next');
+}
 
-function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Element {
+// Tanpa error boundary, satu exception saat render memblank seluruh aplikasi tanpa jejak:
+// _error.tsx hanya menangani error SSR/routing Next, bukan throw saat render di client.
+function AppCrashFallback(): JSX.Element {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+      <h1 className="text-2xl font-bold mb-2">Terjadi kesalahan</h1>
+      <p className="mb-6 text-blueGray-600">Halaman ini gagal ditampilkan. Laporan sudah terkirim ke tim teknis.</p>
+      <button
+        type="button"
+        className="rounded-md font-bold min-h-11 px-4 py-2 bg-blue-600 hover:bg-blue-700 shadow-md text-white"
+        onClick={() => window.location.reload()}
+      >
+        Muat ulang halaman
+      </button>
+    </div>
+  );
+}
+
+function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const queryClientRef = useRef<null | QueryClient>(null);
 
   if (!queryClientRef.current) {
@@ -35,68 +59,31 @@ function MyApp({ Component, pageProps, dehydrateState }: MyAppProps): JSX.Elemen
   }
 
   return (
-    <QueryClientProvider client={queryClientRef.current}>
-      <Hydrate state={dehydrateState}>
-        <PermissionProvider>
-          <AppProvider>
-            <main className="font-sans text-blueGray-900 bg-blueGray-100 transition-all duration-75">
-              <Layout>
-                <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
-                <Component {...pageProps} />
-              </Layout>
-            </main>
-          </AppProvider>
-        </PermissionProvider>
-      </Hydrate>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <Sentry.ErrorBoundary fallback={<AppCrashFallback />}>
+      {/*
+        attribute="class" memasang `.dark` di <html>, sesuai strategi darkMode di
+        tailwind.config — jadi tidak ada kelas `dark:` di komponen mana pun.
+        enableSystem menghormati prefers-color-scheme; pilihan manual disimpan di
+        localStorage. next-themes menyisipkan skrip yang jalan sebelum paint,
+        sehingga tidak ada kedip tema saat muat.
+      */}
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <QueryClientProvider client={queryClientRef.current}>
+          <PermissionProvider>
+            <AppProvider>
+              <main className="font-sans text-foreground bg-background">
+                <Layout>
+                  <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
+                  <Component {...pageProps} />
+                </Layout>
+              </main>
+            </AppProvider>
+          </PermissionProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </ThemeProvider>
+    </Sentry.ErrorBoundary>
   );
 }
-
-MyApp.getInitialProps = async ({ ctx }: AppContextType) => {
-  const cookie = parseCookies(ctx.req);
-  const queryClient = new QueryClient();
-
-  const whitelistedPage = ['/login', '/forget-password', '/_error'];
-
-  if (
-    (!cookie['INVT-TOKEN'] || !cookie['INVT-USERNAME'] || !cookie['INVT-USERID']) &&
-    !whitelistedPage.includes(ctx.pathname)
-  ) {
-    ctx.res?.writeHead(302, { Location: '/login' });
-    ctx.res?.end();
-    return {};
-  }
-
-  if (cookie['INVT-TOKEN'] && cookie['INVT-USERNAME'] && cookie['INVT-USERID'] && ctx.pathname === '/login') {
-    ctx.res?.writeHead(302, { Location: '/' });
-    ctx.res?.end();
-    return {};
-  }
-
-  if (!cookie['INVT-TOKEN'] || !cookie['INVT-USERNAME'] || !cookie['INVT-USERID']) return {};
-
-  try {
-    // const idToken = cookie['INVT-TOKEN'];
-
-    // await queryClient.prefetchQuery('auth', async () => {
-    //   const { data } = await apiInstance.get('/auth/login', {
-    //     headers: {
-    //       authorization: `Bearer ${idToken}`,
-    //     },
-    //   });
-
-    //   const data = {};
-
-    //   return data;
-    // });
-
-    return {
-      dehydrateState: dehydrate(queryClient),
-    };
-  } catch (e) {
-    return {};
-  }
-};
 
 export default MyApp;

@@ -12,14 +12,14 @@ import { useLedger } from '@/hooks/table/useLedger';
 import { Option } from '@/typings/common';
 import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
 
-const AuditPage = () => {
+function AuditPage() {
   const { query, push } = useRouter();
   const [fromDate, setFromDate] = React.useState(new Date());
   const [toDate, setToDate] = React.useState(new Date());
   const { data: dataResLedger } = useFetchUnpaginatedLedgerAccounts();
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [pageSize, setPageSize] = useState(10);
-  const [type, setType] = useState<Option<any> | null>();
+  const [type, setType] = useState<Option | null>();
 
   const typeOptions = useMemo(
     () =>
@@ -68,11 +68,12 @@ const AuditPage = () => {
   }, [query.id, typeOptions]);
 
   const getPeriodBalance = () => {
-    if (!resLedgers) return 0;
+    // total bisa belum ada di respons; tanpa fallback, aritmetikanya menghasilkan NaN
+    // yang langsung tampil sebagai saldo periode.
+    const debit = +(resLedgers?.data?.total?.debit ?? 0);
+    const credit = +(resLedgers?.data?.total?.credit ?? 0);
 
-    return type?.data?.type === 'debit'
-      ? resLedgers?.data.total.debit - resLedgers?.data.total.credit
-      : resLedgers?.data.total.credit - resLedgers?.data.total.debit;
+    return type?.data?.type === 'debit' ? debit - credit : credit - debit;
   };
 
   const periodBalance = getPeriodBalance();
@@ -94,8 +95,9 @@ const AuditPage = () => {
                       {typeOptions?.length > 1 && (
                         <ThemedSelect
                           value={type}
-                          onChange={(val: any) => {
-                            push(`/ledger/${val.label}`);
+                          onChange={(val) => {
+                            const option = val as Option | null;
+                            if (option) push(`/ledger/${option.label}`);
                           }}
                           options={typeOptions}
                           className="w-52"
@@ -149,7 +151,7 @@ const AuditPage = () => {
             onClickPageButton={(url) => {
               setPaginationUrl(url);
             }}
-            links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+            links={links ?? []}
             onClickNext={() => {
               setPaginationUrl(next_page_url ?? '');
             }}
@@ -168,6 +170,6 @@ const AuditPage = () => {
       </section>
     </div>
   );
-};
+}
 
 export default AuditPage;

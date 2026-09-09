@@ -152,7 +152,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl((next_page_url as string) ?? '');
         }}
@@ -164,7 +164,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
   );
 };
 
-const AddPrepaidSalary = () => {
+function AddPrepaidSalary() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
@@ -185,6 +185,6 @@ const AddPrepaidSalary = () => {
       </Modal>
     </>
   );
-};
+}
 
 export default PrepaidSalaryPage;

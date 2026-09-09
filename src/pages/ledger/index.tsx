@@ -3,7 +3,7 @@ import React, { useEffect, useMemo } from 'react';
 
 import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
 
-const LedgerIndex = () => {
+function LedgerIndex() {
   const { data: dataResLedger } = useFetchUnpaginatedLedgerAccounts();
   const router = useRouter();
   const typeOptions = useMemo(
@@ -25,6 +25,6 @@ const LedgerIndex = () => {
   }
 
   return <div>Redirecting...</div>;
-};
+}
 
 export default LedgerIndex;

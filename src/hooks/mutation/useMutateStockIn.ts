@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateStockInBody, TransactionData } from '@/typings/stock-in';
@@ -21,16 +21,11 @@ export const useCreateStockIn = (): UseMutationResult<
   const mutator = useMutation(
     [keys.transactions, 'stock-in'],
     async (data: CreateStockInBody) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
-          CreateStockInBody,
-          AxiosResponse<BackendRes<unknown>>
-        >('/transactions', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).put<
+        CreateStockInBody,
+        AxiosResponse<BackendRes<unknown>>
+      >('/transactions', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {
@@ -76,16 +71,11 @@ export const useUpdateStockIn = (): UseMutationResult<
         }
       >;
     }) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).patch<
-          CreateStockInBody,
-          AxiosResponse<BackendRes<unknown>>
-        >(`/transactions/${data.transactionId}`, data.data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'warehouse-admin']).patch<
+        CreateStockInBody,
+        AxiosResponse<BackendRes<unknown>>
+      >(`/transactions/${data.transactionId}`, data.data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

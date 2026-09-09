@@ -79,7 +79,7 @@ export const SelectSender: React.FC<ThemedSelectProps> = ({ variant = 'outlined'
   );
 };
 
-const SingleValue = (props: SingleValueProps<{ label: string; value: string; data: Item }>) => {
+function SingleValue(props: SingleValueProps<{ label: string; value: string; data: Item }>) {
   const { data, children } = props;
 
   return (
@@ -93,7 +93,7 @@ const SingleValue = (props: SingleValueProps<{ label: string; value: string; dat
       </div>
     </components.SingleValue>
   );
-};
+}
 
 export const SelectItemsSync = forwardRef(
   (

@@ -10,10 +10,10 @@ import { useAudit } from '@/hooks/mutation/useMutateAudit';
 import { useAuditInventory } from '@/hooks/table/useAuditInventory';
 import { formatDateYYYYMMDD } from '@/utils/format';
 
-const AuditPage = () => {
+function AuditPage() {
   const [date, setDate] = React.useState(new Date());
 
-  const { columns, data = [] } = useAuditInventory({ date: formatDateYYYYMMDD(date as Date) });
+  const { columns, data = [] } = useAuditInventory({ date: formatDateYYYYMMDD(date) });
   return (
     <div>
       <section className="flex justify-between items-center mb-4    ">
@@ -22,7 +22,7 @@ const AuditPage = () => {
           <label className="mr-2">Tanggal:</label>
           <DatePickerComponent
             onChange={(value) => {
-              setDate(value as any);
+              if (value) setDate(value);
             }}
             selected={date}
           />
@@ -64,9 +64,9 @@ const AuditPage = () => {
       </section>
     </div>
   );
-};
+}
 
-const CreateNewAudit = ({ date }: { date: Date }) => {
+function CreateNewAudit({ date }: { date: Date }) {
   const { mutateAsync, isLoading } = useAudit();
 
   const handleClick = () => {
@@ -99,6 +99,6 @@ const CreateNewAudit = ({ date }: { date: Date }) => {
       </ButtonWithModal>
     </section>
   );
-};
+}
 
 export default AuditPage;

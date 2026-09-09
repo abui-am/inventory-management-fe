@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { useCreateCapitalReport } from '@/hooks/mutation/useMutateCapitalReport';
 import { useFetchCapitalReportInfo } from '@/hooks/query/useFetchCapitalReportDate';
 import formatCurrency from '@/utils/formatCurrency';
+import reportError from '@/utils/reportError';
 
 import { Button } from '../Button';
 import Divider from '../Divider';
@@ -35,6 +36,7 @@ const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDat
       toast.success('Berhasil membuat laporan perubahan modal');
       router.push('/laporan-perubahan-modal');
     } catch (error) {
+      reportError(error, { action: 'createCapitalChangeReport' });
       toast.error('Gagal membuat laporan perubahan modal');
     }
   };

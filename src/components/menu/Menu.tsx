@@ -28,14 +28,17 @@ const Menu: React.FC<{ activePage: number; hideLabel: boolean; onMenuClick: (men
         );
 
       default:
-        return <div />;
+        return null;
     }
   };
   return (
     <div className="bg-blueGray-900 pb-4">
       {MENU_LIST.map(({ displayName, icon, id, slug, permission }, index) => {
+        // null, bukan <div />: menu yang tidak diizinkan tidak boleh menyisakan node kosong
+        // di sidebar. Index tetap dipetakan ke MENU_LIST penuh karena `activePage` memakai
+        // index dari list itu — jangan filter sebelum map.
         if (permission && !state.permission.includes(permission as PermissionList)) {
-          return <div />;
+          return null;
         }
         return (
           <div className="px-8 py-4 relative flex items-center" key={id}>

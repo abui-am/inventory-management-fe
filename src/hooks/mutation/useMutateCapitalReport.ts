@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { CreateCapitalReportPayload } from '@/typings/capital-report';
 import { BackendRes, BackendResError } from '@/typings/request';
@@ -16,16 +16,11 @@ export const useCreateCapitalReport = (): UseMutationResult<BackendRes<any>, any
   const mutator = useMutation(
     [keys.capitalReport, 'save'],
     async (data: CreateCapitalReportPayload) => {
-      try {
-        const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).patch<
-          CreateCapitalReportPayload,
-          AxiosResponse<BackendRes<CreateCapitalReportPayload>>
-        >('/capital-report/save-report', data);
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).patch<
+        CreateCapitalReportPayload,
+        AxiosResponse<BackendRes<CreateCapitalReportPayload>>
+      >('/capital-report/save-report', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {

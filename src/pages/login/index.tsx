@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { object } from 'yup';
 
 import { Button } from '@/components/Button';
-import { Checkbox, TextField, WithLabelAndError } from '@/components/Form';
+import { Checkbox, TextField, WithLabelAndError } from '@/components/TextField';
 import useAuthMutation from '@/hooks/mutation/useAuth';
 import createSchema from '@/utils/validation/formik';
 export default function Home(): JSX.Element {

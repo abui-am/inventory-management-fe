@@ -9,7 +9,7 @@ import { useFetchLedgers } from '@/hooks/query/useFetchLedgers';
 import { useGeneralLedger } from '@/hooks/table/useGeneralLedger';
 import { formatDateYYYYMMDDHHmmss } from '@/utils/format';
 
-const AuditPage = () => {
+function AuditPage() {
   const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
   const [toDate, setToDate] = useState(new Date());
   const [paginationUrl, setPaginationUrl] = useState('');
@@ -78,7 +78,7 @@ const AuditPage = () => {
             onClickPageButton={(url) => {
               setPaginationUrl(url);
             }}
-            links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+            links={links ?? []}
             onClickNext={() => {
               setPaginationUrl(next_page_url ?? '');
             }}
@@ -97,6 +97,6 @@ const AuditPage = () => {
       </section>
     </div>
   );
-};
+}
 
 export default AuditPage;

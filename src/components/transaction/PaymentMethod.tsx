@@ -1,3 +1,4 @@
+import { FormikErrors, FormikTouched } from 'formik';
 import { TrashFill } from 'react-bootstrap-icons';
 
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
@@ -9,30 +10,45 @@ import { Button } from '../Button';
 import { Checkbox, CurrencyTextField, DatePickerComponent, ThemedSelect } from '../Form';
 import Label from '../Label';
 
+// `paymentDue` bisa datang sebagai string dari API atau Date dari form.
+const toDate = (value: Date | string | undefined): Date | null => {
+  if (!value) return null;
+  return value instanceof Date ? value : new Date(value);
+};
+
 export type Payment = {
   paymentMethod: Option;
   paymentDue: Date | string;
   payAmount: number | '';
 };
 
+type PaymentMethodValues = {
+  payments: Payment[];
+  payFull?: boolean;
+};
+
 const PaymentMethod: React.FC<{
   index: number;
-  values: any;
+  values: PaymentMethodValues;
   withPayFull?: boolean;
   totalPrice?: number;
-  setFieldValue: (key: string, val: any) => void;
+  setFieldValue: (key: string, val: unknown) => void;
   isSubmitting: boolean;
-  errors: Record<string, any>;
-  touched: Record<string, any>;
+  errors: FormikErrors<PaymentMethodValues>;
+  touched: FormikTouched<PaymentMethodValues>;
 }> = ({ index, values, setFieldValue, isSubmitting, withPayFull, errors, touched, totalPrice }) => {
   const value = values.payments[index];
+  const { paymentDue } = value;
   const {
     state: { hideLabel },
   } = useApp();
+  // Formik mengetik error tiap baris array sebagai `string | FormikErrors<Payment>`.
+  const paymentError = errors.payments?.[index];
+  const payAmountError = typeof paymentError === 'string' ? paymentError : paymentError?.payAmount;
   const handleDelete = () => {
     setFieldValue(
       'payments',
-      values.payments.filter((_: any, i: number) => i !== index)
+      values.payments.filter((_, i) => i !== index)
     );
   };
 
@@ -70,7 +86,7 @@ const PaymentMethod: React.FC<{
             <label className="mb-1 block">Tanggal jatuh tempo</label>
             <DatePickerComponent
               name={`payments.[${index}].paymentDue`}
-              selected={values.payments[index].paymentDue}
+              selected={toDate(paymentDue)}
               onChange={(date) => setFieldValue(`payments.[${index}].paymentDue`, date)}
             />
           </div>
@@ -103,7 +119,7 @@ const PaymentMethod: React.FC<{
             <Checkbox
               checked={values.payFull}
               name="payFull"
-              onChange={(e: any) => {
+              onChange={(e) => {
                 setFieldValue(`payments.[${index}].payAmount`, totalPrice);
                 setFieldValue('payFull', e.target?.checked);
               }}
@@ -111,8 +127,8 @@ const PaymentMethod: React.FC<{
             <label className="text-base ml-1">Seluruhnya</label>
           </div>
         )}
-        {errors.payments?.[index]?.payAmount && touched.payments?.[index]?.payAmount && (
-          <span className="text-xs text-red-500">{errors.payments[index].payAmount}</span>
+        {payAmountError && touched.payments?.[index]?.payAmount && (
+          <span className="text-xs text-red-500">{payAmountError}</span>
         )}
       </div>
     </>

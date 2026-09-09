@@ -4,11 +4,11 @@ export interface AuditsData {
   id: string;
   user_id: string;
   item_id: string;
-  item_name?: any;
-  item_unit?: any;
+  item_name?: string;
+  item_unit?: string;
   item_quantity: number;
   audit_quantity: number;
-  audit_date?: any;
+  audit_date?: string;
   is_valid: boolean;
   is_approved: boolean;
   update_count: number;
@@ -27,7 +27,7 @@ export interface ItemAudits {
   next_page_url: string;
   path: string;
   per_page: number;
-  prev_page_url?: any;
+  prev_page_url?: string | null;
   to: number;
   total: number;
 }

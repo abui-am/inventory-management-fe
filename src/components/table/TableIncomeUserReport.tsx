@@ -16,6 +16,8 @@ type ColumnData = {
   title: string | JSX.Element;
   [key: string]: string | JSX.Element;
 };
+const columnHelper = createColumnHelper<ColumnData>();
+
 const getCommonPinningStyles = (column: Column<ColumnData>): CSSProperties => {
   const isPinned = column.id === 'title' ? 'left' : '';
   return {
@@ -153,13 +155,7 @@ const TableIncomeUserReport: React.FC = () => {
   );
 };
 
-const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: IncomeUserReport }) => {
-  const columnHelper = createColumnHelper<ColumnData>();
-
-  const incomeUserReport = {
-    income_report: [..._i.income_report],
-  };
-
+function IncomeUserReportSection({ incomeUserReport }: { incomeUserReport: IncomeUserReport }) {
   const columns = React.useMemo(
     () => [
       columnHelper.accessor('title', {
@@ -173,17 +169,15 @@ const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: I
         },
       }),
       // Perkasir
-      ...(incomeUserReport
-        ? incomeUserReport?.income_report?.map(({ name }) =>
-            columnHelper.accessor(name, {
-              header: () => name,
-              cell: ({ getValue }) => getValue() || '',
-              minSize: 200,
-            })
-          )
-        : []),
+      ...(incomeUserReport?.income_report ?? []).map(({ name }) =>
+        columnHelper.accessor(name, {
+          header: () => name,
+          cell: ({ getValue }) => getValue() || '',
+          minSize: 200,
+        })
+      ),
     ],
-    [columnHelper, incomeUserReport]
+    [incomeUserReport.income_report]
   );
 
   const getData = () => {
@@ -290,11 +284,9 @@ const IncomeUserReportSection = ({ incomeUserReport: _i }: { incomeUserReport: I
   });
   return <CustomTable table={table} />;
   // return <div />;
-};
+}
 
-const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: IncomeUserReport }) => {
-  const columnHelper = createColumnHelper<ColumnData>();
-
+function StockInUserReportSection({ stockInUserReport }: { stockInUserReport: IncomeUserReport }) {
   const columns = React.useMemo(
     () => [
       columnHelper.accessor('title', {
@@ -308,17 +300,15 @@ const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: In
         },
       }),
       // Perkasir
-      ...(stockInUserReport
-        ? stockInUserReport?.income_report?.map(({ name }) =>
-            columnHelper.accessor(name, {
-              header: () => name,
-              cell: ({ getValue }) => getValue() || '',
-              minSize: 200,
-            })
-          )
-        : []),
+      ...(stockInUserReport?.income_report ?? []).map(({ name }) =>
+        columnHelper.accessor(name, {
+          header: () => name,
+          cell: ({ getValue }) => getValue() || '',
+          minSize: 200,
+        })
+      ),
     ],
-    [columnHelper, stockInUserReport]
+    [stockInUserReport.income_report]
   );
 
   const getData = () => {
@@ -420,11 +410,9 @@ const StockInUserReportSection = ({ stockInUserReport }: { stockInUserReport: In
     columnResizeMode: 'onChange',
   });
   return <CustomTable table={table} />;
-};
+}
 
-const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: IncomeUserReport }) => {
-  const columnHelper = createColumnHelper<ColumnData>();
-
+function ExpenseUserReportSection({ expenseUserReport }: { expenseUserReport: IncomeUserReport }) {
   const columns = React.useMemo(
     () => [
       columnHelper.accessor('title', {
@@ -438,17 +426,15 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
         },
       }),
       // Perkasir
-      ...(expenseUserReport
-        ? expenseUserReport?.income_report?.map(({ name }) =>
-            columnHelper.accessor(name, {
-              header: () => name,
-              cell: ({ getValue }) => getValue() || '',
-              minSize: 200,
-            })
-          )
-        : []),
+      ...(expenseUserReport?.income_report ?? []).map(({ name }) =>
+        columnHelper.accessor(name, {
+          header: () => name,
+          cell: ({ getValue }) => getValue() || '',
+          minSize: 200,
+        })
+      ),
     ],
-    [columnHelper, expenseUserReport]
+    [expenseUserReport.income_report]
   );
 
   const getData = () => {
@@ -575,11 +561,9 @@ const ExpenseUserReportSection = ({ expenseUserReport }: { expenseUserReport: In
     columnResizeMode: 'onChange',
   });
   return <CustomTable table={table} />;
-};
+}
 
-const TotalBalanceSection = ({ incomeUserReport }: { incomeUserReport: IncomeUserReport }) => {
-  const columnHelper = createColumnHelper<ColumnData>();
-
+function TotalBalanceSection({ incomeUserReport }: { incomeUserReport: IncomeUserReport }) {
   const columns = React.useMemo(
     () => [
       columnHelper.accessor('title', {
@@ -593,17 +577,15 @@ const TotalBalanceSection = ({ incomeUserReport }: { incomeUserReport: IncomeUse
         },
       }),
       // Perkasir
-      ...(incomeUserReport
-        ? incomeUserReport?.income_report?.map(({ name }) =>
-            columnHelper.accessor(name, {
-              header: () => name,
-              cell: ({ getValue }) => getValue() || '',
-              minSize: 200,
-            })
-          )
-        : []),
+      ...(incomeUserReport?.income_report ?? []).map(({ name }) =>
+        columnHelper.accessor(name, {
+          header: () => name,
+          cell: ({ getValue }) => getValue() || '',
+          minSize: 200,
+        })
+      ),
     ],
-    [columnHelper, incomeUserReport]
+    [incomeUserReport.income_report]
   );
 
   const getData = () => {
@@ -696,15 +678,15 @@ const TotalBalanceSection = ({ incomeUserReport }: { incomeUserReport: IncomeUse
     columnResizeMode: 'onChange',
   });
   return <CustomTable table={table} />;
-};
+}
 
-const CustomTable = ({
+function CustomTable({
   table,
 }: {
   table: Table<{
     title: string | JSX.Element;
   }>;
-}) => {
+}) {
   return (
     <div className="overflow-x-scroll">
       <table
@@ -768,6 +750,6 @@ const CustomTable = ({
       </table>
     </div>
   );
-};
+}
 
 export default TableIncomeUserReport;

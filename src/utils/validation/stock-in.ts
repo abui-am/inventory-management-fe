@@ -14,7 +14,7 @@ export const validationSchemaStockIn = object().shape({
   dateIn: string()
     .nullable()
     .when('paymentMethod.value', {
-      is: (value: any) => ['debt', 'current_account'].includes(value),
+      is: (value: string) => ['debt', 'current_account'].includes(value),
       then: (schema) => schema.required('* Required'),
       otherwise: (schema) => schema,
     }),
@@ -44,5 +44,5 @@ export const validationSchemaStockInItem = object().shape({
   qty: number().moreThan(0, 'Harus lebih dari 0').nullable().required('* Required'),
   unit: string().nullable().required('* Required'),
   memo: string().nullable(),
-  isNew: object().nullable(),
+  isNew: bool().nullable(),
 });

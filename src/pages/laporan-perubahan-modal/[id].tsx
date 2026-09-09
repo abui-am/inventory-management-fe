@@ -4,7 +4,7 @@ import React from 'react';
 import { CardDashboard } from '@/components/Container';
 import TableCapitalChange from '@/components/table/TableCapitalChange';
 
-const IncomeReportPage = () => {
+function IncomeReportPage() {
   const { query } = useRouter();
 
   return (
@@ -12,6 +12,6 @@ const IncomeReportPage = () => {
       <TableCapitalChange isView endDate={query.id as string} startDate={query.start_date as string} />
     </CardDashboard>
   );
-};
+}
 
 export default IncomeReportPage;

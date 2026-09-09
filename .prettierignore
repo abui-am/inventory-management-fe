@@ -1,3 +1,11 @@
-.next*
-.next/*
+node_modules
+.next
+out
+build
+coverage
+.codegraph
+package-lock.json
+*.tsbuildinfo
 next-env.d.ts
+report.*.json
+public

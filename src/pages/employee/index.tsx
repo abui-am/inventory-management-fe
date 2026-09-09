@@ -12,15 +12,18 @@ import Table from '@/components/Table';
 import { EMPLOYEE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import useFetchEmployee from '@/hooks/query/useFetchEmployee';
 import { Option } from '@/typings/common';
+import { useDebounceValue } from '@/utils/debounce';
 
 const Home: NextPage<unknown> = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  // 500 ms: tanpa ini tiap ketikan mengirim satu request pencarian
+  const debouncedSearchQuery = useDebounceValue(searchQuery, 500);
   const [paginationUrl, setPaginationUrl] = useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(EMPLOYEE_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[0]);
   const [pageSize, setPageSize] = useState(10);
   const { data: dataEmployee } = useFetchEmployee({
-    search: searchQuery,
+    search: debouncedSearchQuery,
     order_by: sortBy?.data?.reduce((previousValue, currentValue) => {
       return { ...previousValue, [currentValue]: sortType?.value };
     }, {}),
@@ -139,7 +142,7 @@ const Home: NextPage<unknown> = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl(next_page_url ?? '');
         }}

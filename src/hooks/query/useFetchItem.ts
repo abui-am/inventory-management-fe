@@ -18,7 +18,7 @@ const useFetchItemById = (id: string): UseQueryResult<BackendRes<ItemResponse>> 
       return res.data;
     },
     {
-      enabled: !!id,
+      enabled: !!id && (roles?.length ?? 0) > 0,
     }
   );
 
@@ -49,7 +49,7 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
       return res.data;
     },
     {
-      enabled: !!roles,
+      enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0,
       ...options,
     }
   );

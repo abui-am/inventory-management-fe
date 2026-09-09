@@ -20,12 +20,16 @@ export const useFetchLedgerAccounts = (
 ): UseQueryResult<BackendRes<GetLedgerAccountsResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery([keys.ledgerAccounts, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/ledger-accounts', data);
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.ledgerAccounts, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
+        : await getApiBasedOnRoles(roles, ['superadmin', 'admin']).post('/ledger-accounts', data);
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };
@@ -40,12 +44,16 @@ export const useFetchUnpaginatedLedgerAccounts = (
 ): UseQueryResult<BackendRes<GetUnpaginatedLedgerAccountsResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
-  const fetcher = useMyQuery([keys.ledgerAccounts, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledger-accounts', { ...data, paginated: false });
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.ledgerAccounts, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
+        : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledger-accounts', { ...data, paginated: false });
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };

@@ -1,6 +1,6 @@
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { BackendRes, BackendResError } from '@/typings/request';
 import { CreateSalaryPayload, PayPayrollPayload } from '@/typings/salary';
@@ -13,16 +13,8 @@ export const useCreateSalary = (): UseMutationResult<BackendRes<any>, unknown, C
   const mutator = useMutation(
     [keys.salary, 'create'],
     async (data: CreateSalaryPayload) => {
-      try {
-        const res = await apiInstanceAdmin().put<CreateSalaryPayload, AxiosResponse<BackendRes<any>>>(
-          '/payrolls',
-          data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().put<CreateSalaryPayload, AxiosResponse<BackendRes<any>>>('/payrolls', data);
+      return res.data;
     },
     {
       onSuccess: (data) => {
@@ -45,16 +37,11 @@ export const useUpdatePayroll = (): UseMutationResult<BackendRes<any>, unknown, 
   const mutator = useMutation(
     ['pay', keys.salary],
     async (data: PayPayrollPayload) => {
-      try {
-        const res = await apiInstanceAdmin().patch<PayPayrollPayload, AxiosResponse<BackendRes<any>>>(
-          `/payrolls/${data?.id}`,
-          data?.data
-        );
-        return res.data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const res = await apiInstanceAdmin().patch<PayPayrollPayload, AxiosResponse<BackendRes<any>>>(
+        `/payrolls/${data?.id}`,
+        data?.data
+      );
+      return res.data;
     },
     {
       onSuccess: (data) => {

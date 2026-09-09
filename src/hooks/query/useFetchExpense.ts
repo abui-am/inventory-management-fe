@@ -30,7 +30,7 @@ export const useFetchExpense = <TQueryFnData = unknown, TError = unknown>(
         : await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/expenses', data);
       return res.data;
     },
-    { ...options, enabled: !!roles }
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

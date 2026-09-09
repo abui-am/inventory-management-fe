@@ -1,11 +1,12 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import cookie from 'js-cookie';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { BackendResError } from '@/typings/request';
 import apiInstance, { apiInstanceAdmin } from '@/utils/api';
+import reportError from '@/utils/reportError';
 
 import keys from '../keys';
 
@@ -65,7 +66,7 @@ const useAuthMutation = (type: 'login' | 'register') => {
         }
       },
       onError: (e: AxiosError<BackendResError<unknown>>) => {
-        console.error(e, 'ERROR');
+        reportError(e, { mutation: 'login' });
         toast.error(e.response?.data.message ?? '');
       },
     }
@@ -77,13 +78,8 @@ const useCreateAccount = () => {
   return useMutation(
     [keys.users, 'create'],
     async (formik: CreateAccountReqBody) => {
-      try {
-        const { data } = await apiInstanceAdmin().put(`users`, formik);
-        return data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const { data } = await apiInstanceAdmin().put(`users`, formik);
+      return data;
     },
     {
       onSuccess: async ({ message }) => {
@@ -102,13 +98,8 @@ const useForgotPassword = () => {
   return useMutation(
     ['password', 'forgot'],
     async (formik: ForgotPasswordReqBody) => {
-      try {
-        const { data } = await apiInstance().post(`/auth/forgot`, formik);
-        return data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const { data } = await apiInstance().post(`/auth/forgot`, formik);
+      return data;
     },
     {
       onSuccess: async ({ msg }) => {
@@ -126,13 +117,8 @@ const useResetPassword = () => {
   return useMutation(
     ['password', 'reset'],
     async (formik: ResetPasswordReqBody) => {
-      try {
-        const { data } = await apiInstance().post(`/auth/reset`, formik);
-        return data;
-      } catch (e) {
-        console.error(e);
-        throw e;
-      }
+      const { data } = await apiInstance().post(`/auth/reset`, formik);
+      return data;
     },
     {
       onSuccess: async ({ msg }) => {

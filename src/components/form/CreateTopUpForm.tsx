@@ -68,19 +68,21 @@ const CreateTopUp: React.FC<{
     },
   });
 
-  const ledgers = dataResLedger?.data?.ledger_accounts ?? [];
+  const ledgers = dataResLedger?.data?.ledger_accounts;
 
   const paymentMethodLabel = values?.paymentMethod?.label;
 
   const typeOptions = useMemo(
     () =>
-      ledgers
-        ?.map(({ name, id, ...props }) => ({
+      (ledgers ?? [])
+        .map(({ name, id, ...props }) => ({
           label: name,
           value: id,
           data: props,
         }))
-        .filter((val) => ['Kas', 'Giro', 'Bank'].filter((val) => val !== paymentMethodLabel).includes(val.label)) ?? [],
+        .filter((option) =>
+          ['Kas', 'Giro', 'Bank'].filter((label) => label !== paymentMethodLabel).includes(option.label)
+        ),
     [ledgers, paymentMethodLabel]
   );
 
@@ -96,7 +98,6 @@ const CreateTopUp: React.FC<{
                   value={values.paymentMethod}
                   options={paymentMethodOptions}
                   name="paymentMethod"
-                  getPopupContainer={(trigger: any) => trigger.parentNode}
                   onChange={(value) => setFieldValue('paymentMethod', value)}
                 />
               </WithLabelAndError>
@@ -105,11 +106,7 @@ const CreateTopUp: React.FC<{
             <div className="sm:col-span-2">
               {typeOptions?.length > 1 && (
                 <WithLabelAndError required touched={touched} errors={errors} name="ledger" label="Kepada Akun">
-                  <ThemedSelect
-                    getPopupContainer={(trigger: any) => trigger.parentNode}
-                    onChange={(val) => setFieldValue('ledger', val)}
-                    options={typeOptions}
-                  />
+                  <ThemedSelect onChange={(val) => setFieldValue('ledger', val)} options={typeOptions} />
                 </WithLabelAndError>
               )}
             </div>

@@ -14,9 +14,10 @@ import { SALE_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import useFetchSales from '@/hooks/query/useFetchSale';
-import useWindowSize, { MD } from '@/hooks/useWindowSize';
+import useBreakpoint, { MD } from '@/hooks/useBreakpoint';
 import { Option } from '@/typings/common';
 import { Pic, SaleTransactionsData, Sender } from '@/typings/sale';
+import { useDebounceValue } from '@/utils/debounce';
 import { formatDate, formatPaymentMethod, formatToIDR } from '@/utils/format';
 import printInvoice from '@/utils/printInvoice';
 
@@ -26,19 +27,20 @@ const TransactionPage: NextPage<unknown> = () => {
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
+  // 500 ms: tanpa ini tiap ketikan mengirim satu request pencarian
+  const debouncedSearch = useDebounceValue(search, 500);
   const [transaction, setTranscation] = useState<SaleTransactionsData | null>();
   const params = sortBy?.data?.reduce((previousValue, currentValue) => {
     return { ...previousValue, [currentValue]: sortType?.value };
   }, {});
-  const windowSize = useWindowSize();
-  const isMd = windowSize >= MD;
+  const isMd = useBreakpoint(MD);
   const { data: dataMyself } = useFetchMyself();
 
   const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
 
   const { data: dataTrasaction } = useFetchSales({
     order_by: params,
-    search,
+    search: debouncedSearch,
     per_page: pageSize,
     forceUrl: paginationUrl,
   });
@@ -230,7 +232,7 @@ const TransactionPage: NextPage<unknown> = () => {
         onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl((next_page_url as string) ?? '');
         }}

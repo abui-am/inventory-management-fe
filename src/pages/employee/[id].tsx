@@ -16,6 +16,7 @@ import { useFetchUserById } from '@/hooks/query/useFetchUser';
 import { Employee } from '@/typings/employee';
 import { formatDate } from '@/utils/format';
 import formatCurrency from '@/utils/formatCurrency';
+import reportError from '@/utils/reportError';
 
 const EmployeeDetails: NextPage = () => {
   const [activeTab, setActive] = useState(0);
@@ -38,7 +39,8 @@ const EmployeeDetails: NextPage = () => {
       toast.success('Sukses');
       router.push('/employee');
     } catch (e) {
-      console.log(e);
+      reportError(e, { form: 'employee/edit' });
+      toast.error('Gagal menyimpan data karyawan');
     }
   };
   const renderView = () => {
@@ -60,7 +62,7 @@ const EmployeeDetails: NextPage = () => {
 
   return (
     <CardDashboard>
-      <Modal isOpen={openModal}>
+      <Modal isOpen={openModal} onRequestClose={() => setOpenModal(false)}>
         <h3 className="text-base">Apakah kamu yakin untuk menontaktifkan karyawan?</h3>
         <div className="mt-8 flex justify-end">
           <div className="flex">
@@ -114,13 +116,7 @@ const EmployeeDetails: NextPage = () => {
   );
 };
 
-const EmployeeInfo = ({
-  data,
-  isLoading,
-}: {
-  data: Omit<Employee, 'first_name' | 'last_name'>;
-  isLoading: boolean;
-}) => {
+function EmployeeInfo({ data, isLoading }: { data: Omit<Employee, 'first_name' | 'last_name'>; isLoading: boolean }) {
   const { birth_date, gender, email, phone_number, addresses, salary, active } = data;
   const address = addresses?.filter((val) => val.title === 'Alamat Rumah')[0];
   const { village } = address ?? {};
@@ -154,11 +150,9 @@ const EmployeeInfo = ({
         <div className="flex-1">
           <div>{address?.complete_address ?? ''}</div>
           {province && village && subdistrict && city && (
-            <>
-              <div>{`Kelurahan ${village?.name ?? ''}, Kecamatan ${subdistrict?.name ?? ''}, ${city?.name ?? ''}, ${
-                province?.name ?? ''
-              }`}</div>
-            </>
+            <div>{`Kelurahan ${village?.name ?? ''}, Kecamatan ${subdistrict?.name ?? ''}, ${city?.name ?? ''}, ${
+              province?.name ?? ''
+            }`}</div>
           )}
         </div>
       </div>
@@ -186,7 +180,7 @@ const EmployeeInfo = ({
       )}
     </div>
   );
-};
+}
 
 const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: string; userId: string }> = ({
   hasDashboardAccount = true,

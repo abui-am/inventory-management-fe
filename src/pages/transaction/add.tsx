@@ -22,6 +22,7 @@ import { Option } from '@/typings/common';
 import { calculateChange } from '@/utils/change';
 import { formatToIDR } from '@/utils/format';
 import printInvoice from '@/utils/printInvoice';
+import reportError from '@/utils/reportError';
 import { validationSchemaTransaction } from '@/utils/validation/transaction';
 
 export type AddStockInTableValue = {
@@ -155,7 +156,8 @@ const AddTransactionPage: NextPage = () => {
         setSubmitting(false);
         setIsOpenSummary(true);
       } catch (e) {
-        console.log(e);
+        reportError(e, { form: 'transaction/add' });
+        toast.error('Gagal menyimpan transaksi');
       }
     },
   });
@@ -403,7 +405,7 @@ const AddTransactionPage: NextPage = () => {
                 </div>
               )}
               <div className="w-full px-2 mb-3">
-                <Button className="mt-4" fullWidth type="submit">
+                <Button className="mt-4" fullWidth disabled={isSubmitting} type="submit">
                   Simpan Transaksi
                 </Button>
                 <ModalSummary
@@ -473,78 +475,87 @@ const AddNewItem: React.FC<{
   );
 };
 
-const ModalSummary: React.FC<{ isOpen: boolean; onClose: () => void; values: AddStockValue; transactionId: string }> =
-  ({ isOpen, values, onClose, transactionId }) => {
-    const router = useRouter();
-    const handleClick = () => {
-      router.push('/transaction');
-    };
-
-    const { refetch: fetchBlobPdf, isLoading } = useFetchInvoice(transactionId, {
-      enabled: false,
-    });
-    const handlePrintInvoice = async () => {
-      const { data } = await fetchBlobPdf();
-      if (!data) return;
-      printInvoice(data);
-    };
-
-    // const finalPrice = values.totalPrice - (values?.discount ?? 0);
-    return (
-      <Modal isOpen={isOpen} ariaHideApp={false}>
-        <div className="justify-center flex flex-col">
-          <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
-          <label className="">Nama Customer</label>1<p className="font-bold mb-4">{values.customer?.label}</p>
-          <label className="">Discount</label>
-          <p className="font-bold mb-4">{formatToIDR(+(values?.discount ?? 0))}</p>
-          <label className="">Ongkos Kirim</label>
-          <p className="font-bold mb-4">{formatToIDR(+(values?.shippingCost ?? 0))}</p>
-          <label className="">Harga Total</label>
-          <p className="font-bold mb-4">
-            {formatToIDR(values.totalPrice - +(values?.discount ?? 0) - +(values?.shippingCost ?? 0))}
-          </p>
-          <label className="">Dibayarkan</label>
-          {values.payments?.map((val) => {
-            return (
-              <p className="font-bold mb-4" key={val.payAmount + val.paymentDue?.toString() + val.paymentMethod}>
-                {formatToIDR(+(val?.payAmount ?? 0))}({val.paymentMethod.label})
-              </p>
-            );
-          })}
-          <p>
-            Kembalian :{' '}
-            {formatToIDR(
-              calculateChange(
-                values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
-                values.totalPrice,
-                +(values.discount ?? 0),
-                +(values.shippingCost ?? 0)
-              )
-            )}
-          </p>
-          <ModalActionWrapper>
-            <Button
-              disabled={isLoading}
-              className="mr-2 w-full"
-              variant="primary"
-              loading={isLoading}
-              onClick={handlePrintInvoice}
-            >
-              Print Invoice
-            </Button>
-          </ModalActionWrapper>
-          <ModalActionWrapper>
-            <Button className="mr-2" variant="secondary" onClick={handleClick}>
-              Ke Halaman Transaksi
-            </Button>
-            <Button variant="outlined" onClick={onClose}>
-              Tetap di halaman ini
-            </Button>
-          </ModalActionWrapper>
-        </div>
-      </Modal>
-    );
+const ModalSummary: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  values: AddStockValue;
+  transactionId: string;
+}> = ({ isOpen, values, onClose, transactionId }) => {
+  const router = useRouter();
+  const handleClick = () => {
+    router.push('/transaction');
   };
+
+  const { refetch: fetchBlobPdf, isLoading } = useFetchInvoice(transactionId, {
+    enabled: false,
+  });
+  const handlePrintInvoice = async () => {
+    const { data } = await fetchBlobPdf();
+    if (!data) return;
+    printInvoice(data);
+  };
+
+  // const finalPrice = values.totalPrice - (values?.discount ?? 0);
+  return (
+    <Modal isOpen={isOpen} onRequestClose={onClose}>
+      <div className="justify-center flex flex-col">
+        <h2 className="text-2xl font-bold mb-4">Berhasil Membuat Transaksi</h2>
+        <label className="">Nama Customer</label>
+        <p className="font-bold mb-4">{values.customer?.label}</p>
+        <label className="">Discount</label>
+        <p className="font-bold mb-4">{formatToIDR(+(values?.discount ?? 0))}</p>
+        <label className="">Ongkos Kirim</label>
+        <p className="font-bold mb-4">{formatToIDR(+(values?.shippingCost ?? 0))}</p>
+        <label className="">Harga Total</label>
+        <p className="font-bold mb-4">
+          {formatToIDR(values.totalPrice - +(values?.discount ?? 0) - +(values?.shippingCost ?? 0))}
+        </p>
+        <label className="">Dibayarkan</label>
+        {values.payments?.map((val, index) => {
+          // Key lama: `payAmount + paymentDue?.toString() + paymentMethod`. Kalau paymentDue
+          // null hasilnya NaN, dan paymentMethod adalah objek — jadi key-nya menjadi
+          // "NaN[object Object]" dan bertabrakan antar baris.
+          return (
+            // eslint-disable-next-line react/no-array-index-key -- baris pembayaran tidak punya id dari API
+            <p className="font-bold mb-4" key={`${val.paymentMethod?.value ?? 'payment'}-${index}`}>
+              {formatToIDR(+(val?.payAmount ?? 0))}({val.paymentMethod.label})
+            </p>
+          );
+        })}
+        <p>
+          Kembalian :{' '}
+          {formatToIDR(
+            calculateChange(
+              values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
+              values.totalPrice,
+              +(values.discount ?? 0),
+              +(values.shippingCost ?? 0)
+            )
+          )}
+        </p>
+        <ModalActionWrapper>
+          <Button
+            disabled={isLoading}
+            className="mr-2 w-full"
+            variant="primary"
+            loading={isLoading}
+            onClick={handlePrintInvoice}
+          >
+            Print Invoice
+          </Button>
+        </ModalActionWrapper>
+        <ModalActionWrapper>
+          <Button className="mr-2" variant="secondary" onClick={handleClick}>
+            Ke Halaman Transaksi
+          </Button>
+          <Button variant="outlined" onClick={onClose}>
+            Tetap di halaman ini
+          </Button>
+        </ModalActionWrapper>
+      </div>
+    </Modal>
+  );
+};
 
 const ModalEditItem: React.FC<{
   editId: string;

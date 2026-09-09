@@ -37,9 +37,11 @@ const PaySalaryForm: React.FC<{
   onClose: (data: any) => void;
 }> = ({ onSave, onClose, payroll }) => {
   const { mutateAsync, isLoading } = useUpdatePayroll();
+  // Dikoersi di batas API: employee_salary/paid_amount bisa datang null atau string, dan
+  // `undefined - undefined` = NaN yang lalu tampil di UI dan terkirim sebagai jumlah bayar.
   const initialValues: PaySalaryFormValues = {
-    salary: payroll.employee_salary,
-    paidAmount: payroll.paid_amount,
+    salary: +(payroll.employee_salary ?? 0),
+    paidAmount: +(payroll.paid_amount ?? 0),
     amount: null,
     payFull: false,
     transactionType: transactionTypeOptions[0],
@@ -55,7 +57,7 @@ const PaySalaryForm: React.FC<{
       const jsonBody: PayPayrollPayload = {
         id: payroll.id,
         data: {
-          amount: values?.payFull ? values?.salary - values?.paidAmount : values?.amount ?? 0,
+          amount: values?.payFull ? values.salary - values.paidAmount : values?.amount ?? 0,
           payment_method: values?.transactionType?.value ?? '',
         },
       };
@@ -100,7 +102,7 @@ const PaySalaryForm: React.FC<{
                   <div className="h-16 border rounded-md py-4 px-4 w-max">
                     <span className="text-xl text-gray-900 font-bold block">
                       <span className="text-gray-500 mr-3">IDR</span>
-                      {formatToIDR(values?.salary - values?.paidAmount)}
+                      {formatToIDR(values.salary - values.paidAmount)}
                     </span>
                   </div>
                 ) : (
@@ -133,8 +135,8 @@ const PaySalaryForm: React.FC<{
                 <div className="flex mt-2 items-center mb-2">
                   <Checkbox
                     name="payFull"
-                    onChange={(e: any) => {
-                      setFieldValue('amount', values?.salary - values?.paidAmount);
+                    onChange={(e) => {
+                      setFieldValue('amount', values.salary - values.paidAmount);
                       setFieldValue('payFull', e.target.checked);
                     }}
                   />

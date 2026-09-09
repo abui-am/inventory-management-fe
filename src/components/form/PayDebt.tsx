@@ -33,10 +33,15 @@ const PayDebtForm: React.FC<{
     state: { hideLabel },
   } = useApp();
   const { mutateAsync, isLoading } = useUpdateDebt();
+  // debtAmount/paidAmount sudah dijaga terhadap debt yang undefined; unpaidAmount dulu
+  // menghitung ulang dari debt mentah (`+undefined - +undefined` = NaN) sehingga NaN bisa
+  // tampil di UI dan terkirim sebagai paid_amount saat "bayar lunas".
+  const debtAmount = debt?.amount ? +debt.amount : 0;
+  const paidAmount = debt?.paid_amount ? +debt.paid_amount : 0;
   const initialValues: PayDebtFormValues = {
-    debtAmount: debt?.amount ? +debt?.amount : 0,
-    paidAmount: debt?.paid_amount ? +debt?.paid_amount : 0,
-    unpaidAmount: +debt?.amount - +debt?.paid_amount,
+    debtAmount,
+    paidAmount,
+    unpaidAmount: debtAmount - paidAmount,
     payFull: false,
     amount: '',
     paymentMethod: PAYMENT_METHOD_OPTIONS_DEBT[0],
@@ -52,7 +57,7 @@ const PayDebtForm: React.FC<{
         id: debt?.id,
         data: {
           payment_method: values?.paymentMethod?.value,
-          paid_amount: values?.payFull ? +values?.unpaidAmount : +values?.amount,
+          paid_amount: values.payFull ? +values.unpaidAmount : +values.amount,
         },
       };
       const res = await mutateAsync(jsonBody);
@@ -112,7 +117,7 @@ const PayDebtForm: React.FC<{
 
               {!values.payFull && (
                 <small className="text-red-500 block">
-                  Batas maksimal {formatToIDR(values?.debtAmount - values?.paidAmount)}
+                  Batas maksimal {formatToIDR(values.debtAmount - values.paidAmount)}
                 </small>
               )}
 
@@ -120,7 +125,7 @@ const PayDebtForm: React.FC<{
                 <div className="flex mt-2 mb-2 items-center">
                   <Checkbox
                     name="payFull"
-                    onChange={(e: any) => {
+                    onChange={(e) => {
                       setFieldValue('amount', values?.unpaidAmount);
                       setFieldValue('payFull', e.target.checked);
                     }}

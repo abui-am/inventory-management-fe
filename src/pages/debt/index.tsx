@@ -13,7 +13,7 @@ import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { DEBT_SORT_BY_OPTIONS, SORT_TYPE_OPTIONS } from '@/constants/options';
 import { useFetchDebt } from '@/hooks/query/useFetchDebt';
-import useWindowSize, { LG } from '@/hooks/useWindowSize';
+import useBreakpoint, { LG } from '@/hooks/useBreakpoint';
 import { Option } from '@/typings/common';
 import { Datum } from '@/typings/debts';
 import { useDebounceValue } from '@/utils/debounce';
@@ -31,8 +31,7 @@ const PrivePage: NextPage<unknown> = () => {
 
   const debouncedSearch = useDebounceValue(search, 500);
 
-  const windowSize = useWindowSize();
-  const isLg = windowSize >= LG;
+  const isLg = useBreakpoint(LG);
   const [toDate, setToDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(dayjs().subtract(1, 'year').toDate());
 
@@ -250,17 +249,17 @@ const PrivePage: NextPage<unknown> = () => {
           to: `${to ?? '0'}`,
           total: `${total ?? '0'}`,
         }}
-        onClickGoToPage={(val: any) => {
+        onClickGoToPage={(val) => {
           setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
-        onChangePerPage={(page: any) => {
+        onChangePerPage={(page) => {
           setPaginationUrl('');
           setPageSize(page?.value ?? 0);
         }}
-        onClickPageButton={(url: any) => {
+        onClickPageButton={(url) => {
           setPaginationUrl(url);
         }}
-        links={links?.filter(({ label }: any) => !['&laquo; Previous', 'Next &raquo;'].includes(label)) ?? []}
+        links={links ?? []}
         onClickNext={() => {
           setPaginationUrl((next_page_url as string) ?? '');
         }}
@@ -273,16 +272,14 @@ const PrivePage: NextPage<unknown> = () => {
 };
 
 const PayDebt: React.FC<{ debt: Datum; handleOpen: () => void }> = ({ debt, handleOpen }) => {
+  if (debt.is_paid) return null;
+
   return (
-    <>
-      {!debt.is_paid && (
-        <Tippy content="Bayar utang">
-          <Button className="ml-3" onClick={handleOpen}>
-            <CashCoin />
-          </Button>
-        </Tippy>
-      )}
-    </>
+    <Tippy content="Bayar utang">
+      <Button className="ml-3" onClick={handleOpen}>
+        <CashCoin />
+      </Button>
+    </Tippy>
   );
 };
 

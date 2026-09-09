@@ -1,3 +1,6 @@
+/* eslint-disable no-console -- mock server miragejs, hanya dipakai saat development */
+/* eslint-disable import/no-extraneous-dependencies -- miragejs sengaja di devDependencies:
+   berkas ini alat pengembangan dan tidak di-import dari kode aplikasi mana pun. */
 import { createServer } from 'miragejs';
 const { NEXT_PUBLIC_BASE_URL } = process.env;
 

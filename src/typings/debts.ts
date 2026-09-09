@@ -5,7 +5,7 @@ export interface Datum {
   amount: string;
   due_date: string;
   is_paid: boolean;
-  paid_date?: any;
+  paid_date?: string | null;
   paid_amount: string;
   created_at: Date;
   updated_at: Date;
@@ -29,10 +29,10 @@ export interface Debts {
   last_page: number;
   last_page_url: string;
   links: Link[];
-  next_page_url?: any;
+  next_page_url?: string | null;
   path: string;
   per_page: number;
-  prev_page_url?: any;
+  prev_page_url?: string | null;
   to: number;
   total: number;
 }

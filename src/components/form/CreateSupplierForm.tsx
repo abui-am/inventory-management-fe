@@ -6,7 +6,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Button';
-import { PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from '@/components/Form';
+import { PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from '@/components/TextField';
 import { useCreateSupplier, useEditSupplier, useFetchSupplierById } from '@/hooks/query/useFetchSupplier';
 import { CreateSupplierBody, CreateSupplierResponse } from '@/typings/supplier';
 

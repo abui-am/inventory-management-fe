@@ -44,44 +44,51 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
   const myself = useFetchMyself();
   const { back } = useRouter();
 
-  const initialValues =
-    isEdit && !isLoading
-      ? {
-          salary: editingEmployee?.salary ?? 0,
-          firstName: editingEmployee?.first_name ?? '',
-          lastName: editingEmployee?.last_name ?? '',
-          nik: editingEmployee?.nik ?? '',
-          birthday: dayjs(editingEmployee?.birth_date).toDate() ?? new Date(),
-          gender: editingEmployee?.gender ? getOptionByValue(genderOptions, editingEmployee?.gender) : genderOptions[0],
-          email: editingEmployee?.email ?? '',
-          handphoneNumber: editingEmployee?.phone_number ?? '',
-          address: editingEmployee?.addresses ? homeAddress?.complete_address : '',
-          position: editingEmployee?.position ?? '',
-          province: homeAddress ? createOption(province?.name ?? '', province?.id?.toString() ?? '') : undefined,
-          city: city ? createOption(city?.name ?? '', city?.id?.toString() ?? '') : undefined,
-          subdistrict: subdistrict
-            ? createOption(subdistrict?.name ?? '', subdistrict?.id?.toString() ?? '')
-            : undefined,
-          village: village ? createOption(village?.name ?? '', village?.id?.toString() ?? '') : undefined,
-        }
-      : {
-          salary: 0,
-          firstName: '',
-          lastName: '',
-          nik: '',
-          birthday: new Date(),
-          gender: genderOptions[0],
-          email: '',
-          handphoneNumber: '',
-          address: '',
-          position: '',
-          province: undefined,
-          city: undefined,
-          subdistrict: undefined,
-          village: undefined,
-        };
+  // Sebelumnya objek ini dibuat ulang tiap render, jadi useMemo di bawah (yang bergantung
+  // padanya) tidak pernah benar-benar memo dan skema yup dibangun ulang setiap render.
+  const initialValues = useMemo(
+    () =>
+      isEdit && !isLoading
+        ? {
+            salary: editingEmployee?.salary ?? 0,
+            firstName: editingEmployee?.first_name ?? '',
+            lastName: editingEmployee?.last_name ?? '',
+            nik: editingEmployee?.nik ?? '',
+            birthday: dayjs(editingEmployee?.birth_date).toDate() ?? new Date(),
+            gender: editingEmployee?.gender
+              ? getOptionByValue(genderOptions, editingEmployee?.gender)
+              : genderOptions[0],
+            email: editingEmployee?.email ?? '',
+            handphoneNumber: editingEmployee?.phone_number ?? '',
+            address: editingEmployee?.addresses ? homeAddress?.complete_address : '',
+            position: editingEmployee?.position ?? '',
+            province: homeAddress ? createOption(province?.name ?? '', province?.id?.toString() ?? '') : undefined,
+            city: city ? createOption(city?.name ?? '', city?.id?.toString() ?? '') : undefined,
+            subdistrict: subdistrict
+              ? createOption(subdistrict?.name ?? '', subdistrict?.id?.toString() ?? '')
+              : undefined,
+            village: village ? createOption(village?.name ?? '', village?.id?.toString() ?? '') : undefined,
+          }
+        : {
+            salary: 0,
+            firstName: '',
+            lastName: '',
+            nik: '',
+            birthday: new Date(),
+            gender: genderOptions[0],
+            email: '',
+            handphoneNumber: '',
+            address: '',
+            position: '',
+            province: undefined,
+            city: undefined,
+            subdistrict: undefined,
+            village: undefined,
+          },
+    [isEdit, isLoading, editingEmployee, homeAddress, province, city, subdistrict, village]
+  );
 
-  const isOwner = myself.data?.data?.user?.roles.map(({ name }) => name).includes('superadmin' as any);
+  const isOwner = myself.data?.data?.user?.roles.map(({ name }) => name).includes('superadmin');
   const validationSchema = useMemo(
     () =>
       object().shape({

@@ -1,10 +1,10 @@
 /* eslint-disable react/no-array-index-key */
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
 import { BagX as FileX } from 'react-bootstrap-icons';
-import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 import { CardDashboard } from '@/components/Container';
 import { DatePickerComponent } from '@/components/Form';
@@ -14,7 +14,7 @@ import { HomeProvider, useHome } from '@/context/home-context';
 import { usePermission } from '@/context/permission-context';
 import { useFetchLedgers, useFetchUnpaginatedLedgers } from '@/hooks/query/useFetchLedgers';
 import useFetchSales from '@/hooks/query/useFetchSale';
-import useWindowSize, { MD } from '@/hooks/useWindowSize';
+import useBreakpoint, { MD } from '@/hooks/useBreakpoint';
 import { SalesResponseUnpaginated } from '@/typings/sale';
 import {
   formatDate,
@@ -23,6 +23,15 @@ import {
   formatPaymentMethod,
   formatToIDR,
 } from '@/utils/format';
+
+// recharts + lodash + d3 = chunk ±390 kB mentah, dan chart-nya ada di bawah fold.
+// ssr: false karena ResponsiveContainer mengukur lebar container di browser.
+const SalesChart = dynamic(() => import('@/components/SalesChart'), {
+  ssr: false,
+  // 308 = SALES_CHART_HEIGHT di SalesChart.tsx. Sengaja tidak di-import supaya modulnya
+  // tidak ikut masuk bundel awal — import statis apa pun dari situ membatalkan code-splitting.
+  loading: () => <div style={{ height: 308 }} />,
+});
 type CardProps = {
   label: string;
   value: string | number;
@@ -58,18 +67,6 @@ const Home: NextPage = () => {
   //   { name: 'Group D', value: 200 },
   // ];
 
-  const formatTick = (number: number) => {
-    if (number > 1000000000) {
-      return `${(number / 1000000000).toString()} Miliar`;
-    }
-    if (number > 1000000) {
-      return `${(number / 1000000).toString()} Juta`;
-    }
-    if (number > 1000) {
-      return `${(number / 1000).toString()} Ribu`;
-    }
-    return number.toString();
-  };
   const { state, dispatch } = useHome();
 
   const { data: resPenjualan } = useFetchUnpaginatedLedgers({
@@ -164,18 +161,7 @@ const Home: NextPage = () => {
           </div>
           <div className="w-full p-3">
             <CardDashboard title="Laporan penjualan">
-              <ResponsiveContainer width="100%" height={308}>
-                <LineChart data={data}>
-                  <XAxis dataKey="name" />
-                  <YAxis
-                    tickFormatter={formatTick}
-                    style={{
-                      fontSize: 10,
-                    }}
-                  />
-                  <Line type="monotone" dataKey="total" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
+              <SalesChart data={data} />
             </CardDashboard>
           </div>
         </div>
@@ -244,7 +230,7 @@ const getTopSaleFromSales = (data: SalesResponseUnpaginated) => {
   return topSaleItems.sort(({ quantity: qty }, { quantity }) => quantity - qty).slice(0, 9);
 };
 
-const TopSale = () => {
+function TopSale() {
   const { state } = useHome();
   const { data, isFetching } = useFetchSales<SalesResponseUnpaginated>({
     start_date: state.startDate,
@@ -285,11 +271,10 @@ const TopSale = () => {
       })}
     </CardDashboard>
   );
-};
+}
 
-const LastTransaction = () => {
-  const windowSize = useWindowSize();
-  const isMd = windowSize >= MD;
+function LastTransaction() {
+  const isMd = useBreakpoint(MD);
   const { data } = useFetchSales({
     per_page: 6,
     order_by: {
@@ -364,15 +349,15 @@ const LastTransaction = () => {
       <Table columns={columns} data={dataTable} />
     </CardDashboard>
   );
-};
+}
 
-const Card = ({ label, value }: CardProps) => {
+function Card({ label, value }: CardProps) {
   return (
     <CardDashboard>
       <label className="text-sm mb-1 block">{label}</label>
       <span className="text-2xl font-bold">{value}</span>
     </CardDashboard>
   );
-};
+}
 
 export default HomeWithWrapper;

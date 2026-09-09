@@ -1,4 +1,5 @@
 import { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import { AxiosRequestConfig } from 'axios';
 
 import { BackendRes } from '@/typings/request';
 import { SalesResponse } from '@/typings/sale';
@@ -16,10 +17,10 @@ const useFetchSales = <T, TQueryFnData = unknown, TError = unknown>(
     search: string;
     order_by: Record<string, string>;
     where: Record<string, unknown>;
-    [key: string]: any;
+    [key: string]: unknown;
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<T & SalesResponse>>,
-  config?: any
+  config?: AxiosRequestConfig
 ): UseQueryResult<BackendRes<T & SalesResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name);
@@ -49,7 +50,7 @@ const useFetchSales = <T, TQueryFnData = unknown, TError = unknown>(
     },
     {
       ...options,
-      enabled: (roles?.length ?? 0) > 0,
+      enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0,
     }
   );
 

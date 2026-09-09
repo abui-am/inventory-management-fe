@@ -38,3 +38,7 @@ yarn-error.log*
 
 # codegraph index (tokless)
 .codegraph/
+
+# Kanvas desain hasil seed — 2,6 MB artefak yang bisa dibangkitkan ulang
+# dari berkas *.dc.html + canvas.json di design/.
+/design/*.html

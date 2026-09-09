@@ -23,12 +23,16 @@ export const useFetchDebt = (
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
 
-  const fetcher = useMyQuery([keys.debts, data, roles], async () => {
-    const res = data.forceUrl
-      ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
-      : await getApiBasedOnRoles(roles, ['superadmin']).post('/debts', data);
-    return res.data;
-  });
+  const fetcher = useMyQuery(
+    [keys.debts, data, roles],
+    async () => {
+      const res = data.forceUrl
+        ? await apiInstanceWithoutBaseUrl().post(data.forceUrl, data)
+        : await getApiBasedOnRoles(roles, ['superadmin']).post('/debts', data);
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 
   return fetcher;
 };
