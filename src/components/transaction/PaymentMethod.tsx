@@ -118,17 +118,16 @@ const PaymentMethod: React.FC<
           />
         )}
         {withPayFull && values?.payments.length === 1 && (
-          <div className="flex mt-2 items-center mb-2">
-            <Checkbox
-              checked={values.payFull}
-              name="payFull"
-              onChange={(e) => {
-                setFieldValue(`payments.[${index}].payAmount`, totalPrice);
-                setFieldValue('payFull', e.target?.checked);
-              }}
-            />
-            <label className="text-base ml-1">Seluruhnya</label>
-          </div>
+          <Checkbox
+            checked={values.payFull}
+            name="payFull"
+            onChange={(e) => {
+              setFieldValue(`payments.[${index}].payAmount`, totalPrice);
+              setFieldValue('payFull', e.target?.checked);
+            }}
+          >
+            Seluruhnya
+          </Checkbox>
         )}
         {payAmountError && touched.payments?.[index]?.payAmount && (
           <span className="text-xs text-red-500">{payAmountError}</span>

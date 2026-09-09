@@ -1,6 +1,5 @@
 /* eslint-disable react/require-default-props */
 import Tippy from '@tippyjs/react';
-import clsx from 'clsx';
 import React, {
   ButtonHTMLAttributes,
   DetailedHTMLProps,
@@ -12,83 +11,54 @@ import React, {
 import { X } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
+import { Button as UIButton, type ButtonProps as UIButtonProps } from '@/components/ui/button';
 import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
+import { cn } from '@/lib/cn';
 import reportError from '@/utils/reportError';
 
 import Modal, { ModalActionWrapper } from './Modal';
 
-const RoundedButton: React.FC<
-  PropsWithChildren<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>>
-> = ({ children, className, ...props }) => {
-  return (
-    <button
-      type="button"
-      {...props}
-      className={clsx(
-        'p-2 hover:bg-blueGray-400 rounded-full flex items-center justify-center cursor-pointer transition-color duration-75 ease-out',
-        className
-      )}
-    >
-      {children}
-    </button>
-  );
-};
+/**
+ * Adapter ke primitive baru di components/ui/button. Nama varian lama dipetakan
+ * supaya 25 pemanggil tidak perlu ikut berubah di batch ini; call site dipindahkan
+ * ke `@/components/ui/button` saat halamannya digarap di Fase 4.
+ */
+const LEGACY_VARIANT = {
+  primary: 'default',
+  secondary: 'ghost',
+  gray: 'secondary',
+  outlined: 'outline',
+  danger: 'destructive',
+} as const;
 
-type ButtonProps = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'gray' | 'outlined' | 'danger';
+const RoundedButton = forwardRef<
+  HTMLButtonElement,
+  PropsWithChildren<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>>
+>(({ children, className, ...props }, ref) => (
+  <UIButton ref={ref} variant="ghost" size="icon" className={cn('rounded-full', className)} {...props}>
+    {children}
+  </UIButton>
+));
+
+RoundedButton.displayName = 'RoundedButton';
+
+type ButtonProps = Omit<UIButtonProps, 'variant' | 'size'> & {
+  variant?: keyof typeof LEGACY_VARIANT;
   fullWidth?: boolean;
   Icon?: JSX.Element;
   size?: 'small' | 'medium';
-  loading?: boolean;
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, variant = 'primary', fullWidth, Icon, size, ...props }, ref) => {
-    const classes = {
-      primary: 'bg-blue-600 hover:bg-blue-700 shadow-md text-white',
-      secondary: 'hover:text-blue-600',
-      gray: 'bg-blueGray-200 hover:text-white hover:bg-blue-600',
-      outlined: 'border border-blue-600 rounded-md text-blue-600 hover:bg-blue-600 hover:text-white',
-      danger: 'bg-red-500 text-white hover:text-white hover:bg-red-600',
-    };
-
-    const classesDisabled = {
-      primary: 'disabled:bg-blue-400 disabled:cursor-auto',
-      secondary: 'disabled:cursor-auto',
-      gray: 'disabled:cursor-auto',
-      outlined: 'disabled:border-gray-600 disabled:text-gray-600',
-      danger: 'disabled:cursor-auto',
-    };
-    return (
-      <button
-        type="button"
-        className={clsx(
-          'rounded-md font-bold relative transition-colors',
-          size === 'small' ? 'min-h-9 px-2 py-1' : 'min-h-11 px-4 py-2',
-          classes[variant],
-          classesDisabled[variant],
-          fullWidth ? 'w-full' : '',
-          Icon ? 'pl-10' : '',
-          className
-        )}
-        {...props}
-        ref={ref}
-      >
-        {Icon && (
-          <div
-            className={clsx(
-              variant === 'primary' ? 'text-white' : '',
-              'absolute flex items-center left-3 top-0 bottom-0 m-auto'
-            )}
-          >
-            {Icon}
-          </div>
-        )}
-        <div>{children}</div>
-      </button>
-    );
-  }
+  ({ children, variant = 'primary', size, Icon, ...props }, ref) => (
+    <UIButton ref={ref} variant={LEGACY_VARIANT[variant]} size={size === 'small' ? 'sm' : 'default'} {...props}>
+      {Icon}
+      {children}
+    </UIButton>
+  )
 );
+
+Button.displayName = 'Button';
 
 export function ButtonWithModal({
   text,

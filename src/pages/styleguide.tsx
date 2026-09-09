@@ -1,11 +1,33 @@
-import { AreaChart, BarList } from '@tremor/react';
-import { AlertTriangle, ArrowDownToLine, Check, ChevronDown, Eye, Loader2, Plus, Search, Trash2 } from 'lucide-react';
+import Tippy from '@tippyjs/react';
+import { BarList } from '@tremor/react';
+import { AlertTriangle, ArrowDownToLine, Check, ChevronDown, Eye, Plus, Search, Trash2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import toast from 'react-hot-toast';
 
+import { DatePickerComponent, ThemedSelect } from '@/components/Form';
+import Modal, { ModalActionWrapper } from '@/components/Modal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import CommandPalette from '@/components/ui/command-palette';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import ProgressBar from '@/components/ui/progress-bar';
+import Skeleton from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import { cn } from '@/lib/cn';
+
+// AreaChart memakai recharts, yang mengukur DOM untuk menempatkan sumbu — jadi di server
+// ia merender tanpa label sumbu, di klien dengan label. Selisih itulah yang membuat React 18
+// membuang seluruh pohon SSR halaman ini (error #425/#418/#423). ssr:false menghentikannya.
+// pages/index.tsx sudah melakukan hal yang sama untuk chart-nya.
+const AreaChart = dynamic(() => import('@tremor/react').then((m) => m.AreaChart), {
+  ssr: false,
+  loading: () => <div className="h-56" />,
+});
 
 /* ── kerangka halaman ─────────────────────────────────────────────────────── */
 
@@ -377,6 +399,359 @@ function TremorSection() {
   );
 }
 
+/* ── tombol ───────────────────────────────────────────────────────────────── */
+
+const BUTTON_VARIANTS = [
+  ['default', 'Aksi utama halaman. Satu saja per layar.'],
+  ['secondary', 'Aksi pendamping yang masih sering dipakai.'],
+  ['outline', 'Netral: batal, tutup, kembali.'],
+  ['ghost', 'Aksi di dalam baris tabel atau toolbar padat.'],
+  ['destructive', 'Menghapus data. Selalu lewat konfirmasi.'],
+  ['destructive-outline', 'Merusak tapi bukan aksi utama di layar itu.'],
+] as const;
+
+function ButtonSection() {
+  return (
+    <Section
+      id="tombol"
+      title="Tombol"
+      note="Satu primitive di components/ui/button. Tinggi 32/36/40px — lebih pendek dari tombol lama (36/44px) mengikuti arah compact. Komponen Button lama sekarang cuma adapter ke sini, jadi halaman yang belum dipindahkan ikut berubah tanpa diubah."
+    >
+      <Panel className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
+          <Eyebrow>Varian</Eyebrow>
+          {BUTTON_VARIANTS.map(([variant, kapan]) => (
+            <div
+              key={variant}
+              className="flex flex-wrap items-center gap-3 border-b border-border-subtle pb-3 last:border-0 last:pb-0"
+            >
+              <div className="flex w-56 shrink-0 items-center gap-2">
+                <Button variant={variant}>
+                  <Plus aria-hidden /> Simpan
+                </Button>
+              </div>
+              <code className="w-40 shrink-0 font-mono text-sm text-foreground-subtle">{variant}</code>
+              <p className="text-sm text-foreground-muted">{kapan}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Eyebrow>Ukuran</Eyebrow>
+          <div className="flex flex-wrap items-end gap-2">
+            <Button size="sm">sm — 32px</Button>
+            <Button size="default">default — 36px</Button>
+            <Button size="lg">lg — 40px</Button>
+            <Button size="icon" aria-label="Cari">
+              <Search aria-hidden />
+            </Button>
+            <Button size="icon-sm" variant="ghost" aria-label="Hapus">
+              <Trash2 aria-hidden />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Eyebrow>State</Eyebrow>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button>Normal</Button>
+            <Button disabled>Disabled</Button>
+            <Button loading>Menyimpan…</Button>
+            <Button variant="outline" loading>
+              Memuat…
+            </Button>
+          </div>
+          <p className="text-sm text-foreground-muted">
+            <code className="font-mono">loading</code> memasang spinner, mematikan tombol, dan menyetel{' '}
+            <code className="font-mono">aria-busy</code> — jadi aksi tidak bisa terkirim dua kali dan screen reader tahu
+            prosesnya masih jalan.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Eyebrow>Lebar penuh</Eyebrow>
+          <div className="max-w-sm">
+            <Button fullWidth>
+              <Check aria-hidden /> Selesaikan transaksi
+            </Button>
+          </div>
+        </div>
+      </Panel>
+    </Section>
+  );
+}
+
+/* ── kontrol form ─────────────────────────────────────────────────────────── */
+
+function Field({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('flex flex-col gap-1', className)}>{children}</div>;
+}
+
+function FormSection() {
+  return (
+    <Section
+      id="form"
+      title="Kontrol form"
+      note="Tinggi 36px, sejajar dengan Button default (sebelumnya 44px). Status error tidak punya prop sendiri — ia dibaca dari aria-invalid, jadi tampilan dan penanda untuk screen reader tidak bisa saling menyimpang."
+    >
+      <Panel className="flex flex-col gap-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          <Field>
+            <Label htmlFor="sg-nama" required>
+              Nama pembeli
+            </Label>
+            <Input id="sg-nama" defaultValue="Warung Bu Melati" />
+          </Field>
+          <Field>
+            <Label htmlFor="sg-cari">Dengan ikon</Label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-foreground-subtle">
+                <Search size={16} aria-hidden />
+              </div>
+              <Input id="sg-cari" className="pl-8" placeholder="Cari transaksi" />
+            </div>
+          </Field>
+          <Field>
+            <Label htmlFor="sg-mati">Nonaktif</Label>
+            <Input id="sg-mati" disabled defaultValue="Tidak bisa diubah" />
+          </Field>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <Field>
+            <Label htmlFor="sg-diskon" className="text-destructive">
+              Diskon
+            </Label>
+            <Input id="sg-diskon" defaultValue="0" aria-invalid aria-describedby="sg-diskon-err" />
+            <span id="sg-diskon-err" role="alert" className="text-sm text-destructive">
+              Harus lebih dari Rp 0
+            </span>
+          </Field>
+          <Field className="md:col-span-2">
+            <Label htmlFor="sg-catatan">Catatan</Label>
+            <Textarea id="sg-catatan" placeholder="Opsional" />
+          </Field>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Checkbox</Eyebrow>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Checkbox id="sg-cb1" defaultChecked />
+              <label htmlFor="sg-cb1" className="cursor-pointer select-none text-base">
+                Bayar seluruhnya
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="sg-cb2" />
+              <label htmlFor="sg-cb2" className="cursor-pointer select-none text-base">
+                Belum dicentang
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="sg-cb3" disabled defaultChecked />
+              <label htmlFor="sg-cb3" className="select-none text-base text-foreground-subtle">
+                Terkunci
+              </label>
+            </div>
+          </div>
+          <p className="text-sm text-foreground-muted">
+            Tetap <code className="font-mono">&lt;input type=&quot;checkbox&quot;&gt;</code> asli — fokus, keyboard, dan
+            pengiriman form ikut gratis; hanya tampilannya yang diganti.
+          </p>
+        </div>
+      </Panel>
+    </Section>
+  );
+}
+
+/* ── select & tanggal ─────────────────────────────────────────────────────── */
+
+const CONTOH_OPSI = [
+  { value: 'kas', label: 'Kas' },
+  { value: 'bank', label: 'Bank' },
+  { value: 'utang', label: 'Utang' },
+  { value: 'giro', label: 'Giro' },
+];
+
+function SelectSection() {
+  const [metode, setMetode] = useState<(typeof CONTOH_OPSI)[number] | null>(CONTOH_OPSI[0]);
+  const [tanggal, setTanggal] = useState<Date | null>(new Date(2026, 8, 9));
+
+  return (
+    <Section
+      id="select"
+      title="Select & tanggal"
+      note="react-select memasang gayanya sebagai style inline lewat emotion, jadi kelas Tailwind tidak berlaku di dalamnya. Yang dipakai justru CSS variable-nya langsung — hsl(var(--surface)) — sehingga ikut berganti tema tanpa kode tema apa pun di komponen. Kalender react-datepicker dipetakan lewat override di globals.css."
+    >
+      <Panel className="flex flex-col gap-4">
+        <div className="grid gap-4 md:grid-cols-3">
+          <Field>
+            <Label htmlFor="sg-metode">Metode pembayaran</Label>
+            <ThemedSelect
+              inputId="sg-metode"
+              options={CONTOH_OPSI}
+              value={metode}
+              onChange={(v) => setMetode(v as (typeof CONTOH_OPSI)[number])}
+            />
+          </Field>
+          <Field>
+            <Label htmlFor="sg-metode-contained">Varian contained</Label>
+            <ThemedSelect
+              inputId="sg-metode-contained"
+              variant="contained"
+              options={CONTOH_OPSI}
+              placeholder="Pilih…"
+            />
+          </Field>
+          <Field>
+            <Label>Tanggal penjualan</Label>
+            <DatePickerComponent selected={tanggal} onChange={(d: Date) => setTanggal(d)} />
+          </Field>
+        </div>
+        <p className="text-sm text-foreground-muted">
+          Buka salah satu select untuk melihat menu, state hover, dan state terpilih. Option terpilih tetap berwarna
+          accent walau sedang di-hover — kalau tidak, satu-satunya penanda pilihan hilang persis saat kursor ada di
+          atasnya.
+        </p>
+      </Panel>
+    </Section>
+  );
+}
+
+/* ── feedback ─────────────────────────────────────────────────────────────── */
+
+const STATUS = [
+  ['warning', 'Menunggu'],
+  ['info', 'Ditinjau'],
+  ['success', 'Diterima'],
+  ['destructive', 'Ditolak'],
+  ['neutral', 'Arsip'],
+  ['accent', 'Baru'],
+] as const;
+
+function FeedbackSection() {
+  const [memuat, setMemuat] = useState(false);
+
+  return (
+    <Section
+      id="feedback"
+      title="Feedback"
+      note="Empat cara memberi tahu keadaan: badge untuk status yang menetap, skeleton saat data belum datang, progress bar saat pindah halaman, toast untuk hasil sebuah aksi."
+    >
+      <Panel className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Badge</Eyebrow>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {STATUS.map(([variant, label]) => (
+              <Badge key={variant} variant={variant}>
+                {label}
+              </Badge>
+            ))}
+          </div>
+          <p className="text-sm text-foreground-muted">
+            Selalu latar <code className="font-mono">*-subtle</code> dengan teks warna penuh, bukan sebaliknya — satu
+            baris tabel penuh badge tidak boleh berubah jadi papan warna.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Skeleton</Eyebrow>
+          <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-9 rounded-full" />
+              <div className="flex flex-1 flex-col gap-1.5">
+                <Skeleton className="h-3 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <Skeleton className="h-3 w-20" />
+            </div>
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-4/5" />
+          </div>
+          <p className="text-sm text-foreground-muted">
+            Bentuknya mengikuti konten yang akan mengisi, supaya tata letak tidak melompat saat data tiba.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Progress bar pindah halaman</Eyebrow>
+          <ProgressBar active={memuat} />
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => setMemuat((v) => !v)}>
+              {memuat ? 'Hentikan' : 'Jalankan'}
+            </Button>
+            <span className="text-sm text-foreground-muted">
+              Garis akan muncul di tepi paling atas jendela. Merayap ke 90% lalu menunggu — Next tidak melaporkan
+              progres sebenarnya, jadi menampilkan angka pasti akan berbohong.
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Toast</Eyebrow>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="secondary" onClick={() => toast.success('Transaksi tersimpan')}>
+              Sukses
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => toast.error('Stok tidak mencukupi')}>
+              Gagal
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => toast('Draf disimpan otomatis')}>
+              Netral
+            </Button>
+          </div>
+        </div>
+      </Panel>
+    </Section>
+  );
+}
+
+/* ── overlay ──────────────────────────────────────────────────────────────── */
+
+function OverlaySection() {
+  const [buka, setBuka] = useState(false);
+
+  return (
+    <Section
+      id="overlay"
+      title="Overlay"
+      note="Dialog dan tooltip. Scrim di belakang dialog punya tokennya sendiri karena hitam 40% yang dipakai sebelumnya nyaris tak terlihat di atas ground gelap — batas dialognya ikut hilang."
+    >
+      <Panel className="flex flex-wrap items-center gap-3">
+        <Button variant="outline" size="sm" onClick={() => setBuka(true)}>
+          Buka dialog
+        </Button>
+        <Tippy content="Muncul setelah jeda singkat, hilang saat kursor pergi">
+          <span className="inline-flex">
+            <Button variant="ghost" size="sm">
+              Arahkan kursor ke sini
+            </Button>
+          </span>
+        </Tippy>
+        <span className="text-sm text-foreground-muted">
+          Dialog ditutup dengan Esc, klik di luar, atau tombol Batal — ketiganya sudah bawaan react-modal.
+        </span>
+
+        <Modal isOpen={buka} onRequestClose={() => setBuka(false)}>
+          <h2 className="text-lg font-semibold">Batalkan transaksi?</h2>
+          <p className="mt-1 text-base text-foreground-muted">
+            Stok yang sudah dikurangi akan dikembalikan. Tindakan ini tidak bisa dibatalkan.
+          </p>
+          <ModalActionWrapper>
+            <Button variant="outline" size="sm" className="mr-2" onClick={() => setBuka(false)}>
+              Batal
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setBuka(false)}>
+              Ya, batalkan
+            </Button>
+          </ModalActionWrapper>
+        </Modal>
+      </Panel>
+    </Section>
+  );
+}
+
 /* ── pratinjau arah ───────────────────────────────────────────────────────── */
 
 function PreviewSection() {
@@ -388,74 +763,45 @@ function PreviewSection() {
     >
       <Panel className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-3 text-base font-semibold text-accent-foreground transition duration-fast hover:bg-accent-hover"
-          >
-            <Plus size={16} strokeWidth={2} aria-hidden /> Transaksi baru
-          </button>
-          <button
-            type="button"
-            className="inline-flex h-8 items-center rounded-md border border-border-strong bg-surface px-3 text-base font-semibold transition duration-fast hover:bg-surface-raised"
-          >
-            Batalkan
-          </button>
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-destructive bg-surface px-3 text-base font-semibold text-destructive transition duration-fast hover:bg-destructive-subtle"
-          >
-            <Trash2 size={16} strokeWidth={1.75} aria-hidden /> Hapus
-          </button>
-          <button
-            type="button"
-            disabled
-            className="inline-flex h-8 cursor-not-allowed items-center gap-1.5 rounded-md bg-accent px-3 text-base font-semibold text-accent-foreground opacity-45"
-          >
-            <Loader2 size={16} strokeWidth={2} className="animate-spin" aria-hidden /> Menyimpan…
-          </button>
+          <Button>
+            <Plus aria-hidden /> Transaksi baru
+          </Button>
+          <Button variant="outline">Batalkan</Button>
+          <Button variant="destructive-outline">
+            <Trash2 aria-hidden /> Hapus
+          </Button>
+          <Button loading>Menyimpan…</Button>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="sg-amount" className="text-sm font-medium text-foreground-muted">
-              Jumlah bayar
-            </label>
-            <input
-              id="sg-amount"
-              defaultValue="1.500.000"
-              className="h-8 rounded-lg border border-border-strong bg-surface px-2.5 font-mono text-base tabular text-foreground"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="sg-bad" className="text-sm font-medium text-destructive">
+          <Field>
+            <Label htmlFor="sg-amount">Jumlah bayar</Label>
+            <Input id="sg-amount" defaultValue="1.500.000" className="font-mono tabular" />
+          </Field>
+          <Field>
+            <Label htmlFor="sg-bad" className="text-destructive">
               Diskon
-            </label>
-            <input
+            </Label>
+            <Input
               id="sg-bad"
               defaultValue="0"
               aria-invalid
               aria-describedby="sg-bad-err"
-              className="h-8 rounded-lg border border-destructive bg-surface px-2.5 font-mono text-base tabular text-foreground ring-2 ring-destructive/25"
+              className="font-mono tabular"
             />
-            <span id="sg-bad-err" role="alert" className="text-xs text-destructive">
+            <span id="sg-bad-err" role="alert" className="text-sm text-destructive">
               Harus lebih dari Rp 0
             </span>
-          </div>
-          <div className="flex flex-col gap-1.5">
+          </Field>
+          <Field>
             <span className="text-sm font-medium text-foreground-muted">Status</span>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="rounded-sm bg-warning-subtle px-2 py-0.5 text-sm font-semibold text-warning">
-                Menunggu
-              </span>
-              <span className="rounded-sm bg-info-subtle px-2 py-0.5 text-sm font-semibold text-info">Ditinjau</span>
-              <span className="rounded-sm bg-success-subtle px-2 py-0.5 text-sm font-semibold text-success">
-                Diterima
-              </span>
-              <span className="rounded-sm bg-destructive-subtle px-2 py-0.5 text-sm font-semibold text-destructive">
-                Ditolak
-              </span>
+              <Badge variant="warning">Menunggu</Badge>
+              <Badge variant="info">Ditinjau</Badge>
+              <Badge variant="success">Diterima</Badge>
+              <Badge variant="destructive">Ditolak</Badge>
             </div>
-          </div>
+          </Field>
         </div>
 
         <div className="overflow-hidden rounded-lg border border-border">
@@ -527,6 +873,11 @@ const NAV = [
   ['tipografi', 'Tipografi'],
   ['spasi', 'Spasi & gerak'],
   ['ikon', 'Ikon'],
+  ['tombol', 'Tombol'],
+  ['form', 'Form'],
+  ['select', 'Select & tanggal'],
+  ['feedback', 'Feedback'],
+  ['overlay', 'Overlay'],
   ['tremor', 'Tremor & ⌘K'],
   ['pratinjau', 'Pratinjau arah'],
 ] as const;
@@ -573,6 +924,11 @@ function StyleguidePage(): JSX.Element {
           <ColorSection />
           <ScaleSection />
           <IconSection />
+          <ButtonSection />
+          <FormSection />
+          <SelectSection />
+          <FeedbackSection />
+          <OverlaySection />
           <TremorSection />
           <PreviewSection />
         </main>

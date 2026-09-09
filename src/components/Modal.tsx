@@ -55,7 +55,9 @@ const Modal: React.FC<PropsWithChildren<Props & { style?: ReactModal.Styles; var
         }}
       >
         <div
-          className="w-full rounded-2xl ml-auto mr-auto bg-white p-6 drop-shadow-lg 100h max-h-screen overflow-y-scroll"
+          // overflow-y-auto, bukan -scroll: yang lama selalu menampilkan batang gulir
+          // walau isinya pendek, jadi tiap dialog punya jalur abu-abu kosong di sisinya.
+          className="ml-auto mr-auto w-full overflow-y-auto rounded-xl border border-border bg-surface p-5 shadow-md"
           style={{
             maxHeight: '80vh',
           }}

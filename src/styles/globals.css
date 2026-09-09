@@ -88,9 +88,26 @@ input:checked + div svg {
 
 @layer components {
   .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.4);
+    /* Scrim ikut tema: hitam 40% di atas ground yang sudah gelap membuat batas dialog
+       hilang, jadi di mode gelap nilainya dinaikkan lewat token. */
+    background-color: hsl(var(--scrim) / 0.5);
+    backdrop-filter: blur(2px);
     inset: 0px;
     position: fixed;
+    z-index: 40;
+  }
+
+  /* Tippy memakai tema gelapnya sendiri dengan warna literal. */
+  .tippy-box {
+    background-color: hsl(var(--foreground));
+    color: hsl(var(--background));
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .tippy-box > .tippy-arrow::before {
+    color: hsl(var(--foreground));
   }
 
   .table-themed .collapse {

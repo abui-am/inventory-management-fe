@@ -134,16 +134,15 @@ const PaySalaryForm: React.FC<
               )}
 
               <div className="sm:col-span-2">
-                <div className="flex mt-2 items-center mb-2">
-                  <Checkbox
-                    name="payFull"
-                    onChange={(e) => {
-                      setFieldValue('amount', values.salary - values.paidAmount);
-                      setFieldValue('payFull', e.target.checked);
-                    }}
-                  />
-                  <label className="text-base ml-1">Seluruhnya</label>
-                </div>
+                <Checkbox
+                  name="payFull"
+                  onChange={(e) => {
+                    setFieldValue('amount', values.salary - values.paidAmount);
+                    setFieldValue('payFull', e.target.checked);
+                  }}
+                >
+                  Seluruhnya
+                </Checkbox>
               </div>
 
               <div className="sm:col-span-2">

@@ -124,16 +124,15 @@ const PayDebtForm: React.FC<
               )}
 
               <div className="sm:col-span-2">
-                <div className="flex mt-2 mb-2 items-center">
-                  <Checkbox
-                    name="payFull"
-                    onChange={(e) => {
-                      setFieldValue('amount', values?.unpaidAmount);
-                      setFieldValue('payFull', e.target.checked);
-                    }}
-                  />
-                  <label className="text-base ml-1">Seluruhnya</label>
-                </div>
+                <Checkbox
+                  name="payFull"
+                  onChange={(e) => {
+                    setFieldValue('amount', values?.unpaidAmount);
+                    setFieldValue('payFull', e.target.checked);
+                  }}
+                >
+                  Seluruhnya
+                </Checkbox>
               </div>
               <WithLabelAndError
                 touched={touched}

@@ -1,8 +1,8 @@
 import { useRouter } from 'next/dist/client/router';
 import { NextSeo } from 'next-seo';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
-import Loader from 'react-loader-spinner';
 
+import ProgressBar from '@/components/ui/progress-bar';
 import MENU_LIST from '@/constants/menu';
 
 import DashboardLayout from './DashboardLayout';
@@ -52,24 +52,10 @@ const Layout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   return (
     <div>
       <NextSeo title={`Dashboard | ${title.displayName}`} description="Dashboard" />
-      <div
-        className="backdrop"
-        style={{
-          opacity: loading ? 1 : 0,
-          visibility: loading ? 'visible' : 'hidden',
-          transition: 'all 0.4s',
-        }}
-      >
-        <Loader type="TailSpin" color="#00BFFF" height={80} width={80} />
-      </div>
-      <div
-        style={{
-          display: !loading ? 'inherit' : 'none',
-          opacity: !loading ? 1 : 0,
-          visibility: !loading ? 'visible' : 'hidden',
-          transition: 'all 0.4s',
-        }}
-      >
+      {/* Konten tetap terlihat selama pindah halaman; dulu seluruh layar ditutup bidang
+          putih dengan spinner 80px, yang membuang konteks dan menyilaukan di mode gelap. */}
+      <ProgressBar active={loading} />
+      <div aria-busy={loading || undefined}>
         <DashboardLayout titleHref={title?.slug} title={title?.title ?? title?.displayName}>
           {children}
         </DashboardLayout>

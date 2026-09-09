@@ -39,6 +39,11 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
   filter?: () => JSX.Element;
 };
 
+// Header tabel: 24px padding vertikal yang lama membuat satu baris judul setinggi tiga
+// baris data. Uppercase kecil memisahkan header dari isi tanpa perlu garis tambahan.
+const HEADER_CELL =
+  'px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.07em] text-foreground-subtle break-words';
+
 const ResponsiveTable: React.FC<
   PropsWithChildren<TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }>
 > = (props) => {
@@ -105,7 +110,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
         {filter && filter()}
       </div>
       <table {...getTableProps()} className="table-fixed w-full w-sm">
-        <thead className="border-b border-solid border-blue-600">
+        <thead className="border-b border-border">
           {headerGroups.map((headerGroup, i) => {
             // react-table v7 menaruh `key` di dalam objek props. Sejak React 18, key yang
             // ikut ter-spread memicu warning — key harus diteruskan langsung ke JSX.
@@ -116,11 +121,11 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                   const { key: thKey, ...thProps } = column.getHeaderProps(
                     enableAutoSort
                       ? {
-                          className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
+                          className: clsx(HEADER_CELL, column.collapse ? 'collapse' : ''),
                           ...column.getSortByToggleProps?.(),
                         }
                       : {
-                          className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
+                          className: clsx(HEADER_CELL, column.collapse ? 'collapse' : ''),
                         }
                   );
                   return (
@@ -155,18 +160,18 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                 {...rowProps}
                 key={rowKey}
                 className={clsx(
-                  !withoutStripe && index % 2 === 0 ? 'bg-blueGray-100' : '',
+                  !withoutStripe && index % 2 === 0 ? 'bg-surface-raised' : '',
                   'rounded-lg',
                   'table-themed',
                   'break-words',
-                  withoutStripe && 'border-b border-blueGray-300'
+                  withoutStripe && 'border-b border-border-subtle'
                 )}
               >
                 {row.cells.map((cell) => {
                   // Sebelumnya `key: Math.random()`: key baru tiap render memaksa React
                   // melepas dan memasang ulang setiap sel, bukan memperbaruinya.
                   const { key: cellKey, ...cellProps } = cell.getCellProps({
-                    className: (cell.column as any).collapse ? 'py-3 px-4 collapse' : 'py-3 px-4',
+                    className: (cell.column as any).collapse ? 'px-3 py-2 collapse' : 'px-3 py-2',
                     style: (cell.column as any).bodyStyle,
                   });
                   return (
@@ -231,13 +236,13 @@ const TableSmall: React.FC<PropsWithChildren<TableProps<Record<string, unknown>>
       {rows.map((row) => {
         prepareRow(row);
         return (
-          <div className="px-6 py-2 border rounded-md border-gray-300 mb-6" key={row.id}>
+          <div className="mb-3 rounded-lg border border-border bg-surface px-4 py-2" key={row.id}>
             {row.cells.map((cell, index) => {
               return (
-                <div className="flex my-6" key={columns[index].id ?? index}>
+                <div className="my-3 flex gap-3" key={columns[index].id ?? index}>
                   {/* react-table v7 mengetik `Header` jauh lebih longgar daripada ReactNode;
                       di React 18 tipe ReactNode tidak lagi memuat `{}`, jadi dipersempit di sini. */}
-                  <div className="flex-1 text-blueGray-600">{columns[index].Header as ReactNode}:</div>
+                  <div className="flex-1 text-foreground-muted">{columns[index].Header as ReactNode}:</div>
                   <div className="flex-1">{cell.render('Cell')}</div>
                 </div>
               );

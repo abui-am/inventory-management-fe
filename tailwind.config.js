@@ -32,16 +32,35 @@ module.exports = {
         base: ['0.8125rem', { lineHeight: '1.25rem' }], // 13 / 20 — teks antarmuka
         lg: ['1rem', { lineHeight: '1.375rem' }],       // 16 / 22 — judul bagian
         xl: ['1.375rem', { lineHeight: '1.75rem' }],    // 22 / 28 — judul halaman, angka
+
+        // Dirujuk Tremor; disamakan dengan skala di atas supaya chart tidak memakai
+        // ukuran huruf sendiri yang lebih besar dari sisa aplikasi.
+        'tremor-label': ['0.6875rem', { lineHeight: '1rem' }],
+        'tremor-default': ['0.8125rem', { lineHeight: '1.25rem' }],
+        'tremor-title': ['1rem', { lineHeight: '1.375rem' }],
+        'tremor-metric': ['1.375rem', { lineHeight: '1.75rem' }],
       },
       borderRadius: {
+        'tremor-small': 'calc(var(--radius) - 4px)',
+        'tremor-default': 'calc(var(--radius) - 2px)',
+        'tremor-full': '9999px',
         sm: 'calc(var(--radius) - 4px)',
         md: 'calc(var(--radius) - 2px)',
         lg: 'var(--radius)',
         xl: 'calc(var(--radius) + 4px)',
       },
       boxShadow: {
+        'tremor-input': 'var(--shadow-sm)',
+        'tremor-card': 'var(--shadow-sm)',
+        'tremor-dropdown': 'var(--shadow-md)',
         sm: 'var(--shadow-sm)',
         md: 'var(--shadow-md)',
+      },
+      // Tailwind tidak menyediakan varian `aria-invalid` bawaan — daftar bawaannya
+      // hanya busy/checked/disabled/expanded/hidden/pressed/readonly/required/selected.
+      // Tanpa baris ini `aria-invalid:border-destructive` diam-diam tidak pernah jadi CSS.
+      aria: {
+        invalid: 'invalid="true"',
       },
       transitionDuration: {
         DEFAULT: '160ms',
@@ -92,6 +111,68 @@ module.exports = {
           subtle: withAlpha('--info-subtle'),
         },
         ring: withAlpha('--ring'),
+
+
+        // Tremor merangkai gayanya dari skala warnanya sendiri: `fill-tremor-content`,
+        // `stroke-tremor-border`, dan pasangan `dark:*-dark-tremor-*`. Skala itu tidak
+        // pernah ada di config ini, jadi kelas-kelas tersebut tidak menghasilkan CSS
+        // satu baris pun — label sumbu dan garis grid jatuh ke warna bawaan browser dan
+        // tetap gelap di mode gelap.
+        //
+        // `tremor` dan `dark-tremor` sengaja dipetakan ke token yang SAMA. Token kita
+        // sudah bertukar nilai lewat `.dark`, jadi tidak peduli varian mana yang menang —
+        // keduanya selalu menghasilkan warna yang benar untuk tema yang sedang aktif.
+        tremor: {
+          brand: {
+            faint: withAlpha('--accent-subtle'),
+            muted: withAlpha('--accent-subtle'),
+            subtle: withAlpha('--accent'),
+            DEFAULT: withAlpha('--accent'),
+            emphasis: withAlpha('--accent-hover'),
+            inverted: withAlpha('--accent-foreground'),
+          },
+          background: {
+            muted: withAlpha('--surface-sunken'),
+            subtle: withAlpha('--surface-raised'),
+            DEFAULT: withAlpha('--surface'),
+            emphasis: withAlpha('--foreground'),
+          },
+          border: { DEFAULT: withAlpha('--border') },
+          ring: { DEFAULT: withAlpha('--ring') },
+          content: {
+            subtle: withAlpha('--foreground-subtle'),
+            DEFAULT: withAlpha('--foreground-muted'),
+            emphasis: withAlpha('--foreground'),
+            strong: withAlpha('--foreground'),
+            inverted: withAlpha('--background'),
+          },
+        },
+
+        'dark-tremor': {
+          brand: {
+            faint: withAlpha('--accent-subtle'),
+            muted: withAlpha('--accent-subtle'),
+            subtle: withAlpha('--accent'),
+            DEFAULT: withAlpha('--accent'),
+            emphasis: withAlpha('--accent-hover'),
+            inverted: withAlpha('--accent-foreground'),
+          },
+          background: {
+            muted: withAlpha('--surface-sunken'),
+            subtle: withAlpha('--surface-raised'),
+            DEFAULT: withAlpha('--surface'),
+            emphasis: withAlpha('--foreground'),
+          },
+          border: { DEFAULT: withAlpha('--border') },
+          ring: { DEFAULT: withAlpha('--ring') },
+          content: {
+            subtle: withAlpha('--foreground-subtle'),
+            DEFAULT: withAlpha('--foreground-muted'),
+            emphasis: withAlpha('--foreground'),
+            strong: withAlpha('--foreground'),
+            inverted: withAlpha('--background'),
+          },
+        },
 
         // Palet lama. Masih dipakai 52x di halaman yang belum dipindahkan ke token;
         // dihapus setelah Fase 4 selesai.

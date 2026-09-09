@@ -1,5 +1,7 @@
 import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
+// Harus setelah CSS vendor di atas — lihat komentar di berkasnya.
+import '../styles/datepicker.css';
 import 'tippy.js/dist/tippy.css'; // optional
 import 'dayjs/locale/id';
 
@@ -97,7 +99,34 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
             <AppProvider>
               <main className="font-sans text-foreground bg-background">
                 <Layout>
-                  <Toaster position="bottom-right" toastOptions={{ success: { duration: 2000 } }} />
+                  {/* react-hot-toast memasang gaya sebagai style inline, jadi kelas Tailwind
+                      tidak berlaku di dalamnya — CSS variable-nya dipakai langsung supaya
+                      toast ikut berganti tema. Toast bawaannya putih dan menyilaukan di gelap. */}
+                  <Toaster
+                    position="bottom-right"
+                    toastOptions={{
+                      duration: 4000,
+                      success: {
+                        duration: 2000,
+                        iconTheme: { primary: 'hsl(var(--success))', secondary: 'hsl(var(--success-foreground))' },
+                      },
+                      error: {
+                        iconTheme: {
+                          primary: 'hsl(var(--destructive))',
+                          secondary: 'hsl(var(--destructive-foreground))',
+                        },
+                      },
+                      style: {
+                        background: 'hsl(var(--surface))',
+                        color: 'hsl(var(--foreground))',
+                        border: '1px solid hsl(var(--border))',
+                        boxShadow: 'var(--shadow-md)',
+                        borderRadius: '8px',
+                        fontSize: '0.8125rem',
+                        padding: '8px 12px',
+                      },
+                    }}
+                  />
                   <Component {...pageProps} />
                 </Layout>
               </main>

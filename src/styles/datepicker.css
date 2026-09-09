@@ -1,0 +1,75 @@
+/* Override warna react-datepicker ke token.
+ *
+ * Berkas ini WAJIB diimpor SETELAH 'react-datepicker/dist/react-datepicker.css' di
+ * _app.tsx. Sebelumnya override ini ada di globals.css, yang diimpor lebih dulu —
+ * spesifisitasnya sama, jadi stylesheet vendor yang menang dan kalender tetap terang
+ * di mode gelap dengan tanggal terpilih berwarna biru bawaan.
+ */
+
+/* react-datepicker: kalendernya punya stylesheet sendiri dengan warna literal, jadi
+   tidak ikut berganti tema. Override di bawah memetakannya ke token — hanya warna,
+   tata letak bawaannya dibiarkan. */
+
+.react-datepicker {
+  font-family: inherit;
+  font-size: 0.75rem;
+  background-color: hsl(var(--surface));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__header,
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  background-color: hsl(var(--surface-raised));
+  border-bottom-color: hsl(var(--border));
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__day-name {
+  color: hsl(var(--foreground-subtle));
+}
+
+.react-datepicker__day:hover,
+.react-datepicker__time-list-item:hover {
+  background-color: hsl(var(--surface-raised));
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__time-list-item--selected {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.react-datepicker__day--today {
+  font-weight: 700;
+  color: hsl(var(--accent));
+}
+
+.react-datepicker__day--disabled,
+.react-datepicker__day--outside-month {
+  color: hsl(var(--foreground-subtle));
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: hsl(var(--foreground-muted));
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+.react-datepicker__time-container,
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: hsl(var(--surface));
+  border-left-color: hsl(var(--border));
+}

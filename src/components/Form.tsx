@@ -1,12 +1,14 @@
 import clsx from 'clsx';
+import { id as localeId } from 'date-fns/locale';
 import React, { forwardRef, PropsWithChildren, Ref, useEffect, useMemo, useState } from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
+import DatePicker, { ReactDatePickerProps, registerLocale, setDefaultLocale } from 'react-datepicker';
 import NumberFormat, { NumberFormatProps, NumberFormatValues } from 'react-number-format';
 import NormalSelect, { components, SelectInstance, SingleValueProps, ValueContainerProps } from 'react-select';
 import Select, { AsyncProps } from 'react-select/async';
 import CreatableAsyncSelect from 'react-select/async-creatable';
 
+import { inputClass } from '@/components/ui/input';
 import { SORT_TYPE_OPTIONS } from '@/constants/options';
 import {
   useSearchCity,
@@ -18,6 +20,7 @@ import {
 import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
 import useMounted from '@/hooks/useMounted';
+import { cn } from '@/lib/cn';
 import { Item, ItemData } from '@/typings/item';
 import debounce from '@/utils/debounce';
 import { formatToIDR } from '@/utils/format';
@@ -60,17 +63,20 @@ export type ThemedSelectProps = Partial<AsyncProps<SelectOption, boolean, Select
   withDetail?: boolean;
 };
 
+// react-datepicker memakai date-fns, bukan dayjs — jadi `dayjs.locale('id')` di _app tidak
+// menyentuhnya dan kalender menampilkan "Su Mo Tu" serta "September" dalam bahasa Inggris
+// di antarmuka yang seluruhnya berbahasa Indonesia. date-fns sudah ikut sebagai dependensi
+// react-datepicker, jadi ini tidak menambah paket.
+registerLocale('id', localeId);
+setDefaultLocale('id');
+
 // Di luar DatePickerComponent: react-datepicker merender ini sebagai komponen, jadi kalau
 // didefinisikan di dalam render ia punya identitas baru tiap render dan input waktu di-remount —
 // fokus dan posisi kursor hilang saat user sedang mengetik jam.
 // (Sebelumnya bernama ExampleCustomTimeInput dengan `border: solid 1px pink`, salinan mentah
 // dari contoh di dokumentasi react-datepicker.)
 const CustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: string) => void }) => (
-  <input
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    className="h-9 w-full rounded-md border border-gray-300 px-2 outline-none focus:ring-2 focus:ring-blue-600"
-  />
+  <input value={value} onChange={(e) => onChange(e.target.value)} className={inputClass} />
 );
 
 const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = ({
@@ -92,19 +98,13 @@ const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = (
         selected={mounted ? selected : null}
         dateFormat={showTimeSelect ? 'dd/MM/yyy HH:mm:ss' : 'dd/MM/yyyy'}
         popperClassName="!z-10"
-        className={clsx(
-          'pl-11 border border-gray-300',
-          'h-11 w-full rounded-md px-3 outline-none',
-          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-          'transition-all duration-150 ease-in',
-          className
-        )}
+        className={cn(inputClass, 'pl-8', className)}
         customTimeInput={<CustomTimeInput value="" onChange={() => undefined} />}
         showTimeSelect={showTimeSelect}
         {...props}
       />
-      <div className="absolute flex items-center left-3 top-0 bottom-0 m-auto text-blueGray-400">
-        <Calendar />
+      <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-foreground-subtle">
+        <Calendar size={16} aria-hidden />
       </div>
     </div>
   );
