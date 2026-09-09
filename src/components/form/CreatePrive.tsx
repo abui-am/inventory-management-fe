@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreatePrive } from '@/hooks/mutation/useMutatePrives';
@@ -29,11 +29,13 @@ export const transactionTypeOptions = [
   },
 ];
 
-const CreatePrive: React.FC<{
-  prepaidSalaryId?: string;
-  onSave?: (data: any) => void;
-  onClose?: () => void;
-}> = ({ prepaidSalaryId, onSave, onClose }) => {
+const CreatePrive: React.FC<
+  PropsWithChildren<{
+    prepaidSalaryId?: string;
+    onSave?: (data: any) => void;
+    onClose?: () => void;
+  }>
+> = ({ prepaidSalaryId, onSave, onClose }) => {
   const { mutateAsync, isLoading } = useCreatePrive();
   const initialValues: CreatePriveFormValues = {
     description: '',

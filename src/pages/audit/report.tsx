@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Search } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
@@ -91,11 +91,13 @@ function ModalConfirmationAudit({
   );
 }
 
-const ConfirmationAuditForm: React.FC<{
-  openModalConfirmationData: ModalConfirmationData;
-  onSave: (data: CreateItemsAuditResponse) => void;
-  onClose: () => void;
-}> = ({ openModalConfirmationData, onSave, onClose }) => {
+const ConfirmationAuditForm: React.FC<
+  PropsWithChildren<{
+    openModalConfirmationData: ModalConfirmationData;
+    onSave: (data: CreateItemsAuditResponse) => void;
+    onClose: () => void;
+  }>
+> = ({ openModalConfirmationData, onSave, onClose }) => {
   const { mutateAsync, isLoading: isLoadingMutate } = useEditAudit(openModalConfirmationData?.id ?? '');
   const initialValues = {
     auditQty: openModalConfirmationData?.audit_quantity ?? 0,

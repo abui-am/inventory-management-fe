@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import Select from 'react-select';
 
 import { PER_PAGE_OPTIONS, PerPageOption } from '@/constants/options';
@@ -25,7 +25,7 @@ type PaginationStats = {
   total: string;
 };
 
-const Pagination: React.FC<PaginationProps> = ({
+const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
   onClickNext,
   onClickPrevious,
   onClickPageButton,
@@ -172,7 +172,7 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-const PageButton: React.FC<{ variant: 'active' | 'inactive'; onClickPageButton: () => void }> = ({
+const PageButton: React.FC<PropsWithChildren<{ variant: 'active' | 'inactive'; onClickPageButton: () => void }>> = ({
   variant,
   onClickPageButton,
   children,

@@ -3,9 +3,9 @@ import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { KeyboardEvent, LegacyRef, useEffect, useRef, useState } from 'react';
+import React, { KeyboardEvent, LegacyRef, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, List } from 'react-bootstrap-icons';
-import useCollapse from 'react-collapsed';
+import { useCollapse } from 'react-collapsed';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
@@ -15,9 +15,17 @@ import { useApp } from '@/context/app-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { removeCookie } from '@/utils/cookies';
-const Menu = dynamic(() => import('@/components/menu/Menu'));
+// ssr: false. Dengan SSR menyala, server merender isi menu sementara render pertama di
+// client masih memuat chunk-nya dan merender kosong — teksnya tidak cocok, dan sejak
+// React 18 itu membuat seluruh pohon SSR dibuang lalu di-render ulang.
+// Ini juga penyebab sidebar "muncul terlambat" yang tercatat di audit Fase 1.
+const Menu = dynamic(() => import('@/components/menu/Menu'), { ssr: false });
 
-const DashboardLayout: React.FC<{ title: string; titleHref: string }> = ({ title, titleHref, children }) => {
+const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: string }>> = ({
+  title,
+  titleHref,
+  children,
+}) => {
   const [activePage, setActivePage] = useState(0);
   const { pathname } = useRouter();
   const [showMenu, setShowMenu] = useState(false);

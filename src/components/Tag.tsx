@@ -1,11 +1,11 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 type TagProps = {
   variant: 'primary' | 'secondary';
 };
 
-const Tag: React.FC<TagProps> = ({ children, variant }) => {
+const Tag: React.FC<PropsWithChildren<TagProps>> = ({ children, variant }) => {
   return (
     <div
       className={clsx(

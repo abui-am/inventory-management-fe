@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { KeyboardEvent, useState } from 'react';
+import React, { KeyboardEvent, PropsWithChildren, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Button';
@@ -182,11 +182,9 @@ function EmployeeInfo({ data, isLoading }: { data: Omit<Employee, 'first_name' |
   );
 }
 
-const EmployeeAccount: React.FC<{ hasDashboardAccount: boolean; employeeId: string; userId: string }> = ({
-  hasDashboardAccount = true,
-  employeeId,
-  userId,
-}) => {
+const EmployeeAccount: React.FC<
+  PropsWithChildren<{ hasDashboardAccount: boolean; employeeId: string; userId: string }>
+> = ({ hasDashboardAccount = true, employeeId, userId }) => {
   const [isOpen, setOpen] = useState(false);
   const { data } = useFetchUserById(userId, { enabled: !!userId });
   function keyHandler(event: KeyboardEvent<HTMLDivElement>): void {

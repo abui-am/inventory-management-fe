@@ -2,7 +2,7 @@
 
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Button';
@@ -12,17 +12,19 @@ import { CreateSupplierBody, CreateSupplierResponse } from '@/typings/supplier';
 
 import { validationSchemaSupplier } from './constant';
 
-const CreateSupplierForm: React.FC<{
-  isEdit?: boolean;
-  editId?: string;
-  onSave?: (data: CreateSupplierResponse) => void;
-  initialValues?: {
-    name: string;
-    address: string;
-    phoneNumber: string;
-  };
-  disableBack?: boolean;
-}> = ({ editId, isEdit = false, onSave, disableBack, initialValues: initVal }) => {
+const CreateSupplierForm: React.FC<
+  PropsWithChildren<{
+    isEdit?: boolean;
+    editId?: string;
+    onSave?: (data: CreateSupplierResponse) => void;
+    initialValues?: {
+      name: string;
+      address: string;
+      phoneNumber: string;
+    };
+    disableBack?: boolean;
+  }>
+> = ({ editId, isEdit = false, onSave, disableBack, initialValues: initVal }) => {
   const { mutateAsync, isLoading: isLoadingMutate } = useCreateSupplier();
   const { mutateAsync: editSupplier } = useEditSupplier(editId ?? '');
   const { back } = useRouter();

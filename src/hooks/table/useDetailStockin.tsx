@@ -1,5 +1,5 @@
 import { Field, FieldProps } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import { CurrencyTextField } from '@/components/Form';
 import { TrasactionItem, TrasactionPivot } from '@/typings/stock-in';
@@ -199,11 +199,13 @@ export const useDetailStockInAdaptor = (items: StockinAdaptorItem[], withSellPri
   return { data, columns, initialValues };
 };
 
-export const AdjustSellPrice: React.FC<{
-  value: number;
-  id: string;
-  onChange: (item: { sell_price: number | ''; id: string }) => void;
-}> = ({ onChange, value, id }) => {
+export const AdjustSellPrice: React.FC<
+  PropsWithChildren<{
+    value: number;
+    id: string;
+    onChange: (item: { sell_price: number | ''; id: string }) => void;
+  }>
+> = ({ onChange, value, id }) => {
   return (
     <div>
       <CurrencyTextField value={value} onChange={(val) => onChange({ sell_price: val ?? '', id })} />

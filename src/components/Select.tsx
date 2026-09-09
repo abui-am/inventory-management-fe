@@ -1,5 +1,5 @@
-import React, { forwardRef, LegacyRef, PropsWithChildren } from 'react';
-import Select, { components, OptionTypeBase, SingleValueProps } from 'react-select';
+import React, { forwardRef, PropsWithChildren, Ref } from 'react';
+import Select, { components, SelectInstance, SingleValueProps } from 'react-select';
 import CreatableAsyncSelect from 'react-select/async-creatable';
 import CreatableSelect from 'react-select/creatable';
 
@@ -10,14 +10,14 @@ import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { Option } from '@/typings/common';
 import { Item } from '@/typings/item';
 import { formatToIDR } from '@/utils/format';
-import { getThemedSelectStyle } from '@/utils/style';
+import { getThemedSelectStyle, SelectGroup, SelectOption } from '@/utils/style';
 
 import { ThemedSelectProps } from './Form';
 import CreateCustomerForm from './form/CreateCustomerForm';
 import CreateSupplierForm from './form/CreateSupplierForm';
 import Modal from './Modal';
 
-export const SelectCustomer: React.FC<ThemedSelectProps> = ({
+export const SelectCustomer: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   variant = 'outlined',
   additionalStyle = {},
   onChange,
@@ -57,7 +57,8 @@ export const SelectCustomer: React.FC<ThemedSelectProps> = ({
           initialValues={initValues}
           onSave={(data) => {
             setIsCreating(false);
-            onChange?.({ label: data.customer.full_name, value: data.customer.id }, { action: 'create-option' });
+            const created = { label: data.customer.full_name, value: data.customer.id };
+            onChange?.(created, { action: 'create-option', option: created });
           }}
         />
       </Modal>
@@ -65,7 +66,11 @@ export const SelectCustomer: React.FC<ThemedSelectProps> = ({
   );
 };
 
-export const SelectSender: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
+export const SelectSender: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
+  variant = 'outlined',
+  additionalStyle = {},
+  ...props
+}) => {
   const { data } = useFetchUnpaginatedEmployee();
   return (
     <Select
@@ -98,7 +103,7 @@ function SingleValue(props: SingleValueProps<{ label: string; value: string; dat
 export const SelectItemsSync = forwardRef(
   (
     { withDetail = false, ...props }: PropsWithChildren<ThemedSelectProps>,
-    ref: LegacyRef<CreatableSelect<OptionTypeBase, boolean>>
+    ref: Ref<SelectInstance<SelectOption, boolean, SelectGroup>>
   ): JSX.Element => {
     const { data } = useFetchItems();
     return (
@@ -123,7 +128,7 @@ export const SelectItemsSync = forwardRef(
   }
 );
 
-export const SelectSupplier: React.FC<ThemedSelectProps> = ({
+export const SelectSupplier: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   variant = 'outlined',
   additionalStyle = {},
   onChange,
@@ -161,7 +166,8 @@ export const SelectSupplier: React.FC<ThemedSelectProps> = ({
           initialValues={initValues}
           onSave={(data) => {
             setIsCreating(false);
-            onChange?.({ label: data.supplier.name, value: data.supplier.id }, { action: 'create-option' });
+            const created = { label: data.supplier.name, value: data.supplier.id };
+            onChange?.(created, { action: 'create-option', option: created });
           }}
         />
       </Modal>

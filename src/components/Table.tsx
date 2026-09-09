@@ -2,7 +2,7 @@
 /* eslint-disable react/require-default-props */
 /* eslint-disable react/jsx-key */
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
+import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
 import { useMediaQuery } from 'react-responsive';
 import {
@@ -40,7 +40,7 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
 };
 
 const ResponsiveTable: React.FC<
-  TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }
+  PropsWithChildren<TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }>
 > = (props) => {
   const [isMd, setIsMd] = useState(false);
 
@@ -107,21 +107,26 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
       <table {...getTableProps()} className="table-fixed w-full w-sm">
         <thead className="border-b border-solid border-blue-600">
           {headerGroups.map((headerGroup, i) => {
+            // react-table v7 menaruh `key` di dalam objek props. Sejak React 18, key yang
+            // ikut ter-spread memicu warning — key harus diteruskan langsung ke JSX.
+            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
             return (
-              <tr {...headerGroup.getHeaderGroupProps()} className="table-themed break-words">
+              <tr {...headerGroupProps} key={headerGroupKey} className="table-themed break-words">
                 {headerGroup.headers.map((column: any) => {
+                  const { key: thKey, ...thProps } = column.getHeaderProps(
+                    enableAutoSort
+                      ? {
+                          className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
+                          ...column.getSortByToggleProps?.(),
+                        }
+                      : {
+                          className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
+                        }
+                  );
                   return (
                     <th
-                      {...column.getHeaderProps(
-                        enableAutoSort
-                          ? {
-                              className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
-                              ...column.getSortByToggleProps?.(),
-                            }
-                          : {
-                              className: clsx('py-6 px-4 break-words text-left', column.collapse ? 'collapse' : ''),
-                            }
-                      )}
+                      {...thProps}
+                      key={thKey}
                       style={{
                         width: column.width,
                         wordBreak: 'break-word',
@@ -144,9 +149,11 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
         <tbody {...getTableBodyProps()}>
           {page.map((row, index) => {
             prepareRow(row);
+            const { key: rowKey, ...rowProps } = row.getRowProps();
             return (
               <tr
-                {...row.getRowProps()}
+                {...rowProps}
+                key={rowKey}
                 className={clsx(
                   !withoutStripe && index % 2 === 0 ? 'bg-blueGray-100' : '',
                   'rounded-lg',
@@ -156,14 +163,14 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
                 )}
               >
                 {row.cells.map((cell) => {
+                  // Sebelumnya `key: Math.random()`: key baru tiap render memaksa React
+                  // melepas dan memasang ulang setiap sel, bukan memperbaruinya.
+                  const { key: cellKey, ...cellProps } = cell.getCellProps({
+                    className: (cell.column as any).collapse ? 'py-3 px-4 collapse' : 'py-3 px-4',
+                    style: (cell.column as any).bodyStyle,
+                  });
                   return (
-                    <td
-                      {...cell.getCellProps({
-                        key: Math.random(),
-                        className: (cell.column as any).collapse ? 'py-3 px-4 collapse' : 'py-3 px-4',
-                        style: (cell.column as any).bodyStyle,
-                      })}
-                    >
+                    <td {...cellProps} key={cellKey}>
                       {cell.render('Cell')}
                     </td>
                   );
@@ -204,7 +211,7 @@ function Table<T extends UseGlobalFiltersInstanceProps<T>>({
   );
 }
 
-const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({
+const TableSmall: React.FC<PropsWithChildren<TableProps<Record<string, unknown>>>> = ({
   columns,
   data,
   search = () => <div />,
@@ -227,8 +234,10 @@ const TableSmall: React.FC<TableProps<Record<string, unknown>>> = ({
           <div className="px-6 py-2 border rounded-md border-gray-300 mb-6" key={row.id}>
             {row.cells.map((cell, index) => {
               return (
-                <div className="flex my-6" key={Math.random()}>
-                  <div className="flex-1 text-blueGray-600">{columns[index].Header}:</div>
+                <div className="flex my-6" key={columns[index].id ?? index}>
+                  {/* react-table v7 mengetik `Header` jauh lebih longgar daripada ReactNode;
+                      di React 18 tipe ReactNode tidak lagi memuat `{}`, jadi dipersempit di sini. */}
+                  <div className="flex-1 text-blueGray-600">{columns[index].Header as ReactNode}:</div>
                   <div className="flex-1">{cell.render('Cell')}</div>
                 </div>
               );

@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React, { useMemo } from 'react';
+import React, { PropsWithChildren, useMemo } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateLedgerTopUp } from '@/hooks/mutation/useMutateLedgerTopUp';
@@ -36,10 +36,12 @@ export const paymentMethodOptions = [
   },
 ];
 
-const CreateTopUp: React.FC<{
-  onSave?: (data: any) => void;
-  onClose?: () => void;
-}> = ({ onSave, onClose }) => {
+const CreateTopUp: React.FC<
+  PropsWithChildren<{
+    onSave?: (data: any) => void;
+    onClose?: () => void;
+  }>
+> = ({ onSave, onClose }) => {
   const { mutateAsync, isLoading } = useCreateLedgerTopUp();
   const initialValues: CreateTopUpFormValues = {
     ledger: null,

@@ -1,7 +1,14 @@
 /* eslint-disable react/require-default-props */
 import Tippy from '@tippyjs/react';
 import clsx from 'clsx';
-import React, { ButtonHTMLAttributes, DetailedHTMLProps, forwardRef, RefObject, useState } from 'react';
+import React, {
+  ButtonHTMLAttributes,
+  DetailedHTMLProps,
+  forwardRef,
+  PropsWithChildren,
+  RefObject,
+  useState,
+} from 'react';
 import { X } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
@@ -10,11 +17,9 @@ import reportError from '@/utils/reportError';
 
 import Modal, { ModalActionWrapper } from './Modal';
 
-const RoundedButton: React.FC<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>> = ({
-  children,
-  className,
-  ...props
-}) => {
+const RoundedButton: React.FC<
+  PropsWithChildren<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>>
+> = ({ children, className, ...props }) => {
   return (
     <button
       type="button"
@@ -91,8 +96,11 @@ export function ButtonWithModal({
   ...props
 }: {
   text: any;
+  // Render prop. `children` di-Omit dari ButtonProps supaya tipe ini yang menang:
+  // ButtonProps menyumbang `children?: ReactNode`, dan sejak React 18 sebuah fungsi
+  // bukan ReactNode yang sah — di React 17 lolos karena ReactNode memuat `{}`.
   children: ((val: { handleClose: () => void }) => JSX.Element) | JSX.Element;
-} & ButtonProps & { ref?: RefObject<HTMLButtonElement> }): JSX.Element {
+} & Omit<ButtonProps, 'children'> & { ref?: RefObject<HTMLButtonElement> }): JSX.Element {
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
@@ -115,7 +123,10 @@ export function ButtonWithModal({
   );
 }
 
-const ButtonCancelTransaction: React.FC<{ content?: string; transactionId: string }> = ({ content, transactionId }) => {
+const ButtonCancelTransaction: React.FC<PropsWithChildren<{ content?: string; transactionId: string }>> = ({
+  content,
+  transactionId,
+}) => {
   const { mutateAsync: updateStockIn } = useUpdateStockIn();
 
   return (

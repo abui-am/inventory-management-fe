@@ -2,7 +2,7 @@
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React, { PropsWithChildren, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { object } from 'yup';
@@ -31,7 +31,10 @@ import { CreateEmployeePutBody } from '@/typings/employee';
 import { createOption, getOptionByValue } from '@/utils/options';
 import createSchema from '@/utils/validation/formik';
 
-const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ editId, isEdit = false }) => {
+const CreateEmployeeForm: React.FC<PropsWithChildren<{ isEdit?: boolean; editId?: string }>> = ({
+  editId,
+  isEdit = false,
+}) => {
   const { mutateAsync, isLoading: isLoadingMutate } = useCreateEmployee();
   const { mutateAsync: editEmployee } = useEditEmployee(editId ?? '');
   const { data, isLoading } = useFetchEmployeeById(editId ?? '', { enabled: isEdit });
@@ -171,7 +174,9 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                   setFieldValue('birthday', val);
                 }}
               />
-              {errors.birthday && touched.birthday && <span className="text-xs text-red-500">{errors.birthday}</span>}
+              {errors.birthday && touched.birthday && (
+                <span className="text-xs text-red-500">{errors.birthday as string}</span>
+              )}
             </div>
             <div>
               <label className="mb-1 inline-block">Jenis Kelamin</label>
@@ -186,7 +191,9 @@ const CreateEmployeeForm: React.FC<{ isEdit?: boolean; editId?: string }> = ({ e
                   }),
                 }}
               />
-              {errors.gender && touched.gender && <span className="text-xs text-red-500">{errors.gender}</span>}
+              {errors.gender && touched.gender && (
+                <span className="text-xs text-red-500">{errors.gender as string}</span>
+              )}
             </div>
             <div>
               <label className="mb-1 inline-block">Jabatan</label>

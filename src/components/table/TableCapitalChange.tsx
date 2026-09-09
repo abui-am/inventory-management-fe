@@ -1,7 +1,7 @@
 // import Link from 'next/link';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateCapitalReport } from '@/hooks/mutation/useMutateCapitalReport';
@@ -13,7 +13,7 @@ import { Button } from '../Button';
 import Divider from '../Divider';
 import { TextField } from '../Form';
 
-const TableIncomeReport: React.FC<{ isView?: boolean; startDate?: string; endDate?: string }> = ({
+const TableIncomeReport: React.FC<PropsWithChildren<{ isView?: boolean; startDate?: string; endDate?: string }>> = ({
   isView = false,
   startDate,
   endDate,

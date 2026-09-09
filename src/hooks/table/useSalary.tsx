@@ -1,6 +1,6 @@
 import Tippy from '@tippyjs/react';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { CashCoin } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
@@ -93,7 +93,7 @@ const useSalary = (salaries: Datum[]) => {
   };
 };
 
-const PaySalary: React.FC<{ payroll: Datum }> = ({ payroll }) => {
+const PaySalary: React.FC<PropsWithChildren<{ payroll: Datum }>> = ({ payroll }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {

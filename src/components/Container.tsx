@@ -1,10 +1,9 @@
 import clsx from 'clsx';
+import { PropsWithChildren } from 'react';
 
-const Paper: React.FC<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>> = ({
-  children,
-  className,
-  ...props
-}) => {
+const Paper: React.FC<
+  PropsWithChildren<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>>
+> = ({ children, className, ...props }) => {
   return (
     <div className={clsx('p-6 rounded-none sm:rounded-lg bg-white shadow-sm', className)} {...props}>
       {children}
@@ -13,10 +12,12 @@ const Paper: React.FC<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElemen
 };
 
 const CardDashboard: React.FC<
-  React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
-    title?: string;
-    Action?: JSX.Element;
-  }
+  PropsWithChildren<
+    React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+      title?: string;
+      Action?: JSX.Element;
+    }
+  >
 > = ({ title, Action, children, ...props }) => {
   return (
     <Paper {...props}>

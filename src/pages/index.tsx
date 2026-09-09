@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React, { PropsWithChildren, useMemo } from 'react';
 import { BagX as FileX } from 'react-bootstrap-icons';
 
 import { CardDashboard } from '@/components/Container';
@@ -37,7 +37,7 @@ type CardProps = {
   value: string | number;
 };
 
-const HomeWithWrapper: React.FC = () => {
+const HomeWithWrapper: React.FC<PropsWithChildren<unknown>> = () => {
   const permiss = usePermission();
   const isHavingPermission = permiss.state.permission.includes('view:home');
 

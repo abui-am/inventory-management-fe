@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 export type SimpleListProps = {
   label: string;
@@ -7,7 +7,7 @@ export type SimpleListProps = {
   withTopDivider: boolean;
 };
 
-const SimpleList: React.FC<SimpleListProps> = ({ label, value, withTopDivider }) => {
+const SimpleList: React.FC<PropsWithChildren<SimpleListProps>> = ({ label, value, withTopDivider }) => {
   return (
     <div
       className={clsx('flex px-6 py-3 items-center justify-center', withTopDivider ? 'border-t to-blueGray-100' : '')}

@@ -1,7 +1,7 @@
 import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { CashCoin, Search } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
@@ -258,7 +258,7 @@ const AccountReceivable: NextPage<unknown> = () => {
   );
 };
 
-const PayDebt: React.FC<{ debt: Datum }> = ({ debt }) => {
+const PayDebt: React.FC<PropsWithChildren<{ debt: Datum }>> = ({ debt }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {

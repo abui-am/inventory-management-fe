@@ -2,7 +2,7 @@
 import { Column, createColumnHelper, flexRender, getCoreRowModel, Table, useReactTable } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, PropsWithChildren } from 'react';
 
 import { useFetchIncomeUserReport } from '@/hooks/query/useFetchIncomeUserReport';
 import { IncomeUserReport, IncomeUserReportChild } from '@/typings/income-report';
@@ -33,7 +33,7 @@ const getCommonPinningStyles = (column: Column<ColumnData>): CSSProperties => {
   };
 };
 
-const TableIncomeUserReport: React.FC = () => {
+const TableIncomeUserReport: React.FC<PropsWithChildren<unknown>> = () => {
   const [from, setFrom] = React.useState(dayjs().startOf('day').toDate());
   const [to, setTo] = React.useState(dayjs().endOf('day').toDate());
 

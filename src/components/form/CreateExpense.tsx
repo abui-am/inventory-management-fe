@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateExpense } from '@/hooks/mutation/useMutateExpense';
@@ -28,10 +28,12 @@ export const paymentMethodOptions = [
   },
 ];
 
-const CreateExpense: React.FC<{
-  onSave?: (data: any) => void;
-  onClose?: () => void;
-}> = ({ onSave, onClose }) => {
+const CreateExpense: React.FC<
+  PropsWithChildren<{
+    onSave?: (data: any) => void;
+    onClose?: () => void;
+  }>
+> = ({ onSave, onClose }) => {
   const { mutateAsync, isLoading } = useCreateExpense();
   const initialValues: CreateExpenseFormValues = {
     amount: null,

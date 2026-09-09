@@ -1,10 +1,10 @@
 import clsx from 'clsx';
-import React, { forwardRef, LegacyRef, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, PropsWithChildren, Ref, useEffect, useMemo, useState } from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 import NumberFormat, { NumberFormatProps, NumberFormatValues } from 'react-number-format';
-import NormalSelect, { CommonProps, components, GroupTypeBase, OptionTypeBase, SingleValueProps } from 'react-select';
-import Select, { Async, Props } from 'react-select/async';
+import NormalSelect, { components, SelectInstance, SingleValueProps, ValueContainerProps } from 'react-select';
+import Select, { AsyncProps } from 'react-select/async';
 import CreatableAsyncSelect from 'react-select/async-creatable';
 
 import { SORT_TYPE_OPTIONS } from '@/constants/options';
@@ -17,14 +17,15 @@ import {
 } from '@/hooks/mutation/useSearch';
 import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { useFetchAllRoles } from '@/hooks/query/useFetchRole';
+import useMounted from '@/hooks/useMounted';
 import { Item, ItemData } from '@/typings/item';
 import debounce from '@/utils/debounce';
 import { formatToIDR } from '@/utils/format';
-import { AdditionalStyle, getThemedSelectStyle, SelectVariant } from '@/utils/style';
+import { AdditionalStyle, getThemedSelectStyle, SelectGroup, SelectOption, SelectVariant } from '@/utils/style';
 
 import { Checkbox, PhoneNumberTextField, TextArea, TextField, WithLabelAndError } from './TextField';
 
-const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
+const ValueContainerSortBy: React.FC<PropsWithChildren<ValueContainerProps<SelectOption, boolean, SelectGroup>>> = ({
   children,
   ...props
 }) => {
@@ -38,7 +39,7 @@ const ValueContainerSortBy: React.FC<CommonProps<OptionTypeBase, boolean, GroupT
   );
 };
 
-const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = ({
+const ValueContainer: React.FC<PropsWithChildren<ValueContainerProps<SelectOption, boolean, SelectGroup>>> = ({
   children,
   ...props
 }) => {
@@ -52,12 +53,12 @@ const ValueContainer: React.FC<CommonProps<OptionTypeBase, boolean, GroupTypeBas
   );
 };
 
-export type ThemedSelectProps = Partial<Async<OptionTypeBase>> &
-  Props<OptionTypeBase, false | true> & {
-    variant?: SelectVariant;
-    additionalStyle?: AdditionalStyle;
-    disableMargin?: boolean;
-  };
+export type ThemedSelectProps = Partial<AsyncProps<SelectOption, boolean, SelectGroup>> & {
+  variant?: SelectVariant;
+  additionalStyle?: AdditionalStyle;
+  disableMargin?: boolean;
+  withDetail?: boolean;
+};
 
 // Di luar DatePickerComponent: react-datepicker merender ini sebagai komponen, jadi kalau
 // didefinisikan di dalam render ia punya identitas baru tiap render dan input waktu di-remount —
@@ -72,10 +73,23 @@ const CustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: str
   />
 );
 
-const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, showTimeSelect, ...props }) => {
+const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = ({
+  className,
+  showTimeSelect,
+  selected,
+  ...props
+}) => {
+  // Tanggal baru ditampilkan setelah mount. Halaman-halaman ini dibangkitkan jadi HTML
+  // statis saat build, jadi merender `selected` di server akan membekukan tanggal build
+  // ke dalam HTML — dan sejak React 18 ketidakcocokan teks itu membuat seluruh pohon SSR
+  // dibuang lalu di-render ulang di client. Struktur DOM-nya tidak berubah, hanya nilainya,
+  // sehingga hidrasinya bersih.
+  const mounted = useMounted();
+
   return (
     <div className="relative customDatePickerWidth">
       <DatePicker
+        selected={mounted ? selected : null}
         dateFormat={showTimeSelect ? 'dd/MM/yyy HH:mm:ss' : 'dd/MM/yyyy'}
         popperClassName="!z-10"
         className={clsx(
@@ -96,12 +110,14 @@ const DatePickerComponent: React.FC<ReactDatePickerProps> = ({ className, showTi
   );
 };
 
-const DateRangePicker: React.FC<{
-  values: [Date, Date];
-  onChangeFrom: (date: Date) => void;
-  onChangeTo: (date: Date) => void;
-  showTimeSelect?: boolean;
-}> = ({ values, onChangeFrom, onChangeTo, showTimeSelect }) => {
+const DateRangePicker: React.FC<
+  PropsWithChildren<{
+    values: [Date, Date];
+    onChangeFrom: (date: Date) => void;
+    onChangeTo: (date: Date) => void;
+    showTimeSelect?: boolean;
+  }>
+> = ({ values, onChangeFrom, onChangeTo, showTimeSelect }) => {
   return (
     <div className="flex">
       <DatePickerComponent
@@ -124,7 +140,7 @@ const DateRangePicker: React.FC<{
   );
 };
 
-const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = (props) => {
+const SelectProvince: React.FC<PropsWithChildren<ThemedSelectProps>> = (props) => {
   const { mutateAsync } = useSearchProvince();
 
   return (
@@ -139,9 +155,7 @@ const SelectProvince: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionType
   );
 };
 
-const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { provinceId: string }> = (
-  props
-) => {
+const SelectCity: React.FC<PropsWithChildren<ThemedSelectProps & { provinceId: string }>> = (props) => {
   const { mutateAsync } = useSearchCity();
   const { provinceId } = props;
   return (
@@ -157,9 +171,7 @@ const SelectCity: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase
   );
 };
 
-const SelectSubdistrict: React.FC<
-  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { cityId: string }
-> = (props) => {
+const SelectSubdistrict: React.FC<PropsWithChildren<ThemedSelectProps & { cityId: string }>> = (props) => {
   const { mutateAsync } = useSearchSubdistrict();
   const { cityId } = props;
   return (
@@ -175,9 +187,7 @@ const SelectSubdistrict: React.FC<
   );
 };
 
-const SelectVillage: React.FC<
-  Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false> & { subdistrictId: string }
-> = (props) => {
+const SelectVillage: React.FC<PropsWithChildren<ThemedSelectProps & { subdistrictId: string }>> = (props) => {
   const { mutateAsync } = useSearchVillage();
   const { subdistrictId } = props;
   return (
@@ -193,7 +203,7 @@ const SelectVillage: React.FC<
   );
 };
 
-const SelectRole: React.FC<ThemedSelectProps> = (props) => {
+const SelectRole: React.FC<PropsWithChildren<ThemedSelectProps>> = (props) => {
   const { data } = useFetchAllRoles();
   const options = data?.data?.roles?.map(({ name }) => ({ label: name, value: name })) ?? [];
   return <ThemedSelect {...props} options={options} />;
@@ -208,7 +218,7 @@ const formatItemsToOption = (items: ItemData[] = []) =>
     data: { name, id, item_id, ...rest },
   })) ?? [];
 
-const SelectItems: React.FC<Partial<Async<OptionTypeBase>> & Props<OptionTypeBase, false>> = ({
+const SelectItems: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   variant = 'outlined',
   additionalStyle,
   ...props
@@ -264,7 +274,7 @@ function SingleValue(props: SingleValueProps<{ label: string; value: string; dat
 export const SelectItemsDetail = forwardRef(
   (
     { withDetail = false, ...props }: PropsWithChildren<ThemedSelectProps>,
-    ref: LegacyRef<Select<OptionTypeBase, boolean>>
+    ref: Ref<SelectInstance<SelectOption, boolean, SelectGroup>>
   ): JSX.Element => {
     const { mutateAsync: search } = useSearchItems();
     const { data } = useFetchItems({
@@ -311,7 +321,11 @@ export const SelectItemsDetail = forwardRef(
   }
 );
 
-const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', additionalStyle = {}, ...props }) => {
+const ThemedSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
+  variant = 'outlined',
+  additionalStyle = {},
+  ...props
+}) => {
   const [portal, setPortal] = useState<HTMLElement>();
   const extraProps = {
     styles: { menuPortal: (base: any) => ({ ...base, zIndex: 9999 }) },
@@ -336,7 +350,7 @@ const ThemedSelect: React.FC<ThemedSelectProps> = ({ variant = 'outlined', addit
   );
 };
 
-const SelectSortBy: React.FC<ThemedSelectProps> = ({ disableMargin, ...props }) => {
+const SelectSortBy: React.FC<PropsWithChildren<ThemedSelectProps>> = ({ disableMargin, ...props }) => {
   const styles = {
     valueContainer: (base: Record<string, unknown>) => ({
       ...base,
@@ -355,7 +369,7 @@ const SelectSortBy: React.FC<ThemedSelectProps> = ({ disableMargin, ...props }) 
   );
 };
 
-const SelectSortType: React.FC<ThemedSelectProps> = (props) => {
+const SelectSortType: React.FC<PropsWithChildren<ThemedSelectProps>> = (props) => {
   const styles = {
     valueContainer: (base: Record<string, unknown>) => ({
       ...base,
@@ -379,7 +393,7 @@ type CurrencyTextFieldProps = Omit<NumberFormatProps, 'onChange'> & {
   errorStyle?: Record<string, any>;
   onChange: (val: number | undefined) => void;
 };
-const CurrencyTextField: React.FC<CurrencyTextFieldProps> = ({
+const CurrencyTextField: React.FC<PropsWithChildren<CurrencyTextFieldProps>> = ({
   prefix = 'IDR',
   placeholder = '',
   thousandSeparator = '.',

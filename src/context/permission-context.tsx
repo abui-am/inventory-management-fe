@@ -1,3 +1,4 @@
+import { PropsWithChildren } from 'react';
 import * as React from 'react';
 
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
@@ -83,7 +84,7 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
   return permission;
 };
 
-const PermissionProvider: React.FC = ({ children }) => {
+const PermissionProvider: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   const { data } = useFetchMyself({ enabled: !!getCookie('INVT-TOKEN') });
 
   const roles = data?.data.user.roles;

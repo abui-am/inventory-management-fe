@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React, { useEffect } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateAdvancePayrolls } from '@/hooks/mutation/useMutateAdvancePayrolls';
@@ -21,10 +21,12 @@ export type CreatePrepaidSalaryFormValues = {
   salary: number;
 };
 
-const CreatePrepaidSalary: React.FC<{
-  onSave?: (data: any) => void;
-  onClose?: () => void;
-}> = ({ onSave, onClose }) => {
+const CreatePrepaidSalary: React.FC<
+  PropsWithChildren<{
+    onSave?: (data: any) => void;
+    onClose?: () => void;
+  }>
+> = ({ onSave, onClose }) => {
   const { mutateAsync, isLoading } = useCreateAdvancePayrolls();
   const initialValues: CreatePrepaidSalaryFormValues = {
     employee: null,

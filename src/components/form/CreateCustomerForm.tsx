@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 
 import { useCreateCustomer, useEditCustomer } from '@/hooks/mutation/useMutateCustomer';
@@ -15,12 +15,14 @@ export type CreateCustomerFormValues = {
   address: string;
 };
 
-const CreateCustomerForm: React.FC<{
-  customerId?: string;
-  initialValues: CreateCustomerFormValues;
-  onSave: (data: CreateCustomerResponse) => void;
-  onClose: () => void;
-}> = ({ onClose, customerId, initialValues: _initValues, onSave }) => {
+const CreateCustomerForm: React.FC<
+  PropsWithChildren<{
+    customerId?: string;
+    initialValues: CreateCustomerFormValues;
+    onSave: (data: CreateCustomerResponse) => void;
+    onClose: () => void;
+  }>
+> = ({ onClose, customerId, initialValues: _initValues, onSave }) => {
   const { mutateAsync, isLoading: isLoadingMutate } = useCreateCustomer();
   const { mutateAsync: editCustomer } = useEditCustomer(customerId ?? '');
   const initialValues = {

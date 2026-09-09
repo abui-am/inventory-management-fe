@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 import { v4 } from 'uuid';
 
@@ -16,11 +16,13 @@ export type ItemToBuyFormValues = {
   maxQty?: number;
 };
 
-const ItemToBuyForm: React.FC<{
-  initValues?: ItemToBuyFormValues;
-  onSave: (values: ItemToBuyFormValues, action: 'create' | 'edit') => void;
-  onReset?: () => void;
-}> = ({ initValues, onSave, onReset }) => {
+const ItemToBuyForm: React.FC<
+  PropsWithChildren<{
+    initValues?: ItemToBuyFormValues;
+    onSave: (values: ItemToBuyFormValues, action: 'create' | 'edit') => void;
+    onReset?: () => void;
+  }>
+> = ({ initValues, onSave, onReset }) => {
   const initialValues = {
     item: initValues?.item || null,
     qty: initValues?.qty || '',
@@ -70,9 +72,9 @@ const ItemToBuyForm: React.FC<{
         <div className="mb-3 px-2 w-8/12">
           <WithLabelAndError label="Nama barang" name="item" errors={errors} touched={touched}>
             <SelectItemsDetail
-              isDisabled={initValues}
-              onChange={(val: never) => {
-                const data: { label: string; value: string; data: Item } = val as never;
+              isDisabled={!!initValues}
+              onChange={(val) => {
+                const data = val as { label: string; value: string; data: Item };
                 setFieldValue(`item`, data);
                 setFieldValue('maxQty', data?.data?.quantity);
               }}

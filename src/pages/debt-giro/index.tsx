@@ -1,7 +1,7 @@
 import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { CashCoin } from 'react-bootstrap-icons';
 
 import { Button } from '@/components/Button';
@@ -282,7 +282,7 @@ const DebtGiroPage: NextPage<unknown> = () => {
   );
 };
 
-const PayDebt: React.FC<{ debt: Datum; handleOpen: () => void }> = ({ debt, handleOpen }) => {
+const PayDebt: React.FC<PropsWithChildren<{ debt: Datum; handleOpen: () => void }>> = ({ debt, handleOpen }) => {
   if (debt.is_paid) return null;
 
   return (

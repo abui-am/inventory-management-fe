@@ -1,12 +1,21 @@
-import { GroupTypeBase, OptionTypeBase, Styles } from 'react-select';
+import { GroupBase, StylesConfig } from 'react-select';
+
+/**
+ * react-select v5 menghapus `OptionTypeBase`; bentuk option kini jadi parameter
+ * generik. Alias ini menjaga kelonggaran yang sama seperti v4 supaya migrasi ini
+ * murni soal tipe dan tidak mengubah perilaku satu pun select.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SelectOption = Record<string, any>;
+export type SelectGroup = GroupBase<SelectOption>;
 
 export type SelectVariant = 'contained' | 'outlined';
-export type AdditionalStyle = Partial<Styles<OptionTypeBase, false, GroupTypeBase<OptionTypeBase>>>;
+export type AdditionalStyle = Partial<StylesConfig<SelectOption, boolean, SelectGroup>>;
 
 export const getThemedSelectStyle = (
   variant: SelectVariant,
   additionalStyle: AdditionalStyle = {}
-): Partial<Styles<OptionTypeBase, false, GroupTypeBase<OptionTypeBase>>> | undefined => {
+): Partial<StylesConfig<SelectOption, boolean, SelectGroup>> | undefined => {
   switch (variant) {
     case 'outlined':
       return {

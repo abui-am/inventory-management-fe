@@ -1,6 +1,6 @@
 import Tippy from '@tippyjs/react';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { Calculator, Check, Eye, Pencil, Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
@@ -19,10 +19,9 @@ import { SelectSortBy, SelectSortType, TextField } from '../Form';
 import Pagination from '../Pagination';
 import { DetailStockIn, getTagValue, SellPriceAdjustment } from './TableComponent';
 
-const TableStockIn: React.FC<{ variant: 'pending' | 'all' | 'on-review'; withCreateButton?: boolean }> = ({
-  variant = 'all',
-  withCreateButton,
-}) => {
+const TableStockIn: React.FC<
+  PropsWithChildren<{ variant: 'pending' | 'all' | 'on-review'; withCreateButton?: boolean }>
+> = ({ variant = 'all', withCreateButton }) => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const { mutateAsync: updateStockIn } = useUpdateStockIn();
   const [search, setSearch] = useState('');

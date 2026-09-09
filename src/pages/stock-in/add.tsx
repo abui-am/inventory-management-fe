@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useMemo, useState } from 'react';
+import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
@@ -291,7 +291,7 @@ const AddStockPage: NextPage = () => {
                   </div>
                 </div>
                 {errors.invoiceType && touched.invoiceType && (
-                  <span className="text-xs text-red-500">{errors.invoiceType}</span>
+                  <span className="text-xs text-red-500">{errors.invoiceType as string}</span>
                 )}
 
                 {errors.invoiceNumber && touched.invoiceNumber && (
@@ -320,7 +320,7 @@ const AddStockPage: NextPage = () => {
                   disabled={isSubmitting}
                   onChange={(date) => setFieldValue('dateIn', date)}
                 />
-                {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn}</span>}
+                {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn as string}</span>}
               </div>
               <div className="w-3/12 px-2 mb-3">
                 <label className="mb-1 inline-block">Catatan</label>
@@ -344,7 +344,7 @@ const AddStockPage: NextPage = () => {
                   onSave={(data) => setFieldValue('stockAdjustment', [...values.stockAdjustment, data])}
                 />
                 {errors.stockAdjustment && touched.stockAdjustment && (
-                  <span className="text-xs text-red-500">{errors.stockAdjustment}</span>
+                  <span className="text-xs text-red-500">{errors.stockAdjustment as string}</span>
                 )}
               </div>
             </div>
@@ -441,11 +441,13 @@ type ButtonWithModalFormValues = Omit<
   itemId: string;
 };
 
-const ButtonWithModal: React.FC<{
-  onSave: (values: ButtonWithModalFormValues) => void;
-  initialValues?: ButtonWithModalFormValues;
-  withEditButton?: boolean;
-}> = ({ onSave, initialValues: initVal, withEditButton }) => {
+const ButtonWithModal: React.FC<
+  PropsWithChildren<{
+    onSave: (values: ButtonWithModalFormValues) => void;
+    initialValues?: ButtonWithModalFormValues;
+    withEditButton?: boolean;
+  }>
+> = ({ onSave, initialValues: initVal, withEditButton }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const initialValues: ButtonWithModalFormValues = initVal || {
@@ -495,7 +497,10 @@ const ButtonWithModal: React.FC<{
                 <div className="w-8/12 mb-3 px-2">
                   <WithLabelAndError required label="Nama barang" name="item" errors={errors} touched={touched}>
                     <SelectItems
-                      onChange={(val, action) => {
+                      onChange={(value, action) => {
+                        // Select ini single, tapi ThemedSelectProps memakai isMulti boolean
+                        // supaya satu tipe melayani semua select. Dipersempit di sini.
+                        const val = value as { data?: { item_id?: string; unit?: string } } | null;
                         setFieldValue('item', val);
                         setFieldValue('itemId', val?.data?.item_id);
 

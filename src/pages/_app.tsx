@@ -5,9 +5,9 @@ import 'dayjs/locale/id';
 
 import * as Sentry from '@sentry/nextjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import dayjs from 'dayjs';
 import { AppProps } from 'next/app';
+import dynamic from 'next/dynamic';
 import { ThemeProvider } from 'next-themes';
 import { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -16,6 +16,14 @@ import ReactModal from 'react-modal';
 import { AppProvider } from '@/context/app-context';
 import { PermissionProvider } from '@/context/permission-context';
 import Layout from '@/layouts/Layout';
+
+// Devtools hanya ada di dev, tapi ikut dirender di server dan masuk ke dalam akar
+// hidrasi — itu sumber "Text content does not match server-rendered HTML" yang
+// membuat React 18 membuang seluruh pohon SSR dan me-render ulang di client.
+// ssr: false membuatnya client-only, jadi tidak pernah ikut dibandingkan saat hidrasi.
+const ReactQueryDevtools = dynamic(() => import('@tanstack/react-query-devtools').then((m) => m.ReactQueryDevtools), {
+  ssr: false,
+});
 dayjs.locale('id'); // optional
 
 // react-modal perlu tahu elemen root supaya bisa memberi aria-hidden ke konten di belakang
@@ -43,7 +51,17 @@ function AppCrashFallback(): JSX.Element {
   );
 }
 
+/**
+ * Halaman yang sudah dipindahkan ke token menandai dirinya `themeable = true`.
+ * Sisanya dipaksa terang: isinya masih memakai warna literal Tailwind
+ * (`bg-white`, `text-blueGray-900`) yang tidak ikut berganti tema, jadi kalau
+ * ground-nya menggelap sementara isinya tidak, teksnya tidak terbaca.
+ * Batasan ini dilepas per halaman saat dipindahkan di Fase 4.
+ */
+type ThemeablePage = { themeable?: boolean };
+
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
+  const themeable = (Component as ThemeablePage).themeable ?? false;
   const queryClientRef = useRef<null | QueryClient>(null);
 
   if (!queryClientRef.current) {
@@ -67,7 +85,13 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         localStorage. next-themes menyisipkan skrip yang jalan sebelum paint,
         sehingga tidak ada kedip tema saat muat.
       */}
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        forcedTheme={themeable ? undefined : 'light'}
+        disableTransitionOnChange
+      >
         <QueryClientProvider client={queryClientRef.current}>
           <PermissionProvider>
             <AppProvider>

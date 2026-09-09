@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { object } from 'yup';
 
 import { CreateAccountReqBody, useCreateAccount } from '@/hooks/mutation/useAuth';
@@ -16,12 +16,14 @@ export type CreateAccountValue = {
   roles: Partial<Option>[];
 };
 
-const CreateAccountForm: React.FC<{
-  isEdit: boolean;
-  employeeId: string;
-  onSuccess: () => void;
-  onCancel: () => void;
-}> = ({ isEdit, employeeId, onSuccess, onCancel }) => {
+const CreateAccountForm: React.FC<
+  PropsWithChildren<{
+    isEdit: boolean;
+    employeeId: string;
+    onSuccess: () => void;
+    onCancel: () => void;
+  }>
+> = ({ isEdit, employeeId, onSuccess, onCancel }) => {
   const initialValues: CreateAccountValue = {
     username: '',
     password: '',

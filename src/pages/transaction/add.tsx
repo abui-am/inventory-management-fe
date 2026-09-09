@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useMemo, useState } from 'react';
+import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
@@ -269,7 +269,7 @@ const AddTransactionPage: NextPage = () => {
                 disabled={isSubmitting}
                 onChange={(date) => setFieldValue('dateIn', date)}
               />
-              {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn}</span>}
+              {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn as string}</span>}
             </div>
 
             <div className="w-full h-full mt-4 px-2 mb-3">
@@ -455,10 +455,12 @@ const AddTransactionPage: NextPage = () => {
   );
 };
 
-const AddNewItem: React.FC<{
-  onSave: (values: ItemToBuyFormValues[]) => void;
-  values: ItemToBuyFormValues[];
-}> = ({ values = [], onSave }) => {
+const AddNewItem: React.FC<
+  PropsWithChildren<{
+    onSave: (values: ItemToBuyFormValues[]) => void;
+    values: ItemToBuyFormValues[];
+  }>
+> = ({ values = [], onSave }) => {
   return (
     <>
       <h6 className="mb-2 text-xl font-bold">Daftar barang dalam transaksi</h6>
@@ -475,12 +477,14 @@ const AddNewItem: React.FC<{
   );
 };
 
-const ModalSummary: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  values: AddStockValue;
-  transactionId: string;
-}> = ({ isOpen, values, onClose, transactionId }) => {
+const ModalSummary: React.FC<
+  PropsWithChildren<{
+    isOpen: boolean;
+    onClose: () => void;
+    values: AddStockValue;
+    transactionId: string;
+  }>
+> = ({ isOpen, values, onClose, transactionId }) => {
   const router = useRouter();
   const handleClick = () => {
     router.push('/transaction');
@@ -557,13 +561,15 @@ const ModalSummary: React.FC<{
   );
 };
 
-const ModalEditItem: React.FC<{
-  editId: string;
-  onClose: (val: boolean) => void;
-  onReset: () => void;
-  onEdit: (values: ItemToBuyFormValues, action: 'create' | 'edit') => void;
-  formikValues: ItemToBuyFormValues[];
-}> = ({ editId, onClose, onEdit, formikValues, onReset }) => {
+const ModalEditItem: React.FC<
+  PropsWithChildren<{
+    editId: string;
+    onClose: (val: boolean) => void;
+    onReset: () => void;
+    onEdit: (values: ItemToBuyFormValues, action: 'create' | 'edit') => void;
+    formikValues: ItemToBuyFormValues[];
+  }>
+> = ({ editId, onClose, onEdit, formikValues, onReset }) => {
   const initValues = useMemo(() => formikValues.find((data) => data.id === editId), [formikValues, editId]);
   return (
     <Modal

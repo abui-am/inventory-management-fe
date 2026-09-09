@@ -1,5 +1,5 @@
 // import Link from 'next/link';
-import React, { useMemo, useState } from 'react';
+import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Calculator, Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
@@ -15,7 +15,7 @@ import { Button } from '../Button';
 import { SelectSortBy, SelectSortType, TextField } from '../Form';
 import Pagination from '../Pagination';
 import { SellPriceAdjustmentItem } from './TableComponent';
-const TableItems: React.FC = () => {
+const TableItems: React.FC<PropsWithChildren<unknown>> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [itemId, setItemId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(ITEMS_SORT_BY_OPTIONS[0]);

@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 
 import { useUpdatePayroll } from '@/hooks/mutation/useMutateSalary';
@@ -31,11 +31,13 @@ export const transactionTypeOptions = [
   },
 ];
 
-const PaySalaryForm: React.FC<{
-  payroll: Payroll;
-  onSave?: (data: any) => void;
-  onClose: (data: any) => void;
-}> = ({ onSave, onClose, payroll }) => {
+const PaySalaryForm: React.FC<
+  PropsWithChildren<{
+    payroll: Payroll;
+    onSave?: (data: any) => void;
+    onClose: (data: any) => void;
+  }>
+> = ({ onSave, onClose, payroll }) => {
   const { mutateAsync, isLoading } = useUpdatePayroll();
   // Dikoersi di batas API: employee_salary/paid_amount bisa datang null atau string, dan
   // `undefined - undefined` = NaN yang lalu tampil di UI dan terkirim sebagai jumlah bayar.

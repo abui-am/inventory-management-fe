@@ -1,11 +1,13 @@
 import clsx from 'clsx';
-import React, { KeyboardEvent } from 'react';
+import React, { KeyboardEvent, PropsWithChildren } from 'react';
 
-const Tabs: React.FC<{
-  menus: string[];
-  activeIndex: number;
-  onClickTab: (index: number) => void;
-}> = ({ menus, activeIndex = 0, onClickTab }) => {
+const Tabs: React.FC<
+  PropsWithChildren<{
+    menus: string[];
+    activeIndex: number;
+    onClickTab: (index: number) => void;
+  }>
+> = ({ menus, activeIndex = 0, onClickTab }) => {
   function keyHandler(event: KeyboardEvent<HTMLDivElement>, index: number): void {
     switch (event.key) {
       case 'Enter':

@@ -1,5 +1,5 @@
 // import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { Search } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
@@ -23,7 +23,7 @@ const getPaymentMethod = (paymentMethod: string): string => {
 
   return '-';
 };
-const TableLedgerTopUps: React.FC = () => {
+const TableLedgerTopUps: React.FC<PropsWithChildren<unknown>> = () => {
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(LEDGER_TOP_UPS_SORT_BY_OPTIONS[0]);
   const [sortType, setSortType] = useState<Option | null>(SORT_TYPE_OPTIONS[1]);

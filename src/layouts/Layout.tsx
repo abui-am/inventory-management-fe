@@ -1,13 +1,13 @@
 import { useRouter } from 'next/dist/client/router';
 import { NextSeo } from 'next-seo';
-import React, { useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import Loader from 'react-loader-spinner';
 
 import MENU_LIST from '@/constants/menu';
 
 import DashboardLayout from './DashboardLayout';
 
-const Layout: React.FC = ({ children }) => {
+const Layout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   const { pathname, events } = useRouter();
   const excludedUrl = ['/login', '/login/recover', '/forget-password', '/styleguide'];
   const [loading, setLoading] = useState(false);

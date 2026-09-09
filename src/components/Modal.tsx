@@ -1,10 +1,10 @@
 /* eslint-disable no-nested-ternary */
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import ReactModal, { Props } from 'react-modal';
 
 export type ModalVariant = 'big' | 'normal' | 'large' | 'screen';
 
-const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: ModalVariant }> = ({
+const Modal: React.FC<PropsWithChildren<Props & { style?: ReactModal.Styles; variant?: ModalVariant }>> = ({
   children,
   variant = 'normal',
   style,
@@ -67,7 +67,7 @@ const Modal: React.FC<Props & { style?: ReactModal.Styles; variant?: ModalVarian
   );
 };
 
-export const ModalActionWrapper: React.FC = ({ children }) => {
+export const ModalActionWrapper: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   return <div className="mt-4 flex justify-end">{children}</div>;
 };
 

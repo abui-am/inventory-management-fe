@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import React, { DetailedHTMLProps, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
+import React, {
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  PropsWithChildren,
+  TextareaHTMLAttributes,
+  useState,
+} from 'react';
 
 import Label from './Label';
 
@@ -9,11 +15,13 @@ import Label from './Label';
 // Form.tsx tetap mengekspor ulang semuanya, jadi import lama tidak perlu diubah.
 
 const TextField: React.FC<
-  DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
-    variant?: 'outlined' | 'contained';
-    hasError?: boolean;
-    Icon?: JSX.Element;
-  }
+  PropsWithChildren<
+    DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+      variant?: 'outlined' | 'contained';
+      hasError?: boolean;
+      Icon?: JSX.Element;
+    }
+  >
 > = ({ className, hasError, Icon, variant = 'outlined', ...props }) => {
   const variation = variant === 'outlined' ? 'border-gray-300 border' : 'bg-blueGray-100';
   const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
@@ -44,7 +52,10 @@ const TextField: React.FC<
   );
 };
 
-const TextArea: React.FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = ({ className, ...props }) => {
+const TextArea: React.FC<PropsWithChildren<TextareaHTMLAttributes<HTMLTextAreaElement>>> = ({
+  className,
+  ...props
+}) => {
   return (
     <textarea
       id={props.id ?? props.name}
@@ -60,7 +71,7 @@ const TextArea: React.FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = ({ class
   );
 };
 
-const Checkbox: React.FC<InputHTMLAttributes<HTMLInputElement>> = ({ children, ...props }) => {
+const Checkbox: React.FC<PropsWithChildren<InputHTMLAttributes<HTMLInputElement>>> = ({ children, ...props }) => {
   const [checked, setChecked] = useState(false);
   return (
     <div className="flex relative items-center text-sm">
@@ -80,10 +91,12 @@ const Checkbox: React.FC<InputHTMLAttributes<HTMLInputElement>> = ({ children, .
 };
 
 const PhoneNumberTextField: React.FC<
-  Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
-    hasError: boolean;
-    onChange: (phoneNumber: string) => void;
-  }
+  PropsWithChildren<
+    Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
+      hasError: boolean;
+      onChange: (phoneNumber: string) => void;
+    }
+  >
 > = ({ onChange, className, hasError, value, ...props }) => {
   const errorStyle = hasError ? 'ring-red-500 ring-inset border-transparent outline-none ring-2' : '';
   return (
@@ -116,13 +129,15 @@ const PhoneNumberTextField: React.FC<
   );
 };
 
-const WithLabelAndError: React.FC<{
-  label: string;
-  errors: Record<string, unknown>;
-  touched: Record<string, unknown>;
-  name: string;
-  required?: boolean;
-}> = ({ label, children, errors, touched, name, required }) => {
+const WithLabelAndError: React.FC<
+  PropsWithChildren<{
+    label: string;
+    errors: Record<string, unknown>;
+    touched: Record<string, unknown>;
+    name: string;
+    required?: boolean;
+  }>
+> = ({ label, children, errors, touched, name, required }) => {
   const hasError = !!errors[name] && !!touched[name];
   return (
     <>

@@ -1,3 +1,4 @@
+import { PropsWithChildren } from 'react';
 import * as React from 'react';
 
 type State = { hideLabel: boolean };
@@ -22,7 +23,7 @@ function homeReducer(state: State, action: HomeAction) {
   }
 }
 
-const AppProvider: React.FC = ({ children }) => {
+const AppProvider: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   const defValue: State = {
     hideLabel: false,
   };

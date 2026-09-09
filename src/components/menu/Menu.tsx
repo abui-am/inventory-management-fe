@@ -1,15 +1,14 @@
 import clsx from 'clsx';
 import Link from 'next/link';
+import { PropsWithChildren } from 'react';
 
 import MENU_LIST from '@/constants/menu';
 import { PermissionList, usePermission } from '@/context/permission-context';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
 
-const Menu: React.FC<{ activePage: number; hideLabel: boolean; onMenuClick: (menu: boolean) => void }> = ({
-  activePage,
-  onMenuClick,
-  hideLabel,
-}) => {
+const Menu: React.FC<
+  PropsWithChildren<{ activePage: number; hideLabel: boolean; onMenuClick: (menu: boolean) => void }>
+> = ({ activePage, onMenuClick, hideLabel }) => {
   const { state } = usePermission();
   const getBubble = (id: string) => {
     switch (id) {
@@ -74,7 +73,7 @@ const Menu: React.FC<{ activePage: number; hideLabel: boolean; onMenuClick: (men
   );
 };
 
-const ConfirmationStockBubble: React.FC = () => {
+const ConfirmationStockBubble: React.FC<PropsWithChildren<unknown>> = () => {
   const { data: dataTrasaction } = useFetchTransactions(
     {
       order_by: { created_at: 'desc' },
@@ -94,7 +93,7 @@ const ConfirmationStockBubble: React.FC = () => {
   );
 };
 
-const OnReviewBubble: React.FC = () => {
+const OnReviewBubble: React.FC<PropsWithChildren<unknown>> = () => {
   const { data: dataTrasaction } = useFetchTransactions(
     {
       order_by: { created_at: 'desc' },

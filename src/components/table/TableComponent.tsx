@@ -1,5 +1,5 @@
 import { Form, Formik } from 'formik';
-import React, { useMemo } from 'react';
+import React, { PropsWithChildren, useMemo } from 'react';
 import { Download } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
@@ -24,10 +24,9 @@ import Modal from '../Modal';
 import ResponsiveTable from '../Table';
 import Tag from '../Tag';
 
-export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onClose: () => void }> = ({
-  transactions,
-  onClose,
-}) => {
+export const DetailStockIn: React.FC<
+  PropsWithChildren<{ transactions: TransactionData | null; onClose: () => void }>
+> = ({ transactions, onClose }) => {
   const {
     created_at = new Date(),
     invoice_number = '',
@@ -98,11 +97,13 @@ export const DetailStockIn: React.FC<{ transactions: TransactionData | null; onC
   );
 };
 
-export const DetailSale: React.FC<{
-  transactions: SaleTransactionsData;
-  open: boolean;
-  onClose: () => void;
-}> = ({ transactions, open, onClose }) => {
+export const DetailSale: React.FC<
+  PropsWithChildren<{
+    transactions: SaleTransactionsData;
+    open: boolean;
+    onClose: () => void;
+  }>
+> = ({ transactions, open, onClose }) => {
   const { data: dataMyself } = useFetchMyself();
 
   const isAdmin = dataMyself?.data.user.roles.map((role) => role.id).includes(1);
@@ -171,14 +172,16 @@ export const DetailSale: React.FC<{
   );
 };
 
-const ItemInfo: React.FC<{
-  info: Pick<
-    TransactionData,
-    'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'items' | 'discount'
-  > & {
-    id?: string;
-  };
-}> = ({ info }) => {
+const ItemInfo: React.FC<
+  PropsWithChildren<{
+    info: Pick<
+      TransactionData,
+      'created_at' | 'transaction_code' | 'payments' | 'invoice_number' | 'items' | 'discount'
+    > & {
+      id?: string;
+    };
+  }>
+> = ({ info }) => {
   const { created_at, payments, transaction_code, invoice_number, discount, id } = info;
   return (
     <>
@@ -218,7 +221,7 @@ const ItemInfo: React.FC<{
   );
 };
 
-export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () => void }> = ({
+export const SellPriceAdjustment: React.FC<PropsWithChildren<{ transactionId: string; onClose: () => void }>> = ({
   transactionId,
   onClose,
 }) => {
@@ -258,7 +261,10 @@ export const SellPriceAdjustment: React.FC<{ transactionId: string; onClose: () 
   );
 };
 
-export const SellPriceAdjustmentItem: React.FC<{ itemId: string; onClose: () => void }> = ({ itemId, onClose }) => {
+export const SellPriceAdjustmentItem: React.FC<PropsWithChildren<{ itemId: string; onClose: () => void }>> = ({
+  itemId,
+  onClose,
+}) => {
   const { data: dataItem } = useFetchItemById(itemId);
   const { columns, data } = useItemPriceAdjustment({ item: dataItem?.data.item });
   const { mutateAsync: mutateAsyncItem, isLoading: isLoadingItem } = useUpdateItem();

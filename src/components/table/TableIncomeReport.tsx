@@ -1,6 +1,6 @@
 // import Link from 'next/link';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
 
 import { useFetchIncomeReport } from '@/hooks/query/useFetchIncomeReport';
@@ -9,7 +9,7 @@ import formatCurrency from '@/utils/formatCurrency';
 import Divider from '../Divider';
 import { DateRangePicker } from '../Form';
 
-const TableIncomeReport: React.FC = () => {
+const TableIncomeReport: React.FC<PropsWithChildren<unknown>> = () => {
   const [from, setFrom] = React.useState(dayjs().startOf('day').toDate());
   const [to, setTo] = React.useState(dayjs().endOf('day').toDate());
   const { data: dataItems } = useFetchIncomeReport({
@@ -125,7 +125,10 @@ const TableIncomeReport: React.FC = () => {
   );
 };
 
-const CurrencyCollapse: React.FC<{ data: Record<string, number>; title: string }> = ({ data, title }) => {
+const CurrencyCollapse: React.FC<PropsWithChildren<{ data: Record<string, number>; title: string }>> = ({
+  data,
+  title,
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (

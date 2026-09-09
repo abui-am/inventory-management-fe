@@ -465,7 +465,7 @@ const NAV = [
   ['pratinjau', 'Pratinjau arah'],
 ] as const;
 
-export default function StyleguidePage(): JSX.Element {
+function StyleguidePage(): JSX.Element {
   return (
     <>
       <Head>
@@ -510,3 +510,8 @@ export default function StyleguidePage(): JSX.Element {
     </>
   );
 }
+
+// Halaman ini seluruhnya memakai token, jadi aman mengikuti tema pengguna.
+StyleguidePage.themeable = true;
+
+export default StyleguidePage;

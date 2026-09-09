@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';
 
 import { PAYMENT_METHOD_OPTIONS_DEBT } from '@/constants/options';
@@ -23,12 +23,14 @@ export type PayDebtFormValues = {
   paymentMethod: Option;
 };
 
-const PayDebtForm: React.FC<{
-  debt: Datum;
-  onSave?: (data: any) => void;
-  onClose: () => void;
-  type: 'giro' | 'normal' | 'account-receivable';
-}> = ({ debt, type, onSave, onClose }) => {
+const PayDebtForm: React.FC<
+  PropsWithChildren<{
+    debt: Datum;
+    onSave?: (data: any) => void;
+    onClose: () => void;
+    type: 'giro' | 'normal' | 'account-receivable';
+  }>
+> = ({ debt, type, onSave, onClose }) => {
   const {
     state: { hideLabel },
   } = useApp();

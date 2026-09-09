@@ -1,4 +1,5 @@
 import { FormikErrors, FormikTouched } from 'formik';
+import { PropsWithChildren } from 'react';
 import { TrashFill } from 'react-bootstrap-icons';
 
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
@@ -27,16 +28,18 @@ type PaymentMethodValues = {
   payFull?: boolean;
 };
 
-const PaymentMethod: React.FC<{
-  index: number;
-  values: PaymentMethodValues;
-  withPayFull?: boolean;
-  totalPrice?: number;
-  setFieldValue: (key: string, val: unknown) => void;
-  isSubmitting: boolean;
-  errors: FormikErrors<PaymentMethodValues>;
-  touched: FormikTouched<PaymentMethodValues>;
-}> = ({ index, values, setFieldValue, isSubmitting, withPayFull, errors, touched, totalPrice }) => {
+const PaymentMethod: React.FC<
+  PropsWithChildren<{
+    index: number;
+    values: PaymentMethodValues;
+    withPayFull?: boolean;
+    totalPrice?: number;
+    setFieldValue: (key: string, val: unknown) => void;
+    isSubmitting: boolean;
+    errors: FormikErrors<PaymentMethodValues>;
+    touched: FormikTouched<PaymentMethodValues>;
+  }>
+> = ({ index, values, setFieldValue, isSubmitting, withPayFull, errors, touched, totalPrice }) => {
   const value = values.payments[index];
   const { paymentDue } = value;
   const {

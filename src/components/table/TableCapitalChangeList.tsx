@@ -1,7 +1,7 @@
 // import Link from 'next/link';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { Eye, PlusLg } from 'react-bootstrap-icons';
 
 import Table from '@/components/Table';
@@ -18,7 +18,7 @@ import { Button } from '../Button';
 import { SelectSortBy, SelectSortType } from '../Form';
 import Pagination from '../Pagination';
 // import Pagination from '../Pagination';
-const TableCapitalChangeList: React.FC = () => {
+const TableCapitalChangeList: React.FC<PropsWithChildren<unknown>> = () => {
   //   const router = useRouter();
   const [paginationUrl, setPaginationUrl] = React.useState('');
   const [sortBy, setSortBy] = useState<Option<string[]> | null>(ITEMS_SORT_BY_OPTIONS[0]);
