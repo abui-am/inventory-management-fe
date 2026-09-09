@@ -1,0 +1,11 @@
+:root{
+  --ground:oklch(0.985 0.004 85); --surface:#fff; --surface-2:oklch(0.972 0.005 85);
+  --ink:oklch(0.24 0.012 75); --ink-2:oklch(0.46 0.012 75); --ink-3:oklch(0.63 0.010 75);
+  --line:oklch(0.905 0.006 80); --line-2:oklch(0.84 0.008 80);
+  --accent:oklch(0.45 0.14 255); --accent-soft:oklch(0.955 0.022 255);
+  --pos:oklch(0.50 0.13 150); --pos-soft:oklch(0.958 0.03 150);
+  --neg:oklch(0.52 0.17 27);  --neg-soft:oklch(0.962 0.028 27);
+  --warn:oklch(0.62 0.12 75); --warn-soft:oklch(0.958 0.04 75);
+  --nav:oklch(0.255 0.014 75); --nav-2:oklch(0.32 0.014 75); --nav-ink:oklch(0.80 0.010 80);
+  --r1:3px; --r2:6px; --r3:10px;
+}

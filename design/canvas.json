@@ -1,0 +1,16 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",        "x": 0,    "y": 0,    "w": 1360, "h": 900 },
+    { "file": "Fondasi.dc.html",     "x": 1480, "y": 0,    "w": 1180, "h": 1180 },
+    { "file": "Transaksi.dc.html",   "x": 0,    "y": 1300, "w": 1360, "h": 900 },
+    { "file": "IA.dc.html",          "x": 1480, "y": 1300, "w": 1180, "h": 800 },
+    { "file": "POS.dc.html",         "x": 0,    "y": 2320, "w": 1360, "h": 900 },
+    { "file": "BarangMasuk.dc.html", "x": 1480, "y": 2320, "w": 1360, "h": 900 },
+    { "file": "Keuangan.dc.html",    "x": 0,    "y": 3340, "w": 1360, "h": 900 }
+  ],
+  "annotations": [
+    { "id": "brief", "x": 0, "y": -160, "w": 640,
+      "text": "Rombak total — shadcn/ui + Tremor, rasa linear.app\nTiap layar punya tombol Terang/Gelap di atas artboard. POS dan Buku Besar sengaja dibuka gelap.\nAngka memakai data contoh dari seeder backend." }
+  ],
+  "launch": { "view": "canvas" }
+}
