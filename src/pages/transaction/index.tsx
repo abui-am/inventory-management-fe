@@ -103,7 +103,11 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
   const [status, setStatus] = useState('all');
   const [range, setRange] = useState<DateRange>([null, null]);
   const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' }>({ key: 'waktu', dir: 'desc' });
-  const [transaction, setTransaction] = useState<SaleTransactionsData | null>();
+  // Dua state, bukan satu: kalau datanya dibuang saat menutup, komponennya ikut lepas
+  // seketika dan animasi keluar tidak pernah sempat berjalan. `transaction` baru
+  // dikosongkan setelah react-modal memberi tahu animasinya selesai.
+  const [transaction, setTransaction] = useState<SaleTransactionsData | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   // 500 ms: tanpa ini tiap ketikan mengirim satu request pencarian
   const debouncedSearch = useDebounceValue(search, 500);
@@ -175,7 +179,12 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
   return (
     <>
       {transaction && (
-        <TransactionDetailSheet transaction={transaction} open={!!transaction} onClose={() => setTransaction(null)} />
+        <TransactionDetailSheet
+          transaction={transaction}
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          onClosed={() => setTransaction(null)}
+        />
       )}
 
       {/* SPEC-10: kolom isi, gap 10px */}
@@ -360,7 +369,10 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                               size="icon-xs"
                               variant="ghost"
                               aria-label="Lihat detail"
-                              onClick={() => setTransaction(row)}
+                              onClick={() => {
+                                setTransaction(row);
+                                setSheetOpen(true);
+                              }}
                             >
                               <Eye strokeWidth={1.7} aria-hidden />
                             </Button>

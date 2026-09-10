@@ -79,10 +79,14 @@ export function TransactionDetailSheet({
   transaction,
   open,
   onClose,
+  onClosed,
 }: {
   transaction: SaleTransactionsData;
   open: boolean;
+  /** Dipanggil saat pengguna menutup — sheet mulai menggeser keluar. */
   onClose: () => void;
+  /** Dipanggil setelah animasi keluar selesai; di sinilah datanya baru boleh dibuang. */
+  onClosed?: () => void;
 }): JSX.Element {
   const [aksi, setAksi] = useState<'print' | 'download' | null>(null);
   const { refetch } = useFetchInvoice(transaction.id, { enabled: false });
@@ -129,6 +133,7 @@ export function TransactionDetailSheet({
       // Tanpa ini react-modal melepas node-nya seketika dan animasi keluar tidak pernah
       // sempat berjalan. Angkanya harus >= durasi transisi di globals.css.
       closeTimeoutMS={220}
+      onAfterClose={onClosed}
       overlayClassName="modal-overlay"
       // Bentuk objek, bukan string: dengan string, react-modal menyusun nama kelas
       // penanda dari seluruh string kelas Tailwind di bawah — yang mustahil ditulis
