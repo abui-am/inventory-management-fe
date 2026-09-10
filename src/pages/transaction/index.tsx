@@ -293,7 +293,13 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                     <tr key={i}>
                       {columns.map(({ key }) => (
                         <td key={key} className={TD}>
-                          <Skeleton className="h-3.5 w-full" />
+                          {/* Tinggi isi dikunci 26px — sama dengan tombol aksi, elemen
+                              tertinggi di baris asli. Dengan padding 8px dan garis bawah,
+                              barisnya jadi 43px persis seperti baris berisi data, jadi
+                              tabel tidak melompat saat datanya datang. */}
+                          <div className="flex h-[26px] items-center">
+                            <Skeleton className="h-3.5 w-full" />
+                          </div>
                         </td>
                       ))}
                     </tr>

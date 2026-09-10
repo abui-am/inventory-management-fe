@@ -48,6 +48,20 @@
       "y": 3340,
       "w": 1360,
       "h": 900
+    },
+    {
+      "file": "DetailTransaksi.dc.html",
+      "x": 1480,
+      "y": 3340,
+      "w": 1300,
+      "h": 640
+    },
+    {
+      "file": "Struk.dc.html",
+      "x": 0,
+      "y": 4340,
+      "w": 980,
+      "h": 700
     }
   ],
   "annotations": [
