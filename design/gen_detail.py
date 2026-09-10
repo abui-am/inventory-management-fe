@@ -22,6 +22,10 @@ DISKON, ONGKIR = 0, 0
 TOTAL = SUB - DISKON + ONGKIR
 BAYAR = [("Utang", 240000, "Jatuh tempo 9 Okt 2026")]
 
+# Satu warna per metode bayar. Dipakai sebagai titik kecil, bukan latar — supaya
+# metode terbaca sekilas tanpa barisnya berubah jadi papan warna.
+WARNA_METODE = {"Kas": "success", "Bank": "info", "Utang": "warning", "Giro": "accent", "Piutang": "accent"}
+
 def money_row(label, val, muted=True, strong=False):
     c = "var(--foreground-muted)" if muted else "var(--foreground)"
     w = "600" if strong else "500"
@@ -29,9 +33,10 @@ def money_row(label, val, muted=True, strong=False):
             f'<span style="color:var(--foreground-muted)">{label}</span>'
             f'<span class="mono" style="color:{c};font-weight:{w}">{val}</span></div>')
 
-def section(title, body, first=False):
+def section(title, body, first=False, bg=None):
     top = "" if first else "border-top:1px solid var(--border);"
-    return (f'<div style="{top}padding:10px 16px;display:flex;flex-direction:column;gap:6px">'
+    latar = f"background:var(--{bg});" if bg else ""
+    return (f'<div style="{top}{latar}padding:10px 16px;display:flex;flex-direction:column;gap:6px">'
             f'<div class="eyebrow">{title}</div>{body}</div>')
 
 def sheet():
@@ -48,9 +53,11 @@ def sheet():
             f'</div>')
     bayar = []
     for metode, jml, ket in BAYAR:
+        w = WARNA_METODE.get(metode, 'accent')
         bayar.append(
             f'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">'
-            f'  <div><span style="font-size:13px;font-weight:500">{metode}</span>'
+            f'  <div><span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500">'
+            f'<span style="width:7px;height:7px;border-radius:50%;background:var(--{w});flex-shrink:0"></span>{metode}</span>'
             f'    <div style="font-size:11px;color:var(--foreground-subtle);margin-top:1px">{ket}</div></div>'
             f'  <span class="mono" style="font-size:13px;font-weight:600">{RUPIAH(jml)}</span>'
             f'</div>')
@@ -85,14 +92,14 @@ def sheet():
 
   {section('Total', f"""
     <div style="display:flex;align-items:baseline;justify-content:space-between">
-      <span class="mono" style="font-size:21px;font-weight:700;letter-spacing:-0.02em;line-height:26px">Rp {RUPIAH(TOTAL)}</span>
+      <span class="mono" style="font-size:21px;font-weight:700;letter-spacing:-0.02em;line-height:26px;color:var(--accent)">Rp {RUPIAH(TOTAL)}</span>
       <span class="pill" style="background:var(--success-subtle);color:var(--success)">Lunas</span>
     </div>
     <div style="display:flex;flex-direction:column;gap:3px;margin-top:1px">
       {money_row('Subtotal', RUPIAH(SUB))}
       {money_row('Diskon', '−' + RUPIAH(DISKON) if DISKON else '0')}
       {money_row('Ongkos kirim', RUPIAH(ONGKIR))}
-    </div>""", first=True)}
+    </div>""", first=True, bg='accent-subtle')}
 
   {section('Dibayar', ''.join(bayar))}
 
