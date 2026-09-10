@@ -1,15 +1,15 @@
 import { FormikErrors, FormikTouched } from 'formik';
+import { Trash2 } from 'lucide-react';
 import { PropsWithChildren } from 'react';
-import { TrashFill } from 'react-bootstrap-icons';
 
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useApp } from '@/context/app-context';
 import { Option } from '@/typings/common';
 import { formatToIDR } from '@/utils/format';
 
-import { Button } from '../Button';
 import { Checkbox, CurrencyTextField, DatePickerComponent, ThemedSelect } from '../Form';
 import Label from '../Label';
+import { Button } from '../ui/button';
 
 // `paymentDue` bisa datang sebagai string dari API atau Date dari form.
 const toDate = (value: Date | string | undefined): Date | null => {
@@ -75,10 +75,16 @@ const PaymentMethod: React.FC<
           />
         </div>
       </div>
-      <div className="w-1/2 inline mb-2">
+      <div className="mb-2 flex w-1/2 items-end justify-end">
         {!values.payFull && (
-          <Button variant="secondary" className="ml-auto block mt-4" onClick={handleDelete}>
-            <TrashFill className="text-red-600 w-4 h-4" />
+          <Button
+            size="icon-xs"
+            variant="ghost"
+            aria-label="Hapus metode pembayaran"
+            className="text-foreground-muted hover:text-destructive"
+            onClick={handleDelete}
+          >
+            <Trash2 strokeWidth={1.7} aria-hidden />
           </Button>
         )}
       </div>
@@ -99,11 +105,9 @@ const PaymentMethod: React.FC<
       <div className="w-full">
         <Label required>Jumlah</Label>
         {values?.payFull ? (
-          <div className="h-16 border rounded-md py-4 px-4 w-full">
-            <span className="text-xl text-gray-900 font-bold block">
-              <span className="text-gray-500 mr-3">IDR</span>
-              {formatToIDR(totalPrice ?? 0)}
-            </span>
+          <div className="flex h-9 w-full items-center gap-2 rounded-md border border-border bg-surface-raised px-2.5">
+            <span className="text-sm text-foreground-subtle">IDR</span>
+            <span className="font-mono text-base font-semibold tabular-nums">{formatToIDR(totalPrice ?? 0)}</span>
           </div>
         ) : (
           <CurrencyTextField
@@ -130,7 +134,9 @@ const PaymentMethod: React.FC<
           </Checkbox>
         )}
         {payAmountError && touched.payments?.[index]?.payAmount && (
-          <span className="text-xs text-red-500">{payAmountError}</span>
+          <span className="text-sm text-destructive" role="alert">
+            \n {payAmountError}\n{' '}
+          </span>
         )}
       </div>
     </>

@@ -41,6 +41,12 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
   const segment = useRouter().pathname.split('/')[1];
   const activeItem = MENU_LIST.find((item) => item.slug.split('/')[1] === segment);
   const groupLabel = MENU_GROUPS.find((g) => g.id === activeItem?.group)?.label;
+
+  // Ruas ketiga untuk sub-halaman: /transaction/add -> "Baru". Diambil dari rute, jadi
+  // tiap halaman baru ikut dapat tanpa menambah prop; yang tidak dikenali dilewati
+  // supaya id mentah seperti /employee/8f3a... tidak bocor ke breadcrumb.
+  const SUB_ROUTE: Record<string, string> = { add: 'Baru', edit: 'Ubah', preview: 'Pratinjau', report: 'Laporan' };
+  const subLabel = SUB_ROUTE[useRouter().pathname.split('/')[2] ?? ''];
   const { state, dispatch: dispatchApp } = useApp();
   const { hideLabel } = state;
   const { data: dataUser } = data ?? {};
@@ -164,9 +170,21 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                     </span>
                   </>
                 )}
-                <Link href={titleHref}>
-                  <a className="truncate font-semibold hover:underline">{title}</a>
-                </Link>
+                {subLabel ? (
+                  <>
+                    <Link href={titleHref}>
+                      <a className="truncate text-foreground-subtle hover:underline">{title}</a>
+                    </Link>
+                    <span className="text-foreground-subtle" aria-hidden>
+                      /
+                    </span>
+                    <span className="truncate font-semibold">{subLabel}</span>
+                  </>
+                ) : (
+                  <Link href={titleHref}>
+                    <a className="truncate font-semibold hover:underline">{title}</a>
+                  </Link>
+                )}
               </nav>
 
               {/* SPEC-06: gap 9px. Pengalih tema disisipkan di antara chip dan avatar —

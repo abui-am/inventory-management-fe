@@ -1,29 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
+import { Pencil, Plus, X } from 'lucide-react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, useMemo, useState } from 'react';
-import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
-import { Button } from '@/components/Button';
-import { CardDashboard } from '@/components/Container';
 import { CurrencyTextField, DatePickerComponent, TextField, WithLabelAndError } from '@/components/Form';
 import ItemToBuyForm, { ItemToBuyFormValues } from '@/components/form/ItemToBuyForm';
 import Modal, { ModalActionWrapper } from '@/components/Modal';
 import { SelectCustomer, SelectSender } from '@/components/Select';
 import Table from '@/components/Table';
 import PaymentMethod, { Payment } from '@/components/transaction/PaymentMethod';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateSale } from '@/hooks/mutation/useMutateSale';
 import useFetchInvoice from '@/hooks/query/useFetchInvoice';
+import { cn } from '@/lib/cn';
 import { Option } from '@/typings/common';
+import { ThemeablePage } from '@/typings/page';
 import { calculateChange } from '@/utils/change';
 import { formatToIDR } from '@/utils/format';
 import printInvoice from '@/utils/printInvoice';
 import reportError from '@/utils/reportError';
 import { validationSchemaTransaction } from '@/utils/validation/transaction';
+
+/** Tanpa awalan "Rp" — kolom dan labelnya sudah menyatakan satuannya. */
+const angka = (n: number) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(n);
 
 export type AddStockInTableValue = {
   item_name: string;
@@ -51,7 +56,7 @@ export type AddStockValue = {
   shippingCost: number | '';
 };
 
-const AddTransactionPage: NextPage = () => {
+const AddTransactionPage: NextPage & ThemeablePage = () => {
   const { mutateAsync } = useCreateSale();
   const [tempCreatedId, setTempCreatedId] = useState('');
 
@@ -59,6 +64,7 @@ const AddTransactionPage: NextPage = () => {
     dateIn: new Date(),
     stockAdjustment: [] as ItemToBuyFormValues[],
     memo: '',
+    invoiceNumber: '',
     payments: [
       {
         payAmount: '',
@@ -116,7 +122,9 @@ const AddTransactionPage: NextPage = () => {
           sender_id: data.sender?.value ?? '',
           transactionable_id: data.customer?.value ?? '',
           purchase_date: dayjs(data.dateIn).format('YYYY-MM-DD HH:mm:ss'),
-          invoice_number: '',
+          // Backend menomori sendiri bila dikosongkan (TransactionRepository:197),
+          // jadi field ini opsional dan hanya menimpa saat kasir benar-benar mengisinya.
+          invoice_number: data.invoiceNumber.trim(),
           items: data.stockAdjustment.map((value) => {
             return {
               id: value?.item?.value ?? '',
@@ -162,6 +170,8 @@ const AddTransactionPage: NextPage = () => {
     },
   });
 
+  const totalDibayarkan = values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0);
+
   const change = calculateChange(
     values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0),
     values.totalPrice,
@@ -170,49 +180,38 @@ const AddTransactionPage: NextPage = () => {
   );
 
   const data = values?.stockAdjustment.map(({ item, qty, id }) => {
+    const harga = +(item?.data?.sell_price ?? 0);
     return {
-      col1: item?.label ?? '',
-      col2: qty,
-      price: (
-        <div>
-          <div>
-            Harga jual: <b>{formatToIDR(+(item?.data?.sell_price ?? 0))}</b>
-          </div>
-
-          <div>
-            Total: <b>{formatToIDR((item?.data?.sell_price ?? 0) * +qty)}</b>
-          </div>
+      barang: (
+        <div className="flex flex-col">
+          <span className="text-base font-medium">{item?.data?.name ?? item?.label ?? ''}</span>
+          <span className="font-mono text-2xs text-foreground-subtle">{item?.data?.item_id ?? '-'}</span>
         </div>
       ),
-      // col3: formatToIDR(+(item?.data?.sell_price ?? 0)),
-      // col4: formatToIDR(+discount),
-      // col5: formatToIDR(((item?.data?.sell_price ?? 0) - +discount) * +qty),
-      action: (
-        <div className="flex">
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              setEditId(id);
-            }}
-            className="mr-4"
-          >
-            <Pencil width={24} height={24} />
+      qty: <span className="block text-right font-mono tabular-nums">{qty}</span>,
+      satuan: <span className="text-foreground-muted">{item?.data?.unit ?? '-'}</span>,
+      harga: <span className="block text-right font-mono tabular-nums">{angka(harga)}</span>,
+      subtotal: <span className="block text-right font-mono font-semibold tabular-nums">{angka(harga * +qty)}</span>,
+      aksi: (
+        <div className="flex justify-end gap-1">
+          <Button size="icon-xs" variant="ghost" aria-label="Ubah barang" onClick={() => setEditId(id)}>
+            <Pencil strokeWidth={1.7} aria-hidden />
           </Button>
           <Button
-            variant="outlined"
+            size="icon-xs"
+            variant="ghost"
+            aria-label="Hapus barang"
             tabIndex={-1}
             onClick={() => {
               const newValue = values.stockAdjustment.filter((value) => value.id !== id);
               setFieldValue('stockAdjustment', newValue);
               setFieldValue(
                 'totalPrice',
-                newValue.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
+                newValue.reduce((prev, { item: it, qty: q }) => (it?.data?.sell_price ?? 0) * +q + prev, 0)
               );
             }}
-            size="small"
           >
-            <Trash width={24} height={24} />
+            <X strokeWidth={2} aria-hidden />
           </Button>
         </div>
       ),
@@ -221,47 +220,39 @@ const AddTransactionPage: NextPage = () => {
 
   const columns = React.useMemo(
     () => [
-      {
-        Header: 'Nama barang',
-        accessor: 'col1', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Qty',
-        accessor: 'col2',
-        width: '10%',
-      },
-      {
-        Header: 'Harga',
-        accessor: 'price',
-        width: '40%',
-      },
-      {
-        Header: 'Aksi',
-        accessor: 'action',
-      },
+      { Header: 'Barang', accessor: 'barang' },
+      { Header: 'Qty', accessor: 'qty', width: '9%', className: 'justify-end' },
+      { Header: 'Satuan', accessor: 'satuan', width: '12%' },
+      { Header: 'Harga', accessor: 'harga', width: '16%', className: 'justify-end' },
+      { Header: 'Subtotal', accessor: 'subtotal', width: '18%', className: 'justify-end' },
+      { Header: '', accessor: 'aksi', width: '78px', className: 'justify-end' },
     ],
     []
   );
 
   const totalPriceAfterDiscount = values.totalPrice + +(values.shippingCost ?? 0) - +(values?.discount ?? 0);
   return (
-    <CardDashboard>
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-wrap -mx-2 mb-4">
-          <div className="xl:w-8/12 w-full pr-8 flex flex-wrap mb-4">
-            <div className="w-6/12 px-2 mb-3">
-              <WithLabelAndError required touched={touched} errors={errors} name="customer" label="Nama Customer">
-                <SelectCustomer
-                  onChange={(val) => {
-                    setFieldValue('customer', val);
-                  }}
-                  value={values.customer}
-                />
+    <form onSubmit={handleSubmit}>
+      {/* A01: dua kolom, gap 12px, rel kanan menempel di atas */}
+      <div className="flex flex-col items-start gap-3 xl:flex-row">
+        {/* A02 */}
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+          {/* A04..A07 — identitas transaksi */}
+          <div className="flex flex-wrap gap-2.5 rounded-card border border-border bg-surface p-3 shadow-sm">
+            <div className="flex min-w-[200px] flex-1 flex-col gap-1">
+              <WithLabelAndError required touched={touched} errors={errors} name="customer" label="Customer">
+                <SelectCustomer onChange={(val) => setFieldValue('customer', val)} value={values.customer} />
               </WithLabelAndError>
             </div>
 
-            <div className="w-6/12 px-2 mb-3">
-              <label className="mb-1 inline-block">Tanggal penjualan</label>
+            <div className="flex min-w-[200px] flex-1 flex-col gap-1">
+              <WithLabelAndError required touched={touched} errors={errors} name="sender" label="Pengirim">
+                <SelectSender onChange={(val) => setFieldValue('sender', val)} value={values.sender} />
+              </WithLabelAndError>
+            </div>
+
+            <div className="flex w-[150px] flex-col gap-1">
+              <Label htmlFor="dateIn">Tanggal</Label>
               <DatePickerComponent
                 id="dateIn"
                 name="dateIn"
@@ -269,189 +260,228 @@ const AddTransactionPage: NextPage = () => {
                 disabled={isSubmitting}
                 onChange={(date) => setFieldValue('dateIn', date)}
               />
-              {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn as string}</span>}
+              {errors.dateIn && (
+                <span className="text-sm text-destructive" role="alert">
+                  {errors.dateIn as string}
+                </span>
+              )}
             </div>
 
-            <div className="w-full h-full mt-4 px-2 mb-3">
-              <AddNewItem
-                values={values.stockAdjustment}
-                onSave={(data) => {
-                  setFieldValue('stockAdjustment', data);
-                  setFieldValue(
-                    'totalPrice',
-                    data.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
-                  );
-                }}
+            <div className="flex w-[150px] flex-col gap-1">
+              <Label htmlFor="invoiceNumber">Faktur</Label>
+              {/* Opsional: backend menomori sendiri kalau dikosongkan. */}
+              <TextField
+                id="invoiceNumber"
+                name="invoiceNumber"
+                className="font-mono"
+                value={values.invoiceNumber}
+                placeholder="Otomatis"
+                disabled={isSubmitting}
+                onChange={handleChange}
               />
-
-              <div className="w-full px-2 mt-3">
-                <Table columns={columns} data={data} />
-              </div>
             </div>
           </div>
 
-          <div className="xl:w-4/12 w-full">
-            <div className="border p-4 rounded-md shadow-md flex flex-wrap -mx-2 mb-4">
-              <div className="w-full px-2 mb-2">
-                <label className="mb-1 inline-block">Diskon</label>
+          {/* A08..A14 — barang */}
+          <div className="overflow-hidden rounded-card border border-border bg-surface shadow-sm">
+            <div className="flex items-center justify-between gap-3 border-b border-border bg-surface-raised px-3.5 py-2.5">
+              <span className="text-base font-semibold">Barang</span>
+              <span className="text-sm text-foreground-muted">
+                {values.stockAdjustment.length} baris · {angka(values.totalPrice)}
+              </span>
+            </div>
+
+            <div className="border-b border-border p-3.5">
+              <AddNewItem
+                values={values.stockAdjustment}
+                onSave={(dataBaru) => {
+                  setFieldValue('stockAdjustment', dataBaru);
+                  setFieldValue(
+                    'totalPrice',
+                    dataBaru.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
+                  );
+                }}
+              />
+            </div>
+
+            {data.length > 0 ? (
+              <Table withoutStripe columns={columns} data={data} />
+            ) : (
+              <p className="px-3.5 py-8 text-center text-sm text-foreground-muted">
+                Belum ada barang. Tambahkan lewat kolom di atas.
+              </p>
+            )}
+          </div>
+
+          {/* A15..A18 — pembayaran */}
+          <div className="flex flex-col gap-2.25 rounded-card border border-border bg-surface p-3.5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-base font-semibold">Pembayaran</span>
+              {!values.payFull && values?.payments?.length < 2 && (
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={() => {
+                    setFieldValue('payments', [
+                      ...values.payments,
+                      {
+                        paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
+                          (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
+                        )[0],
+                        payAmount: values?.payments?.[0]
+                          ? totalPriceAfterDiscount - +(values?.payments?.[0]?.payAmount ?? 0)
+                          : null,
+                        paymentDue: null,
+                      },
+                    ]);
+                  }}
+                >
+                  <Plus strokeWidth={2.2} aria-hidden /> Metode
+                </Button>
+              )}
+            </div>
+
+            <div className="grid gap-2.25 md:grid-cols-2">
+              {values?.payments?.map((value, index) => (
+                <div
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${value.paymentMethod.value}${index}`}
+                  className="rounded-lg border border-border bg-surface-raised p-2.5"
+                >
+                  <PaymentMethod
+                    withPayFull
+                    totalPrice={totalPriceAfterDiscount}
+                    isSubmitting={isSubmitting}
+                    setFieldValue={setFieldValue}
+                    errors={errors}
+                    touched={touched}
+                    values={values}
+                    index={index}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* A03 + A19..A26 — rel ringkasan */}
+        <div className="flex w-full flex-col gap-2.5 xl:sticky xl:top-3.5 xl:w-72">
+          <div className="flex flex-col gap-2.5 rounded-card border border-border bg-surface p-3.5 shadow-sm">
+            <span className="text-base font-semibold">Ringkasan</span>
+
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-baseline justify-between text-sm">
+                <span className="text-foreground-muted">Subtotal</span>
+                <span className="font-mono tabular-nums">{angka(values.totalPrice)}</span>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <Label htmlFor="discount">Diskon</Label>
                 <CurrencyTextField
                   name="discount"
                   value={values.discount}
-                  placeholder="Masukan diskon"
+                  placeholder="0"
                   disabled={isSubmitting}
-                  onChange={(val) => {
-                    setFieldValue('discount', val);
-                  }}
+                  prefix=""
+                  className="h-[26px] w-[92px] rounded-md px-2 text-right font-mono text-sm"
+                  onChange={(val) => setFieldValue('discount', val)}
                 />
-                {errors.discount && touched.discount && <span className="text-xs text-red-500">{errors.discount}</span>}
               </div>
 
-              <div className="w-full px-2 mb-2">
-                <WithLabelAndError touched={touched} errors={errors} name="sender" label="Nama Pengirim" required>
-                  <SelectSender
-                    onChange={(val) => {
-                      setFieldValue('sender', val);
-                    }}
-                    value={values.sender}
-                  />
-                </WithLabelAndError>
-              </div>
-
-              <div className="w-full px-2 mb-2">
-                <label className="mb-1 inline-block">Ongkos kirim</label>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <Label htmlFor="shippingCost">Ongkos kirim</Label>
                 <CurrencyTextField
                   name="shippingCost"
                   value={values.shippingCost}
-                  placeholder="Masukan ongkos kirim"
+                  placeholder="0"
                   disabled={isSubmitting}
-                  onChange={(val) => {
-                    setFieldValue('shippingCost', val);
-                  }}
+                  prefix=""
+                  className="h-[26px] w-[92px] rounded-md px-2 text-right font-mono text-sm"
+                  onChange={(val) => setFieldValue('shippingCost', val)}
                 />
-                {errors.shippingCost && touched.shippingCost && (
-                  <span className="text-xs text-red-500">{errors.shippingCost}</span>
-                )}
               </div>
-              <div className="w-full px-2 mb-2">
-                <label className="mb-1 inline-block">Catatan</label>
+              {errors.shippingCost && touched.shippingCost && (
+                <span className="text-sm text-destructive" role="alert">
+                  {errors.shippingCost}
+                </span>
+              )}
+
+              {/* Tidak ada di artboard, tapi fungsinya sudah ada sebelumnya — dipertahankan. */}
+              <div className="mt-0.5 flex flex-col gap-1">
+                <Label htmlFor="memo">Catatan</Label>
                 <TextField
                   id="memo"
                   name="memo"
                   value={values.memo}
-                  placeholder="Masukan catatan"
+                  placeholder="Opsional"
                   disabled={isSubmitting}
                   onChange={handleChange}
-                  hasError={!!errors.memo}
-                />
-                {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
-              </div>
-              <div className="w-full px-2 mb-2">
-                <label className="mb-1 inline-block">Harga total</label>
-                <p className="text-2xl font-bold">{formatToIDR(totalPriceAfterDiscount)}</p>
-              </div>
-
-              <div className="px-2 mb-2">
-                <span className="text-lg font-bold">Pembayaran</span>
-              </div>
-
-              <div className="w-full px-2 flex flex-wrap">
-                {values?.payments?.map((value, index) => {
-                  return (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <div className="pt pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}${index}`}>
-                      <PaymentMethod
-                        withPayFull
-                        totalPrice={totalPriceAfterDiscount}
-                        isSubmitting={isSubmitting}
-                        setFieldValue={setFieldValue}
-                        errors={errors}
-                        touched={touched}
-                        values={values}
-                        index={index}
-                      />
-                    </div>
-                  );
-                })}
-                {!values.payFull && values?.payments?.length < 2 && (
-                  <Button
-                    variant="outlined"
-                    className="w-full mt-2"
-                    Icon={<Plus width={24} height={24} />}
-                    onClick={() => {
-                      setFieldValue('payments', [
-                        ...values.payments,
-                        {
-                          paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
-                            (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
-                          )[0],
-                          payAmount: values?.payments?.[0]
-                            ? totalPriceAfterDiscount - +(values?.payments?.[0]?.payAmount ?? 0)
-                            : null,
-                          paymentDue: null,
-                        },
-                      ]);
-                    }}
-                  >
-                    Tambah metode pembayaran
-                  </Button>
-                )}
-              </div>
-
-              {/* Kembalian */}
-              {values?.payments?.find((val) => val.paymentMethod.value === 'cash')?.payAmount && (
-                <div className="w-full px-2 mb-3 mt-3 flex justify-between gap-4">
-                  <label className="mb-1 inline-block">Kembalian:</label>
-                  <p className="text-lg font-bold">{formatToIDR(change)}</p>
-                </div>
-              )}
-              <div className="w-full px-2 mb-3">
-                <Button className="mt-4" fullWidth disabled={isSubmitting} type="submit">
-                  Simpan Transaksi
-                </Button>
-                <ModalSummary
-                  transactionId={tempCreatedId}
-                  onClose={() => {
-                    setTempCreatedId('');
-                    setIsOpenSummary(false);
-                    resetForm({
-                      values: initialValues,
-                    });
-                  }}
-                  isOpen={isOpenSummary}
-                  values={values}
-                />
-                <ModalEditItem
-                  onReset={() => {
-                    setEditId(null);
-                  }}
-                  editId={editId ?? ''}
-                  formikValues={values.stockAdjustment}
-                  onClose={() => {
-                    setEditId(null);
-                  }}
-                  onEdit={(editedData) => {
-                    const editedValues = values?.stockAdjustment?.map((data) => {
-                      if (data.id === editedData.id) {
-                        return editedData;
-                      }
-
-                      return data;
-                    });
-                    setFieldValue('stockAdjustment', editedValues);
-
-                    setFieldValue(
-                      'totalPrice',
-                      editedValues.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
-                    );
-                    setEditId(null);
-                  }}
+                  hasError={!!errors.memo && !!touched.memo}
                 />
               </div>
             </div>
+
+            <div className="h-px bg-border" />
+
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-base font-semibold">Total</span>
+              <span className="font-mono text-xl font-bold tracking-[-0.025em]">{angka(totalPriceAfterDiscount)}</span>
+            </div>
+
+            <div className="flex flex-col gap-1.25 rounded-lg bg-surface-raised px-2.75 py-2.25">
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground-muted">Dibayarkan</span>
+                <span className="font-mono font-medium tabular-nums">{angka(totalDibayarkan)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground-muted">Kembalian</span>
+                <span
+                  className={cn(
+                    'font-mono font-semibold tabular-nums',
+                    change < 0 ? 'text-destructive' : 'text-success'
+                  )}
+                >
+                  {angka(change)}
+                </span>
+              </div>
+            </div>
+
+            <Button type="submit" fullWidth loading={isSubmitting}>
+              Simpan transaksi
+            </Button>
+            <p className="text-center text-2xs leading-[15px] text-foreground-subtle">
+              Nonaktif selama menyimpan — klik ganda tidak lagi membuat dua transaksi
+            </p>
           </div>
         </div>
-      </form>
-    </CardDashboard>
+      </div>
+
+      <ModalSummary
+        transactionId={tempCreatedId}
+        onClose={() => {
+          setTempCreatedId('');
+          setIsOpenSummary(false);
+          resetForm({ values: initialValues });
+        }}
+        isOpen={isOpenSummary}
+        values={values}
+      />
+      <ModalEditItem
+        onReset={() => setEditId(null)}
+        editId={editId ?? ''}
+        formikValues={values.stockAdjustment}
+        onClose={() => setEditId(null)}
+        onEdit={(editedData) => {
+          const editedValues = values?.stockAdjustment?.map((d) => (d.id === editedData.id ? editedData : d));
+          setFieldValue('stockAdjustment', editedValues);
+          setFieldValue(
+            'totalPrice',
+            editedValues.reduce((prev, { item, qty }) => (item?.data?.sell_price ?? 0) * +qty + prev, 0)
+          );
+          setEditId(null);
+        }}
+      />
+    </form>
   );
 };
 
@@ -461,20 +491,10 @@ const AddNewItem: React.FC<
     values: ItemToBuyFormValues[];
   }>
 > = ({ values = [], onSave }) => {
-  return (
-    <>
-      <h6 className="mb-2 text-xl font-bold">Daftar barang dalam transaksi</h6>
-      <div className="w-full">
-        <div className="flex-1 flex-shrink-0 shadow-md p-4 rounded-md border">
-          <ItemToBuyForm
-            onSave={(val) => {
-              onSave([...values, val]);
-            }}
-          />
-        </div>
-      </div>
-    </>
-  );
+  // Judul dan bingkai dibuang: kartu induknya sudah berjudul "Barang" dan sudah
+  // punya border. Dua bingkai bersarang membuat formnya tampak seperti dialog
+  // yang nyasar ke dalam kartu.
+  return <ItemToBuyForm onSave={(val) => onSave([...values, val])} />;
 };
 
 const ModalSummary: React.FC<
@@ -541,15 +561,15 @@ const ModalSummary: React.FC<
           )}
         </p>
         <ModalActionWrapper>
-          <Button className="mr-2 w-full" variant="primary" loading={isFetching} onClick={handlePrintInvoice}>
-            Print Invoice
+          <Button fullWidth loading={isFetching} onClick={handlePrintInvoice}>
+            Print
           </Button>
         </ModalActionWrapper>
         <ModalActionWrapper>
-          <Button className="mr-2" variant="secondary" onClick={handleClick}>
+          <Button className="mr-2" variant="outline" onClick={handleClick}>
             Ke Halaman Transaksi
           </Button>
-          <Button variant="outlined" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose}>
             Tetap di halaman ini
           </Button>
         </ModalActionWrapper>
@@ -580,5 +600,8 @@ const ModalEditItem: React.FC<
     </Modal>
   );
 };
+
+// Seluruh isinya sudah memakai token, jadi aman mengikuti tema pengguna.
+AddTransactionPage.themeable = true;
 
 export default AddTransactionPage;

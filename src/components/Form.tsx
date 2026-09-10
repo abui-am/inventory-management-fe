@@ -411,51 +411,38 @@ const CurrencyTextField: React.FC<PropsWithChildren<CurrencyTextFieldProps>> = (
   isNumericString = true,
   errorStyle,
   onChange,
+  className,
   ...props
 }) => {
   const customOnChange = (e: NumberFormatValues) => {
     onChange(e.floatValue);
   };
-  if (!prefix) {
-    return (
-      <NumberFormat
-        className={clsx(
-          errorStyle,
-          'h-11 w-full px-3 outline-none rounded-md border-gray-300 border',
-          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-          'transition-all duration-150 ease-in'
-        )}
-        placeholder={placeholder}
-        isNumericString={isNumericString}
-        thousandSeparator={thousandSeparator}
-        decimalSeparator={decimalSeparator}
-        onValueChange={customOnChange}
-        id={props.id ?? props.name}
-        {...props}
-      />
-    );
-  }
+
+  const field = (
+    <NumberFormat
+      // errorStyle bertipe objek gaya di tipe lamanya, tapi setiap pemanggil mengirim
+      // string kelas. Tidak diubah tipenya di sini supaya pemanggil lain tidak ikut pecah.
+      className={cn(inputClass, prefix && 'rounded-l-none', errorStyle as unknown as string, className)}
+      placeholder={placeholder}
+      isNumericString={isNumericString}
+      thousandSeparator={thousandSeparator}
+      decimalSeparator={decimalSeparator}
+      onValueChange={customOnChange}
+      id={props.id ?? props.name}
+      {...props}
+    />
+  );
+
+  // `prefix` kosong berarti tanpa kotak awalan sama sekali — dipakai di tempat sempit
+  // seperti rel ringkasan POS, di mana label di sebelah kiri sudah menyatakan satuannya.
+  if (!prefix) return field;
 
   return (
     <div className="flex">
-      <div className="flex items-center top-0 bottom-0 m-auto text-blueGray-400 px-3 border h-11 border-r-0 border-gray-300 rounded-tl-md rounded-bl-md">
+      <span className="inline-flex h-9 items-center rounded-l-md border border-r-0 border-border-strong bg-surface-raised px-2.5 text-base text-foreground-muted">
         {prefix}
-      </div>
-      <NumberFormat
-        className={clsx(
-          errorStyle,
-          'h-11 w-full px-3 outline-none rounded-tr-md rounded-br-md border-gray-300 border',
-          'focus:ring-blue-600 focus:ring-inset focus:border-transparent focus:outline-none focus:ring-2',
-          'transition-all duration-150 ease-in'
-        )}
-        onValueChange={customOnChange}
-        placeholder={placeholder}
-        isNumericString={isNumericString}
-        thousandSeparator={thousandSeparator}
-        decimalSeparator={decimalSeparator}
-        id={props.id ?? props.name}
-        {...props}
-      />
+      </span>
+      {field}
     </div>
   );
 };
