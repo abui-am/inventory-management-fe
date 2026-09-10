@@ -161,6 +161,40 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
 
   const resetPage = () => setPaginationUrl('');
 
+  /**
+   * Pesan kosong diturunkan dari penyaring yang BENAR-BENAR aktif, bukan dari satu
+   * boolean "kosong". Menyuruh mengubah filter kepada orang yang tidak sedang memakai
+   * filter membuat mereka mencari kontrol yang tidak aktif.
+   */
+  const adaFilter = !!debouncedSearch || status !== 'all' || !!between;
+
+  const kosong = (() => {
+    if (debouncedSearch) {
+      return {
+        judul: `Tidak ada hasil untuk "${debouncedSearch}"`,
+        pesan: 'Periksa lagi kode atau nama customer-nya.',
+      };
+    }
+    if (status !== 'all') {
+      const nama = STATUS[status as keyof typeof STATUS]?.label.toLowerCase() ?? status;
+      return {
+        judul: `Belum ada transaksi ${nama}`,
+        pesan: between ? 'Tidak ada juga di rentang tanggal ini.' : 'Semua transaksi berada di status lain.',
+      };
+    }
+    if (between) {
+      return { judul: 'Tidak ada transaksi di rentang ini', pesan: 'Coba pilih rentang tanggal yang lain.' };
+    }
+    return { judul: 'Belum ada transaksi', pesan: 'Transaksi yang dibuat akan muncul di sini.' };
+  })();
+
+  const resetFilter = () => {
+    resetPage();
+    setSearch('');
+    setStatus('all');
+    setRange([null, null]);
+  };
+
   const toggleSort = (key: string) => {
     resetPage();
     setSort((prev) => (prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }));
@@ -324,12 +358,13 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                 {!isLoading && rows.length === 0 && (
                   <tr>
                     <td colSpan={columns.length} className="px-2.5 py-12 text-center">
-                      <p className="text-base font-medium">Tidak ada transaksi</p>
-                      <p className="mt-1 text-sm text-foreground-muted">
-                        {debouncedSearch || status !== 'all' || between
-                          ? 'Coba longgarkan penyaringnya.'
-                          : 'Transaksi yang dibuat akan muncul di sini.'}
-                      </p>
+                      <p className="text-base font-medium">{kosong.judul}</p>
+                      <p className="mt-1 text-sm text-foreground-muted">{kosong.pesan}</p>
+                      {adaFilter && (
+                        <Button size="xs" variant="outline" className="mt-3" onClick={resetFilter}>
+                          Reset filter
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 )}
