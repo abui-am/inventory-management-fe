@@ -41,10 +41,10 @@ const waktu = (iso: string | Date) =>
   dayjs(iso).format(dayjs(iso).year() === dayjs().year() ? 'DD MMM HH:mm' : 'DD MMM YY HH:mm');
 
 const STATUS = {
-  pending: { label: 'Menunggu', variant: 'warning', dot: 'bg-warning' },
-  'on-review': { label: 'Ditinjau', variant: 'info', dot: 'bg-info' },
-  accepted: { label: 'Diterima', variant: 'success', dot: 'bg-success' },
-  declined: { label: 'Ditolak', variant: 'destructive', dot: 'bg-destructive' },
+  pending: { label: 'Menunggu', variant: 'warning' },
+  'on-review': { label: 'Ditinjau', variant: 'info' },
+  accepted: { label: 'Diterima', variant: 'success' },
+  declined: { label: 'Ditolak', variant: 'destructive' },
 } as const;
 
 const STATUS_ORDER = ['pending', 'on-review', 'accepted', 'declined'] as const;
@@ -225,12 +225,7 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
             }}
             tabs={[
               { value: 'all', label: 'Semua', count: counts.all },
-              ...STATUS_ORDER.map((key) => ({
-                value: key,
-                label: STATUS[key].label,
-                count: counts[key],
-                dot: STATUS[key].dot,
-              })),
+              ...STATUS_ORDER.map((key) => ({ value: key, label: STATUS[key].label, count: counts[key] })),
             ]}
           />
 
