@@ -155,7 +155,7 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                   saja tidak memberi tahu di cabang mana pengguna berada. */}
               {/* SPEC-02..05: 13px, gap 7px; "Penjualan" dan "/" foreground-subtle,
                   nama halaman weight 600 — bukan judul besar. */}
-              <nav aria-label="Remah roti" className="flex min-w-0 items-center gap-1.75 text-base">
+              <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.75 text-base">
                 {groupLabel && (
                   <>
                     <span className="truncate text-foreground-subtle">{groupLabel}</span>

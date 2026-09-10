@@ -345,7 +345,7 @@ function ButtonDownload({ transactionId }: { transactionId: string }) {
 
   return (
     <Button loading={isFetching} onClick={handleDownload} Icon={<Download width={24} height={24} />}>
-      Download Invoice
+      Download
     </Button>
   );
 }

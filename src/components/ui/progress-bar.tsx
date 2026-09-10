@@ -46,7 +46,7 @@ export function ProgressBar({ active }: { active: boolean }): JSX.Element | null
     <div
       className="pointer-events-none fixed inset-x-0 top-0 z-50 h-0.5 bg-transparent"
       role="progressbar"
-      aria-label="Memuat halaman"
+      aria-label="Loading"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(value)}

@@ -48,7 +48,7 @@ function AppCrashFallback(): JSX.Element {
         className="rounded-md font-bold min-h-11 px-4 py-2 bg-blue-600 hover:bg-blue-700 shadow-md text-white"
         onClick={() => window.location.reload()}
       >
-        Muat ulang halaman
+        Reload halaman
       </button>
     </div>
   );

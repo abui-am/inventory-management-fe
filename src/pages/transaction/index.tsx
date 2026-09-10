@@ -178,7 +178,7 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
         {/* SPEC-11: toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <FilterTabs
-            aria-label="Saring menurut status"
+            aria-label="Filter status"
             value={status}
             onChange={(val) => {
               resetPage();
@@ -398,7 +398,7 @@ const ButtonDownload = ({ transactionId }: { transactionId: string }): ReactNode
   };
 
   return (
-    <Button size="icon-xs" variant="ghost" aria-label="Unduh faktur" loading={isFetching} onClick={handleDownload}>
+    <Button size="icon-xs" variant="ghost" aria-label="Download invoice" loading={isFetching} onClick={handleDownload}>
       {!isFetching && <Download strokeWidth={1.7} aria-hidden />}
     </Button>
   );

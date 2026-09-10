@@ -285,7 +285,7 @@ const ICON_SAMPLES = [
   [Search, 'Search', 'cari'],
   [Plus, 'Plus', 'tambah'],
   [Eye, 'Eye', 'lihat detail'],
-  [ArrowDownToLine, 'ArrowDownToLine', 'unduh'],
+  [ArrowDownToLine, 'ArrowDownToLine', 'download'],
   [Trash2, 'Trash2', 'hapus'],
   [Check, 'Check', 'diterima'],
   [AlertTriangle, 'AlertTriangle', 'perlu perhatian'],
@@ -758,7 +758,7 @@ function PreviewSection() {
   return (
     <Section
       id="pratinjau"
-      title="Pratinjau arah"
+      title="Preview arah"
       note="Bukan komponen final — ini cuma memperlihatkan rasa token saat dipakai, supaya arahnya bisa dinilai tanpa membayangkan. Komponen shadcn/ui yang sebenarnya, lengkap dengan semua state, dibangun di Fase 3."
     >
       <Panel className="flex flex-col gap-5">
@@ -879,7 +879,7 @@ const NAV = [
   ['feedback', 'Feedback'],
   ['overlay', 'Overlay'],
   ['tremor', 'Tremor & ⌘K'],
-  ['pratinjau', 'Pratinjau arah'],
+  ['pratinjau', 'Preview arah'],
 ] as const;
 
 function StyleguidePage(): JSX.Element {

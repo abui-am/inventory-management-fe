@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 const OPTIONS = [
-  { value: 'light', label: 'Terang', Icon: Sun },
-  { value: 'dark', label: 'Gelap', Icon: Moon },
-  { value: 'system', label: 'Sistem', Icon: Monitor },
+  { value: 'light', label: 'Light', Icon: Sun },
+  { value: 'dark', label: 'Dark', Icon: Moon },
+  { value: 'system', label: 'System', Icon: Monitor },
 ] as const;
 
 /**
@@ -28,7 +28,7 @@ export function ThemeToggle(): JSX.Element {
     <div
       className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-surface p-0.5"
       role="radiogroup"
-      aria-label="Tema tampilan"
+      aria-label="Theme"
     >
       {OPTIONS.map(({ value, label, Icon }) => {
         const active = mounted && theme === value;

@@ -71,14 +71,14 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
         {showGoTo && (
           <>
             <TextField
-              placeholder="Hal."
-              aria-label="Lompat ke halaman"
+              placeholder="Page"
+              aria-label="Go to page"
               onChange={(e) => setGoTo(+e.target.value)}
               className="h-7 w-14 rounded-md px-2 text-sm"
               type="number"
             />
             <Button size="xs" variant="outline" onClick={() => onClickGoToPage?.(goTo)}>
-              Pergi
+              Go
             </Button>
           </>
         )}
@@ -88,7 +88,7 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
           // BUKAN lewat prop `styles`, yang akan membuang seluruh tema select.
           <ThemedSelect
             menuPlacement="top"
-            aria-label="Jumlah baris per halaman"
+            aria-label="Rows per page"
             defaultValue={PER_PAGE_OPTIONS[1]}
             onChange={(e) => onChangePerPage(e as PerPageOption | null)}
             options={PER_PAGE_OPTIONS}
@@ -131,10 +131,10 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
         {/* SPEC-44: jarak eksplisit 4px antara pemilih dan nomor halaman */}
         <div className="w-1" aria-hidden />
 
-        <nav className="flex items-center gap-1.25" aria-label="Navigasi halaman">
+        <nav className="flex items-center gap-1.25" aria-label="Pagination">
           {/* Panah tidak ada di berkas desain; dipertahankan atas permintaan. */}
           <button type="button" onClick={onClickPrevious} className={cn(pagerButton, pagerNeutral)}>
-            <span className="sr-only">Sebelumnya</span>
+            <span className="sr-only">Previous</span>
             <ChevronLeft size={14} aria-hidden />
           </button>
 
@@ -162,7 +162,7 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
           )}
 
           <button type="button" onClick={onClickNext} className={cn(pagerButton, pagerNeutral)}>
-            <span className="sr-only">Berikutnya</span>
+            <span className="sr-only">Next</span>
             <ChevronRight size={14} aria-hidden />
           </button>
         </nav>

@@ -77,10 +77,10 @@ def sheet():
   </div>
 
   <div style="padding:7px 16px;border-bottom:1px solid var(--border);display:flex;gap:5px">
-    <button class="btn sm ghost">{S.svg('printer', 13, 1.8)} Cetak struk</button>
-    <button class="btn sm ghost">{S.svg('down', 13, 1.8)} Unduh faktur</button>
+    <button class="btn sm ghost">{S.svg('printer', 13, 1.8)} Print</button>
+    <button class="btn sm ghost">{S.svg('down', 13, 1.8)} Download</button>
     <div style="flex:1"></div>
-    <div class="ico" title="Salin kode">{S.svg('copy', 13, 1.7)}</div>
+    <div class="ico" title="Copy">{S.svg('copy', 13, 1.7)}</div>
   </div>
 
   {section('Total', f"""
