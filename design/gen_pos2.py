@@ -5,6 +5,7 @@
 import _shell as S
 
 S.ICONS.update({
+    'check': '<path d="M20 6 9 17l-5-5"/>',
     'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
     'plus': '<path d="M12 5v14"/><path d="M5 12h14"/>',
     'search': '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
@@ -155,7 +156,14 @@ def pembayaran():
   <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;
     background:var(--surface-raised);border-bottom:1px solid var(--border)">
     <span style="font-size:13px;font-weight:600">Pembayaran</span>
-    <button class="btn ghost sm">{S.svg('plus', 13, 2.2)} Metode</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);
+          color:var(--accent-foreground);display:flex;align-items:center;justify-content:center">{S.svg('check', 10, 3)}</span>
+        Seluruhnya
+      </label>
+      <button class="btn ghost sm">{S.svg('plus', 13, 2.2)} Metode</button>
+    </div>
   </div>
   {''.join(baris)}
   <div style="padding:7px 13px;display:flex;justify-content:space-between;font-size:12px">
@@ -163,6 +171,51 @@ def pembayaran():
     <span class="mono" style="font-weight:600">{RUPIAH(DIBAYAR)}</span>
   </div>
 </div>'''
+
+
+def preview_jurnal():
+    """Jurnal yang benar-benar ditulis backend untuk transaksi PENJUALAN.
+
+    Diambil dari TransactionRepository::setCustomerPayments — debit per metode bayar
+    (Kas/Bank/Piutang/Giro), kredit Penjualan sebesar total dikurangi ongkos kirim, dan
+    kredit Pendapatan lain-lain sebesar ongkos kirim bila ada.
+
+    Berbeda dari barang masuk: untuk penjualan, jurnalnya ditulis SEKETIKA saat transaksi
+    disimpan (dispatchSync), bukan menunggu status naik. Jadi panel ini menggambarkan
+    yang akan terjadi tepat saat tombol simpan ditekan.
+    """
+    AKUN_DEBIT = {'Kas': 'Kas', 'Bank': 'Bank', 'Utang': 'Piutang', 'Giro': 'Giro'}
+    baris = []
+    for metode, _w, jml, _t in BAYAR:
+        baris.append(('D', AKUN_DEBIT.get(metode, metode), jml))
+    baris.append(('K', 'Penjualan', TOTAL - ONGKIR))
+    if ONGKIR:
+        baris.append(('K', 'Pendapatan lain-lain', ONGKIR))
+
+    debit = sum(n for t, _, n in baris if t == 'D')
+    kredit = sum(n for t, _, n in baris if t == 'K')
+
+    def sel(tipe, akun, jml):
+        warna = 'destructive' if tipe == 'D' else 'success'
+        return (f'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;'
+                f'border-bottom:1px solid var(--border-subtle)">'
+                f'<span class="mono" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;'
+                f'background:var(--{warna}-subtle);color:var(--{warna});font-size:9px;font-weight:700;'
+                f'display:flex;align-items:center;justify-content:center">{tipe}</span>'
+                f'<span style="flex:1;font-size:12px">{akun}</span>'
+                f'<span class="mono" style="font-size:12px;font-weight:600">{RUPIAH(jml)}</span></div>')
+
+    return f'''<div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+    <span class="eyebrow">Preview jurnal</span>
+    <span style="font-size:11px;line-height:16px;color:var(--foreground-muted)">
+      Ditulis <b>seketika</b> saat transaksi disimpan.
+    </span>
+    <div style="display:flex;flex-direction:column">{''.join(sel(*b) for b in baris)}</div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">
+      <span style="color:var(--foreground-muted)">Seimbang</span>
+      <span class="mono" style="color:var(--success);font-weight:600">{RUPIAH(debit)} = {RUPIAH(kredit)}</span>
+    </div>
+  </div>'''
 
 
 def rel():
@@ -202,6 +255,7 @@ def rel():
   </div>
 
   {kartu_customer()}
+  {preview_jurnal()}
 
 </div>'''
 
