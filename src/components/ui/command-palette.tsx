@@ -54,6 +54,10 @@ export function CommandPalette(): JSX.Element {
         open={open}
         onOpenChange={setOpen}
         label="Cari halaman"
+        // Tanpa ini dialognya modal tapi tidak terlihat modal — isi halaman tembus di
+        // belakangnya. Nilainya sama dengan .modal-overlay supaya semua dialog di
+        // aplikasi ini punya scrim yang sama.
+        overlayClassName="fixed inset-0 z-40 bg-scrim/50 backdrop-blur-[2px]"
         className={cn(
           'fixed left-1/2 top-[20%] z-50 w-[min(34rem,90vw)] -translate-x-1/2 overflow-hidden',
           'rounded-xl border border-border bg-surface shadow-md'
@@ -61,9 +65,19 @@ export function CommandPalette(): JSX.Element {
       >
         <div className="flex items-center gap-2 border-b border-border px-3">
           <Search size={16} strokeWidth={1.75} className="text-foreground-subtle" aria-hidden />
+          {/* Ring fokus sengaja dimatikan DI SINI saja.
+              globals.css memasang `:focus-visible { ring-2 ring-offset-2 }` sebagai
+              cadangan untuk elemen yang tidak punya ring sendiri. Input ini selebar
+              dialog dan tanpa radius, jadi ring-nya jadi persegi yang — ditambah offset
+              2px — menembus sudut membulat dialog yang `overflow-hidden`.
+              Tidak ada yang hilang: dialognya modal dan input ini otomatis terfokus
+              saat dibuka, jadi letak fokus tidak pernah ambigu. */}
           <Command.Input
             placeholder="Ketik nama halaman…"
-            className="h-11 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-foreground-subtle"
+            className={cn(
+              'h-11 flex-1 bg-transparent text-base text-foreground placeholder:text-foreground-subtle',
+              'outline-none focus-visible:ring-0 focus-visible:ring-offset-0'
+            )}
           />
         </div>
         <Command.List className="max-h-72 overflow-y-auto p-1.5">

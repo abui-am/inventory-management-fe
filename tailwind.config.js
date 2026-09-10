@@ -133,6 +133,10 @@ module.exports = {
         },
         ring: withAlpha('--ring'),
 
+        // Dipakai sebagai latar scrim di belakang dialog. Nilainya berbeda per tema:
+        // hitam 40% di atas ground yang sudah gelap nyaris tak terlihat.
+        scrim: withAlpha('--scrim'),
+
 
         // Tremor merangkai gayanya dari skala warnanya sendiri: `fill-tremor-content`,
         // `stroke-tremor-border`, dan pasangan `dark:*-dark-tremor-*`. Skala itu tidak
