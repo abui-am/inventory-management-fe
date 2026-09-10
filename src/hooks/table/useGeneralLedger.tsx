@@ -30,7 +30,7 @@ export const useGeneralLedger = (dataRes: Datum[]) => {
           accessor: 'debit',
         },
         {
-          Header: 'Kredit',
+          Header: 'Credit',
           accessor: 'kredit',
         },
       ];

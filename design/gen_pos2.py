@@ -213,7 +213,7 @@ def preview_jurnal():
     </span>
     <div style="display:flex;flex-direction:column">{''.join(sel(*b) for b in baris)}</div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">
-      <span style="color:var(--foreground-muted)">Seimbang</span>
+      <span style="color:var(--foreground-muted)">Balance</span>
       <span class="mono" style="color:var(--success);font-weight:600">{RUPIAH(debit)} = {RUPIAH(kredit)}</span>
     </div>
   </div>'''

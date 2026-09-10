@@ -40,9 +40,9 @@ type TableProps<T extends Record<string, unknown>> = TableOptions<T> & {
 };
 
 // Header tabel: 24px padding vertikal yang lama membuat satu baris judul setinggi tiga
-// baris data. Uppercase kecil memisahkan header dari isi tanpa perlu garis tambahan.
-const HEADER_CELL =
-  'px-3 py-2.5 text-left text-xs font-bold uppercase tracking-[0.07em] text-foreground-subtle break-words';
+// baris data. Tidak memakai uppercase — lihat aturan wording di CLAUDE.md; yang
+// memisahkan header dari isi adalah warna, bobot, dan latar barisnya.
+const HEADER_CELL = 'px-3 py-2.5 text-left text-xs font-bold text-foreground-subtle break-words';
 
 const ResponsiveTable: React.FC<
   PropsWithChildren<TableProps<Record<string, unknown>> & { withPagination?: boolean; withoutStripe?: boolean }>

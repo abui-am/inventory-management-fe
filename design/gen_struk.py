@@ -83,7 +83,7 @@ def faktur_a5():
 
   <div style="display:flex;gap:32px;padding:12px 0">
     <div style="flex:1">
-      <div style="font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#888">Ditagihkan kepada</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.09em;color:#888">Ditagihkan kepada</div>
       <div style="font-weight:600;margin-top:4px;font-size:13px">Warung Bu Melati</div>
     </div>
     <div style="width:180px;display:flex;flex-direction:column;gap:4px">
@@ -97,7 +97,7 @@ def faktur_a5():
   </div>
 
   <table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#888">
+    <thead><tr style="font-size:9px;font-weight:700;letter-spacing:.09em;color:#888">
       <th style="text-align:left;padding-bottom:6px;border-bottom:1px solid #1a1a23;width:22px">#</th>
       <th style="text-align:left;padding-bottom:6px;border-bottom:1px solid #1a1a23">Barang</th>
       <th style="text-align:right;padding-bottom:6px;border-bottom:1px solid #1a1a23">Jumlah</th>
@@ -117,7 +117,7 @@ def faktur_a5():
   </div>
 
   <div style="margin-top:12px;border:1px solid #e6e6ea;border-radius:6px;padding:9px 12px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#888;margin-bottom:6px">Pembayaran</div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:.09em;color:#888;margin-bottom:6px">Pembayaran</div>
     <div style="display:flex;justify-content:space-between;font-size:12px">
       <span>Utang &middot; jatuh tempo 09/10/2026</span>
       <span style="{MONO};font-weight:600">{RUPIAH(TOTAL)}</span>

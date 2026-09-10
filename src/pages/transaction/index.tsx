@@ -66,9 +66,9 @@ const SORTABLE: Record<string, string> = {
   status: 'status',
 };
 
-// SPEC-27: 10px/700, tracking .07em, uppercase, subtle, padding 9px 10px 7px, garis bawah.
-const TH =
-  'border-b border-border px-2.5 pb-1.75 pt-2.25 text-2xs font-bold uppercase tracking-[0.07em] text-foreground-subtle';
+// Header kolom: 11px/700 subtle, padding 9px 10px 7px, garis bawah. TANPA uppercase —
+// aturan wording di CLAUDE.md berlaku untuk label dan title, termasuk header kolom.
+const TH = 'border-b border-border px-2.5 pb-1.75 pt-2.25 text-xs font-bold text-foreground-subtle';
 // SPEC-29: 13px, padding 8px 10px, garis bawah di SETIAP baris termasuk terakhir.
 const TD = 'border-b border-border px-2.5 py-2 align-middle text-base';
 
@@ -296,7 +296,7 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                             type="button"
                             onClick={() => toggleSort(key)}
                             className={cn(
-                              'group inline-flex items-center gap-1 uppercase tracking-[0.07em] transition-colors duration-fast hover:text-foreground',
+                              'group inline-flex items-center gap-1 transition-colors duration-fast hover:text-foreground',
                               activeSort && 'text-foreground'
                             )}
                           >

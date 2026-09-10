@@ -79,15 +79,15 @@
     a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
     .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
       letter-spacing:-0.01em}
-    .eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--foreground-subtle)}
+    .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
     .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
       font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
     .nav:hover{background:var(--surface-raised);color:var(--foreground)}
     .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
-    .navsec{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    .navsec{font-size:10px;font-weight:700;letter-spacing:.09em;
       color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
-    .th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--foreground-subtle);
+    .th{font-size:11px;font-weight:700;color:var(--foreground-subtle);
       text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
     .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
     .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
@@ -197,7 +197,7 @@
             <th class="th" style="padding-top:9px">Tanggal</th><th class="th" style="padding-top:9px">Ref</th>
             <th class="th" style="padding-top:9px">Keterangan</th>
             <th class="th" style="padding-top:9px;text-align:right">Debit</th>
-            <th class="th" style="padding-top:9px;text-align:right">Kredit</th>
+            <th class="th" style="padding-top:9px;text-align:right">Credit</th>
             <th class="th" style="padding-top:9px;text-align:right">Saldo</th>
           </tr></thead>
           <tbody>
@@ -338,7 +338,7 @@
             <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--foreground-muted)">
               <span style="width:7px;height:7px;border-radius:2px;background:var(--destructive)"></span>Debit</span>
             <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--foreground-muted)">
-              <span style="width:7px;height:7px;border-radius:2px;background:var(--success)"></span>Kredit</span>
+              <span style="width:7px;height:7px;border-radius:2px;background:var(--success)"></span>Credit</span>
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:flex-end">

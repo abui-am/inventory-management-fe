@@ -99,6 +99,42 @@ Domain types live in `src/typings/<domain>.ts` (one file per domain).
 - `/styleguide` is the live reference. `npm run check:contrast` verifies token pairs against
   WCAG AA in both themes.
 
+### Wording UI — aturan tetap, jangan ditawar ulang
+
+Ditetapkan oleh maintainer. Berlaku untuk semua teks yang dilihat pengguna: label,
+tombol, placeholder, `aria-label`, judul seksi, empty state, pesan error, toast.
+
+**1. Istilah yang sudah lazim berbahasa Inggris TETAP Inggris.** Jangan diterjemahkan.
+
+> Print, Download, Upload, Export, Import, Filter, Reset, Preview, Copy, Search,
+> Pagination, Previous, Next, Invoice, Customer, Supplier, Status, Total, Subtotal,
+> Balance, Debit, Credit, Light, Dark, System.
+
+Jangan menambah keterangan format yang sudah jelas dari konteksnya: tombolnya cukup
+`Print`, bukan `Print struk`.
+
+**2. Istilah akuntansi teknis pakai bahasa Inggris; NAMA AKUN tetap Indonesia.**
+Batasnya: kalau kata itu muncul di buku besar sebagai nama akun, ia milik klien dan
+tetap Indonesia. Kalau ia istilah teknik pembukuan, pakai Inggris.
+
+> Inggris: Balance, Debit, Credit, Total, Subtotal
+> Indonesia: Kas, Bank, Utang, Piutang, Giro, Persediaan, Penjualan, Beban,
+> Jurnal Umum, Buku Besar, Prive, Barang Masuk, Harga Jual, Perubahan Modal
+
+**3. Kata kerja Indonesia sehari-hari tetap Indonesia.** cari, lihat, tutup, simpan,
+batal, tambah, ubah, hapus.
+
+**4. LABEL dan TITLE memakai Kapital di awal saja — bukan HURUF BESAR SEMUA.**
+`Total`, `Ongkos kirim`, `Nomor faktur`, `Waktu`, `Kode`. Tanpa pengecualian: berlaku
+untuk judul kartu, judul seksi, label field, DAN header kolom tabel. `text-transform:
+uppercase` tidak dipakai untuk teks antarmuka.
+
+**5. Komentar kode tetap bahasa Indonesia.** Itu untuk yang merawat, bukan antarmuka.
+
+**6. Empty state harus sesuai konteks.** Bedakan "data memang belum ada" dari "filter
+tidak menemukan apa-apa". Jangan menyuruh mengubah filter kepada orang yang tidak
+sedang memakai filter.
+
 ### Other conventions
 - **Path alias**: `@/*` → `src/*` (tsconfig + eslint resolver).
 - **Tables**: both `@tanstack/react-table` v8 and legacy `react-table` v7 are present; table-building hooks live in `src/hooks/table/`, reusable table components in `src/components/table/`.

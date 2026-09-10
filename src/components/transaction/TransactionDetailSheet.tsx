@@ -37,8 +37,10 @@ const WARNA_METODE: Record<string, string> = {
   Piutang: 'bg-accent',
 };
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <div className="text-2xs font-bold uppercase tracking-[0.09em] text-foreground-subtle">{children}</div>;
+// Judul seksi, bukan eyebrow: label dan title memakai Kapital di awal saja.
+// Lihat aturan wording di CLAUDE.md.
+function JudulSeksi({ children }: { children: React.ReactNode }) {
+  return <div className="text-base font-semibold">{children}</div>;
 }
 
 function Section({
@@ -60,7 +62,7 @@ function Section({
         tinted && 'bg-accent-subtle'
       )}
     >
-      <Eyebrow>{title}</Eyebrow>
+      <JudulSeksi>{title}</JudulSeksi>
       {children}
     </div>
   );
