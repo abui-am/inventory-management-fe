@@ -41,10 +41,10 @@ const waktu = (iso: string | Date) =>
   dayjs(iso).format(dayjs(iso).year() === dayjs().year() ? 'DD MMM HH:mm' : 'DD MMM YY HH:mm');
 
 const STATUS = {
-  pending: { label: 'Menunggu', variant: 'warning' },
-  'on-review': { label: 'Ditinjau', variant: 'info' },
-  accepted: { label: 'Diterima', variant: 'success' },
-  declined: { label: 'Ditolak', variant: 'destructive' },
+  pending: { label: 'Menunggu', variant: 'warning', dot: 'bg-warning' },
+  'on-review': { label: 'Ditinjau', variant: 'info', dot: 'bg-info' },
+  accepted: { label: 'Diterima', variant: 'success', dot: 'bg-success' },
+  declined: { label: 'Ditolak', variant: 'destructive', dot: 'bg-destructive' },
 } as const;
 
 const STATUS_ORDER = ['pending', 'on-review', 'accepted', 'declined'] as const;
@@ -166,8 +166,6 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
    * boolean "kosong". Menyuruh mengubah filter kepada orang yang tidak sedang memakai
    * filter membuat mereka mencari kontrol yang tidak aktif.
    */
-  const adaFilter = !!debouncedSearch || status !== 'all' || !!between;
-
   const kosong = (() => {
     if (debouncedSearch) {
       return {
@@ -187,13 +185,6 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
     }
     return { judul: 'Belum ada transaksi', pesan: 'Transaksi yang dibuat akan muncul di sini.' };
   })();
-
-  const resetFilter = () => {
-    resetPage();
-    setSearch('');
-    setStatus('all');
-    setRange([null, null]);
-  };
 
   const toggleSort = (key: string) => {
     resetPage();
@@ -234,7 +225,12 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
             }}
             tabs={[
               { value: 'all', label: 'Semua', count: counts.all },
-              ...STATUS_ORDER.map((key) => ({ value: key, label: STATUS[key].label, count: counts[key] })),
+              ...STATUS_ORDER.map((key) => ({
+                value: key,
+                label: STATUS[key].label,
+                count: counts[key],
+                dot: STATUS[key].dot,
+              })),
             ]}
           />
 
@@ -360,11 +356,6 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                     <td colSpan={columns.length} className="px-2.5 py-12 text-center">
                       <p className="text-base font-medium">{kosong.judul}</p>
                       <p className="mt-1 text-sm text-foreground-muted">{kosong.pesan}</p>
-                      {adaFilter && (
-                        <Button size="xs" variant="outline" className="mt-3" onClick={resetFilter}>
-                          Reset filter
-                        </Button>
-                      )}
                     </td>
                   </tr>
                 )}

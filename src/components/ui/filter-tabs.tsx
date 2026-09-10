@@ -7,6 +7,12 @@ export type FilterTab = {
   label: string;
   /** `undefined` selama jumlahnya belum datang — bukan 0, supaya tidak sempat berbohong. */
   count?: number;
+  /**
+   * Kelas latar untuk titik warna, mis. `bg-success`. Harus string utuh, bukan
+   * dirangkai saat runtime — Tailwind memindai sumber, jadi `bg-${x}` tidak pernah
+   * ter-generate. Tab yang bukan status (mis. "Semua") tidak diberi titik.
+   */
+  dot?: string;
 };
 
 /**
@@ -109,6 +115,11 @@ export function FilterTabs({
               active ? 'font-semibold text-foreground' : 'font-medium text-foreground-muted hover:text-foreground'
             )}
           >
+            {tab.dot && (
+              // 6px: cukup untuk dipindai warnanya, terlalu kecil untuk bersaing dengan
+              // labelnya. Sama seperti titik metode bayar di sheet detail.
+              <span aria-hidden className={cn('size-1.5 flex-shrink-0 rounded-full', tab.dot)} />
+            )}
             {tab.label}
             {tab.count !== undefined && (
               // SPEC-16: 10px mono, foreground-subtle untuk tab aktif MAUPUN nonaktif.
