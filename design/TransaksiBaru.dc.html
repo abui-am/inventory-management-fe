@@ -251,9 +251,10 @@
   <div style="width:112px;text-align:right"><span style="font-size:11px;color:var(--foreground-muted)">23 Sep 2026</span></div>
   <div class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
 </div>
-  <div style="padding:7px 13px;display:flex;justify-content:space-between;font-size:12px">
+  <div style="padding:10px 13px;background:var(--surface-raised);display:flex;justify-content:space-between;
+    align-items:baseline;font-size:12px">
     <span style="color:var(--foreground-muted)">Total dibayarkan</span>
-    <span class="mono" style="font-weight:600">942.000</span>
+    <span class="mono" style="font-size:14px;font-weight:700;color:var(--accent)">942.000</span>
   </div>
 </div></div>
 <div style="width:284px;flex-shrink:0;display:flex;flex-direction:column;gap:10px">
@@ -279,12 +280,10 @@
     <button class="btn" style="justify-content:center;width:100%">Simpan transaksi</button>
   </div>
 
-  <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
-    <div style="display:flex;flex-direction:column;gap:1px">
-      <span class="eyebrow">Customer</span>
-      <span style="font-size:13px;font-weight:600">Warung Bu Melati</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:5px">
+  <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:13px;font-weight:600">Customer</span>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:13px">Warung Bu Melati</div>
       <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px"><span style="color:var(--foreground-muted)">Piutang berjalan</span><span class="mono" style="font-weight:500;color:var(--warning)">557.000</span></div>
       <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px"><span style="color:var(--foreground-muted)">Transaksi ini (kredit)</span><span class="mono" style="font-weight:500">+242.000</span></div>
       <div style="height:1px;background:var(--border-subtle)"></div>
@@ -294,12 +293,12 @@
       Hanya bagian yang dibayar Utang atau Giro yang menambah piutang.
     </span>
   </div>
-  <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
-    <span class="eyebrow">Preview jurnal</span>
-    <span style="font-size:11px;line-height:16px;color:var(--foreground-muted)">
-      Ditulis <b>seketika</b> saat transaksi disimpan.
+  <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:13px;font-weight:600">Preview jurnal</span>
+    <span style="font-size:12px;line-height:17px;color:var(--foreground-muted);margin-top:-4px">
+      Ditulis setelah transaksi disimpan.
     </span>
-    <div style="display:flex;flex-direction:column"><div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--destructive-subtle);color:var(--destructive);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">D</span><span style="flex:1;font-size:12px">Kas</span><span class="mono" style="font-size:12px;font-weight:600">700.000</span></div><div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--destructive-subtle);color:var(--destructive);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">D</span><span style="flex:1;font-size:12px">Giro</span><span class="mono" style="font-size:12px;font-weight:600">242.000</span></div><div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--success-subtle);color:var(--success);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">K</span><span style="flex:1;font-size:12px">Penjualan</span><span class="mono" style="font-size:12px;font-weight:600">942.000</span></div></div>
+    <div style="display:flex;flex-direction:column"><div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" title="Debit" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--destructive-subtle);color:var(--destructive);font-size:9px;font-weight:700;cursor:help;display:flex;align-items:center;justify-content:center">D</span><span style="flex:1;font-size:12px">Kas</span><span class="mono" style="font-size:12px;font-weight:600">700.000</span></div><div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" title="Debit" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--destructive-subtle);color:var(--destructive);font-size:9px;font-weight:700;cursor:help;display:flex;align-items:center;justify-content:center">D</span><span style="flex:1;font-size:12px">Giro</span><span class="mono" style="font-size:12px;font-weight:600">242.000</span></div><div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" title="Kredit" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--success-subtle);color:var(--success);font-size:9px;font-weight:700;cursor:help;display:flex;align-items:center;justify-content:center">K</span><span style="flex:1;font-size:12px">Penjualan</span><span class="mono" style="font-size:12px;font-weight:600">942.000</span></div></div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">
       <span style="color:var(--foreground-muted)">Seimbang</span>
       <span class="mono" style="color:var(--success);font-weight:600">942.000 = 942.000</span>

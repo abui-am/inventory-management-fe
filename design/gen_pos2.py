@@ -42,12 +42,10 @@ def kartu_customer():
         f'<span style="color:var(--foreground-muted)">{l}</span>'
         f'<span class="mono" style="font-weight:{600 if tebal else 500}'
         f'{";color:var(--%s)" % warna if warna else ""}">{v}</span></div>')
-    return f'''<div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
-    <div style="display:flex;flex-direction:column;gap:1px">
-      <span class="eyebrow">Customer</span>
-      <span style="font-size:13px;font-weight:600">{CUSTOMER}</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:5px">
+    return f'''<div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:13px;font-weight:600">Customer</span>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:13px">{CUSTOMER}</div>
       {baris('Piutang berjalan', RUPIAH(PIUTANG), 'warning')}
       {baris('Transaksi ini (kredit)', '+' + RUPIAH(KREDIT_KINI))}
       <div style="height:1px;background:var(--border-subtle)"></div>
@@ -166,9 +164,10 @@ def pembayaran():
     </div>
   </div>
   {''.join(baris)}
-  <div style="padding:7px 13px;display:flex;justify-content:space-between;font-size:12px">
+  <div style="padding:10px 13px;background:var(--surface-raised);display:flex;justify-content:space-between;
+    align-items:baseline;font-size:12px">
     <span style="color:var(--foreground-muted)">Total dibayarkan</span>
-    <span class="mono" style="font-weight:600">{RUPIAH(DIBAYAR)}</span>
+    <span class="mono" style="font-size:14px;font-weight:700;color:var(--accent)">{RUPIAH(DIBAYAR)}</span>
   </div>
 </div>'''
 
@@ -197,18 +196,20 @@ def preview_jurnal():
 
     def sel(tipe, akun, jml):
         warna = 'destructive' if tipe == 'D' else 'success'
+        # D dan K sendirian tidak menjelaskan apa pun bagi yang bukan orang akuntansi.
+        judul = 'Debit' if tipe == 'D' else 'Kredit'
         return (f'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;'
                 f'border-bottom:1px solid var(--border-subtle)">'
-                f'<span class="mono" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;'
-                f'background:var(--{warna}-subtle);color:var(--{warna});font-size:9px;font-weight:700;'
+                f'<span class="mono" title="{judul}" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;'
+                f'background:var(--{warna}-subtle);color:var(--{warna});font-size:9px;font-weight:700;cursor:help;'
                 f'display:flex;align-items:center;justify-content:center">{tipe}</span>'
                 f'<span style="flex:1;font-size:12px">{akun}</span>'
                 f'<span class="mono" style="font-size:12px;font-weight:600">{RUPIAH(jml)}</span></div>')
 
-    return f'''<div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
-    <span class="eyebrow">Preview jurnal</span>
-    <span style="font-size:11px;line-height:16px;color:var(--foreground-muted)">
-      Ditulis <b>seketika</b> saat transaksi disimpan.
+    return f'''<div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:13px;font-weight:600">Preview jurnal</span>
+    <span style="font-size:12px;line-height:17px;color:var(--foreground-muted);margin-top:-4px">
+      Ditulis setelah transaksi disimpan.
     </span>
     <div style="display:flex;flex-direction:column">{''.join(sel(*b) for b in baris)}</div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">
