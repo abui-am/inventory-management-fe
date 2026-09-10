@@ -150,6 +150,11 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
     last_page_url,
   } = dataTransaction?.data?.transactions ?? {};
 
+  // Berubah hanya saat isi tabel benar-benar berganti — halaman, penyaring, urutan.
+  // Dipakai sebagai `key` tbody supaya animasi masuk berjalan sekali per perubahan,
+  // bukan tiap render.
+  const signature = `${paginationUrl}|${status}|${debouncedSearch}|${sort.key}${sort.dir}|${pageSize}`;
+
   const resetPage = () => setPaginationUrl('');
 
   const toggleSort = (key: string) => {
@@ -286,7 +291,9 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                 </tr>
               </thead>
 
-              <tbody>
+              {/* fade-in 200ms saat isi berganti. Hanya opacity — tidak ada properti yang
+                  memicu layout ulang, jadi tabel 50 baris pun tidak tersendat. */}
+              <tbody key={signature} className="animate-in fade-in duration-200">
                 {isLoading &&
                   Array.from({ length: pageSize }).map((_, i) => (
                     // eslint-disable-next-line react/no-array-index-key

@@ -126,11 +126,22 @@ export function TransactionDetailSheet({
     <ReactModal
       isOpen={open}
       onRequestClose={onClose}
+      // Tanpa ini react-modal melepas node-nya seketika dan animasi keluar tidak pernah
+      // sempat berjalan. Angkanya harus >= durasi transisi di globals.css.
+      closeTimeoutMS={220}
       overlayClassName="modal-overlay"
+      // Bentuk objek, bukan string: dengan string, react-modal menyusun nama kelas
+      // penanda dari seluruh string kelas Tailwind di bawah — yang mustahil ditulis
+      // di CSS. Objek memisahkan kelas tetap dari kelas penanda buka/tutup.
+      //
       // Sheet kanan, bukan kotak di tengah: daftar transaksi tetap terlihat di
       // belakangnya, dan daftar barang sepanjang apa pun bergulir di dalam sheet
       // tanpa mengubah ukuran dialognya.
-      className="fixed inset-y-0 right-0 z-50 flex w-[480px] max-w-full flex-col border-l border-border bg-surface shadow-md outline-none"
+      className={{
+        base: 'sheet fixed inset-y-0 right-0 z-50 flex w-[480px] max-w-full flex-col border-l border-border bg-surface shadow-md outline-none',
+        afterOpen: 'sheet--open',
+        beforeClose: 'sheet--closing',
+      }}
     >
       <div className="flex h-12 flex-shrink-0 items-center justify-between gap-3 border-b border-border px-4">
         <div className="min-w-0">
