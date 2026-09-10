@@ -2,7 +2,9 @@ import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 // Harus setelah CSS vendor di atas — lihat komentar di berkasnya.
 import '../styles/datepicker.css';
-import 'tippy.js/dist/tippy.css'; // optional
+import 'tippy.js/dist/tippy.css';
+// Harus setelah CSS vendor di atas — lihat komentar di berkasnya.
+import '../styles/tippy.css';
 import 'dayjs/locale/id';
 
 import * as Sentry from '@sentry/nextjs';

@@ -1,3 +1,4 @@
+import Tippy from '@tippyjs/react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
 import { ButtonHTMLAttributes, forwardRef } from 'react';
@@ -56,24 +57,50 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     /** Menampilkan spinner dan mematikan tombol supaya aksi tidak terkirim dua kali. */
     loading?: boolean;
+    /**
+     * Teks tooltip. Default: isi `aria-label`.
+     *
+     * Tombol berukuran ikon tidak punya teks apa pun di layar, jadi satu-satunya
+     * penjelasnya adalah `aria-label` — yang hanya terbaca screen reader. Pengguna
+     * yang melihat layar tidak punya cara mengetahui fungsinya selain mengklik dan
+     * berharap. Karena itu tooltip dipasang otomatis untuk ukuran ikon, bukan
+     * diserahkan ke tiap pemanggil untuk diingat.
+     *
+     * `false` mematikannya — dipakai kalau tombolnya sudah dibungkus Tippy sendiri.
+     */
+    tooltip?: string | false;
   };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, fullWidth, loading = false, disabled, children, type, ...props }, ref) => (
-    <button
-      // Default `submit` milik HTML adalah sumber form ter-submit tanpa sengaja.
-      // eslint-disable-next-line react/button-has-type
-      type={type ?? 'button'}
-      ref={ref}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      className={cn(buttonVariants({ variant, size, fullWidth }), className)}
-      {...props}
-    >
-      {loading && <Loader2 className="animate-spin" aria-hidden />}
-      {children}
-    </button>
-  )
+  ({ className, variant, size, fullWidth, loading = false, disabled, children, type, tooltip, ...props }, ref) => {
+    const el = (
+      <button
+        // Default `submit` milik HTML adalah sumber form ter-submit tanpa sengaja.
+        // eslint-disable-next-line react/button-has-type
+        type={type ?? 'button'}
+        ref={ref}
+        disabled={disabled || loading}
+        aria-busy={loading || undefined}
+        className={cn(buttonVariants({ variant, size, fullWidth }), className)}
+        {...props}
+      >
+        {loading && <Loader2 className="animate-spin" aria-hidden />}
+        {children}
+      </button>
+    );
+
+    const label = tooltip ?? props['aria-label'];
+    const ikon = typeof size === 'string' && size.startsWith('icon');
+    if (!ikon || tooltip === false || !label) return el;
+
+    return (
+      // delay masuk 350ms: tanpa jeda, menyapu kursor melintasi baris tabel akan
+      // memuntahkan tooltip beruntun. Keluar tanpa jeda supaya tidak tertinggal.
+      <Tippy content={label} placement="top" delay={[350, 0]} offset={[0, 6]}>
+        {el}
+      </Tippy>
+    );
+  }
 );
 
 Button.displayName = 'Button';

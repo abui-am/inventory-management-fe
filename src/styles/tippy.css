@@ -1,0 +1,22 @@
+/* Override warna tooltip Tippy ke token.
+ *
+ * Berkas ini WAJIB diimpor SETELAH 'tippy.js/dist/tippy.css' di _app.tsx. Sebelumnya
+ * override ini ada di globals.css yang diimpor lebih dulu — spesifisitasnya sama, jadi
+ * stylesheet vendor yang menang dan tooltip tetap memakai kotak abu-abu bawaannya
+ * (#333, radius 4px, 14px), tidak peduli tema.
+ *
+ * Kesalahan yang sama pernah terjadi pada react-datepicker; lihat styles/datepicker.css.
+ */
+
+/* Tippy memakai tema gelapnya sendiri dengan warna literal. */
+.tippy-box {
+  background-color: hsl(var(--foreground));
+  color: hsl(var(--background));
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tippy-box > .tippy-arrow::before {
+  color: hsl(var(--foreground));
+}

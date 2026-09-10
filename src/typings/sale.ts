@@ -126,6 +126,9 @@ export interface SaleTransactionsData {
   pic: Pic;
   sender: Sender;
   discount: number;
+  // Dikirim backend pada setiap transaksi (bernilai 0 di hampir semua), tapi belum
+  // pernah ditulis di tipe ini — sehingga rincian total tidak bisa disusun tanpa cast.
+  shipping_cost: number;
   customer: Customer;
   payments: SalePayment[];
   items: SaleItem[];

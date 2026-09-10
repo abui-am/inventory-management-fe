@@ -97,19 +97,6 @@ input:checked + div svg {
     z-index: 40;
   }
 
-  /* Tippy memakai tema gelapnya sendiri dengan warna literal. */
-  .tippy-box {
-    background-color: hsl(var(--foreground));
-    color: hsl(var(--background));
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  .tippy-box > .tippy-arrow::before {
-    color: hsl(var(--foreground));
-  }
-
   .table-themed .collapse {
     width: 180px;
   }

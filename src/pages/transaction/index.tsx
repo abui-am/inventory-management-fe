@@ -6,7 +6,7 @@ import React, { ReactNode, useMemo, useState } from 'react';
 
 import { TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
-import { DetailSale } from '@/components/table/TableComponent';
+import TransactionDetailSheet from '@/components/transaction/TransactionDetailSheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import DateRangeFilter, { DateRange } from '@/components/ui/date-range-filter';
@@ -170,7 +170,7 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
   return (
     <>
       {transaction && (
-        <DetailSale transactions={transaction} open={!!transaction} onClose={() => setTransaction(null)} />
+        <TransactionDetailSheet transaction={transaction} open={!!transaction} onClose={() => setTransaction(null)} />
       )}
 
       {/* SPEC-10: kolom isi, gap 10px */}
