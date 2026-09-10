@@ -1,7 +1,7 @@
 # Arah baru untuk /transaction/add. Bedanya dari POS.dc.html: entri barang jadi satu
 # baris cepat di dalam tabel (bukan blok form terpisah), pembayaran jadi baris padat
-# (bukan kartu besar), dan pintasan keyboard ditampilkan — layar ini dipakai sambil
-# tangan di keyboard, bukan sambil mengarahkan kursor.
+# (bukan kartu besar), dan rel kanan menampilkan piutang berjalan customer — angka yang
+# menentukan boleh-tidaknya transaksi ini dibayar dengan utang.
 import _shell as S
 
 S.ICONS.update({
@@ -12,9 +12,6 @@ S.ICONS.update({
 })
 
 RUPIAH = lambda n: f"{n:,}".replace(",", ".")
-KBD = ("font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;"
-       "border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)")
-
 BARANG = [
     ("Beras Premium 5 kg", "BRS-001", 4, "karung", 150000),
     ("Telur Ayam 1 kg", "TLR-001", 6, "kg", 32000),
@@ -25,6 +22,41 @@ DISKON, ONGKIR = 0, 0
 TOTAL = SUB - DISKON + ONGKIR
 BAYAR = [("Kas", "success", 700000, None), ("Giro", "warning", 242000, "23 Sep 2026")]
 DIBAYAR = sum(b[2] for b in BAYAR)
+
+CUSTOMER = "Warung Bu Melati"
+PIUTANG = 557000                     # total_debt dari respons customer — nol request tambahan
+KREDIT_KINI = 242000                 # bagian transaksi ini yang dibayar Giro/Utang
+
+
+def kartu_customer():
+    """Piutang berjalan customer, plus proyeksi setelah transaksi ini.
+
+    Ini pertanyaan yang benar-benar dibawa kasir sebelum menekan simpan: boleh tidak
+    orang ini menambah utang lagi. Angkanya sudah ikut di respons daftar customer yang
+    memang sudah diambil select-nya, jadi tidak ada permintaan tambahan.
+    """
+    sesudah = PIUTANG + KREDIT_KINI
+    baris = lambda l, v, warna=None, tebal=False: (
+        f'<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">'
+        f'<span style="color:var(--foreground-muted)">{l}</span>'
+        f'<span class="mono" style="font-weight:{600 if tebal else 500}'
+        f'{";color:var(--%s)" % warna if warna else ""}">{v}</span></div>')
+    return f'''<div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;flex-direction:column;gap:1px">
+      <span class="eyebrow">Customer</span>
+      <span style="font-size:13px;font-weight:600">{CUSTOMER}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      {baris('Piutang berjalan', RUPIAH(PIUTANG), 'warning')}
+      {baris('Transaksi ini (kredit)', '+' + RUPIAH(KREDIT_KINI))}
+      <div style="height:1px;background:var(--border-subtle)"></div>
+      {baris('Total setelah simpan', RUPIAH(sesudah), 'warning', True)}
+    </div>
+    <span style="font-size:10px;line-height:15px;color:var(--foreground-subtle)">
+      Hanya bagian yang dibayar Utang atau Giro yang menambah piutang.
+    </span>
+  </div>'''
+
 
 
 def field(isi, w=None, mono=False, muted=False):
@@ -97,9 +129,7 @@ def barang():
       <span style="font-size:13px;font-weight:600">Barang</span>
       <span class="mono" style="font-size:11px;color:var(--foreground-subtle)">{len(BARANG)} baris</span>
     </div>
-    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--foreground-subtle)">
-      <span style="{KBD}">⌘I</span> cari barang &middot; <span style="{KBD}">↵</span> tambah
-    </span>
+
   </div>
   <table style="width:100%;border-collapse:collapse">
     <thead><tr>{th}</tr></thead>
@@ -148,11 +178,6 @@ def rel():
                 f'border:1px solid var(--border-strong);border-radius:6px;padding:0 8px;font-size:12px;outline:0;'
                 f'background:var(--surface);color:var(--foreground);font-family:\'JetBrains Mono\',monospace"></div>')
 
-    pintasan = ''.join(
-        f'<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px">'
-        f'<span style="color:var(--foreground-muted)">{ket}</span><span style="{KBD}">{tombol}</span></div>'
-        for tombol, ket in [('⌘I', 'Cari barang'), ('↵', 'Tambah ke daftar'), ('⌘↵', 'Simpan transaksi'), ('Esc', 'Batalkan')])
-
     return f'''<div style="width:284px;flex-shrink:0;display:flex;flex-direction:column;gap:10px">
   <div class="card" style="padding:13px 15px;display:flex;flex-direction:column;gap:10px">
     <span style="font-size:13px;font-weight:600">Ringkasan</span>
@@ -173,16 +198,11 @@ def rel():
         <span class="mono" style="font-weight:600;color:var(--success)">0</span>
       </div>
     </div>
-    <button class="btn" style="justify-content:space-between;width:100%">
-      <span>Simpan transaksi</span>
-      <span style="{KBD};background:transparent;border-color:rgba(255,255,255,.35);color:inherit">⌘↵</span>
-    </button>
+    <button class="btn" style="justify-content:center;width:100%">Simpan transaksi</button>
   </div>
 
-  <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:6px">
-    <span class="eyebrow">Pintasan</span>
-    {pintasan}
-  </div>
+  {kartu_customer()}
+
 </div>'''
 
 

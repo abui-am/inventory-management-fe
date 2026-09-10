@@ -168,9 +168,7 @@
       <span style="font-size:13px;font-weight:600">Barang</span>
       <span class="mono" style="font-size:11px;color:var(--foreground-subtle)">3 baris</span>
     </div>
-    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--foreground-subtle)">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">⌘I</span> cari barang &middot; <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">↵</span> tambah
-    </span>
+
   </div>
   <table style="width:100%;border-collapse:collapse">
     <thead><tr><th class="th" style="padding-top:9px">Barang</th><th class="th" style="padding-top:9px;text-align:right">Qty</th><th class="th" style="padding-top:9px">Satuan</th><th class="th" style="padding-top:9px;text-align:right">Harga</th><th class="th" style="padding-top:9px;text-align:right">Subtotal</th><th class="th" style="padding-top:9px"></th></tr></thead>
@@ -271,16 +269,25 @@
         <span class="mono" style="font-weight:600;color:var(--success)">0</span>
       </div>
     </div>
-    <button class="btn" style="justify-content:space-between;width:100%">
-      <span>Simpan transaksi</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted);background:transparent;border-color:rgba(255,255,255,.35);color:inherit">⌘↵</span>
-    </button>
+    <button class="btn" style="justify-content:center;width:100%">Simpan transaksi</button>
   </div>
 
-  <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:6px">
-    <span class="eyebrow">Pintasan</span>
-    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px"><span style="color:var(--foreground-muted)">Cari barang</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">⌘I</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:11px"><span style="color:var(--foreground-muted)">Tambah ke daftar</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">↵</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:11px"><span style="color:var(--foreground-muted)">Simpan transaksi</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">⌘↵</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:11px"><span style="color:var(--foreground-muted)">Batalkan</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">Esc</span></div>
+  <div class="card" style="padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;flex-direction:column;gap:1px">
+      <span class="eyebrow">Customer</span>
+      <span style="font-size:13px;font-weight:600">Warung Bu Melati</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px"><span style="color:var(--foreground-muted)">Piutang berjalan</span><span class="mono" style="font-weight:500;color:var(--warning)">557.000</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px"><span style="color:var(--foreground-muted)">Transaksi ini (kredit)</span><span class="mono" style="font-weight:500">+242.000</span></div>
+      <div style="height:1px;background:var(--border-subtle)"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px"><span style="color:var(--foreground-muted)">Total setelah simpan</span><span class="mono" style="font-weight:600;color:var(--warning)">799.000</span></div>
+    </div>
+    <span style="font-size:10px;line-height:15px;color:var(--foreground-subtle)">
+      Hanya bagian yang dibayar Utang atau Giro yang menambah piutang.
+    </span>
   </div>
+
 </div>
     </div>
   </div>
