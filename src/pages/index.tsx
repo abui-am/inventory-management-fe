@@ -1,43 +1,28 @@
-/* eslint-disable react/no-array-index-key */
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import React, { PropsWithChildren, useMemo } from 'react';
-import { BagX as FileX } from 'react-bootstrap-icons';
+import React, { useMemo, useState } from 'react';
 
-import { CardDashboard } from '@/components/Container';
-import { DatePickerComponent } from '@/components/Form';
-import SimpleList from '@/components/List';
-import Table from '@/components/Table';
+import ActionNeededCard from '@/components/dashboard/ActionNeededCard';
+import CashFlowCard, { bucketByDay } from '@/components/dashboard/CashFlowCard';
+import LowStockCard from '@/components/dashboard/LowStockCard';
+import RecentTransactionsCard from '@/components/dashboard/RecentTransactionsCard';
+import StatCard, { Comparison } from '@/components/dashboard/StatCard';
+import TopItemsCard, { TopItem } from '@/components/dashboard/TopItemsCard';
+import TransactionDetailSheet from '@/components/transaction/TransactionDetailSheet';
+import DateRangeFilter, { DateRange } from '@/components/ui/date-range-filter';
 import { HomeProvider, useHome } from '@/context/home-context';
 import { usePermission } from '@/context/permission-context';
+import { useFetchDebt } from '@/hooks/query/useFetchDebt';
+import { useFetchItems } from '@/hooks/query/useFetchItem';
 import { useFetchLedgers, useFetchUnpaginatedLedgers } from '@/hooks/query/useFetchLedgers';
 import useFetchSales from '@/hooks/query/useFetchSale';
-import useBreakpoint, { MD } from '@/hooks/useBreakpoint';
-import { SalesResponseUnpaginated } from '@/typings/sale';
-import {
-  formatDate,
-  formatDateYYYYMMDD,
-  formatDateYYYYMMDDHHmmss,
-  formatPaymentMethod,
-  formatToIDR,
-} from '@/utils/format';
+import useFetchTransactions from '@/hooks/query/useFetchStockIn';
+import { ThemeablePage } from '@/typings/page';
+import { SalesResponseUnpaginated, SaleTransactionsData } from '@/typings/sale';
+import { formatDateYYYYMMDDHHmmss, formatNumber } from '@/utils/format';
 
-// recharts + lodash + d3 = chunk ±390 kB mentah, dan chart-nya ada di bawah fold.
-// ssr: false karena ResponsiveContainer mengukur lebar container di browser.
-const SalesChart = dynamic(() => import('@/components/SalesChart'), {
-  ssr: false,
-  // 308 = SALES_CHART_HEIGHT di SalesChart.tsx. Sengaja tidak di-import supaya modulnya
-  // tidak ikut masuk bundel awal — import statis apa pun dari situ membatalkan code-splitting.
-  loading: () => <div style={{ height: 308 }} />,
-});
-type CardProps = {
-  label: string;
-  value: string | number;
-};
-
-const HomeWithWrapper: React.FC<PropsWithChildren<unknown>> = () => {
+const HomeWithWrapper: NextPage & ThemeablePage = () => {
   const permiss = usePermission();
   const isHavingPermission = permiss.state.permission.includes('view:home');
 
@@ -59,305 +44,277 @@ const HomeWithWrapper: React.FC<PropsWithChildren<unknown>> = () => {
   );
 };
 
-const Home: NextPage = () => {
-  // const dataPie = [
-  //   { name: 'Group A', value: 400 },
-  //   { name: 'Group B', value: 300 },
-  //   { name: 'Group C', value: 300 },
-  //   { name: 'Group D', value: 200 },
-  // ];
+/**
+ * Periode pembanding: rentang dengan panjang yang SAMA, persis sebelum yang dipilih.
+ *
+ * Bukan "bulan lalu" atau "pekan lalu" — kalau pengguna memilih 3 hari, pembandingnya
+ * harus 3 hari juga, kalau tidak persentasenya membandingkan dua ukuran yang berbeda.
+ */
+function previousPeriod(start: Date, end: Date): { start: Dayjs; end: Dayjs } {
+  const days = dayjs(end).startOf('day').diff(dayjs(start).startOf('day'), 'day') + 1;
+  const prevEnd = dayjs(start).subtract(1, 'day').endOf('day');
+  return { start: prevEnd.subtract(days - 1, 'day').startOf('day'), end: prevEnd };
+}
 
+/**
+ * Nama akun buku besar, dieja persis seperti backend menulisnya
+ * (`LedgerAccount::$types['HARGA_POKOK_PENJUALAN']`). Salah satu huruf saja dan
+ * filternya cocok dengan nol baris tanpa error apa pun.
+ */
+const HPP = 'Harga Pokok Penjualan';
+
+/** Filter rentang untuk endpoint buku besar — dipakai enam kali, jadi disatukan. */
+function ledgerTotals(description: string, start: Dayjs, end: Dayjs) {
+  return {
+    where: { description },
+    where_greater_equal: { created_at: formatDateYYYYMMDDHHmmss(start) },
+    where_lower_equal: { created_at: formatDateYYYYMMDDHHmmss(end) },
+    paginated: true,
+    per_page: 1,
+  };
+}
+
+/**
+ * Saldo akun, BUKAN satu sisinya saja.
+ *
+ * Penjualan yang dibatalkan atau diretur menulis baris debit di akun Penjualan, dan
+ * membaca `credit` saja membuat pemasukan tampak lebih besar daripada yang benar-benar
+ * masuk. Di rentang yang sedang diuji selisihnya 410.000. Akun bersaldo kredit
+ * (Penjualan) dihitung kredit dikurangi debit; akun bersaldo debit (Harga Pokok
+ * Penjualan) kebalikannya.
+ */
+function saldoKredit(total?: { debit: number; credit: number }): number | undefined {
+  return total === undefined ? undefined : total.credit - total.debit;
+}
+
+function saldoDebit(total?: { debit: number; credit: number }): number | undefined {
+  return total === undefined ? undefined : total.debit - total.credit;
+}
+
+/**
+ * Barang paling menyumbang omzet dalam rentang, diambil dari rincian tiap transaksi.
+ *
+ * Dijumlahkan berdasarkan `item_id`, bukan nama: dua barang boleh bernama mirip, dan
+ * nama barang bisa berubah setelah transaksinya tersimpan sementara `pivot.item_name`
+ * menyimpan nama saat itu. Nama yang ditampilkan diambil dari kemunculan terakhir.
+ */
+function topItems(transactions: SaleTransactionsData[] | undefined, limit: number): TopItem[] | undefined {
+  if (!transactions) return undefined;
+
+  const byItem = new Map<string, TopItem>();
+  transactions.forEach(({ items }) => {
+    (items ?? []).forEach(({ pivot }) => {
+      const current = byItem.get(pivot.item_id);
+      byItem.set(pivot.item_id, {
+        id: pivot.item_id,
+        name: pivot.item_name,
+        value: (current?.value ?? 0) + pivot.total_price,
+        qty: (current?.qty ?? 0) + Number(pivot.quantity),
+        unit: pivot.item_unit,
+      });
+    });
+  });
+
+  return Array.from(byItem.values())
+    .sort((a, b) => b.value - a.value)
+    .slice(0, limit);
+}
+
+const Home: NextPage = () => {
   const { state, dispatch } = useHome();
 
-  const { data: resPenjualan } = useFetchUnpaginatedLedgers({
-    order_by: {
-      created_at: 'desc',
-      type: 'desc',
-      sequence: 'desc',
-    },
-    where: {
-      description: 'Penjualan',
-    },
-    where_greater_equal: {
-      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.startDate).startOf('day')) ?? '',
-    },
-    where_lower_equal: {
-      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.endDate).endOf('day')) ?? '',
-    },
+  // Dua state untuk satu rentang: kalender meneruskan pembaruan sejak ujung pertama
+  // dipilih, dan menembakkan seluruh query dashboard ke rentang setengah jadi membuat
+  // semua angkanya berkedip ke satu hari lalu kembali. Yang dipakai query adalah yang
+  // di context; draft hanya yang sedang ditunjuk di kalender.
+  const [draft, setDraft] = useState<DateRange>([state.startDate, state.endDate]);
+
+  // Dua state, bukan satu: kalau datanya dibuang saat menutup, sheet-nya lepas seketika
+  // dan animasi keluarnya tidak pernah sempat berjalan.
+  const [selected, setSelected] = useState<SaleTransactionsData | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const start = dayjs(state.startDate).startOf('day');
+  const end = dayjs(state.endDate).endOf('day');
+  const prev = useMemo(() => previousPeriod(state.startDate, state.endDate), [state.startDate, state.endDate]);
+
+  // Enam query kecil: semuanya berhalaman dengan per_page 1, karena yang dipakai cuma
+  // `total` — backend tetap mengirimnya di respons berhalaman. Meminta versi tanpa
+  // halaman berarti mengunduh seluruh baris buku besar hanya untuk satu angka.
+  const { data: resPenjualan } = useFetchLedgers(ledgerTotals('Penjualan', start, end));
+  const { data: resHpp } = useFetchLedgers(ledgerTotals(HPP, start, end));
+  const { data: resPenjualanPrev } = useFetchLedgers(ledgerTotals('Penjualan', prev.start, prev.end));
+  const { data: resHppPrev } = useFetchLedgers(ledgerTotals(HPP, prev.start, prev.end));
+
+  const { data: resTransaksi } = useFetchSales({
+    start_date: formatDateYYYYMMDDHHmmss(start),
+    end_date: formatDateYYYYMMDDHHmmss(end),
+    paginated: true,
+    per_page: 1,
+  });
+  // Dua query "berat" halaman ini, dan keduanya memang butuh seluruh barisnya:
+  // grafik arus kas menjumlah per hari, barang terlaris menjumlah per barang.
+  const { data: resKas } = useFetchUnpaginatedLedgers({
+    where: { description: 'Kas' },
+    where_greater_equal: { created_at: formatDateYYYYMMDDHHmmss(start) },
+    where_lower_equal: { created_at: formatDateYYYYMMDDHHmmss(end) },
+    order_by: { created_at: 'asc' },
   });
 
-  const { data: resPersediaan } = useFetchLedgers({
-    order_by: {
-      created_at: 'desc',
-      type: 'desc',
-      sequence: 'desc',
-    },
-    where: {
-      description: 'Persediaan',
-    },
-    where_greater_equal: {
-      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.startDate).startOf('day')) ?? '',
-    },
-    where_lower_equal: {
-      created_at: formatDateYYYYMMDDHHmmss(dayjs(state.endDate).endOf('day')) ?? '',
-    },
-  });
-
-  const { data: resTransaksi } = useFetchSales<SalesResponseUnpaginated>({
-    start_date: state.startDate,
-    end_date: state.endDate,
+  const { data: resRincian } = useFetchSales<SalesResponseUnpaginated>({
+    start_date: formatDateYYYYMMDDHHmmss(start),
+    end_date: formatDateYYYYMMDDHHmmss(end),
     paginated: false,
-    order_by: {
-      created_at: 'asc',
-    },
+    order_by: { created_at: 'asc' },
   });
 
-  const cardValues = [
-    { label: 'Pengeluaran', value: formatToIDR(resPersediaan?.data?.total?.debit ?? 0) },
-    { label: 'Pemasukan', value: formatToIDR(resPenjualan?.data?.total?.credit ?? 0) },
-    { label: 'Jumlah transaksi', value: resTransaksi?.data?.transactions?.length ?? 0 },
-  ];
+  const { data: resTransaksiPrev } = useFetchSales({
+    start_date: formatDateYYYYMMDDHHmmss(prev.start),
+    end_date: formatDateYYYYMMDDHHmmss(prev.end),
+    paginated: true,
+    per_page: 1,
+  });
 
-  const data =
-    resTransaksi?.data?.transactions?.map((val) => ({
-      name: val?.created_at ? formatDate(val?.created_at, { withHour: true }) : '-',
-      total: val.items.reduce((prev, next) => prev + next.pivot.total_price, 0),
-    })) ?? [];
+  const pemasukan = saldoKredit(resPenjualan?.data?.total);
+  const hargaPokok = saldoDebit(resHpp?.data?.total);
+  const labaKotor = pemasukan === undefined || hargaPokok === undefined ? undefined : pemasukan - hargaPokok;
+  const jumlahTransaksi = resTransaksi?.data?.transactions?.total;
 
-  // const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  const pemasukanPrev = saldoKredit(resPenjualanPrev?.data?.total);
+  const hargaPokokPrev = saldoDebit(resHppPrev?.data?.total);
+  const labaKotorPrev =
+    pemasukanPrev === undefined || hargaPokokPrev === undefined ? undefined : pemasukanPrev - hargaPokokPrev;
+  const jumlahTransaksiPrev = resTransaksiPrev?.data?.transactions?.total;
+
+  // — kartu bagian bawah —
+  // Sengaja TIDAK ikut rentang tanggal: judulnya "Transaksi terakhir", bukan "transaksi
+  // dalam rentang ini". Rentangnya sudah dijawab keempat KPI di atas.
+  const { data: resTerakhir } = useFetchSales({ per_page: 5, order_by: { created_at: 'desc' } });
+
+  const { data: resKonfirmasi } = useFetchTransactions({
+    per_page: 1,
+    paginated: true,
+    where: { status: 'pending' },
+  });
+
+  // Jatuh tempo = belum lunas DAN tanggal jatuh temponya sudah lewat atau hari ini.
+  const hariIni = dayjs().endOf('day').format('YYYY-MM-DD HH:mm:ss');
+  const { data: resPiutang } = useFetchDebt({
+    per_page: 1,
+    paginated: true,
+    where: { type: 'receivable', is_paid: false },
+    where_lower_equal: { due_date: hariIni },
+  });
+  const { data: resUtang } = useFetchDebt({
+    per_page: 1,
+    paginated: true,
+    where: { type: 'debt', is_paid: false },
+    where_lower_equal: { due_date: hariIni },
+  });
+
+  const { data: resStok } = useFetchItems({ per_page: 5, paginated: true, order_by: { quantity: 'asc' } });
+
+  const arusKas = useMemo(() => bucketByDay(resKas?.data?.ledgers, start, end), [resKas, start, end]);
+  const barangTerlaris = useMemo(() => topItems(resRincian?.data?.transactions, 4), [resRincian]);
+
+  const angka = (n?: number) => (n === undefined ? undefined : formatNumber(n));
+
+  // Rentang pembanding ditulis sekali dan dipakai keempat kartu — ia muncul di tooltip
+  // tiap lencana, jadi pengguna tahu angka persennya dibandingkan dengan APA.
+  const periodePembanding = `${prev.start.format('D MMM')} — ${prev.end.format('D MMM')}`;
+  const banding = (previous?: number): Comparison => ({
+    previous,
+    previousText: previous === undefined ? '' : formatNumber(previous),
+    period: periodePembanding,
+  });
 
   return (
-    <div>
-      <section id="head" className="mb-6 xl:flex xl:mb-0">
-        <div className="flex-1 text-2xl font-bold mb-8 xl:mx-0 mx-6">Overview</div>
-        <div className="flex-1 max-w-sm">
-          <div className="flex items-center">
-            <DatePickerComponent
-              selected={state.startDate}
-              onChange={(val) => {
-                dispatch({ type: 'setStartDate', payload: val as Date });
-              }}
-            />
-            <span className="ml-2 mr-2">to</span>
-            <DatePickerComponent
-              selected={state.endDate}
-              onChange={(val) => {
-                dispatch({ type: 'setEndDate', payload: val as Date });
-              }}
-            />
-          </div>
+    // SPEC-01: kolom isi, gap 12px. Padding halaman datang dari DashboardLayout.
+    <div className="flex flex-col gap-3">
+      {/* SPEC-26: pemilih rentang milik halaman, bukan topbar — lihat catatan H.1 */}
+      <div className="flex items-center justify-end">
+        <DateRangeFilter
+          value={draft}
+          onChange={(range) => {
+            setDraft(range);
+            const [from, to] = range;
+            if (from && to) {
+              dispatch({ type: 'setStartDate', payload: from });
+              dispatch({ type: 'setEndDate', payload: to });
+            }
+          }}
+        />
+      </div>
+
+      {/* SPEC-02: empat kartu sama lebar, gap 10px */}
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+        <StatCard label="Pemasukan" value={angka(pemasukan)} current={pemasukan} comparison={banding(pemasukanPrev)} />
+        {/* Dieja seperti nama akunnya di Buku Besar: Harga Pokok Penjualan.
+            "Pengeluaran" (nama di berkas desain) sempat dipakai lalu ditolak maintainer —
+            ia menjanjikan total uang keluar, padahal pembelian tunai dan beban tidak ikut
+            di sini, jadi angkanya diam saat toko belanja stok. "Modal barang" dan "Beban
+            pokok" lebih akrab tapi menabrak nama akun Modal dan Beban.
+            Yang mengunci pilihannya adalah kartu di sebelah kanan: laba kotor = pemasukan
+            dikurangi kartu ini, dan hanya harga pokok yang benar untuk pengurangan itu.
+            Jangan "perbaiki" jadi Persediaan debit: itu sisi barang MASUK, dan nilainya
+            nol di rentang penjualan mana pun — persis bug yang halaman ini dulu punya. */}
+        <StatCard
+          label="Harga pokok"
+          value={angka(hargaPokok)}
+          current={hargaPokok}
+          comparison={banding(hargaPokokPrev)}
+        />
+        <StatCard label="Laba kotor" value={angka(labaKotor)} current={labaKotor} comparison={banding(labaKotorPrev)} />
+        <StatCard
+          label="Transaksi"
+          value={angka(jumlahTransaksi)}
+          current={jumlahTransaksi}
+          comparison={banding(jumlahTransaksiPrev)}
+        />
+      </div>
+
+      {/* SPEC-08: grafik dua pertiga, barang terlaris sepertiga */}
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <CashFlowCard buckets={arusKas} />
         </div>
-      </section>
-      <section id="body" className="flex flex-wrap -m-3">
-        <div className="w-full xl:w-8/12">
-          <div className="w-full flex-col flex xl:flex-row">
-            {cardValues.map(({ label, value }) => {
-              return (
-                <div className="h-32 flex-1 p-3" key={label}>
-                  <Card label={label} value={value} />
-                </div>
-              );
-            })}
-          </div>
-          <div className="w-full p-3">
-            <CardDashboard title="Laporan penjualan">
-              <SalesChart data={data} />
-            </CardDashboard>
-          </div>
+        <TopItemsCard items={barangTerlaris} />
+      </div>
+
+      {/* SPEC-33: tabel dua pertiga, dua kartu tindakan menumpuk di sepertiga sisanya */}
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RecentTransactionsCard
+            transactions={resTerakhir?.data?.transactions?.data}
+            onSelect={(transaction) => {
+              setSelected(transaction);
+              setSheetOpen(true);
+            }}
+          />
         </div>
-        <div className="w-full xl:w-4/12 p-3">
-          <TopSale />
+        <div className="flex flex-col gap-2.5">
+          <ActionNeededCard
+            pendingStockIn={resKonfirmasi?.data?.transactions?.total}
+            receivableDue={resPiutang?.data?.debts?.total}
+            debtDue={resUtang?.data?.debts?.total}
+          />
+          <LowStockCard items={resStok?.data?.items?.data} />
         </div>
-        <div className="w-full  p-3">
-          <LastTransaction />
-        </div>
-        {/* <div className="w-full sm:w-4/12 p-3"> */}
-        {/* <CardDashboard title="Kategori terpopuler" style={{ height: 489 }}>
-            <ResponsiveContainer width="100%" height={308}>
-              <PieChart className="mx-auto">
-                <Pie data={dataPie} innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5} dataKey="value">
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Pie
-                  data={data}
-                  startAngle={180}
-                  endAngle={0}
-                  innerRadius={60}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </CardDashboard> */}
-        {/* </div> */}
-      </section>
+      </div>
+
+      {selected && (
+        <TransactionDetailSheet
+          transaction={selected}
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          onClosed={() => setSelected(null)}
+        />
+      )}
     </div>
   );
 };
 
-const getTopSaleFromSales = (data: SalesResponseUnpaginated) => {
-  let topSaleItems: { id: string; name: string; quantity: number }[] = [];
-  data?.transactions?.forEach?.(({ items }) => {
-    items.forEach(({ pivot }) => {
-      let exist = false;
-      const tempTopSale = [...topSaleItems];
-      topSaleItems.forEach((value, index) => {
-        if (value.id === pivot.item_id) {
-          tempTopSale[index].quantity += +pivot.quantity;
-          exist = true;
-        }
-      });
-
-      if (!exist) {
-        tempTopSale.push({
-          id: pivot.item_id,
-          name: pivot.item_name,
-          quantity: pivot.quantity,
-        });
-      }
-      topSaleItems = tempTopSale;
-    });
-  });
-
-  return topSaleItems.sort(({ quantity: qty }, { quantity }) => quantity - qty).slice(0, 9);
-};
-
-function TopSale() {
-  const { state } = useHome();
-  const { data, isFetching } = useFetchSales<SalesResponseUnpaginated>({
-    start_date: state.startDate,
-    end_date: state.endDate,
-    paginated: false,
-  });
-
-  const topSaleItems = useMemo(
-    () => getTopSaleFromSales(data?.data as SalesResponseUnpaginated),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isFetching]
-  );
-
-  return (
-    <CardDashboard title="Penjualan terbanyak" className="xl:h-full">
-      {topSaleItems.length === 0 && (
-        <div className="w-full h-full flex items-center justify-center flex-col mb-8">
-          <FileX className="h-24 w-24 mb-16 opacity-50" />
-          <span className="max-w-xs text-center">
-            Tidak ada penjualan dari tanggal {formatDateYYYYMMDD(state.startDate)} sampai{' '}
-            {formatDateYYYYMMDD(state.endDate)}
-          </span>
-        </div>
-      )}
-      {(topSaleItems || []).map(({ name, id, quantity }) => {
-        // eslint-disable-next-line react/no-array-index-key
-        return (
-          <SimpleList
-            key={`${name}-${id}`}
-            label={name}
-            value={
-              // Format qty to readable number
-              Number(quantity).toLocaleString('id-ID')
-            }
-            withTopDivider
-          />
-        );
-      })}
-    </CardDashboard>
-  );
-}
-
-function LastTransaction() {
-  const isMd = useBreakpoint(MD);
-  const { data } = useFetchSales({
-    per_page: 6,
-    order_by: {
-      created_at: 'desc',
-    },
-  });
-  const dataTable =
-    data?.data.transactions.data.map(({ transaction_code, created_at, payments, items, customer }) => {
-      const purchaseMethod = payments.map((payment) => formatPaymentMethod(payment.payment_method)).join(', ');
-      return {
-        id: transaction_code,
-        date: formatDate(created_at, { withHour: true }),
-        ...(isMd
-          ? {
-              purchaseMethod,
-              payAmount: formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0)),
-              customer: customer.full_name,
-            }
-          : {
-              detail: (
-                <div>
-                  <label className="block">Pembeli:</label>
-                  <span className="text-base font-bold block mb-2">{customer?.full_name}</span>
-                  <label className="block">Metode pembayaran:</label>
-                  <span className="text-base font-bold block mb-2">{purchaseMethod}</span>
-                  <label className="block">Jumlah pembayaran:</label>
-                  <span className="text-base font-bold block mb-2">
-                    {formatToIDR(items.reduce((prev, next) => prev + next.pivot.total_price, 0))}
-                  </span>
-                </div>
-              ),
-            }),
-      };
-    }) ?? [];
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Kode Transaksi',
-        accessor: 'id', // accessor is the "key" in the data
-      },
-      {
-        Header: 'Tanggal',
-        accessor: 'date',
-      },
-      ...(isMd
-        ? [
-            {
-              Header: 'Pembeli',
-              accessor: 'customer',
-            },
-            {
-              Header: 'Metode Pembayaran',
-              accessor: 'purchaseMethod',
-            },
-            {
-              Header: 'Pembayaran',
-              accessor: 'payAmount',
-            },
-          ]
-        : [
-            {
-              Header: 'Detail',
-              accessor: 'detail',
-            },
-          ]),
-    ],
-    [isMd]
-  );
-
-  return (
-    <CardDashboard title="Transaksi terakhir">
-      <Table columns={columns} data={dataTable} />
-    </CardDashboard>
-  );
-}
-
-function Card({ label, value }: CardProps) {
-  return (
-    <CardDashboard>
-      <label className="text-sm mb-1 block">{label}</label>
-      <span className="text-2xl font-bold">{value}</span>
-    </CardDashboard>
-  );
-}
+// Seluruh isinya sudah memakai token, jadi aman mengikuti tema pengguna.
+HomeWithWrapper.themeable = true;
 
 export default HomeWithWrapper;

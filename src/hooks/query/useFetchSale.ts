@@ -2,7 +2,7 @@ import { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { AxiosRequestConfig } from 'axios';
 
 import { BackendRes } from '@/typings/request';
-import { SalesResponse } from '@/typings/sale';
+import { SalesResponse, SaleTransactionsData } from '@/typings/sale';
 import { apiInstanceAdmin, apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
 import keys from '../keys';
@@ -57,10 +57,17 @@ const useFetchSales = <T, TQueryFnData = unknown, TError = unknown>(
   return fetcher;
 };
 
+/**
+ * Satu transaksi, lengkap dengan barang dan pembayarannya.
+ *
+ * Bentuk responsnya `{ transaction }` — SATU transaksi — bukan `{ transactions }` yang
+ * berhalaman seperti endpoint daftarnya. Tipe lamanya menjanjikan yang kedua, jadi tiap
+ * pemakai harus meng-cast dan kehilangan pemeriksaan tipe di titik yang paling butuh.
+ */
 export const useFetchSaleById = <TQueryFnData = unknown, TError = unknown>(
   id: string,
-  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<SalesResponse>>
-): UseQueryResult<BackendRes<SalesResponse>> => {
+  options?: UseQueryOptions<TQueryFnData, TError, BackendRes<{ transaction: SaleTransactionsData }>>
+): UseQueryResult<BackendRes<{ transaction: SaleTransactionsData }>> => {
   const fetcher = useMyQuery(
     [keys.sales, 'byId', id],
     async () => {

@@ -1,21 +1,21 @@
 import dayjs from 'dayjs';
-import { Copy, Download, Printer, X } from 'lucide-react';
+import { Copy, Download, X } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import ReactModal from 'react-modal';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import useFetchInvoice from '@/hooks/query/useFetchInvoice';
+import { Counter } from '@/components/ui/counter';
 import { cn } from '@/lib/cn';
 import { SaleTransactionsData } from '@/typings/sale';
-import downloadInvoice from '@/utils/downloadInvoice';
 import { formatPaymentMethod } from '@/utils/format';
-import printInvoice from '@/utils/printInvoice';
+import { downloadInvoice } from '@/utils/invoice';
+import reportError from '@/utils/reportError';
 
 type Payment = { payment_method?: string; payment_price?: number; due_date?: string };
 
-const angka = (n: number) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(n);
+const formatNumber = (n: number) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(n);
 
 const STATUS = {
   pending: { label: 'Menunggu', variant: 'warning' },
@@ -29,7 +29,7 @@ const STATUS = {
  * latarnya yang diwarnai, satu daftar dengan beberapa pembayaran berubah jadi papan
  * warna dan justru tidak ada yang menonjol.
  */
-const WARNA_METODE: Record<string, string> = {
+const PAYMENT_METHOD_COLOR: Record<string, string> = {
   Kas: 'bg-success',
   Bank: 'bg-info',
   Utang: 'bg-warning',
@@ -39,17 +39,19 @@ const WARNA_METODE: Record<string, string> = {
 
 // Judul seksi, bukan eyebrow: label dan title memakai Kapital di awal saja.
 // Lihat aturan wording di CLAUDE.md.
-function JudulSeksi({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return <div className="text-base font-semibold">{children}</div>;
 }
 
 function Section({
   title,
+  count,
   children,
   first,
   tinted,
 }: {
   title: string;
+  count?: number;
   children: React.ReactNode;
   first?: boolean;
   tinted?: boolean;
@@ -62,7 +64,10 @@ function Section({
         tinted && 'bg-accent-subtle'
       )}
     >
-      <JudulSeksi>{title}</JudulSeksi>
+      <div className="flex items-center gap-1.5">
+        <SectionTitle>{title}</SectionTitle>
+        <Counter value={count} />
+      </div>
       {children}
     </div>
   );
@@ -90,8 +95,7 @@ export function TransactionDetailSheet({
   /** Dipanggil setelah animasi keluar selesai; di sinilah datanya baru boleh dibuang. */
   onClosed?: () => void;
 }): JSX.Element {
-  const [aksi, setAksi] = useState<'print' | 'download' | null>(null);
-  const { refetch } = useFetchInvoice(transaction.id, { enabled: false });
+  const [action, setAksi] = useState<'print' | 'download' | null>(null);
 
   const items = transaction.items ?? [];
   const payments: Payment[] = transaction.payments ?? [];
@@ -104,22 +108,21 @@ export function TransactionDetailSheet({
 
   const badge = STATUS[(transaction.status ?? 'accepted') as keyof typeof STATUS] ?? STATUS.accepted;
 
-  const jalankan = async (mode: 'print' | 'download') => {
-    setAksi(mode);
+  // Faktur dibangkitkan di browser dari transaksi yang sudah ada di tangan — tanpa
+  // permintaan jaringan, dan isinya teks sungguhan yang bisa diseleksi.
+  const run = async () => {
+    setAksi('download');
     try {
-      const { data } = await refetch();
-      if (!data) {
-        toast.error('Faktur gagal dimuat');
-        return;
-      }
-      if (mode === 'print') printInvoice(data);
-      else downloadInvoice(data, `${transaction.transaction_code}.pdf`);
+      await downloadInvoice(transaction, `${transaction.transaction_code}.pdf`);
+    } catch (e) {
+      reportError(e, { action: 'download-faktur' });
+      toast.error('Faktur gagal dibuat');
     } finally {
       setAksi(null);
     }
   };
 
-  const salin = async () => {
+  const copy = async () => {
     try {
       await navigator.clipboard.writeText(transaction.transaction_code);
       toast.success('Kode disalin');
@@ -166,14 +169,11 @@ export function TransactionDetailSheet({
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-1.25 border-b border-border px-4 py-1.75">
-        <Button size="xs" variant="outline" loading={aksi === 'print'} onClick={() => jalankan('print')}>
-          {aksi !== 'print' && <Printer strokeWidth={1.8} aria-hidden />} Print
-        </Button>
-        <Button size="xs" variant="outline" loading={aksi === 'download'} onClick={() => jalankan('download')}>
-          {aksi !== 'download' && <Download strokeWidth={1.8} aria-hidden />} Download
+        <Button size="xs" variant="outline" loading={action === 'download'} onClick={run}>
+          {action !== 'download' && <Download strokeWidth={1.8} aria-hidden />} Download
         </Button>
         <div className="flex-1" />
-        <Button size="icon-xs" variant="ghost" aria-label="Copy kode transaksi" tooltip="Copy" onClick={salin}>
+        <Button size="icon-xs" variant="ghost" aria-label="Copy kode transaksi" tooltip="Copy" onClick={copy}>
           <Copy strokeWidth={1.7} aria-hidden />
         </Button>
       </div>
@@ -181,13 +181,17 @@ export function TransactionDetailSheet({
       <div className="min-h-0 flex-1 overflow-y-auto">
         <Section title="Total" first tinted>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="font-mono text-xl font-bold tracking-[-0.02em] text-accent">Rp {angka(total)}</span>
-            {sisa <= 0 ? <Badge variant="success">Lunas</Badge> : <Badge variant="warning">Sisa {angka(sisa)}</Badge>}
+            <span className="font-mono text-xl font-bold tracking-[-0.02em] text-accent">Rp {formatNumber(total)}</span>
+            {sisa <= 0 ? (
+              <Badge variant="success">Lunas</Badge>
+            ) : (
+              <Badge variant="warning">Sisa {formatNumber(sisa)}</Badge>
+            )}
           </div>
           <div className="mt-px flex flex-col gap-0.75">
-            <Baris label="Subtotal" value={angka(subtotal)} />
-            <Baris label="Diskon" value={diskon ? `−${angka(diskon)}` : '0'} />
-            <Baris label="Ongkos kirim" value={angka(ongkir)} />
+            <Baris label="Subtotal" value={formatNumber(subtotal)} />
+            <Baris label="Diskon" value={diskon ? `−${formatNumber(diskon)}` : '0'} />
+            <Baris label="Ongkos kirim" value={formatNumber(ongkir)} />
           </div>
         </Section>
 
@@ -200,7 +204,10 @@ export function TransactionDetailSheet({
                 <div>
                   <span className="inline-flex items-center gap-1.5 text-base font-medium">
                     <span
-                      className={cn('size-[7px] flex-shrink-0 rounded-full', WARNA_METODE[metode] ?? 'bg-accent')}
+                      className={cn(
+                        'size-[7px] flex-shrink-0 rounded-full',
+                        PAYMENT_METHOD_COLOR[metode] ?? 'bg-accent'
+                      )}
                     />
                     {metode}
                   </span>
@@ -210,24 +217,26 @@ export function TransactionDetailSheet({
                     </div>
                   )}
                 </div>
-                <span className="font-mono text-base font-semibold tabular-nums">{angka(p.payment_price ?? 0)}</span>
+                <span className="font-mono text-base font-semibold tabular-nums">
+                  {formatNumber(p.payment_price ?? 0)}
+                </span>
               </div>
             );
           })}
         </Section>
 
-        <Section title={`Barang · ${items.length}`}>
+        <Section title="Barang" count={items.length}>
           <div className="flex flex-col gap-2">
             {items.map((item) => (
               <div key={item.id} className="flex items-baseline justify-between gap-3">
                 <div className="min-w-0">
                   <div className="truncate text-base font-medium">{item.name}</div>
                   <div className="mt-px font-mono text-xs text-foreground-subtle">
-                    {item.pivot.quantity} {item.unit} × {angka(item.pivot.purchase_price ?? 0)}
+                    {item.pivot.quantity} {item.unit} × {formatNumber(item.pivot.purchase_price ?? 0)}
                   </div>
                 </div>
                 <span className="whitespace-nowrap font-mono text-base font-semibold tabular-nums">
-                  {angka(item.pivot.total_price)}
+                  {formatNumber(item.pivot.total_price)}
                 </span>
               </div>
             ))}

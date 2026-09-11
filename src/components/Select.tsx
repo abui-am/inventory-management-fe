@@ -12,7 +12,7 @@ import { Item } from '@/typings/item';
 import { formatToIDR } from '@/utils/format';
 import { getThemedSelectStyle, SelectGroup, SelectOption } from '@/utils/style';
 
-import { ThemedSelectProps } from './Form';
+import { ThemedSelectProps, useMenuAnimation } from './Form';
 import CreateCustomerForm from './form/CreateCustomerForm';
 import CreateSupplierForm from './form/CreateSupplierForm';
 import Modal from './Modal';
@@ -24,6 +24,7 @@ export const SelectCustomer: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   ...props
 }) => {
   const [search, setSearch] = React.useState('');
+  const animation = useMenuAnimation();
   const { data } = useFetchCustomers({ search });
   const [isCreating, setIsCreating] = React.useState(false);
   const [initValues, setInitValues] = React.useState({
@@ -36,8 +37,18 @@ export const SelectCustomer: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
     <>
       <CreatableSelect
         {...props}
-        styles={getThemedSelectStyle(variant, additionalStyle)}
-        options={data?.data.customers?.data.map(({ full_name, id }) => ({ label: full_name, value: id }))}
+        // Tanpa id tetap, id internal react-select berbeda antara server dan client dan
+        // React 18 membuang seluruh pohon SSR. Lihat catatan di Form.tsx.
+        instanceId={props.instanceId ?? props.name}
+        styles={getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle })}
+        // `data` ikut dibawa supaya kartu piutang di /transaction/add bisa membaca
+        // total_debt tanpa satu pun permintaan tambahan — angkanya memang sudah ikut
+        // di respons daftar customer yang select ini ambil.
+        options={data?.data.customers?.data.map((customer) => ({
+          label: customer.full_name,
+          value: customer.id,
+          data: customer,
+        }))}
         onChange={(e, act) => {
           const data = e as Option<null>;
           if (act.action === 'create-option') {
@@ -50,6 +61,9 @@ export const SelectCustomer: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
         onInputChange={(val) => {
           setSearch(val);
         }}
+        menuIsOpen={animation.menuIsOpen}
+        onMenuOpen={animation.onMenuOpen}
+        onMenuClose={animation.onMenuClose}
       />
       <Modal isOpen={isCreating} onRequestClose={() => setIsCreating(false)}>
         <CreateCustomerForm
@@ -72,12 +86,19 @@ export const SelectSender: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   ...props
 }) => {
   const { data } = useFetchUnpaginatedEmployee();
+  const animation = useMenuAnimation();
   return (
     <Select
       {...props}
-      styles={getThemedSelectStyle(variant, additionalStyle)}
+      menuIsOpen={animation.menuIsOpen}
+      onMenuOpen={animation.onMenuOpen}
+      onMenuClose={animation.onMenuClose}
+      instanceId={props.instanceId ?? props.name}
+      styles={getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle })}
+      // Template literal menempelkan "null" apa adanya ketika last_name kosong, dan
+      // daftar pengirim tampil sebagai "Admin2 null". Bagian yang kosong dibuang dulu.
       options={data?.data.employees.map(({ first_name, last_name, id }) => ({
-        label: `${first_name} ${last_name}`,
+        label: [first_name, last_name].filter(Boolean).join(' ').trim(),
         value: id,
       }))}
     />
@@ -141,11 +162,16 @@ export const SelectSupplier: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
     phoneNumber: '',
     address: '',
   });
+  const animation = useMenuAnimation();
   return (
     <>
       <CreatableAsyncSelect
         {...props}
-        styles={getThemedSelectStyle(variant, additionalStyle)}
+        instanceId={props.instanceId ?? props.name}
+        menuIsOpen={animation.menuIsOpen}
+        onMenuOpen={animation.onMenuOpen}
+        onMenuClose={animation.onMenuClose}
+        styles={getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle })}
         loadOptions={async (val) => {
           const { data } = await search({ search: val });
           return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));

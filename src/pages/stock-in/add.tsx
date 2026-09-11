@@ -263,7 +263,10 @@ const AddStockPage: NextPage = () => {
                     variant="contained"
                     value={values.invoiceType}
                     additionalStyle={{
-                      control: () => ({
+                      // `...base` wajib: fungsi style dirantai di atas tema, jadi
+                      // mengabaikan argumennya membuang seluruh warna select.
+                      control: (base) => ({
+                        ...base,
                         width: 160,
                       }),
                     }}

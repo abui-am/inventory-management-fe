@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Download, Eye, Plus, Search } from 'lucide-reac
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React, { ReactNode, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 
 import { TextField } from '@/components/Form';
 import Pagination from '@/components/Pagination';
@@ -12,14 +13,14 @@ import { Button } from '@/components/ui/button';
 import DateRangeFilter, { DateRange } from '@/components/ui/date-range-filter';
 import FilterTabs from '@/components/ui/filter-tabs';
 import Skeleton from '@/components/ui/skeleton';
-import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { cn } from '@/lib/cn';
 import { ThemeablePage } from '@/typings/page';
 import { SaleTransactionsData } from '@/typings/sale';
 import { useDebounceValue } from '@/utils/debounce';
 import { formatPaymentMethod } from '@/utils/format';
-import printInvoice from '@/utils/printInvoice';
+import { downloadInvoice } from '@/utils/invoice';
+import reportError from '@/utils/reportError';
 
 type Payment = { payment_method?: string; payment_price?: number };
 
@@ -248,7 +249,11 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                   resetPage();
                   setSearch(e.target.value);
                 }}
-                placeholder="Cari kode, customer…"
+                // Backend hanya mencari di `invoice_number` dan `transaction_code`
+                // (`Transaction::$searchable`) — nama customer ada di relasi dan tidak
+                // ikut dicari. Placeholder lama menjanjikan sesuatu yang tidak pernah
+                // dikerjakan, jadi ketikan nama customer selalu berakhir "tidak ada hasil".
+                placeholder="Cari kode atau faktur…"
                 aria-label="Cari transaksi"
                 className="h-8 rounded-control pl-[31px] pr-2.5"
               />
@@ -397,7 +402,7 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                             >
                               <Eye strokeWidth={1.7} aria-hidden />
                             </Button>
-                            <ButtonDownload transactionId={row.id} />
+                            <ButtonDownload transaction={row} />
                           </div>
                         </td>
                       </tr>
@@ -426,20 +431,31 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
   );
 };
 
-const ButtonDownload = ({ transactionId }: { transactionId: string }): ReactNode => {
-  // isFetching, bukan isLoading: di react-query v4 query dengan `enabled: false`
-  // berstatus 'loading' selamanya karena belum pernah punya data, jadi isLoading
-  // tidak pernah false dan tombolnya disabled permanen.
-  const { refetch: refetchDownload, isFetching } = useFetchInvoice(transactionId, { enabled: false });
+/**
+ * Faktur dibangkitkan di sini, dari baris yang sudah ada di tangan.
+ *
+ * Sebelumnya tombol ini meminta PDF ke `/transactions/{id}/export-pdf`. Sekarang tidak
+ * ada permintaan jaringan sama sekali: seluruh isi faktur sudah ada di baris ini.
+ * PDF-nya dibangkitkan di browser: teks sungguhan, bisa diseleksi dan dicari.
+ */
+const ButtonDownload = ({ transaction }: { transaction: SaleTransactionsData }): ReactNode => {
+  const [busy, setBusy] = useState(false);
 
   const handleDownload = async () => {
-    const { data } = await refetchDownload();
-    if (data) printInvoice(data);
+    setBusy(true);
+    try {
+      await downloadInvoice(transaction, `${transaction.transaction_code}.pdf`);
+    } catch (e) {
+      reportError(e, { action: 'download-invoice' });
+      toast.error('Faktur gagal dibuat');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <Button size="icon-xs" variant="ghost" aria-label="Download invoice" loading={isFetching} onClick={handleDownload}>
-      {!isFetching && <Download strokeWidth={1.7} aria-hidden />}
+    <Button size="icon-xs" variant="ghost" aria-label="Download faktur" loading={busy} onClick={handleDownload}>
+      {!busy && <Download strokeWidth={1.7} aria-hidden />}
     </Button>
   );
 };

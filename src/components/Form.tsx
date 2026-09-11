@@ -1,10 +1,16 @@
 import clsx from 'clsx';
 import { id as localeId } from 'date-fns/locale';
-import React, { forwardRef, PropsWithChildren, Ref, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, PropsWithChildren, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Calendar, SortAlphaDownAlt, SortDown } from 'react-bootstrap-icons';
 import DatePicker, { ReactDatePickerProps, registerLocale, setDefaultLocale } from 'react-datepicker';
 import NumberFormat, { NumberFormatProps, NumberFormatValues } from 'react-number-format';
-import NormalSelect, { components, SelectInstance, SingleValueProps, ValueContainerProps } from 'react-select';
+import NormalSelect, {
+  components,
+  OptionProps,
+  SelectInstance,
+  SingleValueProps,
+  ValueContainerProps,
+} from 'react-select';
 import Select, { AsyncProps } from 'react-select/async';
 import CreatableAsyncSelect from 'react-select/async-creatable';
 
@@ -75,6 +81,9 @@ setDefaultLocale('id');
 // fokus dan posisi kursor hilang saat user sedang mengetik jam.
 // (Sebelumnya bernama ExampleCustomTimeInput dengan `border: solid 1px pink`, salinan mentah
 // dari contoh di dokumentasi react-datepicker.)
+/** Lama animasi menutup — dipakai kalender datepicker dan menu select. */
+const CLOSE_DURATION = 100;
+
 const CustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: string) => void }) => (
   <input value={value} onChange={(e) => onChange(e.target.value)} className={inputClass} />
 );
@@ -97,8 +106,31 @@ const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = (
       <DatePicker
         selected={mounted ? selected : null}
         dateFormat={showTimeSelect ? 'dd/MM/yyy HH:mm:ss' : 'dd/MM/yyyy'}
-        popperClassName="!z-10"
-        className={cn(inputClass, 'pl-8', className)}
+        // Kalendernya dirender ke #__next, bukan di tempat.
+        //
+        // Di posisi aslinya ia anak dari kartu pembayaran yang `overflow-hidden`, jadi
+        // begitu dibuka ia terpotong — yang terlihat hanya pita "September 2026", sisanya
+        // hilang di balik tepi kartu. Sama persis dengan yang menimpa menu select di sel
+        // tabel. Dengan portal ia keluar dari semua lapis overflow, dan popper.js tetap
+        // menempatkannya relatif terhadap input.
+        portalId="__next"
+        popperClassName="!z-30"
+        // Animasi dipasang di KALENDERNYA, bukan di popper.
+        //
+        // Popper.js menempatkan popper lewat `transform: translate3d(...)` inline. Animasi
+        // yang juga menganimasikan `transform` di elemen yang sama menimpanya selama
+        // animasi berjalan: kalendernya melompat ke sudut lalu menjentik balik ke tempatnya.
+        // Kalender adalah anak popper, jadi menganimasikannya tidak mengganggu penempatan.
+        //
+        // Hanya animasi MASUK. Animasi keluar butuh `open` dipegang sendiri supaya
+        // pelepasan elemennya bisa ditunda — persis cara menu select. Dicoba dan
+        // dibatalkan: begitu `open` dikendalikan dari luar, react-datepicker berhenti
+        // membuka kalendernya sama sekali.
+        calendarClassName="datepicker-kalender"
+        // Kotaknya membuka kalender saat diklik, jadi kursornya pointer — seragam dengan
+        // select. Mengetik tanggal langsung tetap bisa; yang ditandai adalah aksi yang
+        // dilakukan orang hampir setiap kali.
+        className={cn(inputClass, 'cursor-pointer pl-8', className)}
         customTimeInput={<CustomTimeInput value="" onChange={() => undefined} />}
         showTimeSelect={showTimeSelect}
         {...props}
@@ -254,6 +286,39 @@ const SelectItems: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   );
 };
 
+/**
+ * Option barang dua baris: nama di atas, kode barang di bawah.
+ *
+ * Satu baris `Nama (ID: KODE)` memaksa mata membaca sampai ujung untuk menemukan kode,
+ * dan di sel tabel yang sempit ujung itu terpotong. Dua baris juga menyamakan bentuknya
+ * dengan baris yang sudah masuk ke tabel.
+ */
+function ItemOption(props: OptionProps<{ label: string; value: string; data: Item }>) {
+  const { data, isSelected } = props;
+  return (
+    <components.Option {...props}>
+      <div className="flex flex-col">
+        <span className="text-base">{data.data?.name ?? data.label}</span>
+        {/*
+          Option terpilih berlatar aksen penuh. `foreground-subtle` di atasnya nyaris
+          tidak terbaca — di tema terang rasio kontrasnya jatuh ke bawah 3:1. Di keadaan
+          itu kodenya memakai warna teks aksen, dan hierarkinya tetap terjaga lewat
+          ukuran 10px dan huruf mono, bukan lewat warna yang dipudarkan.
+        */}
+        <span className={cn('font-mono text-2xs', isSelected ? 'text-accent-foreground' : 'text-foreground-subtle')}>
+          {data.data?.item_id ?? '-'}
+        </span>
+      </div>
+    </components.Option>
+  );
+}
+
+/** Setelah dipilih cukup namanya — kodenya sudah tampil di barisnya sendiri. */
+function ItemSingleValue(props: SingleValueProps<{ label: string; value: string; data: Item }>) {
+  const { data } = props;
+  return <components.SingleValue {...props}>{data.data?.name ?? data.label}</components.SingleValue>;
+}
+
 function SingleValue(props: SingleValueProps<{ label: string; value: string; data: Item }>) {
   const { data, children } = props;
 
@@ -273,7 +338,7 @@ function SingleValue(props: SingleValueProps<{ label: string; value: string; dat
 
 export const SelectItemsDetail = forwardRef(
   (
-    { withDetail = false, ...props }: PropsWithChildren<ThemedSelectProps>,
+    { withDetail = false, variant = 'outlined', additionalStyle = {}, ...props }: PropsWithChildren<ThemedSelectProps>,
     ref: Ref<SelectInstance<SelectOption, boolean, SelectGroup>>
   ): JSX.Element => {
     const { mutateAsync: search } = useSearchItems();
@@ -282,6 +347,17 @@ export const SelectItemsDetail = forwardRef(
         quantity: 1,
       },
     });
+
+    // Menu dipindahkan ke <body>. Select ini dipakai di dalam sel tabel yang wadahnya
+    // `overflow-x-auto` di dalam kartu `overflow-hidden`; tanpa portal, menunya benar-benar
+    // terbuka tapi terpotong habis oleh dua lapis overflow itu dan tidak terlihat sama sekali.
+    const animation = useMenuAnimation();
+    const [portal, setPortal] = useState<HTMLElement>();
+    useEffect(() => {
+      // #__next, bukan <body>: sama-sama keluar dari wadah ber-overflow yang memotong menu,
+      // tapi tetap di dalam <main class="font-sans"> jadi hurufnya ikut aplikasi.
+      setPortal(document.getElementById('__next') ?? document.body);
+    }, []);
 
     const defaultOptions = formatItemsToOption(data?.data.items.data ?? []);
 
@@ -304,22 +380,98 @@ export const SelectItemsDetail = forwardRef(
     return (
       <Select
         {...props}
+        // react-select v5 menomori sendiri id internalnya dari penghitung modul yang TIDAK
+        // di-reset per permintaan. Di server penghitung itu terus naik selama proses hidup,
+        // sementara di browser ia mulai dari nol — jadi `react-select-89-live-region` di HTML
+        // server bertemu `react-select-2-live-region` di client. React 18 membuang SELURUH
+        // pohon SSR karenanya: sesaat halaman jadi tidak hidup — tanggal kosong, sidebar
+        // hilang, klik tidak menghasilkan apa-apa. `instanceId` memasang id yang tetap.
+        instanceId={props.instanceId ?? props.name}
         defaultOptions={defaultOptions}
+        menuPortalTarget={portal}
+        menuShouldScrollIntoView
         ref={ref}
-        styles={{
-          valueContainer: (base) => ({
-            ...base,
-            height: 64,
-          }),
-        }}
+        // Sebelumnya `styles` diisi satu objek berisi valueContainer saja. react-select
+        // memakai apa yang diberikan dan MENGABAIKAN sisanya, jadi select ini adalah
+        // satu-satunya di aplikasi yang tidak pernah kena tema — ia tampil dengan warna
+        // bawaan react-select yang putih-biru, termasuk di mode gelap.
+        //
+        // Tinggi 64px itu untuk SingleValue dua baris milik `withDetail`; di luar mode
+        // itu ia hanya membuat kotaknya menganga.
+        styles={getThemedSelectStyle(variant, {
+          ...(withDetail ? { valueContainer: (base) => ({ ...base, height: 64 }) } : {}),
+          ...additionalStyle,
+          ...animation.menuAnimationStyle,
+        })}
         loadOptions={loadOptions}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        components={withDetail ? { SingleValue: SingleValue as any } : {}}
+        components={{
+          ...(withDetail
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              { SingleValue: SingleValue as any }
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              { Option: ItemOption as any, SingleValue: ItemSingleValue as any }),
+        }}
+        menuIsOpen={animation.menuIsOpen}
+        onMenuOpen={animation.onMenuOpen}
+        onMenuClose={animation.onMenuClose}
         isClearable
       />
     );
   }
 );
+
+/**
+ * Buka-tutup menu react-select dengan animasi.
+ *
+ * `menuIsOpen` dikendalikan sendiri supaya menu bisa BERTAHAN sebentar setelah
+ * react-select memutuskan menutupnya — tanpa itu elemennya langsung dilepas dan tidak
+ * ada yang tersisa untuk dianimasikan keluar. Semua jalur penutupan react-select
+ * (klik di luar, Escape, memilih option, blur) tetap lewat `onMenuClose`, jadi
+ * perilakunya tidak berubah; hanya pelepasannya yang ditunda satu animasi.
+ */
+
+export function useMenuAnimation() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const openMenu = useCallback(() => {
+    clearTimeout(timer.current);
+    setClosing(false);
+    setIsOpen(true);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setClosing(true);
+    timer.current = setTimeout(() => {
+      setIsOpen(false);
+      setClosing(false);
+    }, CLOSE_DURATION);
+  }, []);
+
+  /**
+   * Animasinya lewat `styles`, BUKAN lewat komponen Menu sendiri.
+   *
+   * Sebelumnya kelas CSS dipasang oleh komponen yang dibuat ulang tiap kali `closing`
+   * berubah. Identitas komponennya ikut berubah, jadi react-select MELEPAS lalu memasang
+   * ulang menunya — animasi keluar tidak pernah sempat jalan, yang terlihat malah menu
+   * berkedip seolah terbuka lagi. Objek `styles` boleh berubah tiap render; react-select
+   * hanya menerapkannya ulang, tanpa remount.
+   */
+  const menuAnimationStyle: AdditionalStyle = {
+    menu: (base) => ({
+      ...base,
+      transformOrigin: 'top center',
+      animation: closing ? 'menu-keluar 100ms ease-in forwards' : 'menu-masuk 120ms ease-out',
+      // Selagi memudar ia tidak boleh lagi menerima klik.
+      pointerEvents: closing ? 'none' : undefined,
+    }),
+  };
+
+  return { menuIsOpen: isOpen, onMenuOpen: openMenu, onMenuClose: closeMenu, menuAnimationStyle };
+}
 
 const ThemedSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   variant = 'outlined',
@@ -328,9 +480,10 @@ const ThemedSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   ...props
 }) => {
   const [portal, setPortal] = useState<HTMLElement>();
+  const animation = useMenuAnimation();
 
   useEffect(() => {
-    setPortal(document?.body);
+    setPortal(document.getElementById('__next') ?? document.body);
   }, []);
 
   // `styles` sengaja DIKELUARKAN dari sebaran props.
@@ -342,13 +495,15 @@ const ThemedSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   // Sekarang ketiganya digabung, tema tetap jadi dasarnya.
   const merged = {
     menuPortal: (base: Record<string, unknown>) => ({ ...base, zIndex: 9999 }),
-    ...getThemedSelectStyle(variant, additionalStyle),
+    ...getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle }),
     ...(styles ?? {}),
   } as ThemedSelectProps['styles'];
 
   return (
     <NormalSelect
       menuShouldScrollIntoView
+      // Lihat catatan instanceId di SelectItemsDetail.
+      instanceId={props.instanceId ?? props.name}
       menuPortalTarget={portal}
       isSearchable={false}
       styles={merged}
@@ -356,6 +511,9 @@ const ThemedSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
       // menunjuk ke `inputId` — bukan `id`, yang hanya memberi id ke div pembungkus.
       inputId={props.inputId ?? props.name}
       {...props}
+      menuIsOpen={animation.menuIsOpen}
+      onMenuOpen={animation.onMenuOpen}
+      onMenuClose={animation.onMenuClose}
     />
   );
 };

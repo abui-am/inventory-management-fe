@@ -15,7 +15,10 @@ export const useFetchDebt = (
     per_page: number;
     search: string;
     order_by: Record<string, string>;
-    where: Record<string, string>;
+    // `unknown`, bukan `string`: kolom `is_paid` bertipe boolean di Postgres, dan
+    // mengirimnya sebagai "false" (string) membuat query melempar. Hook lain
+    // (useFetchItems, useFetchExpense) sudah memakai `unknown` untuk alasan yang sama.
+    where: Record<string, unknown>;
     where_greater_equal: Record<string, string>;
     where_lower_equal: Record<string, string>;
   }> = {}

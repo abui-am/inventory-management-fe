@@ -238,6 +238,38 @@ export const PAYMENT_METHOD_OPTIONS = [
   },
 ];
 
+/**
+ * Akun yang DIDEBIT untuk tiap metode bayar pada transaksi penjualan.
+ *
+ * Bukan tebakan: persis `match` di TransactionRepository::setCustomerPayments milik
+ * backend. Kalau daftar ini berubah di sana, preview jurnal di /transaction/add ikut
+ * berbohong — jadi ubah keduanya bersamaan.
+ */
+export const SALES_DEBIT_ACCOUNT: Record<string, string> = {
+  cash: 'Kas',
+  bank: 'Bank',
+  debt: 'Piutang',
+  current_account: 'Giro',
+};
+
+/**
+ * Warna pill metode bayar. Dipilih menurut akibatnya pada piutang, bukan selera:
+ * Kas dan Bank menutup transaksi di tempat, Giro menundanya sampai jatuh tempo,
+ * Utang meninggalkannya sepenuhnya sebagai piutang.
+ */
+export const PAYMENT_METHOD_COLOR: Record<string, 'success' | 'info' | 'warning' | 'destructive'> = {
+  cash: 'success',
+  bank: 'info',
+  current_account: 'warning',
+  debt: 'destructive',
+};
+
+/** Metode yang menunda pembayaran — hanya ini yang punya tanggal jatuh tempo. */
+export const METHODS_WITH_DUE_DATE = ['debt', 'current_account'];
+
+/** Metode yang menambah piutang customer bila dipakai. */
+export const METHODS_ON_CREDIT = ['debt', 'current_account'];
+
 export const PAYMENT_METHOD_OPTIONS_DEBT = [
   { label: 'Cash', value: 'cash' },
   {
@@ -253,11 +285,13 @@ export const PAYMENT_METHOD_OPTIONS_DEBT = [
 // Beda dengan Option di typings/common.ts: value-nya angka, bukan string.
 export type PerPageOption = { label: string; value: number };
 
-// "Munculkan 10" terpotong jadi "Munc…" di kotak selebar toolbar. Konteksnya sudah
-// jelas dari tempatnya berdiri — di samping penomoran halaman.
+// Angkanya saja. Kotak ini berdiri tepat di samping penomoran halaman, jadi "/ hal"
+// hanya mengulang apa yang sudah dikatakan tempatnya — dan mengulangnya empat kali di
+// dalam daftar yang terbuka. `aria-label` pada select-nya yang menanggung keterangan
+// untuk yang tidak melihat posisinya.
 export const PER_PAGE_OPTIONS: PerPageOption[] = [
-  { label: '5 / hal', value: 5 },
-  { label: '10 / hal', value: 10 },
-  { label: '20 / hal', value: 20 },
-  { label: '50 / hal', value: 50 },
+  { label: '5', value: 5 },
+  { label: '10', value: 10 },
+  { label: '20', value: 20 },
+  { label: '50', value: 50 },
 ];

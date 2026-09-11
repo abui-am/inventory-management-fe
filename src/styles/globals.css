@@ -25,6 +25,29 @@
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
+
+  /*
+   * react-select sudah memasang penanda fokusnya sendiri di elemen control (border
+   * aksen + ring tipis). Input di DALAM control juga menerima fokus, jadi ring global
+   * di atas menambah lingkaran KEDUA yang menempel rapat di lingkaran pertama —
+   * terlihat seperti garis dobel yang tebal, bukan satu ring.
+   */
+  input[role='combobox']:focus-visible {
+    @apply ring-0 ring-offset-0;
+  }
+
+  /*
+   * Kursor di seluruh permukaan select adalah pointer, termasuk di atas input-nya.
+   *
+   * Gaya react-select untuk 'input' mengenai div PEMBUNGKUS, bukan elemen <input>-nya,
+   * jadi dari sana kursornya tidak bisa dijangkau dan tetap jatuh ke caret teks.
+   * Konsekuensinya diterima: select yang bisa diketik tidak lagi memberi petunjuk lewat
+   * kursor — tapi membuka menu adalah yang dilakukan orang hampir setiap kali, dan
+   * itulah yang perlu ditandai.
+   */
+  input[role='combobox'] {
+    cursor: pointer;
+  }
 }
 
 input:checked + div {
@@ -48,40 +71,44 @@ input:checked + div svg {
     align-items: center;
   }
 
-  /* width */
+  /*
+   * Scrollbar ikut token, bukan warna literal.
+   *
+   * Sebelumnya batangnya dipatok #cbd5e0 (abu terang) untuk semua elemen, dengan satu
+   * pengecualian #3E4A5F khusus #menu. Akibatnya di tema gelap tiap area yang menggulir —
+   * menu dropdown salah satunya — punya batang putih menyala, dan sidebar punya warna
+   * ketiga yang tidak sama dengan keduanya. Sekarang satu aturan untuk semua, dan warnanya
+   * bertukar sendiri saat tema berganti.
+   */
+  * {
+    scrollbar-color: hsl(var(--border-strong)) transparent; /* Firefox */
+  }
+
   ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
   }
 
-  /* Track */
   ::-webkit-scrollbar-track {
     border-radius: 100vh;
-    background: #edf2f700;
+    background: transparent;
   }
 
-  /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
+    background: hsl(var(--border-strong));
     border-radius: 100vh;
+    /* Border sewarna latar menyisakan jarak di kiri-kanan batang tanpa perlu elemen lain. */
+    border: 3px solid transparent;
+    background-clip: content-box;
   }
 
-  /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: #a0aec0;
-  }
-  
-  #menu::-webkit-scrollbar-thumb:hover {
-    background: #3E4A5F;
+    background: hsl(var(--foreground-subtle));
+    background-clip: content-box;
   }
 
-  #menu::-webkit-scrollbar-thumb {
-    background: #3E4A5F;
-    border-radius: 100vh;
-  }
-
-  #menu::-webkit-scrollbar-corner {
-    background: #3E4A5F;
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
   
 }
@@ -207,6 +234,42 @@ input:checked + div svg {
 /* Hormati setelan sistem. Tanpa ini, animasi apa pun yang ditambahkan kemudian akan
    tetap berjalan untuk orang yang sudah meminta gerakan dikurangi — dan bagi sebagian
    orang itu bukan soal selera, tapi memicu pusing. */
+/*
+ * Menu select: muncul dan hilang dengan geser 4px + pudar.
+ *
+ * Ringan dengan sengaja — hanya opacity dan transform, keduanya dianimasikan compositor
+ * tanpa memicu layout. Durasinya di bawah 120ms supaya menu tidak terasa lambat dibuka;
+ * yang menutup sedikit lebih cepat, karena menunggu sesuatu menghilang lebih menjengkelkan
+ * daripada menunggunya muncul.
+ */
+@keyframes menu-masuk {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+@keyframes menu-keluar {
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+/*
+ * Kalender datepicker memakai keyframes yang sama dengan menu select, supaya keduanya
+ * terasa satu keluarga.
+ *
+ * Menempel di KALENDER, bukan di popper — popper dipakai popper.js untuk menempatkan
+ * posisi lewat transform, dan animasi transform di elemen yang sama akan menimpanya.
+ * Hanya animasi masuk; alasannya ada di komentar `calendarClassName` pada
+ * DatePickerComponent.
+ */
+.datepicker-kalender {
+  transform-origin: top center;
+  animation: menu-masuk 120ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

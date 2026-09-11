@@ -1,3 +1,10 @@
+/**
+ * Membuka blob PDF dari backend di dialog cetak.
+ *
+ * Masih dipakai jalur BARANG MASUK (`DetailStockIn`), yang fakturnya dibuat backend.
+ * Sisi penjualan sudah pindah ke `utils/invoice`, yang membangkitkan fakturnya sendiri
+ * di frontend — jangan pakai yang ini untuk transaksi penjualan.
+ */
 const printInvoice = async (file: string) => {
   const url = window.URL.createObjectURL(
     new Blob([file], {

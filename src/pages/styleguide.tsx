@@ -76,7 +76,7 @@ const TEXTS = [
    sumber, jadi `bg-${key}` tidak pernah ikut ter-generate. */
 const SEMANTIC = [
   ['accent', 'bg-accent', 'bg-accent-subtle', 'Satu-satunya warna aksi: tombol utama, tautan, fokus, state aktif'],
-  ['success', 'bg-success', 'bg-success-subtle', 'Credit, lunas, stok aman'],
+  ['success', 'bg-success', 'bg-success-subtle', 'Kredit, lunas, stok aman'],
   ['warning', 'bg-warning', 'bg-warning-subtle', 'Menunggu, jatuh tempo dekat'],
   ['destructive', 'bg-destructive', 'bg-destructive-subtle', 'Debit, hapus, gagal'],
   ['info', 'bg-info', 'bg-info-subtle', 'Ditinjau, seri data kedua pada grafik'],
@@ -808,7 +808,7 @@ function PreviewSection() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-surface-raised">
-                {['Kode', 'Customer', 'Debit', 'Credit', 'Status'].map((h, i) => (
+                {['Kode', 'Customer', 'Debit', 'Kredit', 'Status'].map((h, i) => (
                   <th
                     key={h}
                     className={cn(

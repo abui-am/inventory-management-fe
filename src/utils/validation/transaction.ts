@@ -1,13 +1,5 @@
 import { array, bool, number, object, ref, string } from 'yup';
 
-export const validationSchemaItem = object().shape({
-  item: object().nullable().required('* Required'),
-  maxQty: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
-  discount: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
-  qty: number().moreThan(0, 'Harus lebih dari 0').max(ref('maxQty'), 'Tidak boleh lebih dari jumlah barang').nullable(),
-  id: string().nullable(),
-});
-
 export const validationSchemaTransaction = object().shape({
   payAmount: number().when('paymentMethod.value', {
     is: 'cash',
@@ -33,5 +25,8 @@ export const validationSchemaTransaction = object().shape({
     .required('* Required'),
   isNewSupplier: bool().nullable(),
   totalPrice: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable().required('* Required'),
-  shippingCost: number().moreThan(0, 'Harus lebih dari IDR Rp0').nullable(),
+  // moreThan(0) menolak ongkos kirim 0 — padahal nol adalah nilai yang paling sering
+  // benar. Yang perlu ditolak hanya angka negatif.
+  shippingCost: number().min(0, 'Tidak boleh negatif').nullable(),
+  discount: number().min(0, 'Tidak boleh negatif').nullable(),
 });

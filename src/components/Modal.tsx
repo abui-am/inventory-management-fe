@@ -2,14 +2,13 @@
 import React, { PropsWithChildren } from 'react';
 import ReactModal, { Props } from 'react-modal';
 
+import { cn } from '@/lib/cn';
+
 export type ModalVariant = 'big' | 'normal' | 'large' | 'screen';
 
-const Modal: React.FC<PropsWithChildren<Props & { style?: ReactModal.Styles; variant?: ModalVariant }>> = ({
-  children,
-  variant = 'normal',
-  style,
-  ...props
-}) => {
+const Modal: React.FC<
+  PropsWithChildren<Props & { style?: ReactModal.Styles; variant?: ModalVariant; bodyClassName?: string }>
+> = ({ children, variant = 'normal', style, bodyClassName, ...props }) => {
   const getWidth = (variant: ModalVariant) => {
     switch (variant) {
       case 'big':
@@ -57,7 +56,11 @@ const Modal: React.FC<PropsWithChildren<Props & { style?: ReactModal.Styles; var
         <div
           // overflow-y-auto, bukan -scroll: yang lama selalu menampilkan batang gulir
           // walau isinya pendek, jadi tiap dialog punya jalur abu-abu kosong di sisinya.
-          className="ml-auto mr-auto w-full overflow-y-auto rounded-xl border border-border bg-surface p-5 shadow-md"
+          // Padding bisa ditimpa: dialog padat memakai p-4, sisanya tetap p-5.
+          className={cn(
+            'ml-auto mr-auto w-full overflow-y-auto rounded-xl border border-border bg-surface p-5 shadow-md',
+            bodyClassName
+          )}
           style={{
             maxHeight: '80vh',
           }}

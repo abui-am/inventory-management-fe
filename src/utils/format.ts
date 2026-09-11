@@ -25,6 +25,18 @@ export function formatToIDR(number: number) {
   }).format(number);
 }
 
+/**
+ * Angka tanpa awalan "Rp", nol desimal, pemisah ribuan Indonesia.
+ *
+ * Dipakai di tempat yang satuannya sudah jelas dari kolom atau labelnya — "Jumlah",
+ * "Subtotal", angka KPI — sehingga "Rp" di tiap sel hanya menambah lebar tanpa
+ * menambah keterangan. Alasan mengunci desimalnya sama persis dengan `formatToIDR`
+ * di atas: jumlah desimal bawaan diambil dari CLDR runtime dan Node berbeda dari Chrome.
+ */
+export function formatNumber(number: number) {
+  return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(number);
+}
+
 export function formatDate(date: Date | string, { withHour = false }: { withHour?: boolean } = {}) {
   return dayjs(date).format(withHour ? 'DD MMM YYYY HH:mm' : 'DD MMM YYYY');
 }

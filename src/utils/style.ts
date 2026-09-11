@@ -23,13 +23,17 @@ export type AdditionalStyle = Partial<StylesConfig<SelectOption, boolean, Select
  */
 const t = (name: string, alpha?: number) => (alpha == null ? `hsl(var(${name}))` : `hsl(var(${name}) / ${alpha})`);
 
-const CONTROL_HEIGHT = 36; // sejajar dengan Input dan Button `default`
+/** Tinggi lama 36px — masih dipakai halaman yang belum dipindahkan ke design system. */
+const LEGACY_CONTROL_HEIGHT = 36;
 
 const base: Partial<StylesConfig<SelectOption, boolean, SelectGroup>> = {
   control: (provided, state) => ({
     ...provided,
-    minHeight: CONTROL_HEIGHT,
-    height: CONTROL_HEIGHT,
+    // Kotaknya bisa diklik untuk membuka menu, jadi kursornya harus mengatakan begitu.
+    // Bawaan react-select `default` membuatnya terlihat seperti teks mati.
+    cursor: 'pointer',
+    minHeight: LEGACY_CONTROL_HEIGHT,
+    height: LEGACY_CONTROL_HEIGHT,
     backgroundColor: t('--surface'),
     borderColor: state.isFocused ? t('--accent') : t('--border-strong'),
     boxShadow: state.isFocused ? `0 0 0 2px ${t('--ring', 0.25)}` : 'none',
@@ -37,13 +41,24 @@ const base: Partial<StylesConfig<SelectOption, boolean, SelectGroup>> = {
     transition: 'border-color 120ms, box-shadow 120ms',
     '&:hover': { borderColor: state.isFocused ? t('--accent') : t('--border-strong') },
   }),
-  valueContainer: (provided) => ({ ...provided, padding: '0 8px' }),
-  input: (provided) => ({ ...provided, color: t('--foreground'), margin: 0, padding: 0 }),
-  singleValue: (provided) => ({ ...provided, color: t('--foreground') }),
-  placeholder: (provided) => ({ ...provided, color: t('--foreground-subtle') }),
+  valueContainer: (provided) => ({ ...provided, padding: '0 8px', cursor: 'pointer' }),
+  // 13px dinyatakan tegas di ketiganya. Kalau diwariskan, teks di dalam select ikut
+  // apa pun yang kebetulan berlaku di tempat ia berdiri — dan placeholder jadi lebih
+  // besar dari label di atasnya.
+  input: (provided) => ({
+    ...provided,
+    color: t('--foreground'),
+    margin: 0,
+    padding: 0,
+    fontSize: 13,
+    cursor: 'pointer',
+  }),
+  singleValue: (provided) => ({ ...provided, color: t('--foreground'), fontSize: 13 }),
+  placeholder: (provided) => ({ ...provided, color: t('--foreground-subtle'), fontSize: 13 }),
   indicatorSeparator: () => ({ display: 'none' }),
   dropdownIndicator: (provided) => ({
     ...provided,
+    cursor: 'pointer',
     color: t('--foreground-subtle'),
     padding: 6,
     '&:hover': { color: t('--foreground') },
@@ -56,6 +71,9 @@ const base: Partial<StylesConfig<SelectOption, boolean, SelectGroup>> = {
   }),
   menu: (provided) => ({
     ...provided,
+    // 13px, sama dengan `text-base`. Menu diportal keluar dari <main class="font-sans">,
+    // jadi ukurannya dinyatakan di sini — kalau diwariskan ia jatuh ke 14px milik <body>.
+    fontSize: 13,
     backgroundColor: t('--surface'),
     border: `1px solid ${t('--border')}`,
     borderRadius: 8,
@@ -64,6 +82,10 @@ const base: Partial<StylesConfig<SelectOption, boolean, SelectGroup>> = {
     zIndex: 20,
   }),
   menuList: (provided) => ({ ...provided, padding: 4 }),
+  // Berpasangan dengan `menuPortalTarget`: menu yang dirender di tempat akan terpotong
+  // begitu select berdiri di dalam elemen ber-overflow — sel tabel, kartu `overflow-hidden`,
+  // wadah `overflow-x-auto`. Di /transaction/add menunya hilang seluruhnya karena itu.
+  menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
   // isSelected diperiksa lebih dulu: option terpilih yang sedang di-hover harus tetap
   // terbaca sebagai terpilih, bukan berubah jadi warna hover.
   option: (provided, state) => {
@@ -100,7 +122,22 @@ const base: Partial<StylesConfig<SelectOption, boolean, SelectGroup>> = {
   }),
 };
 
-/** Gabung dua peta style react-select tanpa membuang salah satunya. */
+/**
+ * Gabung dua peta style react-select tanpa membuang salah satunya.
+ *
+ * Keduanya DIRANTAI, bukan di-spread berdampingan. Tiap fungsi style react-select
+ * ditulis sebagai `(base) => ({ ...base, ...perubahan })`, jadi `{ ...fa(p), ...fb(p) }`
+ * membuat `...base` milik fb — yang isinya bawaan react-select yang belum bertema —
+ * menimpa balik seluruh hasil fa. Satu `additionalStyle` sesederhana
+ * `control: (base) => ({ ...base, height: 28 })` sudah cukup untuk mengembalikan select
+ * ke putih-biru bawaannya, dan itulah yang terjadi pada baris entri di /transaction/add.
+ *
+ * Dengan dirantai, `base` yang diterima fb adalah hasil fa yang sudah bertema.
+ *
+ * KONSEKUENSINYA untuk pemanggil: tiap fungsi di `additionalStyle` HARUS menyebar
+ * argumennya — `(base) => ({ ...base, ... })`. Fungsi yang mengabaikan argumen dan
+ * mengembalikan objek telanjang kini membuang seluruh tema, bukan cuma menimpanya.
+ */
 const merge = (
   a: Partial<StylesConfig<SelectOption, boolean, SelectGroup>>,
   b: Partial<StylesConfig<SelectOption, boolean, SelectGroup>>
@@ -109,8 +146,7 @@ const merge = (
   Object.keys(b).forEach((key) => {
     const fa = (a as Record<string, ((p: unknown, s: unknown) => object) | undefined>)[key];
     const fb = (b as Record<string, ((p: unknown, s: unknown) => object) | undefined>)[key];
-    out[key] =
-      fa && fb ? (provided: unknown, state: unknown) => ({ ...fa(provided, state), ...fb(provided, state) }) : fb ?? fa;
+    out[key] = fa && fb ? (provided: unknown, state: unknown) => fb(fa(provided, state), state) : fb ?? fa;
   });
   return out as Partial<StylesConfig<SelectOption, boolean, SelectGroup>>;
 };
@@ -132,4 +168,31 @@ export const getThemedSelectStyle = (
       : {};
 
   return merge(merge(base, variantStyle), additionalStyle);
+};
+
+/**
+ * SATU tinggi kontrol untuk halaman yang sudah dipindahkan ke design system: 32px,
+ * sejajar dengan `Input size="sm"` dan `Button size="sm"`.
+ *
+ * Sebelum ini /transaction/add memakai lima tinggi berbeda dalam satu layar — 24px
+ * untuk pill metode, 26px untuk diskon, 28px untuk baris tabel, 32px untuk tanggal,
+ * 36px untuk select bawaan. Tiap angka masuk akal sendiri-sendiri, tapi bersama-sama
+ * tidak ada satu garis pun yang sejajar.
+ *
+ * Dipakai lewat konstanta ini, bukan diketik ulang per komponen. Lihat aturan di CLAUDE.md.
+ */
+export const CONTROL_HEIGHT = 32;
+
+/** Gaya react-select untuk kontrol setinggi `CONTROL_HEIGHT`. */
+export const controlStyle: AdditionalStyle = {
+  control: (base) => ({ ...base, minHeight: CONTROL_HEIGHT, height: CONTROL_HEIGHT, borderRadius: 7 }),
+  valueContainer: (base) => ({ ...base, padding: '0 0 0 10px' }),
+  // 100%, BUKAN CONTROL_HEIGHT.
+  //
+  // Control-nya `border-box` setinggi 32px dengan garis 1px, jadi kotak isinya 30px.
+  // Memberi wadah indikator tinggi 32px membuatnya melebihi baris flex sebesar 2px dan
+  // menyeret seluruh baris — termasuk nilai yang terpilih — turun 2px dari tengah.
+  // Terukur: 7.25px di atas vs 5.25px di bawah; dengan 100% keduanya jadi 6.25px.
+  indicatorsContainer: (base) => ({ ...base, height: '100%' }),
+  dropdownIndicator: (base) => ({ ...base, padding: 5 }),
 };

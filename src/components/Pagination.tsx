@@ -74,7 +74,9 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
               placeholder="Page"
               aria-label="Go to page"
               onChange={(e) => setGoTo(+e.target.value)}
-              className="h-7 w-14 rounded-md px-2 text-sm"
+              // w-16, bukan w-14: `type="number"` menyisakan ruang untuk tombol naik-turun
+              // bawaan Chrome, dan placeholder "Page" terpotong jadi "Pag" di baliknya.
+              className="h-7 w-16 rounded-md px-2 text-sm"
               type="number"
             />
             <Button size="xs" variant="outline" onClick={() => onClickGoToPage?.(goTo)}>
@@ -88,22 +90,29 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
           // BUKAN lewat prop `styles`, yang akan membuang seluruh tema select.
           <ThemedSelect
             menuPlacement="top"
-            aria-label="Rows per page"
+            aria-label="Baris per halaman"
             defaultValue={PER_PAGE_OPTIONS[1]}
             onChange={(e) => onChangePerPage(e as PerPageOption | null)}
             options={PER_PAGE_OPTIONS}
-            // Hanya selisihnya, TANPA `...base`. Menyebar `base` di sini mengembalikan
-            // nilai bawaan react-select DI ATAS tema — itu yang membuat radius menu
-            // kembali ke 4px padahal tema menyetelnya 8px.
+            // `...base` WAJIB disebar. getThemedSelectStyle merantai fungsi style —
+            // `base` yang diterima di sini adalah hasil tema, bukan bawaan react-select —
+            // jadi fungsi yang mengabaikan argumennya membuang seluruh tema dan
+            // menyisakan kotak tanpa garis maupun latar.
             additionalStyle={{
               // fontSize/lineHeight disetel di CONTROL, bukan hanya di singleValue:
               // react-select merender `dummyInput` yang mewarisi keduanya dari sini, dan
               // kotak barisnya (24px dari line-height bawaan) yang menentukan tinggi grid
               // valueContainer — itulah yang menggeser teks 1px ke bawah dari titik tengah.
-              control: () => ({
+              control: (base) => ({
+                ...base,
                 minHeight: 28,
                 height: 28,
-                width: 94,
+                // Diukur terhadap label TERLEBAR ("50" = 17px), bukan terhadap "10".
+                // 76 = 17 teks + 4 margin singleValue + 16 padding valueContainer
+                // + 26 indikator + 2 border, plus sisa 11px. Pada 64px sisanya hanya 2px
+                // untuk "10" dan MINUS 1px untuk "50" — cukup bagi perbedaan rendering
+                // huruf antar mesin untuk memunculkan elipsis "1…".
+                width: 76,
                 borderRadius: 7,
                 fontSize: 12,
                 lineHeight: '16px',
@@ -112,18 +121,18 @@ const Pagination: React.FC<PropsWithChildren<PaginationProps>> = ({
               // isinya (16px) lalu di-center oleh flex kontrol terhadap kotak KONTEN
               // (28px dikurangi 2px border), sehingga jatuhnya 1px di bawah titik tengah
               // kotak border. Dengan mengisi penuh, pemusatannya terjadi di dalamnya.
-              valueContainer: () => ({ padding: '0 8px', height: '100%', alignItems: 'center' }),
-              singleValue: () => ({ fontSize: 12, lineHeight: '16px' }),
+              valueContainer: (base) => ({ ...base, padding: '0 8px', height: '100%', alignItems: 'center' }),
+              singleValue: (base) => ({ ...base, fontSize: 12, lineHeight: '16px' }),
               // Input tersembunyi milik react-select ikut mengisi grid valueContainer;
               // line-height bawaannya (13px) membuat baris grid lebih tinggi dari teksnya
               // dan nilainya turun 1px dari titik tengah.
-              input: () => ({ margin: 0, padding: 0, fontSize: 12, lineHeight: '16px' }),
+              input: (base) => ({ ...base, margin: 0, padding: 0, fontSize: 12, lineHeight: '16px' }),
               // padding 3, bukan 4: ikon react-select 20px + padding 2x4 = 28px, sedangkan
               // kotak KONTEN kontrol hanya 26px (28 dikurangi dua border). Anak yang lebih
               // tinggi dari kotak konten membuat baris flex meluap dan mendorong seluruh
               // isi turun 1px — itulah teks yang tidak center.
-              dropdownIndicator: () => ({ padding: 3 }),
-              menu: () => ({ fontSize: 12 }),
+              dropdownIndicator: (base) => ({ ...base, padding: 3 }),
+              menu: (base) => ({ ...base, fontSize: 12 }),
             }}
           />
         )}
