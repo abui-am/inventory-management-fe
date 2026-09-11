@@ -10,18 +10,26 @@ S.ICONS.update({
     'plus': '<path d="M12 5v14"/><path d="M5 12h14"/>',
     'search': '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
     'chev': '<path d="m6 9 6 6 6-6"/>',
+    'pencil': '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
 })
 
 RUPIAH = lambda n: f"{n:,}".replace(",", ".")
+# Kolom terakhir: baris mana yang sedang diubah. Quick edit terjadi DI BARISNYA —
+# hanya qty yang bisa berubah, sebab harga datang dari harga jual barang dan barangnya
+# sendiri tidak bisa ditukar tanpa membatalkan barisnya.
 BARANG = [
-    ("Beras Premium 5 kg", "BRS-001", 4, "karung", 150000),
-    ("Telur Ayam 1 kg", "TLR-001", 6, "kg", 32000),
-    ("Minyak Goreng 2 L", "MYK-001", 2, "botol", 75000),
+    ("Beras Premium 5 kg", "BRS-001", 4, "karung", 150000, False),
+    ("Telur Ayam 1 kg", "TLR-001", 6, "kg", 32000, True),
+    ("Minyak Goreng 2 L", "MYK-001", 2, "botol", 75000, False),
 ]
-SUB = sum(q * h for _, _, q, _, h in BARANG)
+SUB = sum(q * h for _, _, q, _, h, _e in BARANG)
 DISKON, ONGKIR = 0, 0
 TOTAL = SUB - DISKON + ONGKIR
-BAYAR = [("Kas", "success", 700000, None), ("Giro", "warning", 242000, "23 Sep 2026")]
+# Warna pill per metode. Dipilih menurut akibatnya pada piutang, bukan selera:
+# Kas dan Bank menutup transaksi di tempat (success/info), Giro menunda (warning),
+# Utang meninggalkannya sepenuhnya sebagai piutang (destructive).
+PILL = {"cash": "success", "bank": "info", "current_account": "warning", "debt": "destructive"}
+BAYAR = [("Kas", PILL["cash"], 700000, None), ("Giro", PILL["current_account"], 242000, "23 Sep 2026")]
 DIBAYAR = sum(b[2] for b in BAYAR)
 
 CUSTOMER = "Warung Bu Melati"
@@ -83,19 +91,25 @@ def identitas():
 
 def barang():
     baris = []
-    for nama, kode, qty, satuan, harga in BARANG:
-        baris.append(f'''<tr>
+    for nama, kode, qty, satuan, harga, ubah in BARANG:
+        sel_qty = (f'<div class="field mono" style="height:28px;justify-content:flex-end;'
+                   f'border-color:var(--accent)">{qty}</div>'
+                   if ubah else f'{qty}')
+        kelas_qty = 'td' if ubah else 'td mono'
+        aksi = (f'<div class="ico" style="border-color:var(--accent);color:var(--accent)">{S.svg("check", 13, 2.4)}</div>'
+                if ubah else f'<div class="ico">{S.svg("pencil", 13, 1.9)}</div>')
+        baris.append(f'''<tr{' style="background:var(--accent-subtle)"' if ubah else ''}>
   <td class="td">
     <div style="display:flex;flex-direction:column">
       <span style="font-size:13px;font-weight:500">{nama}</span>
       <span class="mono" style="font-size:10px;color:var(--foreground-subtle)">{kode}</span>
     </div>
   </td>
-  <td class="td mono" style="text-align:right">{qty}</td>
+  <td class="{kelas_qty}" style="text-align:right">{sel_qty}</td>
   <td class="td" style="color:var(--foreground-muted)">{satuan}</td>
   <td class="td mono" style="text-align:right;color:var(--foreground-muted)">{RUPIAH(harga)}</td>
   <td class="td mono" style="text-align:right;font-weight:600">{RUPIAH(qty * harga)}</td>
-  <td class="td" style="text-align:right"><div class="ico">{S.svg('x', 13, 2)}</div></td>
+  <td class="td"><div style="display:flex;justify-content:flex-end;gap:5px">{aksi}<div class="ico">{S.svg('x', 13, 2)}</div></div></td>
 </tr>''')
 
     th = ''.join(
@@ -124,9 +138,9 @@ def barang():
     return f'''<div class="card" style="padding:0;overflow:hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;
     background:var(--surface-raised);border-bottom:1px solid var(--border)">
-    <div style="display:flex;align-items:baseline;gap:8px">
+    <div style="display:flex;align-items:center;gap:6px">
       <span style="font-size:13px;font-weight:600">Barang</span>
-      <span class="mono" style="font-size:11px;color:var(--foreground-subtle)">{len(BARANG)} baris</span>
+      <span class="mono" style="font-size:10px;color:var(--foreground-subtle)">{len(BARANG)}</span>
     </div>
 
   </div>

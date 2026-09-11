@@ -108,18 +108,23 @@ tombol, placeholder, `aria-label`, judul seksi, empty state, pesan error, toast.
 
 > Print, Download, Upload, Export, Import, Filter, Reset, Preview, Copy, Search,
 > Pagination, Previous, Next, Invoice, Customer, Supplier, Status, Total, Subtotal,
-> Balance, Debit, Credit, Light, Dark, System.
+> Balance, Light, Dark, System.
 
 Jangan menambah keterangan format yang sudah jelas dari konteksnya: tombolnya cukup
 `Print`, bukan `Print struk`.
 
-**2. Istilah akuntansi teknis pakai bahasa Inggris; NAMA AKUN tetap Indonesia.**
-Batasnya: kalau kata itu muncul di buku besar sebagai nama akun, ia milik klien dan
-tetap Indonesia. Kalau ia istilah teknik pembukuan, pakai Inggris.
+**2. Kosakata buku besar tetap Indonesia; hanya kata pembanding yang Inggris.**
+Batasnya: kalau kata itu MUNCUL DI BUKU BESAR — sebagai nama akun maupun sebagai
+nama kolomnya — ia milik klien dan tetap Indonesia. Yang Inggris hanya kata yang
+dipakai untuk MENILAI angkanya, bukan untuk mencatatnya.
 
-> Inggris: Balance, Debit, Credit, Total, Subtotal
-> Indonesia: Kas, Bank, Utang, Piutang, Giro, Persediaan, Penjualan, Beban,
-> Jurnal Umum, Buku Besar, Prive, Barang Masuk, Harga Jual, Perubahan Modal
+> Inggris: Balance, Total, Subtotal
+> Indonesia: Debit, Kredit, Kas, Bank, Utang, Piutang, Giro, Persediaan, Penjualan,
+> Beban, Jurnal Umum, Buku Besar, Prive, Barang Masuk, Harga Jual, Perubahan Modal
+
+"Kredit" pernah diubah jadi "Credit" lalu dikembalikan oleh maintainer. Debit dan
+Kredit adalah judul kolom di buku besar klien, sederajat dengan nama akunnya —
+sedangkan Balance adalah keterangan bahwa debit dan kredit sudah sama besar.
 
 **3. Kata kerja Indonesia sehari-hari tetap Indonesia.** cari, lihat, tutup, simpan,
 batal, tambah, ubah, hapus.
@@ -131,7 +136,30 @@ uppercase` tidak dipakai untuk teks antarmuka.
 
 **5. Komentar kode tetap bahasa Indonesia.** Itu untuk yang merawat, bukan antarmuka.
 
-**6. Empty state harus sesuai konteks.** Bedakan "data memang belum ada" dari "filter
+**6. Penghitung SELALU seragam, di mana pun.** Jumlah baris tabel, jumlah item satu
+seksi, jumlah transaksi per tab — semuanya memakai `<Counter>` dari
+`components/ui/counter`, bukan kelas yang disalin. Bentuknya: angka telanjang, tanpa
+kata satuan (`3`, bukan `3 baris`), tanpa pemisah titik tengah (`Barang 3`, bukan
+`Barang · 3`), tanpa lencana berlatar. Kalau muncul penghitung baru di halaman baru,
+pakai komponen itu — jangan bikin gaya sendiri.
+
+**7. SATU tinggi kontrol per halaman: 32px.** Semua input, select, datepicker, dan
+tombol di halaman yang sudah dipindahkan memakai tinggi yang sama — `Input size="sm"`,
+`Button size="sm"`, dan `gayaKontrol` dari `utils/style` untuk react-select. Jangan
+mengetik `h-7`, `h-[26px]`, atau `minHeight: 24` sendiri: kalau butuh tinggi lain,
+ubah `TINGGI_KONTROL`, jangan menambah tinggi keenam. Satu halaman pernah memakai lima
+tinggi sekaligus dan tidak ada satu garis pun yang sejajar.
+
+Ikutannya:
+- **Placeholder** ikut aturan wording dan ukurannya dinyatakan tegas (13px), bukan
+  diwariskan. `Select...` bawaan react-select selalu diganti — mis. `Pilih customer`.
+- **Fokus hanya SATU penanda.** react-select memasang ring-nya sendiri di control, jadi
+  input di dalamnya dikecualikan dari `:focus-visible` global; tanpa itu ada dua
+  lingkaran menempel yang terbaca sebagai garis dobel tebal.
+- **Menu dropdown beranimasi** buka DAN tutup, lewat `useMenuAnimasi` + `buatMenu` di
+  `components/Form`. Ringan saja — hanya opacity dan transform, di bawah 120ms.
+
+**8. Empty state harus sesuai konteks.** Bedakan "data memang belum ada" dari "filter
 tidak menemukan apa-apa". Jangan menyuruh mengubah filter kepada orang yang tidak
 sedang memakai filter.
 
