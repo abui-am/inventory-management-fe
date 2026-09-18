@@ -63,7 +63,7 @@ const EmployeeDetails: NextPage = () => {
   return (
     <CardDashboard>
       <Modal isOpen={openModal} onRequestClose={() => setOpenModal(false)}>
-        <h3 className="text-base">Apakah kamu yakin untuk menontaktifkan karyawan?</h3>
+        <h3 className="text-base">Nonaktifkan karyawan ini?</h3>
         <div className="mt-8 flex justify-end">
           <div className="flex">
             <Button
@@ -91,7 +91,7 @@ const EmployeeDetails: NextPage = () => {
           <div className="flex mt-6">
             {(state.permission.includes('control:profile') || isSelf) && (
               <Button variant="gray" onClick={() => push(`/employee/${query.id}/edit`)}>
-                Edit Profile
+                Ubah profil
               </Button>
             )}
             {(state.permission.includes('control:profile') || isSelf) && active && (
@@ -169,7 +169,7 @@ function EmployeeInfo({ data, isLoading }: { data: Omit<Employee, 'first_name' |
           </div>
 
           {/* <div className="flex mb-4">
-            <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Jumlah Hutang:</div>
+            <div className="flex-0 flex-shrink-0 font-bold sm:w-48 w-36">Jumlah utang</div>
             <div className="flex-1">{debt ? formatCurrency({ value: debt }) : 'IDR 0'}</div>
           </div> */}
           <div className="flex mb-4">

@@ -130,7 +130,7 @@ export function PaymentRow({
         )}
 
         {onDelete && (
-          <Button size="icon-sm" variant="outline" aria-label="Hapus method pembayaran" onClick={onDelete}>
+          <Button size="icon-sm" variant="outline" aria-label="Hapus metode pembayaran" onClick={onDelete}>
             <X strokeWidth={2} aria-hidden />
           </Button>
         )}

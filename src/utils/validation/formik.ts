@@ -15,7 +15,7 @@ const schema = (type: string) => {
       return string();
 
     case 'nik':
-      return string().min(16, 'Harus 16 character').max(16, 'Harus 16 character').required('Wajib diisi');
+      return string().min(16, 'Harus 16 angka').max(16, 'Harus 16 angka').required('Wajib diisi');
 
     case 'paymentDue':
     case 'birthday':
@@ -38,12 +38,12 @@ const schema = (type: string) => {
 
     case 'buyPrice':
     case 'qty':
-      return number().moreThan(0, 'Harus lebih dari IDR Rp0').required('Wajib diisi');
+      return number().moreThan(0, 'Harus lebih dari Rp 0').required('Wajib diisi');
     case 'discount':
-      return number().moreThan(0, 'Harus lebih dari IDR Rp0');
+      return number().moreThan(0, 'Harus lebih dari Rp 0');
 
     case 'handphoneNumber':
-      return string().min(9, 'Minimal 9 nomor').max(16, 'Maximal 16 character').required('Wajib diisi');
+      return string().min(9, 'Minimal 9 angka').max(16, 'Maksimal 16 angka').required('Wajib diisi');
 
     default:
       return undefined;

@@ -45,3 +45,4 @@ yarn-error.log*
 # dan sumber kanvas cuma ada di mesin ini.
 /design/*.html
 !/design/*.dc.html
+.env*

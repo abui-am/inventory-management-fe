@@ -22,12 +22,12 @@ export const INVOICE_TYPE_OPTIONS = [
 
 export const EMPLOYEE_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan nama',
+    label: 'Urutkan menurut nama',
     value: 'name',
     data: ['first_name', 'last_name'],
   },
   {
-    label: 'Sortir berdasarkan jabatan',
+    label: 'Urutkan menurut jabatan',
     value: 'position',
     data: ['position'],
   },
@@ -35,12 +35,12 @@ export const EMPLOYEE_SORT_BY_OPTIONS = [
 
 export const SALE_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan tanggal',
+    label: 'Urutkan menurut tanggal',
     value: 'date',
     data: ['created_at'],
   },
   {
-    label: 'Sortir berdasarkan pembayaran',
+    label: 'Urutkan menurut pembayaran',
     value: 'status',
     data: ['payment_method'],
   },
@@ -48,12 +48,12 @@ export const SALE_SORT_BY_OPTIONS = [
 
 export const PRIVES_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan tanggal',
+    label: 'Urutkan menurut tanggal',
     value: 'prive_date',
     data: ['prive_date'],
   },
   {
-    label: 'Sortir berdasarkan jumlah penarikan',
+    label: 'Urutkan menurut jumlah penarikan',
     value: 'amount',
     data: ['amount'],
   },
@@ -61,12 +61,12 @@ export const PRIVES_SORT_BY_OPTIONS = [
 
 export const PAYROLLS_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan status',
+    label: 'Urutkan menurut status',
     value: 'status',
     data: ['status'],
   },
   {
-    label: 'Sortir berdasarkan gaji',
+    label: 'Urutkan menurut gaji',
     value: 'employee_salary',
     data: ['employee_salary'],
   },
@@ -74,12 +74,12 @@ export const PAYROLLS_SORT_BY_OPTIONS = [
 
 export const ADVANCE_PAYROLLS_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan tanggal',
+    label: 'Urutkan menurut tanggal',
     value: 'created_at',
     data: ['created_at'],
   },
   {
-    label: 'Sortir berdasarkan jumlah',
+    label: 'Urutkan menurut jumlah',
     value: 'amount',
     data: ['amount'],
   },
@@ -87,18 +87,18 @@ export const ADVANCE_PAYROLLS_SORT_BY_OPTIONS = [
 
 export const STOCK_IN_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan tanggal',
+    label: 'Urutkan menurut tanggal',
     value: 'date',
     data: ['created_at'],
   },
   {
-    label: 'Sortir berdasarkan pembayaran',
+    label: 'Urutkan menurut pembayaran',
     value: 'payment_menthod',
     data: ['payment_method'],
   },
 
   {
-    label: 'Sortir berdasarkan status',
+    label: 'Urutkan menurut status',
     value: 'status',
     data: ['status'],
   },
@@ -106,23 +106,23 @@ export const STOCK_IN_SORT_BY_OPTIONS = [
 
 export const ITEMS_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan nama',
+    label: 'Urutkan menurut nama',
     value: 'name',
     data: ['name'],
   },
   {
-    label: 'Sortir berdasarkan jumlah',
+    label: 'Urutkan menurut jumlah',
     value: 'quantity',
     data: ['quantity'],
   },
 
   {
-    label: 'Sortir berdasarkan kemasan',
+    label: 'Urutkan menurut kemasan',
     value: 'unit',
     data: ['unit'],
   },
   {
-    label: 'Sortir berdasarkan tanggal masuk',
+    label: 'Urutkan menurut tanggal masuk',
     value: 'updated_at',
     data: ['updated_at'],
   },
@@ -130,12 +130,12 @@ export const ITEMS_SORT_BY_OPTIONS = [
 
 export const LEDGER_TOP_UPS_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan tanggal transaksi',
+    label: 'Urutkan menurut tanggal transaksi',
     value: 'updated_at',
     data: ['updated_at'],
   },
   {
-    label: 'Sortir berdasarkan jumlah transaksi',
+    label: 'Urutkan menurut jumlah transaksi',
     value: 'amount',
     data: ['amount'],
   },
@@ -143,33 +143,33 @@ export const LEDGER_TOP_UPS_SORT_BY_OPTIONS = [
 
 export const EXPENSES_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan terbaru',
+    label: 'Urutkan menurut terbaru',
     value: 'created_at',
     data: ['created_at'],
   },
   {
-    label: 'Sortir berdasarkan nama',
+    label: 'Urutkan menurut nama',
     value: 'name',
     data: ['name'],
   },
   {
-    label: 'Sortir berdasarkan deskripsi',
+    label: 'Urutkan menurut deskripsi',
     value: 'description',
     data: ['description'],
   },
 
   {
-    label: 'Sortir berdasarkan jumlah',
+    label: 'Urutkan menurut jumlah',
     value: 'amount',
     data: ['amount'],
   },
   {
-    label: 'Sortir berdasarkan metode pembayaran',
+    label: 'Urutkan menurut metode pembayaran',
     value: 'payment_method',
     data: ['payment_method'],
   },
   {
-    label: 'Sortir berdasarkan tanggal',
+    label: 'Urutkan menurut tanggal',
     value: 'date',
     data: ['date'],
   },
@@ -177,12 +177,12 @@ export const EXPENSES_SORT_BY_OPTIONS = [
 
 export const SUPPLIER_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan nama',
+    label: 'Urutkan menurut nama',
     value: 'name',
     data: ['name'],
   },
   {
-    label: 'Sortir berdasarkan alamat',
+    label: 'Urutkan menurut alamat',
     value: 'address',
     data: ['address'],
   },
@@ -190,12 +190,12 @@ export const SUPPLIER_SORT_BY_OPTIONS = [
 
 export const CUSTOMER_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan nama',
+    label: 'Urutkan menurut nama',
     value: 'full_name',
     data: ['full_name'],
   },
   {
-    label: 'Sortir berdasarkan alamat',
+    label: 'Urutkan menurut alamat',
     value: 'address',
     data: ['address'],
   },
@@ -203,12 +203,12 @@ export const CUSTOMER_SORT_BY_OPTIONS = [
 
 export const DEBT_SORT_BY_OPTIONS = [
   {
-    label: 'Sortir berdasarkan tanggal',
+    label: 'Urutkan menurut tanggal',
     value: 'created_at',
     data: ['created_at'],
   },
   {
-    label: 'Sortir berdasarkan status',
+    label: 'Urutkan menurut status',
     value: 'is_paid',
     data: ['is_paid'],
   },
@@ -216,10 +216,10 @@ export const DEBT_SORT_BY_OPTIONS = [
 
 export const SORT_TYPE_OPTIONS = [
   {
-    label: 'Sortir naik',
+    label: 'Urutkan naik',
     value: 'asc',
   },
-  { label: 'Sortir menurun', value: 'desc' },
+  { label: 'Urutkan turun', value: 'desc' },
 ];
 
 export const PAYMENT_METHOD_OPTIONS = [

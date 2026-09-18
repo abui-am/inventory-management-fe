@@ -40,14 +40,14 @@ const KATA = {
     kosong: 'Pilih customer untuk melihat piutang berjalannya.',
     berjalan: 'Piutang berjalan',
     transaksi: 'Transaksi ini (kredit)',
-    catatan: 'Hanya bagian yang dibayar Utang atau Giro yang menambah piutang.',
+    catatan: 'Yang menambah piutang hanya bagian yang dibayar lewat Utang atau Giro.',
   },
   supplier: {
     judul: 'Supplier',
     kosong: 'Pilih supplier untuk melihat utang berjalannya.',
     berjalan: 'Utang berjalan',
     transaksi: 'Barang masuk ini (kredit)',
-    catatan: 'Hanya bagian yang dibayar Utang atau Giro yang menambah utang.',
+    catatan: 'Yang menambah utang hanya bagian yang dibayar lewat Utang atau Giro.',
   },
 } as const;
 

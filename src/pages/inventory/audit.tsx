@@ -267,7 +267,7 @@ const AuditPage: NextPage & ThemeablePage = () => {
           <div className="flex flex-wrap items-center gap-3.25 px-0.5 text-xs text-foreground-subtle">
             <Tuts tombol="Enter" ket="simpan & lanjut ke barang berikutnya" />
             <Tuts tombol="Esc" ket="kembalikan isian" />
-            <span>Tiap barang punya 3 kali kesempatan kirim per hari.</span>
+            <span>Tiap barang bisa dikirim ulang paling banyak 3 kali sehari.</span>
           </div>
 
           {/* Di bawah md tiap baris jadi kartu — opname dikerjakan di depan rak. */}

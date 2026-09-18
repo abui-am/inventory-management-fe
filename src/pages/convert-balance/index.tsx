@@ -151,7 +151,7 @@ const ConvertBalancePage: NextPage & ThemeablePage = () => {
         <div className="min-w-0">
           <h1 className="text-lg font-bold">Konversi Saldo</h1>
           <p className="mt-0.5 text-sm text-foreground-subtle">
-            Memindahkan uang ke sebuah akun buku besar — jurnalnya D akun tujuan / K sumber dananya.
+            Memindahkan uang ke salah satu akun buku besar. Akun tujuannya bertambah, sumber dananya berkurang.
           </p>
         </div>
 

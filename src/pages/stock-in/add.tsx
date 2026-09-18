@@ -99,7 +99,7 @@ const AddStockInPage: NextPage & ThemeablePage = () => {
           // barang itu dan pembayarannya jadi tidak cocok dengan totalnya.
           if (items.errors.length > 0) {
             reportError(items.errors[0], { form: 'stock-in/add', step: 'create-item' });
-            toast.error('Ada barang baru yang gagal dibuat, barang masuk belum disimpan');
+            toast.error('Barang baru gagal dibuat, jadi barang masuknya belum tersimpan');
             return;
           }
 
@@ -444,7 +444,7 @@ const AddStockInPage: NextPage & ThemeablePage = () => {
             {/* Tombolnya menyebut statusnya, keterangannya menyebut akibatnya — keduanya
                 dibutuhkan: "Menunggu" tidak memberi tahu bahwa stok belum bergerak. */}
             <span className="text-2xs leading-[15px] text-foreground-subtle">
-              Belum menyentuh stok maupun jurnal. Keduanya berjalan setelah barang masuk ini dikonfirmasi.
+              Stok dan jurnal belum berubah. Keduanya baru berjalan setelah barang masuk ini dikonfirmasi.
             </span>
           </div>
 

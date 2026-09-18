@@ -128,7 +128,7 @@ const TableIncomeReport: React.FC<PropsWithChildren<{ isView?: boolean; startDat
                 <div className="max-w-[240px]">
                   <TextField
                     className="w-full max-w-[240px]"
-                    placeholder="Masukan laba diambil"
+                    placeholder="Masukkan laba diambil"
                     type="number"
                     value={takeProfit}
                     onChange={(e) => {

@@ -20,7 +20,7 @@ const useSalary = (salaries: Datum[]) => {
       position,
       status: (
         <div className={status === 'lunas' ? 'text-blue-600 font-bold' : ''}>
-          {`${status} ${paid_in_advance ? ' (dibayar dimuka)' : ''}`}
+          {`${status} ${paid_in_advance ? ' (dibayar di muka)' : ''}`}
         </div>
       ),
       salary: formatToIDR(employee_salary),

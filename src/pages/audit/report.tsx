@@ -114,7 +114,7 @@ const AuditReportPage: NextPage & ThemeablePage = () => {
             )}
           </div>
           <p className="mt-0.5 text-sm text-foreground-subtle">
-            Menyetujui menyesuaikan stok barang dan menulis jurnalnya — tidak bisa dibatalkan.
+            Menyetujui akan menyesuaikan stok dan menulis jurnalnya — dan itu tidak bisa dibatalkan.
           </p>
         </div>
 

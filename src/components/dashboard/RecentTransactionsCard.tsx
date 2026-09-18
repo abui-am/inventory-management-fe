@@ -13,7 +13,7 @@ import { formatNumber } from '@/utils/format';
 // SPEC-20: header kolom 11px/700 subtle, padding 0 10px 7px, garis bawah. `pt-0` bukan
 // hiasan: preflight Tailwind tidak menyentuh padding th, jadi tanpa itu padding-atas
 // jatuh ke bawaan browser (1px) dan garis header tidak sejajar dengan judul kartunya.
-const TH = 'border-b border-border px-2.5 pb-1.75 pt-0 text-xs font-bold text-foreground-subtle';
+const TH = 'border-b border-border px-2.5 pb-1.75 pt-2.25 text-xs font-bold text-foreground-subtle';
 // SPEC-21: 13px, padding 8px 10px, garis bawah di SETIAP baris termasuk yang terakhir.
 const TD = 'border-b border-border px-2.5 py-2 align-middle text-base';
 
@@ -59,11 +59,11 @@ export function RecentTransactionsCard({
       </div>
 
       {transactions === undefined && (
-        // Tinggi persis tabelnya: header 23.5px lalu lima baris 37.5px, tanpa jarak —
+        // Tinggi persis tabelnya: header 32.5px lalu lima baris 37.5px, tanpa jarak —
         // jaraknya sudah termasuk padding sel dan garis bawahnya. Sebelumnya lima balok
         // 32px berjarak 8px, dan tabelnya melompat 20px saat data datang.
         <div className="flex flex-col">
-          <Skeleton className="h-[23.5px] w-full rounded-none" />
+          <Skeleton className="h-[32.5px] w-full rounded-none" />
           {[0, 1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-[37.5px] w-full rounded-none" />
           ))}

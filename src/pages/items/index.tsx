@@ -138,7 +138,7 @@ const ItemsPage: NextPage & ThemeablePage = () => {
     if (tab === 'empty') return { judul: 'Tidak ada barang yang habis', pesan: 'Semua barang masih punya stok.' };
     if (tab === 'unpriced')
       return { judul: 'Semua barang sudah punya harga jual', pesan: 'Tidak ada yang menunggu ditentukan harganya.' };
-    return { judul: 'Belum ada barang', pesan: 'Barang lahir saat barang masuk dicatat.' };
+    return { judul: 'Belum ada barang', pesan: 'Barang muncul saat barang masuk dicatat.' };
   }, [debouncedSearch, tab]);
 
   return (

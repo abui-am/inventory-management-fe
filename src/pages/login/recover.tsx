@@ -80,7 +80,9 @@ const RecoverPage: NextPage & ThemeablePage = () => {
               </span>
               <div>
                 <h1 className="text-lg font-bold leading-5">Lupa kata sandi</h1>
-                <p className="text-sm text-foreground-subtle">Isi email akunmu, tautannya kami kirim ke sana</p>
+                <p className="text-sm text-foreground-subtle">
+                  Isi email akunmu — tautan atur ulangnya kami kirim ke sana
+                </p>
               </div>
             </div>
 

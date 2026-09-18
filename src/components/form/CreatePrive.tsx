@@ -82,7 +82,7 @@ const CreatePrive: React.FC<
               >
                 <TextField
                   hasError={!!touched.description && !!errors.description}
-                  placeholder="Masukan deskripsi"
+                  placeholder="Masukkan deskripsi"
                   value={values.description}
                   name="description"
                   onChange={(description) => setFieldValue('description', description.target.value)}
@@ -92,7 +92,7 @@ const CreatePrive: React.FC<
             <div className="sm:col-span-2">
               <WithLabelAndError required touched={touched} errors={errors} name="amount" label="Jumlah penarikan">
                 <CurrencyTextField
-                  placeholder="Masukan jumlah penarikan"
+                  placeholder="Masukkan jumlah penarikan"
                   value={values.amount?.toString()}
                   name="amount"
                   onChange={(amount) => setFieldValue('amount', amount)}

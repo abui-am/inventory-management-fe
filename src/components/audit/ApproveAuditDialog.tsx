@@ -146,7 +146,7 @@ export function ApproveAuditDialog({
             </span>
           ) : (
             <span className="mt-1 block text-xs text-foreground-subtle">
-              Bawaannya hasil hitungan petugas. Ubah hanya kalau kamu menghitung ulang sendiri.
+              Isinya mengikuti hitungan petugas. Ubah hanya kalau kamu menghitung ulang sendiri.
             </span>
           )}
         </div>

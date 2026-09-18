@@ -72,12 +72,12 @@ const CreatePrepaidSalary: React.FC<
     <form onSubmit={handleSubmit} noValidate>
       <section className="max-w-4xl mr-auto ml-auto">
         <div className="mb-4">
-          <h6 className="mb-3 text-lg font-bold">Gaji dibayar dimuka</h6>
+          <h6 className="mb-3 text-lg font-bold">Gaji dibayar di muka</h6>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="employee" label="Nama karyawan">
                 <SelectSender
-                  placeholder="Masukan nama karyawan"
+                  placeholder="Masukkan nama karyawan"
                   value={values.employee}
                   name="employee"
                   onChange={(e) => setFieldValue('employee', e)}
@@ -88,7 +88,7 @@ const CreatePrepaidSalary: React.FC<
               <WithLabelAndError touched={touched} errors={errors} name="amount" label="Jumlah gaji">
                 <CurrencyTextField
                   disabled={!values?.salary}
-                  placeholder="Masukan jumlah gaji"
+                  placeholder="Masukkan jumlah gaji"
                   value={values.amount}
                   name="amount"
                   onChange={(e) => setFieldValue('amount', e)}

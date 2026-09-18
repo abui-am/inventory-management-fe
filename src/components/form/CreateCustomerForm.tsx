@@ -72,7 +72,7 @@ const CreateCustomerForm: React.FC<
               <WithLabelAndError touched={touched} errors={errors} name="phoneNumber" label="Nomor Telepon">
                 <PhoneNumberTextField
                   hasError={!!touched.phoneNumber && !!errors.phoneNumber}
-                  placeholder="Masukan nomor telepon"
+                  placeholder="Masukkan nomor telepon"
                   value={values.phoneNumber}
                   name="phoneNumber"
                   onChange={(number) => setFieldValue('phoneNumber', number)}
@@ -81,7 +81,7 @@ const CreateCustomerForm: React.FC<
             </div>
             <div className="sm:col-span-2">
               <WithLabelAndError touched={touched} errors={errors} name="address" label="Alamat">
-                <TextArea placeholder="Masukan alamat" value={values.address} name="address" onChange={handleChange} />
+                <TextArea placeholder="Masukkan alamat" value={values.address} name="address" onChange={handleChange} />
               </WithLabelAndError>
             </div>
           </div>

@@ -15,7 +15,7 @@ function Bubble({ isValid }: BubbleProps): JSX.Element {
         'text-white rounded-full w-6 h-6 flex items-center justify-center'
       )}
     >
-      <Tippy content={isValid ? 'Jumlah stock sesuai dengan sistem' : 'Jumlah stock tidak sesuai dengan sistem'}>
+      <Tippy content={isValid ? 'Hitungan cocok dengan stok sistem' : 'Hitungan tidak cocok dengan stok sistem'}>
         {isValid ? <Check width={16} height={16} /> : <X width={16} height={16} />}
       </Tippy>
     </div>

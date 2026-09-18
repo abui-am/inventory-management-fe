@@ -145,7 +145,7 @@ const ExpensePage: NextPage & ThemeablePage = () => {
         <div className="min-w-0">
           <h1 className="text-lg font-bold">Beban</h1>
           <p className="mt-0.5 text-sm text-foreground-subtle">
-            Tiap beban menulis jurnal D Beban / K sumber dananya saat disimpan.
+            Beban yang disimpan langsung masuk buku besar dan mengurangi sumber dananya.
           </p>
         </div>
 
