@@ -2,19 +2,35 @@ export type Income = {
   sales: number;
   hpp: number;
   discounts: number;
-  sales_per_user: Record<string, number>;
+  /** Ongkir yang DITAGIH ke customer — sudah ikut terhitung di `sales`. */
+  shipping_cost: number;
+};
+
+/**
+ * Pembelian dari supplier pada rentang yang sama.
+ *
+ * Sudah dikirim `IncomeReportController::index` sejak awal tapi tidak pernah ditampilkan.
+ * Sengaja di luar laba rugi: uangnya jadi Persediaan, dan baru masuk laporan sebagai HPP
+ * ketika barangnya terjual.
+ */
+export type StockIn = {
+  /** Sudah BERSIH dari retur — `IncomeReportController::index` mengurangkannya. */
+  purchases: number;
+  shipping_cost: number;
+  /** Nilai barang yang dikembalikan ke supplier di rentang ini. */
+  returns: number;
 };
 
 export type Expense = {
   id: string;
   name: string;
   amount: number;
-  expenses_per_user: Record<string, number>;
 };
 
 export type IncomeReport = {
   income_report: {
     incomes: Income;
+    stock_ins: StockIn;
     expenses: Expense[];
     total_income: number;
     total_expense: number;
@@ -33,6 +49,8 @@ export interface IncomeUserReportChild {
   };
   stock_in: Transaction & {
     total_purchase: number;
+    /** Nilai barang yang dikembalikan ke supplier. `payment_methods` TIDAK ikut dikurangi. */
+    returns: number;
   };
   expense: ExpensePerUser;
   balance: Balance;
