@@ -5,7 +5,10 @@ export interface SupplierData {
   name: string;
   address: string;
   phone_number: string;
+  /** Utang berjalan KE supplier ini — dijumlahkan `Supplier::simpleView()` dari tagihan yang belum lunas. */
   total_receivable: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface Suppliers {

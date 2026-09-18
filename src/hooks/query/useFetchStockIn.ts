@@ -16,6 +16,7 @@ const useFetchTransactions = <TQueryFnData = unknown, TError = unknown>(
     search: string;
     order_by: Record<string, string>;
     where: Record<string, unknown>;
+    where_not: Record<string, unknown>;
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<TransactionsResponse>>
 ): UseQueryResult<BackendRes<TransactionsResponse>> => {

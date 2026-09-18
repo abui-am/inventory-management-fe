@@ -1,6 +1,6 @@
 import Tippy from '@tippyjs/react';
 
-import { SALES_DEBIT_ACCOUNT } from '@/constants/options';
+import { PURCHASE_CREDIT_ACCOUNT, SALES_DEBIT_ACCOUNT } from '@/constants/options';
 import { cn } from '@/lib/cn';
 
 /** Tanpa awalan "Rp" — kartunya sudah menyatakan ini nominal rupiah. */
@@ -40,6 +40,78 @@ export function buildJournal(
 }
 
 /**
+ * Jurnal yang akan ditulis backend untuk satu BARANG MASUK.
+ *
+ * Diturunkan dari TransactionObserver::updated cabang `on-review`, bukan dikarang:
+ * debit Persediaan sebesar total dikurangi ongkos kirim, debit Beban sebesar ongkos
+ * kirimnya, lalu satu baris kredit per pembayaran (Kas/Bank/Utang/Giro).
+ *
+ * Arahnya kebalikan penjualan: di sini pembayaran DIKREDIT, karena ia mengurangi kas
+ * atau menambah utang, bukan menambah piutang.
+ */
+export function buildPurchaseJournal(
+  payments: { method: string; amount: number }[],
+  total: number,
+  shippingCost: number
+): JournalRow[] {
+  const rows: JournalRow[] = [];
+
+  const inventory = total - shippingCost;
+  if (inventory !== 0) rows.push({ type: 'D', account: 'Persediaan', amount: inventory });
+  if (shippingCost > 0) rows.push({ type: 'D', account: 'Beban Ongkos Kirim', amount: shippingCost });
+
+  payments
+    .filter(({ amount }) => amount > 0)
+    .forEach(({ method, amount }) => {
+      rows.push({ type: 'K', account: PURCHASE_CREDIT_ACCOUNT[method] ?? method, amount });
+    });
+
+  return rows;
+}
+
+/**
+ * Jurnal yang akan ditulis backend untuk RETUR barang masuk.
+ *
+ * Diturunkan dari TransactionRepository::returnItems: kredit Persediaan sebesar nilai
+ * barang yang dikembalikan, lalu debit ke akun-akun pembayaran transaksi itu, dibagi
+ * PROPORSIONAL menurut besar tiap pembayaran.
+ *
+ * Yang tidak bisa ditiru di sini: bagian Utang/Giro yang tagihannya sudah lunas dialihkan
+ * backend ke Kas, dan sisa tagihannya hanya diketahui server. Preview ini karena itu
+ * menampilkan niatnya — akun asal pembayarannya — bukan hasil akhirnya baris per baris.
+ *
+ * `shippingCost` sengaja tidak ada di daftar parameter: ongkos kirim tidak pernah ikut
+ * diretur.
+ */
+export function buildReturnJournal(
+  payments: { method: string; amount: number }[],
+  totalPaid: number,
+  returnValue: number
+): JournalRow[] {
+  if (returnValue <= 0) return [];
+
+  const rows: JournalRow[] = [{ type: 'K', account: 'Persediaan', amount: returnValue }];
+
+  if (totalPaid <= 0) {
+    rows.push({ type: 'D', account: 'Kas', amount: returnValue });
+    return rows;
+  }
+
+  const dipakai = payments.filter(({ amount }) => amount > 0);
+  let terbagi = 0;
+
+  dipakai.forEach(({ method, amount }, i) => {
+    // Pembayaran terakhir menerima SISANYA, bukan hasil pembulatannya sendiri — sama
+    // seperti di backend, supaya debit dan kreditnya tidak meleset satu rupiah.
+    const bagian = i === dipakai.length - 1 ? returnValue - terbagi : Math.round(returnValue * (amount / totalPaid));
+    terbagi += bagian;
+    if (bagian > 0) rows.push({ type: 'D', account: PURCHASE_CREDIT_ACCOUNT[method] ?? method, amount: bagian });
+  });
+
+  return rows;
+}
+
+/**
  * D dan K sendirian tidak menjelaskan apa pun bagi yang bukan orang akuntansi, dan
  * kolomnya terlalu sempit untuk kata penuh — jadi keterangannya lewat tooltip.
  */
@@ -62,17 +134,27 @@ function TypeBadge({ type }: { type: 'D' | 'K' }): JSX.Element {
  * Jurnal untuk salesAmount ditulis SEKETIKA saat transaksi disimpan (dispatchSync),
  * bukan menunggu status naik seperti pembelian. Jadi kartu ini menggambarkan apa yang
  * terjadi tepat pada saat tombol simpan ditekan — bukan rencana yang masih bisa batal.
+ *
+ * Pada `variant="purchase"` justru sebaliknya: barang masuk disimpan sebagai Menunggu
+ * dan jurnalnya baru ditulis saat statusnya naik ke Ditinjau, jadi kartunya menggambarkan
+ * rencana — dan keterangannya mengatakan itu.
  */
 export function JournalPreviewCard({
   payments,
   total,
   shippingCost,
+  variant = 'sale',
 }: {
   payments: { method: string; amount: number }[];
   total: number;
   shippingCost: number;
+  /** `purchase` untuk barang masuk — jurnalnya lain, dan saat penulisannya juga lain. */
+  variant?: 'sale' | 'purchase';
 }): JSX.Element {
-  const rows = buildJournal(payments, total, shippingCost);
+  const purchase = variant === 'purchase';
+  const rows = purchase
+    ? buildPurchaseJournal(payments, total, shippingCost)
+    : buildJournal(payments, total, shippingCost);
   const debit = rows.filter((b) => b.type === 'D').reduce((t, b) => t + b.amount, 0);
   const credit = rows.filter((b) => b.type === 'K').reduce((t, b) => t + b.amount, 0);
   const balanced = debit === credit;
@@ -80,7 +162,9 @@ export function JournalPreviewCard({
   return (
     <div className="flex flex-col gap-2.5 rounded-card border border-border bg-surface px-3.75 py-3.25 shadow-sm">
       <span className="text-base font-semibold">Preview jurnal</span>
-      <span className="text-sm leading-[17px] text-foreground-muted">Ditulis setelah transaksi disimpan.</span>
+      <span className="text-sm leading-[17px] text-foreground-muted">
+        {purchase ? 'Ditulis saat status naik ke Ditinjau.' : 'Ditulis setelah transaksi disimpan.'}
+      </span>
 
       {rows.length === 0 && (
         <span className="-mt-1.5 text-sm leading-[17px] text-foreground-subtle">

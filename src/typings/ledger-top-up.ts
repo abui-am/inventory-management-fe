@@ -33,6 +33,32 @@ export interface LedgerTopUps {
   total: number;
 }
 
+/** Ringkasan satu akun tujuan — dipakai sebagai hitungan tab "Ke Kas", "Ke Bank". */
+export interface LedgerTopUpAccountTotal {
+  ledger_account_id: string;
+  name: string;
+  total: number;
+  count: number;
+}
+
+/**
+ * Ringkasan konversi untuk rentang tanggal yang sedang dibuka — dihitung
+ * `LedgerTopUpController::totals`, bukan dijumlah dari halaman yang sedang tampil.
+ *
+ * `capital` dipisah dari `transfer` karena artinya memang beda: sumber "uang pribadi"
+ * dikreditkan ke Modal, jadi ia setoran pemilik; sisanya cuma memindahkan uang.
+ */
+export interface LedgerTopUpTotals {
+  total: number;
+  count: number;
+  capital: number;
+  capital_count: number;
+  transfer: number;
+  transfer_count: number;
+  accounts: LedgerTopUpAccountTotal[];
+}
+
 export interface GetLedgerTopUpsResponse {
   ledger_top_ups: LedgerTopUps;
+  totals: LedgerTopUpTotals;
 }

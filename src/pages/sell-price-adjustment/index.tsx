@@ -1,14 +1,11 @@
-import React, { PropsWithChildren } from 'react';
+import { NextPage } from 'next';
 
-import { CardDashboard } from '@/components/Container';
-import TableStockIn from '@/components/table/TableStockIn';
+import StockInPage from '@/components/stock-in/StockInPage';
+import { ThemeablePage } from '@/typings/page';
 
-const ConfirmationPage: React.FC<PropsWithChildren<unknown>> = () => {
-  return (
-    <CardDashboard>
-      <TableStockIn variant="on-review" />
-    </CardDashboard>
-  );
-};
+/** Barang masuk berstatus Ditinjau — tahap menentukan harga jual sebelum diterima. */
+const SellPriceAdjustmentPage: NextPage & ThemeablePage = () => <StockInPage fixedStatus="on-review" />;
 
-export default ConfirmationPage;
+SellPriceAdjustmentPage.themeable = true;
+
+export default SellPriceAdjustmentPage;

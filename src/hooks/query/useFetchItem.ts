@@ -35,6 +35,8 @@ const useFetchItems = <TQueryFnData = unknown, TError = unknown>(
     order_by: Record<string, string>;
     where: Record<string, unknown>;
     where_greater_equal: Record<string, unknown>;
+    /** Dipakai tab "Belum ada harga jual": `sell_price` yang masih kosong. */
+    where_null: string[];
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<ItemsResponse>>
 ): UseQueryResult<BackendRes<ItemsResponse>> => {

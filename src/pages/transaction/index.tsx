@@ -1,18 +1,21 @@
 import dayjs from 'dayjs';
-import { ChevronDown, ChevronUp, Download, Eye, Plus, Search } from 'lucide-react';
+import { Ban, ChevronDown, ChevronUp, Download, Eye, Plus, Search } from 'lucide-react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React, { ReactNode, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
-import { TextField } from '@/components/Form';
+import { TextField, ThemedSelect } from '@/components/Form';
 import Pagination from '@/components/Pagination';
+import SaleCardList from '@/components/transaction/SaleCardList';
 import TransactionDetailSheet from '@/components/transaction/TransactionDetailSheet';
+import VoidTransactionDialog from '@/components/transaction/VoidTransactionDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import DateRangeFilter, { DateRange } from '@/components/ui/date-range-filter';
 import FilterTabs from '@/components/ui/filter-tabs';
 import Skeleton from '@/components/ui/skeleton';
+import { usePermission } from '@/context/permission-context';
 import useFetchSales from '@/hooks/query/useFetchSale';
 import { cn } from '@/lib/cn';
 import { ThemeablePage } from '@/typings/page';
@@ -21,6 +24,7 @@ import { useDebounceValue } from '@/utils/debounce';
 import { formatPaymentMethod } from '@/utils/format';
 import { downloadInvoice } from '@/utils/invoice';
 import reportError from '@/utils/reportError';
+import { controlStyle } from '@/utils/style';
 
 type Payment = { payment_method?: string; payment_price?: number };
 
@@ -45,10 +49,26 @@ const STATUS = {
   pending: { label: 'Menunggu', variant: 'warning' },
   'on-review': { label: 'Ditinjau', variant: 'info' },
   accepted: { label: 'Diterima', variant: 'success' },
-  declined: { label: 'Ditolak', variant: 'destructive' },
+  // "Dibatalkan", bukan "Ditolak": pada PENJUALAN status ini hanya lahir dari pembatalan
+  // (PATCH /transactions/{id}/void). Barang masuk masih memakai kata "Ditolak" di
+  // TableComponent, karena di sana `declined` memang berarti ditolak saat konfirmasi.
+  declined: { label: 'Dibatalkan', variant: 'destructive' },
 } as const;
 
 const STATUS_ORDER = ['pending', 'on-review', 'accepted', 'declined'] as const;
+
+/**
+ * Sortir untuk layar sempit.
+ *
+ * Di tabel, sortir menempel pada header kolom — dan di tampilan kartu header itu tidak
+ * ada. Isinya persis kolom yang memang bisa disortir server (lihat SORTABLE).
+ */
+const SORT_OPTIONS = [
+  { label: 'Terbaru', value: 'waktu:desc' },
+  { label: 'Terlama', value: 'waktu:asc' },
+  { label: 'Kode A–Z', value: 'kode:asc' },
+  { label: 'Status', value: 'status:asc' },
+];
 
 const BASE_WHERE = { transactionable_type: 'customers' };
 
@@ -109,6 +129,14 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
   // dikosongkan setelah react-modal memberi tahu animasinya selesai.
   const [transaction, setTransaction] = useState<SaleTransactionsData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Idem untuk dialog pembatalan: targetnya baru dilepas setelah dialognya tertutup.
+  const [voidTarget, setVoidTarget] = useState<SaleTransactionsData | null>(null);
+  const [voidOpen, setVoidOpen] = useState(false);
+
+  // Membatalkan mengubah kas dan stok, jadi dibatasi ke superadmin — sama dengan
+  // route-nya di backend, yang hanya terdaftar di prefix superadmin.
+  const { state } = usePermission();
+  const bolehBatalkan = state.roles.some(({ name }) => name === 'superadmin');
 
   // 500 ms: tanpa ini tiap ketikan mengirim satu request pencarian
   const debouncedSearch = useDebounceValue(search, 500);
@@ -152,7 +180,6 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
     links,
     next_page_url,
     prev_page_url,
-    last_page_url,
   } = dataTransaction?.data?.transactions ?? {};
 
   // Berubah hanya saat isi tabel benar-benar berganti — halaman, penyaring, urutan.
@@ -178,11 +205,11 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
       const nama = STATUS[status as keyof typeof STATUS]?.label.toLowerCase() ?? status;
       return {
         judul: `Belum ada transaksi ${nama}`,
-        pesan: between ? 'Tidak ada juga di rentang tanggal ini.' : 'Semua transaksi berada di status lain.',
+        pesan: between ? 'Tidak ada juga di tanggal ini.' : 'Semua transaksi berada di status lain.',
       };
     }
     if (between) {
-      return { judul: 'Tidak ada transaksi di rentang ini', pesan: 'Coba pilih rentang tanggal yang lain.' };
+      return { judul: 'Tidak ada transaksi di periode ini', pesan: 'Coba pilih tanggal yang lain.' };
     }
     return { judul: 'Belum ada transaksi', pesan: 'Transaksi yang dibuat akan muncul di sini.' };
   })();
@@ -199,7 +226,8 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
     { key: 'pembayaran', label: 'Pembayaran' },
     { key: 'jumlah', label: 'Jumlah', align: 'right' },
     { key: 'status', label: 'Status' },
-    { key: 'aksi', label: 'Aksi', align: 'right', width: '96px' },
+    // 120px saat tombol batalkan ikut tampil: tiga tombol 26px + dua jarak 4px + padding.
+    { key: 'aksi', label: 'Aksi', align: 'right', width: bolehBatalkan ? '120px' : '96px' },
   ];
 
   return (
@@ -212,6 +240,8 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
           onClosed={() => setTransaction(null)}
         />
       )}
+
+      <VoidTransactionDialog isOpen={voidOpen} onClose={() => setVoidOpen(false)} transaction={voidTarget} />
 
       {/* SPEC-10: kolom isi, gap 10px */}
       <div className="flex flex-col gap-2.5">
@@ -231,9 +261,9 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
           />
 
           {/* SPEC-17: gap 7px */}
-          <div className="flex flex-wrap items-center gap-1.75">
-            {/* SPEC-18/19: 220px, 32px, ikon 14px stroke 1.9 */}
-            <div className="relative w-[220px]">
+          <div className="flex w-full flex-wrap items-center gap-1.75 md:w-auto">
+            {/* SPEC-18/19: 220px, 32px, ikon 14px stroke 1.9 — selebar layar di HP. */}
+            <div className="relative w-full md:w-[220px]">
               <Search
                 size={14}
                 strokeWidth={1.9}
@@ -267,6 +297,23 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
               }}
             />
 
+            {/* Hanya di layar sempit: di tabel, sortirnya ada di header kolom. */}
+            <div className="min-w-0 flex-1 md:hidden">
+              <ThemedSelect
+                name="sortir"
+                instanceId="sortir-transaksi"
+                aria-label="Urutkan transaksi"
+                value={SORT_OPTIONS.find((o) => o.value === `${sort.key}:${sort.dir}`) ?? SORT_OPTIONS[0]}
+                options={SORT_OPTIONS}
+                additionalStyle={controlStyle}
+                onChange={(val) => {
+                  const [key, dir] = `${(val as { value?: string })?.value ?? 'waktu:desc'}`.split(':');
+                  resetPage();
+                  setSort({ key, dir: dir as 'asc' | 'desc' });
+                }}
+              />
+            </div>
+
             {/* SPEC-22/23: 32px, radius 7, padding 0 12px, 13px/600, ikon 14 stroke 2.2 */}
             <Link href="/transaction/add">
               <a>
@@ -278,8 +325,54 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
           </div>
         </div>
 
-        {/* SPEC-24: kartu radius 10px, overflow-hidden supaya pita paginasi ikut membulat */}
-        <div className="overflow-hidden rounded-card border border-border bg-surface shadow-sm">
+        {/* Di bawah md tiap baris jadi kartu; tombol aksinya persis yang sama. */}
+        <div className="md:hidden">
+          <SaleCardList
+            rows={rows}
+            loading={isLoading}
+            perPage={pageSize}
+            empty={kosong}
+            status={(row) => STATUS[(row.status ?? 'accepted') as keyof typeof STATUS] ?? STATUS.accepted}
+            total={(row) => sumPayments(row.payments)}
+            onOpen={(row) => {
+              setTransaction(row);
+              setSheetOpen(true);
+            }}
+            aksi={(row) => (
+              <>
+                <ButtonDownload transaction={row} />
+                {bolehBatalkan && row.status === 'accepted' && (
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    aria-label="Batalkan transaksi"
+                    className="hover:text-destructive"
+                    onClick={() => {
+                      setVoidTarget(row);
+                      setVoidOpen(true);
+                    }}
+                  >
+                    <Ban strokeWidth={1.7} aria-hidden />
+                  </Button>
+                )}
+              </>
+            )}
+          />
+
+          <div className="mt-2 overflow-hidden rounded-card border border-border bg-surface shadow-sm">
+            <Pagination
+              stats={{ from: `${from ?? '0'}`, to: `${to ?? '0'}`, total: `${total ?? '0'}` }}
+              onClickPageButton={(url) => setPaginationUrl(url)}
+              links={links ?? []}
+              onClickNext={() => setPaginationUrl((next_page_url as string) ?? '')}
+              onClickPrevious={() => setPaginationUrl((prev_page_url as string) ?? '')}
+            />
+          </div>
+        </div>
+
+        {/* SPEC-24: kartu radius 10px, overflow-hidden supaya pita paginasi ikut membulat.
+            Mulai md — di bawah itu tiap baris jadi kartu. */}
+        <div className="hidden overflow-hidden rounded-card border border-border bg-surface shadow-sm md:block">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -403,6 +496,23 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
                               <Eye strokeWidth={1.7} aria-hidden />
                             </Button>
                             <ButtonDownload transaction={row} />
+                            {/* Hanya transaksi yang sudah diterima yang punya jurnal untuk
+                                dibalik. Yang lain tidak menampilkan tombolnya sama sekali,
+                                bukan menampilkannya lalu mematikannya. */}
+                            {bolehBatalkan && row.status === 'accepted' && (
+                              <Button
+                                size="icon-xs"
+                                variant="ghost"
+                                aria-label="Batalkan transaksi"
+                                className="hover:text-destructive"
+                                onClick={() => {
+                                  setVoidTarget(row);
+                                  setVoidOpen(true);
+                                }}
+                              >
+                                <Ban strokeWidth={1.7} aria-hidden />
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -415,7 +525,6 @@ const TransactionPage: NextPage<unknown> & ThemeablePage = () => {
           {/* SPEC-40: pita paginasi di dalam kartu */}
           <Pagination
             stats={{ from: `${from ?? '0'}`, to: `${to ?? '0'}`, total: `${total ?? '0'}` }}
-            onClickGoToPage={(val) => setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`)}
             onChangePerPage={(page) => {
               resetPage();
               setPageSize(page?.value ?? 0);

@@ -39,7 +39,13 @@ function Popup({
       {...attributes.popper}
     >
       <div style={stylesPopper.arrow} ref={setArrowElement as LegacyRef<HTMLDivElement> | undefined} id="arrow" />
-      <div ref={closeRef} className="shadow-lg bg-white rounded-md" style={{ transform: 'translate(10px,8px)' }}>
+      {/* Permukaan bertema, bukan `bg-white` mentah: panel ini satu-satunya yang tetap
+          putih di mode gelap sebelumnya. */}
+      <div
+        ref={closeRef}
+        className="rounded-card border border-border bg-surface shadow-md"
+        style={{ transform: 'translate(10px,8px)' }}
+      >
         {children}
       </div>
     </div>

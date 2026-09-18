@@ -8,6 +8,10 @@ export interface AuditsData {
   item_unit?: string;
   item_quantity: number;
   audit_quantity: number;
+  /** Hanya ikut untuk pemilik (`ItemAudit::superadminDefaultView`). */
+  buy_price?: number | null;
+  /** Nama petugas yang menghitung — juga hanya untuk pemilik. */
+  user_name?: string | null;
   audit_date?: string;
   is_valid: boolean;
   is_approved: boolean;

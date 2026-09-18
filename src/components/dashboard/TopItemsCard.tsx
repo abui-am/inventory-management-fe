@@ -34,7 +34,7 @@ export function TopItemsCard({ items }: { items?: TopItem[] }): JSX.Element {
         </div>
       )}
 
-      {items?.length === 0 && <EmptyState>Belum ada barang terjual dalam rentang ini.</EmptyState>}
+      {items?.length === 0 && <EmptyState>Belum ada barang terjual di periode ini.</EmptyState>}
 
       {items && items.length > 0 && (
         // SPEC-16: antar barang 9px, nama ke batangnya 3px

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { Counter } from '@/components/ui/counter';
 import MENU_LIST, { MENU_GROUPS, MenuItem } from '@/constants/menu';
 import { PermissionList, usePermission } from '@/context/permission-context';
 import useFetchTransactions from '@/hooks/query/useFetchStockIn';
@@ -107,19 +108,26 @@ function CountBadge({ status, hideLabel }: { status: string; hideLabel: boolean 
   );
   const total = data?.data?.transactions?.total ?? 0;
 
-  // Nol bukan kabar. Lencana merah bertuliskan "0" menarik perhatian ke tempat yang
-  // justru tidak butuh perhatian; yang lama selalu tampil, termasuk saat kosong.
+  // Nol bukan kabar. Angka "0" menarik perhatian ke tempat yang justru tidak butuh
+  // perhatian; yang lama selalu tampil, termasuk saat kosong.
   if (!total) return null;
 
+  // Angka dan ukurannya sama dengan penghitung di halaman mana pun; yang membedakan
+  // hanya latarnya — angka ini antrean yang menunggu dikerjakan, bukan sekadar
+  // keterangan seperti jumlah baris tabel.
+  //
+  // Latar redup, bukan merah pekat seperti lencana lama: merah pekat di menu terbaca
+  // sebagai "ada yang salah", padahal isinya cuma pekerjaan yang menunggu giliran.
+  // Bentuknya sama dengan pill metode bayar dan lencana "Stok habis" — satu idiom untuk
+  // semua kotak berwarna redup di aplikasi ini.
   return (
-    <span
+    <Counter
+      value={total}
       className={cn(
-        'ml-auto rounded-full bg-destructive px-1.5 text-xs font-bold leading-[1.125rem] text-destructive-foreground',
+        'ml-auto rounded-md bg-destructive-subtle px-1.5 py-0.25 font-semibold text-destructive',
         hideLabel && 'absolute right-1 top-0.5 ml-0'
       )}
-    >
-      {total}
-    </span>
+    />
   );
 }
 

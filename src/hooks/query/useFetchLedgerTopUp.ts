@@ -17,6 +17,8 @@ export const useFetchLedgerTopUps = <TQueryFnData = unknown, TError = unknown>(
     trashed: string;
     order_by: Record<string, string>;
     where: Record<string, unknown>;
+    where_greater_equal: Record<string, string>;
+    where_lower_equal: Record<string, string>;
   }> = {},
   options?: UseQueryOptions<TQueryFnData, TError, BackendRes<GetLedgerTopUpsResponse>>
 ): UseQueryResult<BackendRes<GetLedgerTopUpsResponse>> => {

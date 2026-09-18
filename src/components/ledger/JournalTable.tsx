@@ -1,9 +1,8 @@
 import dayjs from 'dayjs';
 import { Eye, Info } from 'lucide-react';
-import Link from 'next/link';
 import React from 'react';
 
-import { GOLONGAN, GOLONGAN_LEGENDA, golonganAkun, HALAMAN_SUMBER } from '@/components/ledger/accounts';
+import { GOLONGAN, GOLONGAN_LEGENDA, golonganAkun } from '@/components/ledger/accounts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Skeleton from '@/components/ui/skeleton';
@@ -18,16 +17,19 @@ const TH = 'border-b border-border px-2.5 pb-1.75 pt-2.5 text-xs font-bold text-
 // SPEC-16: 13px, padding 8px 10px, garis bawah di SETIAP baris termasuk yang terakhir.
 const TD = 'border-b border-border px-2.5 py-2 align-middle text-base';
 
-/** Lebar tiap sel skeleton, mengikuti bentuk isi kolomnya. */
+/** Lebar tiap sel skeleton, mengikuti bentuk isi kolomnya. Indeks 1 = kolom Akun. */
 const SKELETON_SEL: [string, string][] = [
   ['w-10', ''],
   ['w-24', ''],
-  ['w-48', ''],
-  ['w-16', 'ml-auto'],
-  ['w-16', 'ml-auto'],
-  ['w-20', 'ml-auto'],
+  ['w-28', ''],
+  ['w-24', 'ml-auto'],
+  ['w-24', 'ml-auto'],
+  ['w-24', 'ml-auto'],
   ['w-[26px]', 'ml-auto'],
 ];
+
+/** Penanda sumber yang berbentuk kode dokumen, mis. TRDO2609075 — bukan kata seperti "Beban". */
+const KODE = /^[A-Z0-9/-]+$/;
 
 /** SPEC-15: baris dikelompokkan per hari. */
 function perHari(rows: Datum[]): { tanggal: string; rows: Datum[] }[] {
@@ -45,23 +47,26 @@ export function JournalTable({
   rows,
   loading,
   perPage,
+  hideAccount = false,
   selectedSourceId,
   onSelect,
-  onOpenSource,
   empty,
   pagination,
 }: {
   rows?: Datum[];
   loading: boolean;
   perPage: number;
+  /** Buku besar satu akun: kolom Akun dibuang karena isinya sama di setiap baris. */
+  hideAccount?: boolean;
   /** `source.id` ayat yang sheet-nya sedang terbuka — seluruh barisnya ikut ditandai. */
   selectedSourceId?: string | null;
   onSelect: (row: Datum) => void;
-  /** Dipanggil saat penanda sumbernya ditekan — membuka rincian dokumen asalnya. */
-  onOpenSource: (row: Datum) => void;
   empty: React.ReactNode;
   pagination: React.ReactNode;
 }): JSX.Element {
+  const kolom = hideAccount ? 6 : 7;
+  const skeletonSel = hideAccount ? SKELETON_SEL.filter((_, i) => i !== 1) : SKELETON_SEL;
+
   return (
     <div className="flex flex-col gap-3">
       {/* SPEC-12 */}
@@ -69,50 +74,72 @@ export function JournalTable({
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr>
-                {/* SPEC-14 */}
-                <th scope="col" style={{ width: 58 }} className={cn(TH, 'text-left')}>
+              <tr className="bg-surface-raised">
+                {/* SPEC-14: lebar kolom dibiarkan seperti di /transaction — tidak ada
+                    yang dipatok kecuali Aksi, dan `table-layout: auto` membagi sisa ruang
+                    ke semuanya. Dua tabel ini jadi berperilaku sama persis. */}
+                <th scope="col" className={cn(TH, 'text-left')}>
                   Waktu
                 </th>
-                <th scope="col" className={cn(TH, 'whitespace-nowrap text-left')}>
-                  Akun
-                </th>
-                <th scope="col" className={cn(TH, 'w-full text-left')}>
+                {!hideAccount && (
+                  <th scope="col" className={cn(TH, 'text-left')}>
+                    Akun
+                  </th>
+                )}
+                <th scope="col" className={cn(TH, 'text-left')}>
                   Sumber
                 </th>
-                <th scope="col" style={{ width: 120 }} className={cn(TH, 'text-right')}>
+                {/* Tiga kolom angka dipatok; sisanya tetap otomatis seperti di
+                    /transaction. Dibiarkan otomatis, ketiganya melar sampai ~300px dan
+                    angkanya berjauhan — padahal nominal terpanjang di sini hanya sekitar
+                    70px. 150px memberi napas tanpa jadi ladang kosong. */}
+                <th scope="col" style={{ width: '150px' }} className={cn(TH, 'text-right')}>
                   Debit
                 </th>
-                <th scope="col" style={{ width: 120 }} className={cn(TH, 'text-right')}>
+                <th scope="col" style={{ width: '150px' }} className={cn(TH, 'text-right')}>
                   Kredit
                 </th>
-                <th scope="col" style={{ width: 130 }} className={cn(TH, 'text-right')}>
+                <th scope="col" style={{ width: '150px' }} className={cn(TH, 'text-right')}>
                   Saldo
                 </th>
-                <th scope="col" style={{ width: 50 }} className={cn(TH, 'text-right')}>
+                <th scope="col" style={{ width: '96px' }} className={cn(TH, 'text-right')}>
                   Aksi
                 </th>
               </tr>
             </thead>
             <tbody>
+              {/* Pemisah hari ikut ditakar, disisipkan tiap tiga baris. Jumlah persisnya
+                mustahil diketahui sebelum datanya datang — ia sebanyak hari berbeda di
+                halaman itu — tapi tanpa penakar ini tabelnya melonjak lebih dari 200px
+                begitu data tiba. Disisipkan, bukan ditumpuk di atas: empat pita kosong
+                berderet di kepala tabel terbaca seperti kesalahan render. */}
               {loading &&
                 Array.from({ length: perPage }, (_, i) => (
-                  // SPEC-35: setinggi baris sungguhan (37.5px), tanpa jarak antar baris.
+                  // SPEC-35: setinggi baris sungguhan (43px), tanpa jarak antar baris.
                   //
                   // Tujuh sel, bukan satu `colSpan={7}`: tanpa sel per kolom, browser
                   // tidak punya apa pun untuk melebarkan kolomnya dan tabelnya menciut
                   // ke lebar isi — balok skeleton-nya berhenti di tengah kartu.
-                  <tr key={i}>
-                    {SKELETON_SEL.map(([lebar, rata], kolom) => (
-                      // 42px + 1px garis = 43px, tinggi baris terisi yang sebenarnya —
-                      // yang ditentukan lencana akun (20px), bukan teksnya. Tanpa ini
-                      // tabelnya melonjak 8px per baris begitu datanya datang.
-                      // eslint-disable-next-line react/no-array-index-key
-                      <td key={kolom} className={cn(TD, 'h-[42px] py-0')}>
-                        <Skeleton className={cn('h-[18px]', lebar, rata)} />
-                      </td>
-                    ))}
-                  </tr>
+                  <React.Fragment key={i}>
+                    {i % 3 === 0 && (
+                      <tr aria-hidden>
+                        <td colSpan={kolom} className="h-[41px] border-b border-border px-2.5">
+                          {/* Sengaja kosong: ini penakar tinggi, bukan isi. */}
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      {skeletonSel.map(([lebar, rata], i) => (
+                        // 42px + 1px garis = 43px, tinggi baris terisi yang sebenarnya —
+                        // yang ditentukan lencana akun (20px), bukan teksnya. Tanpa ini
+                        // tabelnya melonjak 8px per baris begitu datanya datang.
+                        // eslint-disable-next-line react/no-array-index-key
+                        <td key={i} className={cn(TD, 'h-[42px] py-0')}>
+                          <Skeleton className={cn('h-[18px]', lebar, rata)} />
+                        </td>
+                      ))}
+                    </tr>
+                  </React.Fragment>
                 ))}
 
               {!loading &&
@@ -120,7 +147,7 @@ export function JournalTable({
                   <React.Fragment key={tanggal}>
                     {/* SPEC-15 */}
                     <tr>
-                      <td colSpan={7} className="border-b border-border px-2.5 pb-1.25 pt-2.75">
+                      <td colSpan={kolom} className="border-b border-border px-2.5 pb-1.25 pt-2.75">
                         <span className="text-xs font-bold">{tanggal}</span>
                       </td>
                     </tr>
@@ -128,9 +155,9 @@ export function JournalTable({
                       <Baris
                         key={row.id}
                         row={row}
+                        hideAccount={hideAccount}
                         aktif={!!row.source && row.source.id === selectedSourceId}
                         onSelect={onSelect}
-                        onOpenSource={onOpenSource}
                       />
                     ))}
                   </React.Fragment>
@@ -151,13 +178,13 @@ export function JournalTable({
 function Baris({
   row,
   aktif,
+  hideAccount,
   onSelect,
-  onOpenSource,
 }: {
   row: Datum;
   aktif: boolean;
+  hideAccount: boolean;
   onSelect: (row: Datum) => void;
-  onOpenSource: (row: Datum) => void;
 }): JSX.Element {
   const golongan = golonganAkun(row.description, row.source?.type);
   const debit = row.type === 'debit' ? row.amount : null;
@@ -171,20 +198,52 @@ function Baris({
         {dayjs(row.created_at).format('HH:mm')}
       </td>
       {/* SPEC-18 */}
-      <td className={cn(TD, 'whitespace-nowrap')}>
-        <Badge variant={GOLONGAN[golongan].variant}>{row.description}</Badge>
+      {!hideAccount && (
+        <td className={TD}>
+          <Badge variant={GOLONGAN[golongan].variant}>{row.description}</Badge>
+        </td>
+      )}
+      {/* SPEC-19. Teks biasa, bukan tautan: satu baris sudah punya satu tujuan — tombol
+          mata di kolom Aksi, yang membuka ayat jurnalnya beserta dokumen asalnya. Dua
+          tujuan di satu baris membuat klik yang meleset sedikit mendarat di tempat lain.
+
+          Kodenya saja, tanpa rincian: rinciannya sudah ada di ayat jurnal yang dibuka
+          tombol mata, dan di kolom sesempit ini ia lebih sering terpotong daripada terbaca. */}
+      <td className={cn(TD, 'text-sm')}>
+        {row.source ? (
+          <span className="flex items-baseline gap-1.5">
+            <span
+              className={cn(
+                'whitespace-nowrap font-medium text-foreground',
+                // Kode transaksi memakai font yang sama dengan kolom Kode di /transaction.
+                // Hanya yang memang berbentuk kode — "Beban", "Prive", "Tutup buku" adalah
+                // kata biasa, dan mono membuatnya terbaca seperti nomor dokumen.
+                KODE.test(row.source.code ?? '') && 'font-mono'
+              )}
+            >
+              {row.source.code}
+            </span>
+            {/* Tanpa penanda ini, ayat koreksi terbaca sebagai transaksi kedua dengan
+                kode yang sama — arahnya saja yang terbalik. */}
+            {row.is_reversal && (
+              <Badge variant="destructive" className="flex-shrink-0">
+                Koreksi
+              </Badge>
+            )}
+          </span>
+        ) : (
+          <span className="text-foreground-subtle">—</span>
+        )}
       </td>
-      {/* SPEC-19 */}
-      <td className={TD}>
-        <Sumber row={row} onOpen={onOpenSource} />
-      </td>
-      {/* SPEC-20. Tanpa warna: kolomnya sudah bernama Debit dan Kredit, dan lencana akun
-          di kiri sudah membawa warnanya sendiri. */}
+      {/* SPEC-20. Debit dan kredit diberi warna berlawanan supaya arah tiap baris terbaca
+          sebelum angkanya dibaca — dan karena keduanya selalu berpasangan, satu ayat
+          terlihat utuh sambil mata menyapu ke bawah. Sel kosong tetap netral, dan kolom
+          Saldo sengaja tidak ikut berwarna: ia bukan arah, melainkan posisi. */}
       <td
         className={cn(
           TD,
           'whitespace-nowrap text-right font-mono tabular-nums',
-          debit === null ? 'text-foreground-subtle' : 'font-semibold'
+          debit === null ? 'text-foreground-subtle' : 'font-semibold text-destructive'
         )}
       >
         {debit === null ? '—' : formatNumber(debit)}
@@ -193,7 +252,7 @@ function Baris({
         className={cn(
           TD,
           'whitespace-nowrap text-right font-mono tabular-nums',
-          kredit === null ? 'text-foreground-subtle' : 'font-semibold'
+          kredit === null ? 'text-foreground-subtle' : 'font-semibold text-success'
         )}
       >
         {kredit === null ? '—' : formatNumber(kredit)}
@@ -212,45 +271,6 @@ function Baris({
         )}
       </td>
     </tr>
-  );
-}
-
-/**
- * SPEC-19. Baris tanpa dokumen asal ditulis `—`, bukan ditautkan ke mana-mana.
- *
- * Yang ditampilkan hanya penandanya — kode transaksi — bukan kalimat lengkap
- * "Penjualan ke Kios Mekar Sari". Di tabel yang tiap transaksinya memakan empat baris
- * berturut-turut, kalimat itu terulang empat kali dan jadi dinding teks; nama
- * customernya toh ada di sheet yang dibuka tepat dari sini.
- */
-function Sumber({ row, onOpen }: { row: Datum; onOpen: (row: Datum) => void }): JSX.Element {
-  if (!row.source) return <span className="text-sm text-foreground-subtle">—</span>;
-
-  const { type, code, label } = row.source;
-  const teks = code ?? label ?? '—';
-
-  // Transaksi punya sheet rinciannya sendiri, jadi ia dibuka DI SINI — daftar jurnalnya
-  // tetap di belakang dan posisi bacanya tidak hilang. Sebelumnya ini tautan ke
-  // /transaction, yang cuma mendaratkan orang di daftar 58 baris untuk mencari sendiri.
-  if (type === 'transactions') {
-    return (
-      <button
-        type="button"
-        onClick={() => onOpen(row)}
-        className="rounded-sm text-sm text-accent decoration-border-strong underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        {teks}
-      </button>
-    );
-  }
-
-  const href = HALAMAN_SUMBER[type];
-  if (!href) return <span className="text-sm text-foreground-muted">{teks}</span>;
-
-  return (
-    <Link href={href}>
-      <a className="text-sm text-accent decoration-border-strong underline-offset-2 hover:underline">{teks}</a>
-    </Link>
   );
 }
 

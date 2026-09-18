@@ -1,11 +1,5 @@
 /** Dokumen yang menulis sebuah baris buku besar — morph `ledgerable` di backend. */
-export type LedgerSourceType =
-  | 'transactions'
-  | 'expenses'
-  | 'prives'
-  | 'ledger_top_ups'
-  | 'debts'
-  | 'capital_reports';
+export type LedgerSourceType = 'transactions' | 'expenses' | 'prives' | 'ledger_top_ups' | 'debts' | 'capital_reports';
 
 export interface LedgerSource {
   type: LedgerSourceType;
@@ -24,6 +18,8 @@ export interface Datum {
   amount: number;
   created_at: Date | string;
   updated_at: Date | string;
+  /** Baris ini membalik baris lain — ditulis saat dokumen asalnya dibatalkan. */
+  is_reversal: boolean;
   /**
    * `null` untuk baris yang memang tidak punya dokumen asal — di data sekarang ada 12,
    * seluruhnya baris tutup buku (Ikhtisar Laba Rugi) yang ditulis tanpa mengisi morph.

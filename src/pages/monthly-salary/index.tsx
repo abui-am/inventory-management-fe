@@ -32,16 +32,7 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     forceUrl: paginationUrl || undefined,
   });
 
-  const {
-    data: dataRes = [],
-    from,
-    to,
-    total,
-    links,
-    next_page_url,
-    prev_page_url,
-    last_page_url,
-  } = datasource?.data.payrolls ?? {};
+  const { data: dataRes = [], from, to, total, links, next_page_url, prev_page_url } = datasource?.data.payrolls ?? {};
 
   const isCreateNew = dataRes.length === 0;
 
@@ -109,9 +100,6 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
               from: `${from ?? '0'}`,
               to: `${to ?? '0'}`,
               total: `${total ?? '0'}`,
-            }}
-            onClickGoToPage={(val) => {
-              setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
             }}
             onChangePerPage={(page) => {
               setPaginationUrl('');

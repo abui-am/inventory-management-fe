@@ -37,8 +37,26 @@ export interface Debts {
   total: number;
 }
 
+/**
+ * Ringkasan seluruh buku tagihan — dihitung backend di samping halamannya.
+ *
+ * Penyaring tab tidak ikut menghitungnya: angka "lewat jatuh tempo" harus tetap sama
+ * ketika orang membuka tab Lunas.
+ */
+export interface DebtTotals {
+  remaining: number;
+  remaining_count: number;
+  overdue: number;
+  overdue_count: number;
+  /** Umur tagihan lewat tempo yang paling lama, dalam hari. */
+  overdue_days: number;
+  /** Penerimaan pada rentang tanggal yang sedang dipakai halaman; `paid_date` yang dibaca. */
+  received: number;
+}
+
 export interface DebtResponse {
   debts: Debts;
+  totals: DebtTotals;
 }
 
 export interface PayDebtPayload {

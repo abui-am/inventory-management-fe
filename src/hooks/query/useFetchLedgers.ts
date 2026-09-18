@@ -39,7 +39,13 @@ export const useFetchLedgers = (
 };
 
 export const useFetchUnpaginatedLedgers = (
-  data: Partial<UseFetchLedgerProps> = {}
+  data: Partial<UseFetchLedgerProps> = {},
+  /**
+   * `false` menahan requestnya. Endpoint ini mengembalikan SELURUH baris tanpa halaman,
+   * jadi memanggilnya tanpa penyaring — misalnya saat id ayat yang dicari belum ada —
+   * berarti mengunduh seisi buku besar hanya untuk dibuang.
+   */
+  options: { enabled?: boolean } = {}
 ): UseQueryResult<BackendRes<GetLedgersResponseUnpaginated>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
@@ -51,7 +57,7 @@ export const useFetchUnpaginatedLedgers = (
         : await getApiBasedOnRoles(roles, ['superadmin']).post('/ledgers', { ...data, paginated: false });
       return res.data;
     },
-    { enabled: (roles?.length ?? 0) > 0 }
+    { enabled: (options.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

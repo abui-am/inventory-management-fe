@@ -83,3 +83,47 @@ export const useUpdateSale = (): UseMutationResult<
   );
   return mutator;
 };
+
+/**
+ * Batalkan transaksi penjualan.
+ *
+ * Tidak menghapus apa pun: backend membalik jurnalnya, mengembalikan stok, dan menghapus
+ * piutang yang belum dibayar. Karena itu `items`, `debts`, dan semua laporan ikut
+ * di-invalidate — bukan cuma daftar transaksinya.
+ */
+export const useVoidSale = (): UseMutationResult<
+  Omit<BackendRes<unknown>, 'data'>,
+  unknown,
+  { transactionId: string; reason: string },
+  unknown
+> => {
+  const queryClient = useQueryClient();
+
+  const mutator = useMutation(
+    [keys.sales, 'void'],
+    async ({ transactionId, reason }: { transactionId: string; reason: string }) => {
+      const res = await apiInstanceAdmin().patch<{ void_reason: string }, AxiosResponse<BackendRes<unknown>>>(
+        `/transactions/${transactionId}/void`,
+        { void_reason: reason }
+      );
+      return res.data;
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message);
+        queryClient.invalidateQueries([keys.sales]);
+        queryClient.invalidateQueries([keys.transactions]);
+        queryClient.invalidateQueries([keys.ledgers]);
+        queryClient.invalidateQueries([keys.ledgerAccounts]);
+        queryClient.invalidateQueries([keys.items]);
+        queryClient.invalidateQueries([keys.debts]);
+        queryClient.invalidateQueries([keys.incomeReport]);
+        queryClient.invalidateQueries([keys.capitalReport]);
+      },
+      onError: (data: AxiosError<BackendResError<unknown>>) => {
+        toast.error(data.response?.data.message ?? '');
+      },
+    }
+  );
+  return mutator;
+};

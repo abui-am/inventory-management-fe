@@ -132,6 +132,9 @@ export interface SaleTransactionsData {
   customer: Customer;
   payments: SalePayment[];
   items: SaleItem[];
+  /** Terisi hanya pada transaksi berstatus `declined` yang dibatalkan lewat /transactions/{id}/void. */
+  void_reason: string | null;
+  voided_at: string | null;
 }
 
 export interface SalesTransactions {

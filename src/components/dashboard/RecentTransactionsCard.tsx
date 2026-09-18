@@ -23,7 +23,10 @@ const STATUS = {
   pending: { label: 'Menunggu', variant: 'warning' },
   'on-review': { label: 'Ditinjau', variant: 'info' },
   accepted: { label: 'Diterima', variant: 'success' },
-  declined: { label: 'Ditolak', variant: 'destructive' },
+  // "Dibatalkan", bukan "Ditolak": pada PENJUALAN status ini hanya lahir dari pembatalan
+  // (PATCH /transactions/{id}/void). Barang masuk masih memakai kata "Ditolak" di
+  // TableComponent, karena di sana `declined` memang berarti ditolak saat konfirmasi.
+  declined: { label: 'Dibatalkan', variant: 'destructive' },
 } as const;
 
 /** SPEC-22: `14:32`. Tanggalnya ikut muncul kalau transaksinya bukan hari ini. */
@@ -75,7 +78,7 @@ export function RecentTransactionsCard({
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr>
+              <tr className="bg-surface-raised">
                 <th scope="col" className={cn(TH, 'text-left')}>
                   Waktu
                 </th>

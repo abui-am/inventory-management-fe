@@ -1,15 +1,15 @@
-import { Check, Pencil, Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { Minus, PackageOpen, Plus, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { SelectInstance } from 'react-select';
 import { v4 } from 'uuid';
 
 import { SelectItemsDetail } from '@/components/Form';
 import { Button } from '@/components/ui/button';
 import { Counter } from '@/components/ui/counter';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/cn';
 import { Item } from '@/typings/item';
-import { AdditionalStyle, controlStyle } from '@/utils/style';
+import { controlStyle, SelectGroup, SelectOption } from '@/utils/style';
 
 const formatNumber = (n: number) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(n);
 
@@ -22,27 +22,38 @@ export type ItemRow = { id: string; item: ItemOption | null; qty: number | '' };
 const TH = 'border-b border-border px-2.5 pb-1.75 pt-2.25 text-xs font-bold text-foreground-subtle';
 const TD = 'border-b border-border px-2.5 py-2 align-middle text-base';
 
-/** Select barang: tinggi seragam, bedanya hanya garis aksen selama baris entri aktif. */
-const itemSelectStyle: AdditionalStyle = {
-  ...controlStyle,
-  control: (base, state) => ({
-    ...(controlStyle.control as (b: unknown, s: unknown) => object)(base, state),
-    borderColor: state.isFocused ? 'hsl(var(--accent))' : 'hsl(var(--accent) / 0.55)',
-  }),
-};
+/** Lama sorotan baris yang baru masuk. Cukup untuk terlihat, tidak sampai mengganggu. */
+const SOROT_MS = 1200;
+
+/** Tuts papan ketik, bukan teks biasa: yang ditekan harus beda bentuk dari keterangannya. */
+function Tuts({ children }: { children: React.ReactNode }): JSX.Element {
+  return (
+    <span className="rounded-md border border-border bg-surface-raised px-1.25 font-mono text-xs leading-4 text-foreground-muted">
+      {children}
+    </span>
+  );
+}
+
+function Petunjuk({ tuts, children }: { tuts: string; children: React.ReactNode }): JSX.Element {
+  return (
+    <span className="flex items-center gap-1.25">
+      <Tuts>{tuts}</Tuts>
+      <span className="text-foreground-subtle">{children}</span>
+    </span>
+  );
+}
 
 /**
- * Tabel barang dengan baris entri di dalamnya.
+ * Daftar barang transaksi.
  *
- * Sebelumnya penambahan barang adalah blok form tersendiri di atas tabel, lengkap
- * dengan tombol Batalkan/Tambah. Akibatnya kolom form tidak sejajar dengan kolom
- * tabel, dan mata harus berpindah dua kali untuk satu barang. Di sini barisnya adalah
- * row pertama tabel: kolomnya sejajar, dan yang baru ditambahkan langsung muncul
- * tepat di bawah tempat mengetiknya.
+ * Tidak ada baris draf dan tidak ada tombol "+". Memilih barang di kotak cari BERARTI
+ * barang itu masuk daftar — karena baris draf yang lama bentuknya sama persis dengan
+ * baris yang sudah masuk, jadi ia terbaca seperti sudah tercatat padahal belum. Itulah
+ * yang membuat barang terakhir sering hilang, dan pada transaksi satu barang seluruh
+ * isinya hilang. Kalau tidak ada yang perlu ditekan, tidak ada yang bisa lupa ditekan.
  *
- * Ubah juga terjadi di tempat — tidak lagi membuka modal. Yang bisa berubah hanya qty:
- * harga datang dari harga jual barang, dan menukar barangnya sama saja dengan
- * menghapus row lalu menambah yang lain.
+ * Qty diubah di tempat lewat stepper; barang yang sama dipilih dua kali menambah qty
+ * barisnya, bukan membuat baris kedua — sama seperti memindai barang di kasir.
  */
 export function ItemTable({
   items,
@@ -53,46 +64,64 @@ export function ItemTable({
   onChange: (items: ItemRow[]) => void;
   disabled?: boolean;
 }): JSX.Element {
-  const [draft, setEntri] = useState<ItemOption | null>(null);
-  const [draftQty, setEntriQty] = useState<number | ''>(1);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [editQty, setEditQty] = useState<number | ''>('');
+  const cariRef = useRef<SelectInstance<SelectOption, boolean, SelectGroup> | null>(null);
+  const qtyRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [barisBaru, setBarisBaru] = useState<string | null>(null);
+  // Baris yang qty-nya harus difokuskan setelah render berikutnya. `autoFocus` tidak
+  // cukup: baris yang qty-nya bertambah karena barang dipilih ulang tidak dipasang ulang.
+  const [fokusQty, setFokusQty] = useState<string | null>(null);
 
-  const stock = draft?.data?.quantity ?? 0;
-  const price = draft?.data?.sell_price ?? 0;
-  const canAdd = !!draft && +draftQty > 0 && +draftQty <= stock;
+  useEffect(() => {
+    if (!fokusQty) return;
+    const input = qtyRefs.current[fokusQty];
+    input?.focus();
+    input?.select();
+    setFokusQty(null);
+  }, [fokusQty]);
 
-  const addRow = () => {
-    if (!draft) {
-      toast.error('Pilih barangnya dulu');
+  useEffect(() => {
+    if (!barisBaru) return undefined;
+    const timer = setTimeout(() => setBarisBaru(null), SOROT_MS);
+    return () => clearTimeout(timer);
+  }, [barisBaru]);
+
+  const tambah = (opsi: ItemOption) => {
+    const stok = opsi.data?.quantity ?? 0;
+    const adaBaris = items.find((row) => row.item?.value === opsi.value);
+
+    if (adaBaris) {
+      const berikutnya = +(adaBaris.qty || 0) + 1;
+      if (berikutnya > stok) {
+        toast.error(`Stok ${opsi.data.name} tinggal ${stok}`);
+      } else {
+        onChange(items.map((row) => (row.id === adaBaris.id ? { ...row, qty: berikutnya } : row)));
+      }
+      setBarisBaru(adaBaris.id);
+      setFokusQty(adaBaris.id);
       return;
     }
-    if (+draftQty <= 0) {
-      toast.error('Jumlah harus lebih dari 0');
-      return;
-    }
-    if (+draftQty > stock) {
-      toast.error(`Stok ${draft.data.name} tinggal ${stock}`);
-      return;
-    }
-    onChange([...items, { id: v4(), item: draft, qty: +draftQty }]);
-    setEntri(null);
-    setEntriQty(1);
+
+    const id = v4();
+    onChange([...items, { id, item: opsi, qty: 1 }]);
+    setBarisBaru(id);
+    setFokusQty(id);
   };
 
-  const saveEdit = (row: ItemRow) => {
-    const max = row.item?.data?.quantity ?? 0;
-    if (+editQty <= 0) {
-      toast.error('Jumlah harus lebih dari 0');
+  /** Qty boleh kosong selama diketik; pembatasannya dilakukan saat nilainya ditetapkan. */
+  const setQty = (row: ItemRow, nilai: number | '') =>
+    onChange(items.map((b) => (b.id === row.id ? { ...b, qty: nilai } : b)));
+
+  const tetapkanQty = (row: ItemRow, nilai: number) => {
+    const stok = row.item?.data?.quantity ?? 0;
+    if (nilai > stok) {
+      toast.error(`Stok ${row.item?.data?.name} tinggal ${stok}`);
+      setQty(row, stok);
       return;
     }
-    if (+editQty > max) {
-      toast.error(`Stok ${row.item?.data?.name} tinggal ${max}`);
-      return;
-    }
-    onChange(items.map((b) => (b.id === row.id ? { ...b, qty: +editQty } : b)));
-    setEditId(null);
+    setQty(row, Math.max(1, nilai));
   };
+
+  const subtotal = items.reduce((total, { item, qty }) => total + (item?.data?.sell_price ?? 0) * +(qty || 0), 0);
 
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface shadow-sm">
@@ -101,206 +130,192 @@ export function ItemTable({
         <Counter value={items.length} />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <colgroup>
-            <col />
-            <col className="w-[104px]" />
-            <col className="w-[88px]" />
-            <col className="w-[112px]" />
-            <col className="w-[128px]" />
-            <col className="w-[86px]" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th className={cn(TH, 'text-left')}>Nama</th>
-              <th className={cn(TH, 'text-right')}>Qty</th>
-              <th className={cn(TH, 'text-left')}>Satuan</th>
-              <th className={cn(TH, 'text-right')}>Harga</th>
-              <th className={cn(TH, 'text-right')}>Subtotal</th>
-              <th className={TH} aria-label="Aksi" />
-            </tr>
-          </thead>
+      {items.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <colgroup>
+              <col />
+              <col className="w-[132px]" />
+              <col className="w-[88px]" />
+              <col className="w-[112px]" />
+              <col className="w-[128px]" />
+              <col className="w-[52px]" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th className={cn(TH, 'text-left')}>Nama</th>
+                <th className={cn(TH, 'text-center')}>Qty</th>
+                <th className={cn(TH, 'text-left')}>Satuan</th>
+                <th className={cn(TH, 'text-right')}>Harga</th>
+                <th className={cn(TH, 'text-right')}>Subtotal</th>
+                <th className={TH} aria-label="Aksi" />
+              </tr>
+            </thead>
 
-          <tbody>
-            {/* Baris draft cepat — selalu row pertama, tidak pernah hilang. */}
-            <tr className="bg-accent-subtle">
-              <td className={TD}>
-                <SelectItemsDetail
-                  name="itemSearch"
-                  aria-label="Cari barang"
-                  placeholder="Ketik nama atau kode barang…"
-                  isDisabled={disabled}
-                  value={draft}
-                  additionalStyle={itemSelectStyle}
-                  onChange={(val) => {
-                    setEntri(val as ItemOption | null);
-                    setEntriQty(1);
-                  }}
-                />
-              </td>
-              <td className={TD}>
-                <Input
-                  size="sm"
-                  type="number"
-                  min={1}
-                  max={stock || undefined}
-                  aria-label="Jumlah"
-                  disabled={disabled || !draft}
-                  onFocus={(e) => e.target.select()}
-                  value={draftQty}
-                  onChange={(e) => setEntriQty(e.target.value === '' ? '' : +e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addRow();
-                    }
-                  }}
-                  className="rounded-control border-accent/55 text-right font-mono tabular-nums"
-                />
-              </td>
-              <td className={cn(TD, draft ? 'text-foreground-muted' : 'text-foreground-subtle')}>
-                {draft?.data?.unit ?? '—'}
-              </td>
-              <td
-                className={cn(
-                  TD,
-                  'text-right font-mono tabular-nums',
-                  draft ? 'text-foreground-muted' : 'text-foreground-subtle'
-                )}
-              >
-                {draft ? formatNumber(price) : '—'}
-              </td>
-              <td
-                className={cn(
-                  TD,
-                  'text-right font-mono tabular-nums',
-                  draft ? 'font-semibold' : 'text-foreground-subtle'
-                )}
-              >
-                {draft ? formatNumber(price * +draftQty) : '—'}
-              </td>
-              <td className={TD}>
-                <div className="flex justify-end">
-                  <Button
-                    size="icon-sm"
-                    variant="outline"
-                    aria-label="Tambahkan barang"
-                    disabled={disabled || !canAdd}
-                    className="border-accent bg-surface text-accent hover:bg-accent-subtle"
-                    onClick={addRow}
-                  >
-                    <Plus strokeWidth={2.2} aria-hidden />
-                  </Button>
-                </div>
-              </td>
-            </tr>
+            <tbody>
+              {items.map((row) => {
+                const harga = row.item?.data?.sell_price ?? 0;
+                const stok = row.item?.data?.quantity ?? 0;
+                const baru = row.id === barisBaru;
 
-            {items.map((row) => {
-              const isEditing = row.id === editId;
-              const rowPrice = row.item?.data?.sell_price ?? 0;
-              const displayQty = isEditing ? editQty : row.qty;
-              return (
-                <tr
-                  key={row.id}
-                  className={cn(
-                    isEditing ? 'bg-accent-subtle' : 'transition-colors duration-fast hover:bg-surface-raised'
-                  )}
-                >
-                  <td className={TD}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{row.item?.data?.name ?? row.item?.label ?? ''}</span>
-                      <span className="font-mono text-2xs text-foreground-subtle">
-                        {row.item?.data?.item_id ?? '-'}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className={cn(TD, 'text-right')}>
-                    {isEditing ? (
-                      <Input
-                        size="sm"
-                        type="number"
-                        min={1}
-                        max={row.item?.data?.quantity}
-                        aria-label={`Jumlah ${row.item?.data?.name ?? ''}`}
-                        autoFocus
-                        // Tanpa ini kursor mendarat di ujung formatNumber lama: mengetik "3" pada
-                        // qty 1 jadi 13, bukan 3.
-                        onFocus={(e) => e.target.select()}
-                        value={editQty}
-                        onChange={(e) => setEditQty(e.target.value === '' ? '' : +e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            saveEdit(row);
-                          }
-                          if (e.key === 'Escape') setEditId(null);
-                        }}
-                        className="rounded-control border-accent text-right font-mono tabular-nums"
-                      />
-                    ) : (
-                      <span className="font-mono tabular-nums">{row.qty}</span>
+                return (
+                  <tr
+                    key={row.id}
+                    className={cn(
+                      'transition-colors duration-fast',
+                      baru ? 'bg-accent-subtle' : 'hover:bg-surface-raised'
                     )}
-                  </td>
+                  >
+                    <td className={TD}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{row.item?.data?.name ?? row.item?.label ?? ''}</span>
+                        <span className="font-mono text-2xs text-foreground-subtle">
+                          {row.item?.data?.item_id ?? '-'}
+                        </span>
+                      </div>
+                    </td>
 
-                  <td className={cn(TD, 'text-foreground-muted')}>{row.item?.data?.unit ?? '-'}</td>
-                  <td className={cn(TD, 'text-right font-mono tabular-nums text-foreground-muted')}>
-                    {formatNumber(rowPrice)}
-                  </td>
-                  <td className={cn(TD, 'text-right font-mono font-semibold tabular-nums')}>
-                    {formatNumber(rowPrice * +(displayQty || 0))}
-                  </td>
-
-                  <td className={TD}>
-                    <div className="flex justify-end gap-1.25">
-                      {isEditing ? (
-                        <Button
-                          size="icon-sm"
-                          variant="outline"
-                          aria-label="Simpan perubahan"
-                          className="border-accent bg-surface text-accent hover:bg-accent-subtle"
-                          onClick={() => saveEdit(row)}
-                        >
-                          <Check strokeWidth={2.4} aria-hidden />
-                        </Button>
-                      ) : (
-                        <Button
-                          size="icon-sm"
-                          variant="outline"
-                          aria-label="Ubah jumlah"
-                          disabled={disabled}
-                          onClick={() => {
-                            setEditId(row.id);
-                            setEditQty(row.qty);
-                          }}
-                        >
-                          <Pencil strokeWidth={1.9} aria-hidden />
-                        </Button>
-                      )}
-                      <Button
-                        size="icon-sm"
-                        variant="outline"
-                        aria-label={isEditing ? 'Batalkan perubahan' : 'Hapus barang'}
-                        disabled={disabled}
-                        onClick={() => {
-                          if (isEditing) {
-                            setEditId(null);
-                            return;
-                          }
-                          onChange(items.filter((b) => b.id !== row.id));
-                        }}
+                    {/* Stepper, bukan tombol pensil lalu tombol centang: mengubah 1 jadi 2
+                        adalah hal yang paling sering terjadi di sini, dan dulu ia butuh
+                        tiga klik. */}
+                    <td className={cn(TD, 'text-center')}>
+                      {/* Cincin fokus dipasang di GRUP, bukan di inputnya. Input di dalam
+                          grup ini tidak punya garis sendiri, jadi penanda fokus di
+                          elemennya hanya mengubah latar satu ruas di tengah — terbaca
+                          seperti kotak yang patah, bukan seperti kontrol yang aktif. */}
+                      <div
+                        className={cn(
+                          'inline-flex items-center overflow-hidden rounded-control border border-border-strong',
+                          'transition-colors duration-fast',
+                          'focus-within:border-accent focus-within:ring-2 focus-within:ring-ring/25'
+                        )}
                       >
-                        <X strokeWidth={2} aria-hidden />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                        <button
+                          type="button"
+                          aria-label={`Kurangi ${row.item?.data?.name ?? ''}`}
+                          disabled={disabled || +(row.qty || 0) <= 1}
+                          onClick={() => tetapkanQty(row, +(row.qty || 0) - 1)}
+                          className="flex size-7 select-none items-center justify-center text-foreground-subtle transition-colors duration-fast hover:bg-surface-raised hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                        >
+                          <Minus size={14} strokeWidth={2} aria-hidden />
+                        </button>
+                        <input
+                          ref={(el) => {
+                            qtyRefs.current[row.id] = el;
+                          }}
+                          type="number"
+                          min={1}
+                          max={stok}
+                          aria-label={`Jumlah ${row.item?.data?.name ?? ''}`}
+                          disabled={disabled}
+                          value={row.qty}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setQty(row, e.target.value === '' ? '' : +e.target.value)}
+                          onBlur={() => tetapkanQty(row, +(row.qty || 0))}
+                          onKeyDown={(e) => {
+                            if (e.key !== 'Enter') return;
+                            e.preventDefault();
+                            tetapkanQty(row, +(row.qty || 0));
+                            // Kembali ke kotak cari: satu transaksi berisi banyak barang,
+                            // dan mengetik barang berikutnya tidak boleh butuh mouse.
+                            cariRef.current?.focus();
+                          }}
+                          // 48px: cukup untuk tiga digit tanpa angkanya menempel ke tombol.
+                          // Panah bawaan number input dimatikan — di lebar ini ia menutupi
+                          // angkanya, dan naik-turunnya sudah punya tombol sendiri.
+                          className="h-7 w-12 border-0 bg-transparent text-center font-mono text-base font-medium tabular-nums text-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+                        <button
+                          type="button"
+                          aria-label={`Tambah ${row.item?.data?.name ?? ''}`}
+                          disabled={disabled || +(row.qty || 0) >= stok}
+                          onClick={() => tetapkanQty(row, +(row.qty || 0) + 1)}
+                          className="flex size-7 select-none items-center justify-center text-foreground-subtle transition-colors duration-fast hover:bg-surface-raised hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                        >
+                          <Plus size={14} strokeWidth={2} aria-hidden />
+                        </button>
+                      </div>
+                    </td>
+
+                    <td className={cn(TD, 'text-foreground-muted')}>{row.item?.data?.unit ?? '-'}</td>
+                    <td className={cn(TD, 'text-right font-mono tabular-nums text-foreground-muted')}>
+                      {formatNumber(harga)}
+                    </td>
+                    <td className={cn(TD, 'text-right font-mono font-semibold tabular-nums')}>
+                      {formatNumber(harga * +(row.qty || 0))}
+                    </td>
+
+                    <td className={TD}>
+                      <div className="flex justify-end">
+                        <Button
+                          size="icon-xs"
+                          variant="ghost"
+                          aria-label={`Hapus ${row.item?.data?.name ?? ''}`}
+                          disabled={disabled}
+                          className="border-transparent hover:text-destructive"
+                          onClick={() => onChange(items.filter((b) => b.id !== row.id))}
+                        >
+                          <X strokeWidth={2} aria-hidden />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Kotak cari duduk SETELAH daftar: barang yang baru masuk muncul tepat di atas
+          tempat mengetiknya, dan posisinya tidak berpindah-pindah saat daftar bertambah. */}
+      <div className="px-3.25 pt-3.25">
+        <SelectItemsDetail
+          ref={cariRef}
+          name="itemSearch"
+          instanceId="cari-barang"
+          aria-label="Cari barang"
+          placeholder="Ketik nama atau kode barang…"
+          isDisabled={disabled}
+          // Selalu kosong: pilihannya langsung pindah ke daftar, jadi kotak ini tidak
+          // pernah menyimpan apa pun yang masih menunggu.
+          value={null}
+          additionalStyle={controlStyle}
+          onChange={(val) => {
+            const opsi = val as ItemOption | null;
+            if (opsi) tambah(opsi);
+          }}
+        />
       </div>
+
+      {items.length === 0 && (
+        <div className="flex flex-col items-center gap-1 px-3.25 py-6 text-center">
+          <PackageOpen size={22} strokeWidth={1.5} className="text-foreground-subtle" aria-hidden />
+          <span className="text-base text-foreground-muted">Belum ada barang</span>
+          <span className="text-sm text-foreground-subtle">
+            Pilih barang di dropdown di atas — begitu dipilih, barang langsung masuk daftar.
+          </span>
+        </div>
+      )}
+
+      {/* Petunjuk tuts ditaruh SETELAH empty state, bukan sebelumnya. Di atas, ia menyelipkan
+          satu baris di antara kotak cari dan pesan kosongnya, dan pesan itu berhenti berada
+          di tengah kartu — persis yang terlihat janggal. */}
+      <div className="flex flex-wrap items-center gap-3.5 px-3.25 pb-3.25 pt-2 text-xs">
+        <Petunjuk tuts="↑ ↓">pilih</Petunjuk>
+        <Petunjuk tuts="Enter">tambahkan</Petunjuk>
+        {items.length > 0 && <Petunjuk tuts="Enter">di qty, kembali ke pencarian</Petunjuk>}
+      </div>
+
+      {items.length > 0 && (
+        <div className="flex items-center justify-between border-t border-border bg-surface-raised px-3.25 py-2.25">
+          <span className="text-sm text-foreground-muted">{items.length} barang</span>
+          <span className="flex items-baseline gap-2">
+            <span className="text-sm text-foreground-muted">Subtotal</span>
+            <span className="font-mono text-lg font-bold tabular-nums">{formatNumber(subtotal)}</span>
+          </span>
+        </div>
+      )}
     </div>
   );
 }

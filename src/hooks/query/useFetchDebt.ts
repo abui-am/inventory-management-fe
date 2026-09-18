@@ -1,4 +1,4 @@
-import { UseQueryResult } from '@tanstack/react-query';
+import { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import { DebtResponse } from '@/typings/debts';
 import { BackendRes } from '@/typings/request';
@@ -21,7 +21,12 @@ export const useFetchDebt = (
     where: Record<string, unknown>;
     where_greater_equal: Record<string, string>;
     where_lower_equal: Record<string, string>;
-  }> = {}
+    /** Dipakai tab "Lewat tempo": jatuh temponya sudah terlewat. */
+    where_lower: Record<string, string>;
+  }> = {},
+  // Dipakai pemanggil yang hanya butuh datanya saat sesuatu terbuka — mis. rincian
+  // customer, yang tidak perlu mengambil piutang siapa pun sampai sheet-nya dibuka.
+  options?: UseQueryOptions<unknown, unknown, BackendRes<DebtResponse>>
 ): UseQueryResult<BackendRes<DebtResponse>> => {
   const { data: dataSelf } = useFetchMyself();
   const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
@@ -34,7 +39,7 @@ export const useFetchDebt = (
         : await getApiBasedOnRoles(roles, ['superadmin']).post('/debts', data);
       return res.data;
     },
-    { enabled: (roles?.length ?? 0) > 0 }
+    { ...options, enabled: (options?.enabled ?? true) && (roles?.length ?? 0) > 0 }
   );
 
   return fetcher;

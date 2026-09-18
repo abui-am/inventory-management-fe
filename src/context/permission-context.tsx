@@ -14,6 +14,7 @@ export type PermissionList =
   | 'control:supplier'
   | 'control:stock.confirmation'
   | 'control:stock.adjust-sell-price'
+  | 'control:stock.return'
   | 'control:item'
   | 'control:audit'
   | 'view:audit'
@@ -50,6 +51,9 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
           'control:supplier',
           'control:stock.confirmation',
           'control:stock.adjust-sell-price',
+          // Retur mengurangi stok dan menulis jurnal, sama beratnya dengan pembatalan
+          // penjualan — dan rutenya pun hanya ada di prefix superadmin.
+          'control:stock.return',
           'control:item',
           'control:audit',
           'view:audit',
@@ -71,12 +75,23 @@ const getPermission = (roles: RolesData[]): PermissionList[] => {
         ];
         break;
 
-      // admin
+      // admin — membuat transaksi dan barang masuk, TIDAK mengkonfirmasinya.
       case 'admin':
         permission = [...permission, 'control:transaction', 'control:stock', 'control:supplier'];
         break;
-      default:
+
+      // kepala gudang — memeriksa barang yang datang, jadi dialah yang mengkonfirmasi.
+      case 'warehouse-admin':
         permission = [...permission, 'control:stock.confirmation', 'control:audit'];
+        break;
+
+      // Peran yang tidak dikenal TIDAK mendapat apa pun.
+      //
+      // Cabang ini dulu `default:` dan memberi izin konfirmasi barang masuk kepada SETIAP
+      // peran yang bukan admin — termasuk peran apa pun yang dibuat kemudian, tanpa ada
+      // yang pernah memutuskannya. Izin harus disebut namanya, bukan didapat karena tidak
+      // disebut.
+      default:
         break;
     }
   });

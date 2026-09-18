@@ -48,7 +48,6 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
     links,
     next_page_url,
     prev_page_url,
-    last_page_url,
   } = dataPrepaidSalary?.data.advance_payrolls ?? {};
   const data = dataRes.map(({ employee, employee_position, payroll_month, created_at, amount }) => ({
     name: (
@@ -141,9 +140,6 @@ const PrepaidSalaryPage: NextPage<unknown> = () => {
           from: `${from ?? '0'}`,
           to: `${to ?? '0'}`,
           total: `${total ?? '0'}`,
-        }}
-        onClickGoToPage={(val) => {
-          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
         onChangePerPage={(page) => {
           setPaginationUrl('');

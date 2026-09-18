@@ -58,6 +58,9 @@ export interface Pic {
 export interface Supplier {
   id: string;
   name: string;
+  address?: string;
+  /** Utang berjalan ke supplier ini; ikut di `Supplier::simpleView()`. */
+  total_receivable?: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -88,10 +91,14 @@ export interface TrasactionPivot {
 
 export interface TrasactionItem {
   id: string;
+  /** Kode barang yang dipakai kasir mencarinya — beda dengan `id` yang uuid. */
+  item_id?: string;
   name: string;
   slug: string;
   quantity?: unknown;
   unit: string;
+  /** Harga jual yang berlaku sekarang; dikirim `Item::transactionSimpleView()`. */
+  sell_price?: number;
   created_at: Date;
   updated_at: Date;
   pivot: TrasactionPivot;
@@ -112,7 +119,37 @@ export interface TransactionData {
   supplier: Supplier;
   payments: Payment[];
   discount: number;
+  /** Dikirim `Transaction::simpleView()` pada setiap transaksi; belum pernah ditulis di sini. */
+  shipping_cost: number;
   items: TrasactionItem[];
+  /** Retur yang pernah terjadi pada barang masuk ini — kosong untuk yang belum pernah. */
+  returns?: StockInReturn[];
+}
+
+export interface StockInReturnItem {
+  id: string;
+  item_id: string;
+  item_name: string;
+  item_unit: string;
+  purchase_price: number;
+  quantity: number;
+  total_price: number;
+}
+
+export interface StockInReturn {
+  id: string;
+  transaction_id: string;
+  reason: string;
+  total_price: number;
+  returned_at: string;
+  returned_by?: { employee?: { first_name?: string; last_name?: string } } | null;
+  items: StockInReturnItem[];
+  created_at: Date;
+}
+
+export interface ReturnStockInBody {
+  reason: string;
+  items: { id: string; quantity: number }[];
 }
 
 export interface Transactions {

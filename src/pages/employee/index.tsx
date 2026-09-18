@@ -42,7 +42,6 @@ const Home: NextPage<unknown> = () => {
     from,
     to,
     total,
-    last_page_url,
   } = dataEmployee?.data?.employees ?? {};
   const { push } = useRouter();
   const data = dataRes.map(({ first_name, last_name, position, id, has_dashboard_account }) => ({
@@ -148,9 +147,6 @@ const Home: NextPage<unknown> = () => {
         }}
         onClickPrevious={() => {
           setPaginationUrl(prev_page_url ?? '');
-        }}
-        onClickGoToPage={(val) => {
-          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
         onChangePerPage={(page) => {
           setPaginationUrl('');

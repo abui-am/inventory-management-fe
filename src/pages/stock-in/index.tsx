@@ -1,15 +1,11 @@
 import { NextPage } from 'next';
-import React from 'react';
 
-import { CardDashboard } from '@/components/Container';
-import TableStockIn from '@/components/table/TableStockIn';
+import StockInPage from '@/components/stock-in/StockInPage';
+import { ThemeablePage } from '@/typings/page';
 
-const StoragePage: NextPage<unknown> = () => {
-  return (
-    <CardDashboard>
-      <TableStockIn variant="all" withCreateButton />
-    </CardDashboard>
-  );
-};
+/** Seluruh barang masuk, dengan tab status. */
+const StockInIndexPage: NextPage & ThemeablePage = () => <StockInPage withCreateButton />;
 
-export default StoragePage;
+StockInIndexPage.themeable = true;
+
+export default StockInIndexPage;

@@ -7,6 +7,7 @@ import { useSearchSuppliers } from '@/hooks/mutation/useSearch';
 import { useFetchCustomers } from '@/hooks/query/useFetchCustomer';
 import { useFetchUnpaginatedEmployee } from '@/hooks/query/useFetchEmployee';
 import { useFetchItems } from '@/hooks/query/useFetchItem';
+import { useFetchSuppliers } from '@/hooks/query/useFetchSupplier';
 import { Option } from '@/typings/common';
 import { Item } from '@/typings/item';
 import { formatToIDR } from '@/utils/format';
@@ -156,6 +157,10 @@ export const SelectSupplier: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
   ...props
 }) => {
   const { mutateAsync: search } = useSearchSuppliers();
+  // Daftar awal, supaya menunya sudah berisi sebelum satu huruf pun diketik. Tanpa ini
+  // select async hanya punya isi setelah pencarian — dan supplier yang sudah ada terbaca
+  // sebagai belum terdaftar.
+  const { data: daftar } = useFetchSuppliers();
   const [isCreating, setIsCreating] = React.useState(false);
   const [initValues, setInitValues] = React.useState({
     name: '',
@@ -168,13 +173,27 @@ export const SelectSupplier: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
       <CreatableAsyncSelect
         {...props}
         instanceId={props.instanceId ?? props.name}
+        // Bawaan react-select berbunyi `Create "x"` — satu-satunya teks Inggris di layar
+        // yang seluruhnya berbahasa Indonesia.
+        formatCreateLabel={props.formatCreateLabel ?? ((nama: string) => `Supplier baru: ${nama}`)}
         menuIsOpen={animation.menuIsOpen}
         onMenuOpen={animation.onMenuOpen}
         onMenuClose={animation.onMenuClose}
         styles={getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle })}
+        defaultOptions={(daftar?.data.suppliers.data ?? []).map((supplier) => ({
+          value: supplier.id,
+          label: supplier.name,
+          data: supplier,
+        }))}
         loadOptions={async (val) => {
           const { data } = await search({ search: val });
-          return data.suppliers.data.map(({ id, name }) => ({ value: id, label: name }));
+          // Seluruh objek supplier ikut sebagai `data` — utang berjalannya dipakai kartu
+          // Supplier di /stock-in/add, dan angkanya sudah ada di respons ini.
+          return data.suppliers.data.map((supplier) => ({
+            value: supplier.id,
+            label: supplier.name,
+            data: supplier,
+          }));
         }}
         onChange={(e, act) => {
           const data = e as Option<null>;

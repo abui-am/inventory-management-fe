@@ -1,17 +1,16 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React from 'react';
+import { useEffect } from 'react';
 
-import { CardDashboard } from '@/components/Container';
-import CreateSupplierForm from '@/components/form/CreateSupplierForm';
-
+/** Ubah supplier sekarang lewat dialog di halaman daftarnya. Lihat catatan di add.tsx. */
 const EditSupplierPage: NextPage = () => {
-  const { query } = useRouter();
-  return (
-    <CardDashboard title="Edit Supplier">
-      <CreateSupplierForm editId={query.id as string} isEdit />
-    </CardDashboard>
-  );
+  const { replace } = useRouter();
+
+  useEffect(() => {
+    replace('/supplier');
+  }, [replace]);
+
+  return null;
 };
 
 export default EditSupplierPage;

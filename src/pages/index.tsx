@@ -146,11 +146,18 @@ const Home: NextPage = () => {
   const { data: resPenjualanPrev } = useFetchLedgers(ledgerTotals('Penjualan', prev.start, prev.end));
   const { data: resHppPrev } = useFetchLedgers(ledgerTotals(HPP, prev.start, prev.end));
 
+  // Transaksi yang dibatalkan tidak ikut dihitung di mana pun di halaman ini: jurnalnya
+  // sudah dibalik oleh `TransactionRepository::void()`, jadi Penjualan/HPP/Kas di atas
+  // otomatis benar karena dibaca dari buku besar. Yang dibaca dari tabel transaksi —
+  // jumlah transaksi dan barang terlaris — harus menyaringnya sendiri.
+  const TANPA_BATAL = { status: 'declined' };
+
   const { data: resTransaksi } = useFetchSales({
     start_date: formatDateYYYYMMDDHHmmss(start),
     end_date: formatDateYYYYMMDDHHmmss(end),
     paginated: true,
     per_page: 1,
+    where_not: TANPA_BATAL,
   });
   // Dua query "berat" halaman ini, dan keduanya memang butuh seluruh barisnya:
   // grafik arus kas menjumlah per hari, barang terlaris menjumlah per barang.
@@ -166,6 +173,7 @@ const Home: NextPage = () => {
     end_date: formatDateYYYYMMDDHHmmss(end),
     paginated: false,
     order_by: { created_at: 'asc' },
+    where_not: TANPA_BATAL,
   });
 
   const { data: resTransaksiPrev } = useFetchSales({
@@ -173,6 +181,7 @@ const Home: NextPage = () => {
     end_date: formatDateYYYYMMDDHHmmss(prev.end),
     paginated: true,
     per_page: 1,
+    where_not: TANPA_BATAL,
   });
 
   const pemasukan = saldoKredit(resPenjualan?.data?.total);

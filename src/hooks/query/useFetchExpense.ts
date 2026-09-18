@@ -1,6 +1,6 @@
 import { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
-import { ExpensesResponse } from '@/typings/expense';
+import { ExpenseNamesResponse, ExpensesResponse } from '@/typings/expense';
 import { BackendRes } from '@/typings/request';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
@@ -34,4 +34,25 @@ export const useFetchExpense = <TQueryFnData = unknown, TError = unknown>(
   );
 
   return fetcher;
+};
+
+/**
+ * Nama beban yang pernah dipakai — `POST /expenses/names` mengembalikan daftar nama
+ * unik. Dipakai sebagai saran di dialog "Catat beban" supaya nama yang sama tidak
+ * ditulis dengan tiga ejaan berbeda dan pengelompokannya di laporan pecah.
+ */
+export const useFetchExpenseNames = (): UseQueryResult<BackendRes<ExpenseNamesResponse>> => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name);
+
+  return useMyQuery(
+    [keys.expenses, 'names', roles],
+    async () => {
+      const res = await getApiBasedOnRoles(roles ?? [], ['superadmin', 'admin']).post('/expenses/names', {
+        paginated: false,
+      });
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 };

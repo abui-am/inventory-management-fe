@@ -155,7 +155,7 @@ export function CashFlowCard({ buckets }: { buckets?: Bucket[] }): JSX.Element {
           ditampilkan supaya tinggi kartunya tidak berubah saat rentang diganti. */}
       {chart !== null && chart.max === 0 && (
         <div className="flex h-[132px] items-center justify-center">
-          <p className="text-sm text-foreground-muted">Tidak ada kas masuk atau keluar dalam rentang ini.</p>
+          <p className="text-sm text-foreground-muted">Tidak ada kas masuk atau keluar di periode ini.</p>
         </div>
       )}
 

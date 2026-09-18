@@ -87,7 +87,7 @@ function DeltaBadge({ current, comparison }: { current?: number; comparison?: Co
   if (delta === null) {
     if (current === 0) return null;
     return (
-      <Tip content={`Tidak ada data pada ${period}, jadi tidak ada yang bisa dibandingkan.`}>
+      <Tip content={<>Tidak ada data pada {period}, jadi tidak ada yang bisa dibandingkan.</>}>
         <Badge variant="neutral" className="shrink-0">
           <ArrowRight strokeWidth={2.4} aria-hidden />
           Baru
@@ -103,7 +103,14 @@ function DeltaBadge({ current, comparison }: { current?: number; comparison?: Co
   const arah = naik ? 'lebih tinggi' : 'lebih rendah';
 
   return (
-    <Tip content={`${angkaPersen(Math.abs(delta))}% ${arah} dari ${period}, yang tercatat ${previousText}.`}>
+    <Tip
+      content={
+        <>
+          <Nominal>{angkaPersen(Math.abs(delta))}%</Nominal> {arah} dari {period}, yang tercatat{' '}
+          <Nominal>{previousText}</Nominal>.
+        </>
+      }
+    >
       {/* shrink-0: di dua kolom pada layar sempit, angka dan lencana berbagi satu baris —
           tanpa ini lencananya yang mengalah dan "−98,3%" terpotong jadi "−98,". */}
       <Badge variant={naik ? 'success' : 'destructive'} className="shrink-0">
@@ -120,7 +127,12 @@ function DeltaBadge({ current, comparison }: { current?: number; comparison?: Co
  * biasa, jadi ia dibungkus sekali di sini. `tabIndex` supaya keterangannya juga bisa
  * dibaca lewat papan ketik, bukan hanya dengan menggantung kursor di atasnya.
  */
-function Tip({ content, children }: { content: string; children: JSX.Element }): JSX.Element {
+/** Angka di dalam kalimat tooltip: mono dan tabular, sama dengan angka di kartunya. */
+function Nominal({ children }: { children: React.ReactNode }): JSX.Element {
+  return <span className="font-mono font-semibold tabular-nums">{children}</span>;
+}
+
+function Tip({ content, children }: { content: React.ReactNode; children: JSX.Element }): JSX.Element {
   return (
     <Tippy content={content} placement="top" delay={[250, 0]} offset={[0, 6]} maxWidth={260}>
       {/* `button` bukan `span`: elemen yang bisa difokus papan ketik harus punya peran,

@@ -6,7 +6,12 @@ import { METHODS_WITH_DUE_DATE, PAYMENT_METHOD_COLOR, PAYMENT_METHOD_OPTIONS } f
 import { Option } from '@/typings/common';
 import { AdditionalStyle, controlStyle } from '@/utils/style';
 
-import { Payment } from './PaymentMethod';
+/** Satu pembayaran sebagaimana dipegang form — `paymentDue` bisa Date atau string dari API. */
+export type Payment = {
+  paymentMethod: Option;
+  paymentDue: Date | string;
+  payAmount: number | '';
+};
 
 /** `paymentDue` bisa datang sebagai string dari API atau Date dari form. */
 const toDate = (value: Date | string | undefined): Date | null => {
@@ -34,7 +39,9 @@ const pillStyle = (color: string): AdditionalStyle => ({
     boxShadow: state.isFocused ? `0 0 0 2px hsl(var(--ring) / 0.35)` : 'none',
   }),
   valueContainer: (base) => ({ ...base, padding: '0 0 0 9px' }),
-  singleValue: (base) => ({ ...base, color: t(color), fontSize: 12, fontWeight: 600 }),
+  // 13px, sama dengan angka dan teks lain di baris ini. Pada 12px ia setengah ukuran
+  // lebih kecil dari sebelahnya tanpa alasan — pill-nya sudah dibedakan oleh warna.
+  singleValue: (base) => ({ ...base, color: t(color), fontSize: 13, fontWeight: 600 }),
   dropdownIndicator: (base) => ({
     ...base,
     padding: 4,
@@ -103,7 +110,11 @@ export function PaymentRow({
           </div>
         )}
 
-        {hasDueDate ? (
+        {/* Kas dan Bank tidak punya jatuh tempo, jadi tidak ada kolom yang perlu
+            disediakan untuknya: kotak jumlah memanjang sampai ke tepi kanan. Sebelumnya
+            ada kotak kosong berisi "—" selebar datepicker supaya baris tidak bergeser
+            saat metode diganti — harganya seperempat baris yang tidak pernah dipakai. */}
+        {hasDueDate && (
           // Pembungkus lebarnya harus dipatok: `.customDatePickerWidth` milik komponennya
           // adalah `width:100%`, jadi sebagai item flex ia melahap seluruh baris dan kolom
           // jumlah menyusut sampai hilang.
@@ -116,10 +127,6 @@ export function PaymentRow({
               onChange={(date) => onChange({ paymentDue: date as Date })}
             />
           </div>
-        ) : (
-          // Kotak selebar datepicker walau kosong: tanpa ini kolom jumlah ikut melebar
-          // saat metode diganti dari Giro ke Kas, dan seluruh baris bergeser.
-          <div className="w-32 shrink-0 text-right text-xs text-foreground-subtle">—</div>
         )}
 
         {onDelete && (

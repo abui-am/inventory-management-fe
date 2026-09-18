@@ -1,580 +1,486 @@
+import Tippy from '@tippyjs/react';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
+import { Plus } from 'lucide-react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { PropsWithChildren, useMemo, useState } from 'react';
-import { Pencil, Plus, Trash } from 'react-bootstrap-icons';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
-import { Button } from '@/components/Button';
-import { CardDashboard } from '@/components/Container';
-import {
-  CurrencyTextField,
-  DatePickerComponent,
-  SelectItems,
-  TextArea,
-  TextField,
-  ThemedSelect,
-  WithLabelAndError,
-} from '@/components/Form';
-import Label from '@/components/Label';
-import Modal from '@/components/Modal';
+import { CurrencyTextField, DatePickerComponent, TextField, WithLabelAndError } from '@/components/Form';
 import { SelectSupplier } from '@/components/Select';
-import Table from '@/components/Table';
-import PaymentMethod, { Payment } from '@/components/transaction/PaymentMethod';
-import { INVOICE_TYPE_OPTIONS, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
+import ConfirmStockInDialog from '@/components/stock-in/ConfirmStockInDialog';
+import StockInItemTable, { StockInRow } from '@/components/stock-in/StockInItemTable';
+import JournalPreviewCard from '@/components/transaction/JournalPreviewCard';
+import PartyBalanceCard from '@/components/transaction/PartyBalanceCard';
+import PaymentRow, { Payment } from '@/components/transaction/PaymentRow';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { METHODS_ON_CREDIT, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateItems } from '@/hooks/mutation/useMutateItems';
 import { useCreateStockIn } from '@/hooks/mutation/useMutateStockIn';
-import { useFetchItemById } from '@/hooks/query/useFetchItem';
+import { cn } from '@/lib/cn';
 import { Option } from '@/typings/common';
+import { ThemeablePage } from '@/typings/page';
 import { CreateStockInBody, Item } from '@/typings/stock-in';
-import { formatToIDR } from '@/utils/format';
+import { SupplierData } from '@/typings/supplier';
 import promiseAll from '@/utils/promiseAll';
 import reportError from '@/utils/reportError';
-import { validationSchemaStockIn, validationSchemaStockInItem } from '@/utils/validation/stock-in';
+import { controlStyle } from '@/utils/style';
+import { validationSchemaStockIn } from '@/utils/validation/stock-in';
 
-export type AddStockInTableValue = {
-  item_name: string;
-  qty: number;
-  buyPrice: number;
-  discount: number;
-  unit: string;
+/** Tanpa awalan "Rp" — kolom dan labelnya sudah menyatakan satuannya. */
+const formatNumber = (n: number) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(n);
+
+const hitungSubtotal = (rows: StockInRow[]) =>
+  rows.reduce((total, { qty, buyPrice }) => total + +(qty || 0) * +(buyPrice || 0), 0);
+
+export type AddStockInValue = {
+  supplier: Option<SupplierData> | null;
+  invoiceNumber: string;
+  dateIn: Date;
   memo: string;
-  paymentMethod: string;
-  paymentDue: Date;
-  supplier: Option | null;
+  stockAdjustment: StockInRow[];
+  payments: Payment[];
   shippingCost: number | '';
+  payFull: boolean;
 };
 
-const AddStockPage: NextPage = () => {
-  const { back } = useRouter();
+const AddStockInPage: NextPage & ThemeablePage = () => {
+  const { push } = useRouter();
+  const [isOpenConfirm, setIsOpenConfirm] = useState(false);
   const { mutateAsync, isLoading } = useCreateStockIn();
   const { mutateAsync: createItem, isLoading: isLoadingItem } = useCreateItems();
-  const { push } = useRouter();
 
-  const initialValues = {
+  const initialValues: AddStockInValue = {
+    supplier: null,
     invoiceNumber: '',
-    invoiceType: INVOICE_TYPE_OPTIONS[0],
     dateIn: new Date(),
-    stockAdjustment: [] as ButtonWithModalFormValues[],
     memo: '',
+    stockAdjustment: [],
     payments: [
       {
+        payAmount: '',
         paymentMethod: PAYMENT_METHOD_OPTIONS[0],
         paymentDue: new Date(),
       },
-    ] as Payment[],
-    supplier: null as Option<unknown> | null,
-    isNewSupplier: false,
+    ],
+    shippingCost: '',
     payFull: false,
-    shippingCost: '' as number | '',
   };
-  const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } = useFormik({
-    validationSchema: validationSchemaStockIn,
-    initialValues,
-    onSubmit: async ({ dateIn, invoiceNumber, invoiceType, memo, payments, stockAdjustment, supplier }) => {
-      const isPaymentAndPriceSame =
-        values.payments?.reduce((acc, val) => acc + +(val?.payAmount ?? 0), 0) === totalPrice;
-      if (!isPaymentAndPriceSame) {
-        toast.error('Pembayaran tidak sama dengan harga, silahkan cek kembali');
-        return;
-      }
-      const newItem = await promiseAll<Item>(
-        stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, itemId }): Promise<Item> => {
-          const baseData = {
-            note: memo,
-            purchase_price: +buyPrice || 0,
-            quantity: +qty || 0,
-            item_id: itemId,
-          };
-          if (!isNew) return { id: item?.value ?? '', ...baseData };
-          const { data } = await createItem({ name: item?.label ?? '', unit, item_id: itemId });
-          return {
-            id: data.item.id,
-            ...baseData,
-          };
-        })
-      );
 
-      const supplierId = supplier?.value ?? '';
+  const { values, handleChange, errors, isSubmitting, setFieldValue, touched, handleSubmit } =
+    useFormik<AddStockInValue>({
+      validationSchema: validationSchemaStockIn,
+      initialValues,
+      onSubmit: async (data, { setSubmitting }) => {
+        try {
+          setSubmitting(true);
 
-      // If payFull is true, then we will use the first payment method (only one payment method allowed)
-      const paymentsPayload = values.payFull
-        ? [
-            {
-              payment_method: values.payments?.[0]?.paymentMethod?.value
-                ? `${values.payments?.[0]?.paymentMethod?.value}`
-                : '',
-              maturity_date:
-                values.payments?.[0]?.paymentMethod?.value !== 'cash' &&
-                values.payments?.[0]?.paymentMethod?.value !== 'bank'
-                  ? dayjs(values.payments?.[0]?.paymentDue).format('YYYY-MM-DD HH:mm:ss')
-                  : undefined,
-              cash: totalPrice,
-              change: 0,
-            },
-          ]
-        : payments.map(({ paymentMethod, paymentDue, payAmount }) => ({
-            payment_method: paymentMethod.value,
+          // Barang yang belum terdaftar dibuat DULU: payload barang masuk hanya mengenal
+          // id, jadi barang baru harus sudah punya id sebelum transaksinya dikirim.
+          const items = await promiseAll<Item>(
+            data.stockAdjustment.map(async ({ isNew, unit, item, buyPrice, memo, qty, itemId }): Promise<Item> => {
+              const baseData = {
+                note: memo,
+                purchase_price: +buyPrice || 0,
+                quantity: +qty || 0,
+                item_id: itemId,
+              };
+              if (!isNew) return { id: item?.value ?? '', ...baseData };
+              const { data: created } = await createItem({ name: item?.label ?? '', unit, item_id: itemId });
+              return { id: created.item.id, ...baseData };
+            })
+          );
+
+          // promiseAll tidak berhenti di kegagalan pertama — barang yang gagal dibuat
+          // hanya HILANG dari hasilnya. Diteruskan, barang masuknya tersimpan tanpa
+          // barang itu dan pembayarannya jadi tidak cocok dengan totalnya.
+          if (items.errors.length > 0) {
+            reportError(items.errors[0], { form: 'stock-in/add', step: 'create-item' });
+            toast.error('Ada barang baru yang gagal dibuat, barang masuk belum disimpan');
+            return;
+          }
+
+          const payments = (
+            data.payFull && data.payments.length === 1
+              ? // "Seluruhnya" tidak menyimpan angkanya di form — angkanya diambil dari total
+                // saat simpan, supaya tidak basi ketika daftar barang masih berubah sesudah
+                // kotaknya dicentang.
+                [{ ...data.payments[0], payAmount: total }]
+              : data.payments
+          ).map(({ paymentMethod, paymentDue, payAmount }) => ({
+            payment_method: `${paymentMethod.value}`,
             maturity_date:
               paymentMethod.value !== 'cash' && paymentMethod.value !== 'bank'
                 ? dayjs(paymentDue).format('YYYY-MM-DD HH:mm:ss')
                 : undefined,
-            cash: +(payAmount ?? 0),
+            cash: Number(payAmount ?? 0) || 0,
+            // Selalu nol: simpan baru terbuka ketika pembayaran PERSIS sama dengan
+            // totalnya, jadi tidak ada kembalian yang bisa muncul.
             change: 0,
           }));
-      const jsonBody: CreateStockInBody = {
-        transactionable_type: 'suppliers',
-        purchase_date: dayjs(dateIn).format('YYYY-MM-DD HH:mm:ss'),
-        invoice_number: invoiceType.value === 'automatic' ? null : invoiceNumber,
-        note: memo,
-        items: newItem.results,
-        transactionable_id: `${supplierId}`,
-        payments: paymentsPayload,
-        shipping_cost: +values.shippingCost || 0,
-      };
 
-      try {
-        // find index where payment method is cash
-        const cashIndex = values.payments.findIndex((val) => val.paymentMethod.value === 'cash');
+          const jsonBody: CreateStockInBody = {
+            transactionable_type: 'suppliers',
+            transactionable_id: `${data.supplier?.value ?? ''}`,
+            purchase_date: dayjs(data.dateIn).format('YYYY-MM-DD HH:mm:ss'),
+            // Backend menomori sendiri bila dikosongkan, sama seperti di penjualan.
+            invoice_number: data.invoiceNumber.trim() || null,
+            note: data.memo,
+            items: items.results,
+            payments,
+            shipping_cost: +(data.shippingCost ?? 0),
+          };
 
-        const totalPrice = values.stockAdjustment.reduce((acc, curr) => {
-          const { qty, buyPrice } = curr;
-          return acc + +qty * +buyPrice;
-        }, 0);
-
-        if (cashIndex !== -1) {
-          jsonBody.payments[cashIndex].change =
-            jsonBody.payments.reduce((acc, val) => acc + (val?.cash ?? 0), 0) -
-            totalPrice -
-            +(values.shippingCost ?? 0);
+          await mutateAsync(jsonBody);
+          setIsOpenConfirm(false);
+          push('/stock-in');
+        } catch (e) {
+          reportError(e, { form: 'stock-in/add' });
+          toast.error('Gagal menyimpan barang masuk');
+        } finally {
+          setSubmitting(false);
         }
-        await mutateAsync(jsonBody);
-        push('/stock-in');
-      } catch (e) {
-        reportError(e, { form: 'stock-in/add' });
-        toast.error('Gagal menyimpan barang masuk');
-      }
-    },
-  });
+      },
+    });
 
-  const data = values.stockAdjustment.map(({ shippingCost, item, qty, buyPrice, unit, memo, isNew, itemId }) => ({
-    col1: item?.label ?? '',
-    col2: (
-      <div>
-        <b className="text-sm">Jumlah :</b>
-        <p>
-          {qty} ({unit})
-        </p>
-        <b className="text-sm">Harga per unit:</b>
-        <span className="text-base block">{formatToIDR(+buyPrice)}</span>
-      </div>
-    ),
-    col6: memo,
-    action: (
-      <div className="flex">
-        <ButtonWithModal
-          initialValues={{
-            shippingCost,
-            item,
-            qty,
-            buyPrice,
-            unit,
-            memo,
-            isNew,
-            itemId,
-          }}
-          withEditButton
-          onSave={(val) => {
-            // replace data
-            const newValues = values.stockAdjustment.map((stock) => {
-              if (stock?.item?.value === item?.value) {
-                return val;
-              }
-              return stock;
-            });
+  const subtotal = hitungSubtotal(values.stockAdjustment);
+  const total = subtotal + +(values.shippingCost ?? 0);
 
-            setFieldValue('stockAdjustment', newValues);
-          }}
-        />
-        <Button
-          variant="secondary"
-          onClick={() =>
-            setFieldValue(
-              'stockAdjustment',
-              values.stockAdjustment.filter((stock) => stock?.item?.value !== item?.value)
-            )
-          }
-        >
-          <Trash width={24} height={24} />
-        </Button>
-      </div>
-    ),
+  const totalPaid = values.payFull ? total : values.payments.reduce((prev, curr) => prev + +(curr?.payAmount ?? 0), 0);
+
+  // Bahan preview jurnal dan kartu supplier: nominal per metode, sudah memperhitungkan
+  // "Seluruhnya" yang jumlahnya baru ditentukan saat simpan.
+  const amountByMethod = values.payments.map((p, i) => ({
+    method: p.paymentMethod?.value as string,
+    amount: values.payFull && i === 0 ? total : +(p.payAmount ?? 0),
   }));
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Nama barang',
-        accessor: 'col1', // accessor is the "key" in the data
-        width: '20%',
-      },
-      {
-        Header: 'Jumlah & Harga',
-        accessor: 'col2',
-        width: '40%',
-      },
+  const creditThisTransaction = amountByMethod
+    .filter(({ method }) => METHODS_ON_CREDIT.includes(method))
+    .reduce((jumlah, { amount }) => jumlah + amount, 0);
 
-      {
-        Header: 'Catatan',
-        accessor: 'col6',
-        width: '20%',
-      },
-      {
-        Header: 'Aksi',
-        accessor: 'action',
-        width: '20%',
-      },
-    ],
-    []
-  );
+  /**
+   * Apa saja yang masih menghalangi barang masuk ini disimpan.
+   *
+   * Empat yang pertama karena payloadnya akan ditolak apa adanya — barang tanpa harga
+   * beli merusak nilai persediaan, dan barang baru tanpa kode tidak akan pernah ketemu
+   * saat dicari kasir. Yang terakhir diminta backend: jumlah pembayaran harus PERSIS
+   * sama dengan totalnya, termasuk kalau lebih.
+   */
+  const blockers: { id: string; isi: React.ReactNode }[] = [];
+  const halangan = (id: string, isi: React.ReactNode = id) => blockers.push({ id, isi });
 
-  const totalPrice = useMemo(
-    () =>
-      values.stockAdjustment.reduce((acc, curr) => {
-        const { qty, buyPrice } = curr;
-        return acc + +qty * +buyPrice;
-      }, 0) + +(values.shippingCost ?? 0),
-    [values.stockAdjustment, values.shippingCost]
-  );
+  if (!values.supplier) halangan('Supplier belum dipilih');
+  if (values.stockAdjustment.length === 0) halangan('Belum ada barang');
+  else {
+    if (values.stockAdjustment.some((row) => +(row.buyPrice || 0) <= 0)) halangan('Ada harga beli yang belum diisi');
+    if (values.stockAdjustment.some((row) => row.isNew && !row.itemId.trim())) halangan('Kode barang baru belum diisi');
+    if (values.stockAdjustment.some((row) => row.isNew && !row.unit.trim())) halangan('Satuan barang baru belum diisi');
 
-  const disablePay = isLoading || isLoadingItem;
+    if (totalPaid !== total) {
+      const kurang = totalPaid < total;
+      const selisih = Math.abs(total - totalPaid);
+      halangan(
+        `Pembayaran ${kurang ? 'kurang' : 'lebih'}`,
+        <>
+          Pembayaran {kurang ? 'kurang' : 'lebih'}{' '}
+          <span className="font-mono font-semibold tabular-nums">{formatNumber(selisih)}</span>
+        </>
+      );
+    }
+  }
+
+  const canSave = blockers.length === 0;
+  const disabled = isSubmitting || isLoading || isLoadingItem;
+
+  const handlePaymentChange = (index: number, patch: Partial<Payment>) => {
+    setFieldValue(
+      'payments',
+      values.payments.map((p, i) => (i === index ? { ...p, ...patch } : p))
+    );
+  };
+
+  const paymentErrorAt = (index: number) => {
+    const e = errors.payments?.[index];
+    if (typeof e === 'string') return e;
+    return e?.payAmount;
+  };
 
   return (
-    <CardDashboard title="Barang Masuk Baru">
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-wrap -mx-2 mb-8">
-          <div className="xl:w-8/12 w-full pr-4 mb-4">
-            <div className="flex flex-wrap ">
-              <div className="w-6/12 px-2 mb-3">
-                <Label required>Nomor faktur</Label>
-                <div className="flex w-full">
-                  <ThemedSelect
-                    variant="contained"
-                    value={values.invoiceType}
-                    additionalStyle={{
-                      // `...base` wajib: fungsi style dirantai di atas tema, jadi
-                      // mengabaikan argumennya membuang seluruh warna select.
-                      control: (base) => ({
-                        ...base,
-                        width: 160,
-                      }),
-                    }}
-                    onChange={(e) => {
-                      setFieldValue('invoiceType', e);
-                    }}
-                    className="mr-2"
-                    options={INVOICE_TYPE_OPTIONS}
-                  />
-                  <div className="flex-1">
-                    <TextField
-                      id="invoiceNumber"
-                      name="invoiceNumber"
-                      value={values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value ? '' : values.invoiceNumber}
-                      placeholder={
-                        values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value
-                          ? '(Generate otomatis)'
-                          : 'Masukan nomor faktur'
-                      }
-                      autoComplete="invoiceNumber"
-                      disabled={isSubmitting || values.invoiceType.value === INVOICE_TYPE_OPTIONS[1].value}
-                      onChange={handleChange}
-                      hasError={!!errors.invoiceNumber && touched.invoiceNumber}
+    <form
+      // Enter di kolom mana pun ikut lewat konfirmasi, sama seperti menekan tombolnya.
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (canSave) setIsOpenConfirm(true);
+      }}
+    >
+      {/* SPEC-44: dua kolom, gap 12px, rel kanan menempel di atas — sama persis dengan
+          /transaction/add. Padding luar tidak ditulis di sini; Layout sudah memberinya. */}
+      <div className="flex flex-col items-start gap-3 xl:flex-row">
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5">
+          {/* SPEC-45..48 — identitas barang masuk */}
+          <div className="flex flex-wrap gap-2.25 rounded-card border border-border bg-surface px-3.25 py-2.75 shadow-sm">
+            <div className="flex min-w-[180px] flex-1 flex-col">
+              <WithLabelAndError required touched={touched} errors={errors} name="supplier" label="Supplier">
+                <SelectSupplier
+                  name="supplier"
+                  instanceId="supplier-barang-masuk"
+                  placeholder="Pilih supplier"
+                  onChange={(val) => setFieldValue('supplier', val)}
+                  value={values.supplier}
+                  isDisabled={disabled}
+                  additionalStyle={controlStyle}
+                />
+              </WithLabelAndError>
+            </div>
+
+            <div className="flex w-[148px] flex-col">
+              <Label htmlFor="dateIn" className="mb-1">
+                Tanggal masuk
+              </Label>
+              <DatePickerComponent
+                id="dateIn"
+                name="dateIn"
+                selected={values.dateIn}
+                disabled={disabled}
+                className="h-8 rounded-control font-mono"
+                onChange={(date) => setFieldValue('dateIn', date)}
+              />
+            </div>
+
+            <div className="flex w-[148px] flex-col">
+              <Label htmlFor="invoiceNumber" className="mb-1">
+                Nomor faktur
+              </Label>
+              {/* Opsional: backend menomori sendiri kalau dikosongkan. */}
+              <TextField
+                id="invoiceNumber"
+                name="invoiceNumber"
+                className="h-8 rounded-control font-mono"
+                value={values.invoiceNumber}
+                placeholder="Otomatis"
+                disabled={disabled}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex min-w-[180px] flex-1 flex-col">
+              <Label htmlFor="memo" className="mb-1">
+                Catatan
+              </Label>
+              <TextField
+                id="memo"
+                name="memo"
+                className="h-8 rounded-control"
+                value={values.memo}
+                placeholder="Opsional"
+                disabled={disabled}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* SPEC-49..52 — barang */}
+          <StockInItemTable
+            items={values.stockAdjustment}
+            onChange={(rows) => setFieldValue('stockAdjustment', rows)}
+            disabled={disabled}
+          />
+
+          {/* SPEC-53 — pembayaran ke supplier */}
+          <div className="overflow-hidden rounded-card border border-border bg-surface shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border bg-surface-raised px-3.25 py-2.25">
+              {/* Sama dengan judul seksi di rincian barang masuk: yang dibayar di sini
+                  adalah supplier, bukan kita yang menerima. */}
+              <span className="text-base font-semibold">Pembayaran ke supplier</span>
+
+              <div className="flex items-center gap-2.5">
+                {values.payments.length === 1 && (
+                  <label htmlFor="payFull" className="flex cursor-pointer items-center gap-1.5 text-sm">
+                    <Checkbox
+                      id="payFull"
+                      name="payFull"
+                      checked={values.payFull}
+                      disabled={disabled}
+                      onChange={(e) => setFieldValue('payFull', e.target.checked)}
                     />
-                  </div>
-                </div>
-                {errors.invoiceType && touched.invoiceType && (
-                  <span className="text-xs text-red-500">{errors.invoiceType as string}</span>
+                    Seluruhnya
+                  </label>
                 )}
 
-                {errors.invoiceNumber && touched.invoiceNumber && (
-                  <span className="text-xs text-red-500">{errors.invoiceNumber}</span>
-                )}
-              </div>
-              <div className="w-6/12 px-2 mb-3" />
-              <div className="w-6/12 px-2 mb-3">
-                <WithLabelAndError required touched={touched} errors={errors} name="supplier" label="Nama Supplier">
-                  <SelectSupplier
-                    onChange={(val, action) => {
-                      setFieldValue('supplier', val);
-                      setFieldValue('isNewSupplier', action.action === 'create-option');
+                {!values.payFull && values.payments.length < 2 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={disabled}
+                    onClick={() => {
+                      setFieldValue('payments', [
+                        ...values.payments,
+                        {
+                          paymentMethod: PAYMENT_METHOD_OPTIONS.filter(
+                            (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
+                          )[0],
+                          payAmount: Math.max(total - +(values.payments[0]?.payAmount ?? 0), 0),
+                          paymentDue: new Date(),
+                        },
+                      ]);
                     }}
-                    value={values.supplier}
-                  />
-                </WithLabelAndError>
-              </div>
-
-              <div className="w-3/12 px-2 mb-3">
-                <label className="mb-1 inline-block">Tanggal masuk</label>
-                <DatePickerComponent
-                  id="dateIn"
-                  name="dateIn"
-                  selected={values.dateIn}
-                  disabled={isSubmitting}
-                  onChange={(date) => setFieldValue('dateIn', date)}
-                />
-                {errors.dateIn && <span className="text-xs text-red-500">{errors.dateIn as string}</span>}
-              </div>
-              <div className="w-3/12 px-2 mb-3">
-                <label className="mb-1 inline-block">Catatan</label>
-                <TextField
-                  id="memo"
-                  name="memo"
-                  value={values.memo}
-                  placeholder="Masukan catatan"
-                  disabled={isSubmitting}
-                  onChange={handleChange}
-                  hasError={!!errors.memo}
-                />
-                {errors.memo && touched.memo && <span className="text-xs text-red-500">{errors.memo}</span>}
-              </div>
-
-              <div className="w-full px-2 mb-3">
-                <div className="mb-4">
-                  <Table columns={columns} data={data} />
-                </div>
-                <ButtonWithModal
-                  onSave={(data) => setFieldValue('stockAdjustment', [...values.stockAdjustment, data])}
-                />
-                {errors.stockAdjustment && touched.stockAdjustment && (
-                  <span className="text-xs text-red-500">{errors.stockAdjustment as string}</span>
+                  >
+                    <Plus strokeWidth={2.2} aria-hidden /> Metode
+                  </Button>
                 )}
               </div>
             </div>
-          </div>
-          <div className="xl:w-4/12 w-full">
-            <div className="border p-4 rounded-md shadow-md flex flex-wrap mb-4">
-              <div className="w-full px-2 mb-2">
-                <label className="mb-1 inline-block">Ongkos kirim</label>
-                <CurrencyTextField
-                  name="shippingCost"
-                  value={values.shippingCost}
-                  placeholder="Masukan ongkos kirim"
-                  disabled={isSubmitting}
-                  onChange={(val) => {
-                    setFieldValue('shippingCost', val);
-                  }}
-                />
-                {errors.shippingCost && touched.shippingCost && (
-                  <span className="text-xs text-red-500">{errors.shippingCost}</span>
-                )}
-              </div>
-              <div className="w-full px-2 mb-3">
-                <label className="mb-1 inline-block">Harga total</label>
-                <p className="text-2xl font-bold">{formatToIDR(totalPrice)}</p>
-              </div>
 
-              <div className="px-2 mb-2">
-                <span className="text-lg font-bold">Pembayaran</span>
-              </div>
+            {values.payments.map((payment, index) => (
+              <PaymentRow
+                key={payment.paymentMethod?.value ?? index}
+                value={payment}
+                disabled={disabled}
+                fixedAmount={values.payFull && index === 0 ? total : undefined}
+                error={paymentErrorAt(index)}
+                onChange={(patch) => handlePaymentChange(index, patch)}
+                onDelete={
+                  values.payments.length > 1
+                    ? () =>
+                        setFieldValue(
+                          'payments',
+                          values.payments.filter((_, i) => i !== index)
+                        )
+                    : undefined
+                }
+              />
+            ))}
 
-              {values?.payments?.map((value, idx) => {
-                return (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <div className="pt-3 pb-3 flex flex-wrap w-full" key={`${value.paymentMethod.value}-${idx}`}>
-                    <PaymentMethod
-                      errors={errors}
-                      touched={touched}
-                      isSubmitting={isSubmitting}
-                      values={values}
-                      setFieldValue={setFieldValue}
-                      index={idx}
-                      totalPrice={totalPrice}
-                      withPayFull
-                    />
-                  </div>
-                );
-              })}
-              {!values.payFull && values?.payments?.length < 2 && (
-                <Button
-                  variant="outlined"
-                  className="w-full mt-2"
-                  Icon={<Plus width={24} height={24} />}
-                  onClick={() => {
-                    setFieldValue('payments', [
-                      ...values.payments,
-                      {
-                        paymentMethod: PAYMENT_METHOD_OPTIONS?.filter(
-                          (val) => val.value !== values?.payments?.[0]?.paymentMethod?.value
-                        )[0],
-                        payAmount: values?.payments?.[0] ? totalPrice - +(values?.payments?.[0]?.payAmount ?? 0) : null,
-                        paymentDue: null,
-                      },
-                    ]);
-                  }}
-                >
-                  Tambah metode pembayaran
-                </Button>
-              )}
-
-              <div className="flex items-end mt-8">
-                <Button onClick={() => back()} variant="secondary" className="mr-4">
-                  Batalkan
-                </Button>
-                <Button disabled={disablePay} type="submit">
-                  Bayar
-                </Button>
-              </div>
+            <div className="flex items-baseline justify-between bg-surface-raised px-3.25 py-2.5 text-sm">
+              <span className="text-foreground-muted">Total dibayarkan</span>
+              <span className="font-mono text-[14px] font-bold tabular-nums text-accent">
+                {formatNumber(totalPaid)}
+              </span>
             </div>
           </div>
         </div>
-      </form>
-    </CardDashboard>
-  );
-};
 
-type ButtonWithModalFormValues = Omit<
-  AddStockInTableValue,
-  'paymentDue' | 'paymentMethod' | 'item_name' | 'discount' | 'buyPrice' | 'qty' | 'supplier'
-> & {
-  buyPrice: number | string;
-  item: Partial<Option<Item>> | null;
-  qty: number | string;
-  isNew: boolean;
-  itemId: string;
-};
+        {/* SPEC-54 — rel ringkasan */}
+        <div className="flex w-full flex-col gap-2.5 xl:sticky xl:top-3.5 xl:w-[284px] xl:shrink-0">
+          <div className="flex flex-col gap-2.5 rounded-card border border-border bg-surface px-3.75 py-3.25 shadow-sm">
+            <span className="text-base font-semibold">Ringkasan</span>
 
-const ButtonWithModal: React.FC<
-  PropsWithChildren<{
-    onSave: (values: ButtonWithModalFormValues) => void;
-    initialValues?: ButtonWithModalFormValues;
-    withEditButton?: boolean;
-  }>
-> = ({ onSave, initialValues: initVal, withEditButton }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const initialValues: ButtonWithModalFormValues = initVal || {
-    item: null,
-    buyPrice: '',
-    qty: '',
-    unit: '',
-    memo: '',
-    isNew: false,
-    itemId: '',
-    shippingCost: '',
-  };
-
-  const { values, handleChange, handleSubmit, setFieldValue, errors, touched } = useFormik({
-    validationSchema: validationSchemaStockInItem,
-    initialValues,
-    enableReinitialize: !!initVal,
-    onSubmit: (values, { resetForm }) => {
-      // Tutup & reset dulu, baru lapor ke parent. onSave() memanggil setFieldValue di parent,
-      // yang membangun ulang baris tabel dan melepas komponen ini — kalau setIsOpen dipanggil
-      // setelahnya, React memperingatkan "state update on an unmounted component".
-      setIsOpen(false);
-      resetForm();
-      onSave(values);
-    },
-  });
-
-  const { data: itemData } = useFetchItemById(values?.item?.value ?? '');
-
-  return (
-    <>
-      {withEditButton ? (
-        <Button variant="secondary" onClick={() => setIsOpen(true)}>
-          <Pencil width={24} height={24} />
-        </Button>
-      ) : (
-        <Button fullWidth variant="outlined" onClick={() => setIsOpen(true)}>
-          Tambah Barang
-        </Button>
-      )}
-      <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} variant="big">
-        <form onSubmit={handleSubmit}>
-          <section className="max-w-4xl mr-auto ml-auto">
-            <div>
-              <h6 className="mb-4 mt-2 text-2xl font-bold">Informasi Barang</h6>
-              <div className="flex -mx-2 flex-wrap mb-1">
-                <div className="w-8/12 mb-3 px-2">
-                  <WithLabelAndError required label="Nama barang" name="item" errors={errors} touched={touched}>
-                    <SelectItems
-                      onChange={(value, action) => {
-                        // Select ini single, tapi ThemedSelectProps memakai isMulti boolean
-                        // supaya satu tipe melayani semua select. Dipersempit di sini.
-                        const val = value as { data?: { item_id?: string; unit?: string } } | null;
-                        setFieldValue('item', val);
-                        setFieldValue('itemId', val?.data?.item_id);
-
-                        setFieldValue('unit', val?.data?.unit ?? '');
-                        setFieldValue('isNew', action.action === 'create-option');
-                      }}
-                      value={values.item}
-                    />
-                  </WithLabelAndError>
-                </div>
-                <div className="w-4/12 mb-3 px-2">
-                  <WithLabelAndError label="ID Barang" name="itemId" errors={errors} touched={touched} required>
-                    <TextField name="itemId" value={values.itemId} onChange={handleChange} />
-                  </WithLabelAndError>
-                </div>
-
-                <div className="w-full mb-3 px-2">
-                  <span className="block">Harga beli sebelumnya:</span>
-                  <span className="text-xl font-bold">
-                    {itemData?.data?.item?.buy_price ? formatToIDR(itemData?.data?.item?.buy_price ?? 0) : '-'}
-                  </span>
-                </div>
-
-                <div className="w-8/12 mb-3 px-2">
-                  <WithLabelAndError required label="Harga beli" name="buyPrice" errors={errors} touched={touched}>
-                    <CurrencyTextField
-                      name="buyPrice"
-                      value={values.buyPrice}
-                      onChange={(val) => {
-                        setFieldValue('buyPrice', val);
-                      }}
-                    />
-                  </WithLabelAndError>
-                </div>
-                <div className="w-8/12 mb-3 px-2">
-                  <WithLabelAndError required label="Qty" name="qty" errors={errors} touched={touched}>
-                    <TextField name="qty" value={values.qty} onChange={handleChange} type="number" />
-                  </WithLabelAndError>
-                </div>
-                <div className="w-4/12 mb-3 px-2">
-                  <WithLabelAndError required label="Unit satuan" name="unit" errors={errors} touched={touched}>
-                    <TextField name="unit" value={values.unit} disabled={!values?.isNew} onChange={handleChange} />
-                  </WithLabelAndError>
-                </div>
-                <div className="w-full mb-3 px-2">
-                  <WithLabelAndError label="Keterangan" name="memo" errors={errors} touched={touched}>
-                    <TextArea name="memo" value={values.memo} onChange={handleChange} />
-                  </WithLabelAndError>
-                </div>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-foreground-muted">Subtotal</span>
+                <span className="font-mono tabular-nums">{formatNumber(subtotal)}</span>
               </div>
 
-              <div className="flex justify-end">
-                <Button
-                  variant="secondary"
-                  className="mr-3"
-                  onClick={() => {
-                    setIsOpen(false);
-                  }}
-                >
-                  Batalkan
-                </Button>
-                <Button variant="primary" type="submit">
-                  {withEditButton ? 'Edit Penyesuaian' : 'Simpan Penyesuaian'}
-                </Button>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <Label htmlFor="shippingCost">Ongkos kirim</Label>
+                <CurrencyTextField
+                  name="shippingCost"
+                  value={values.shippingCost}
+                  placeholder="0"
+                  disabled={disabled}
+                  prefix=""
+                  className="h-8 w-[92px] rounded-control px-2.5 text-right font-mono"
+                  onChange={(val) => setFieldValue('shippingCost', val ?? '')}
+                />
               </div>
             </div>
-          </section>
-        </form>
-      </Modal>
-    </>
+
+            <div className="h-px bg-border" />
+
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-base font-semibold">Total</span>
+              <span className="font-mono text-xl font-bold tabular-nums tracking-[-0.025em] text-accent">
+                {formatNumber(total)}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1.25 rounded-lg bg-surface-raised px-2.75 py-2.25">
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground-muted">Dibayarkan</span>
+                <span className="font-mono font-medium tabular-nums">{formatNumber(totalPaid)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground-muted">Selisih</span>
+                <span
+                  className={cn(
+                    'font-mono font-semibold tabular-nums',
+                    totalPaid === total ? 'text-success' : 'text-destructive'
+                  )}
+                >
+                  {formatNumber(total - totalPaid)}
+                </span>
+              </div>
+            </div>
+
+            {/*
+              Tippy dipasang di SPAN pembungkus, bukan di tombolnya: tombol yang disabled
+              memakai `pointer-events: none`, jadi ia tidak pernah mengirim event hover —
+              tooltipnya tidak akan pernah muncul justru pada satu-satunya keadaan yang
+              perlu dijelaskan.
+            */}
+            <Tippy
+              content={
+                <div className="flex flex-col gap-0.75">
+                  {blockers.map(({ id, isi }) => (
+                    <span key={id}>{isi}</span>
+                  ))}
+                </div>
+              }
+              disabled={canSave}
+              placement="top"
+              delay={[250, 0]}
+            >
+              <span className="block">
+                <Button size="sm" fullWidth type="submit" disabled={!canSave || disabled}>
+                  Simpan sebagai Menunggu
+                </Button>
+              </span>
+            </Tippy>
+
+            {/* Tombolnya menyebut statusnya, keterangannya menyebut akibatnya — keduanya
+                dibutuhkan: "Menunggu" tidak memberi tahu bahwa stok belum bergerak. */}
+            <span className="text-2xs leading-[15px] text-foreground-subtle">
+              Belum menyentuh stok maupun jurnal. Keduanya berjalan setelah barang masuk ini dikonfirmasi.
+            </span>
+          </div>
+
+          <PartyBalanceCard
+            variant="supplier"
+            name={values.supplier?.label}
+            currentDebt={+(values.supplier?.data?.total_receivable ?? 0)}
+            creditThisTransaction={creditThisTransaction}
+          />
+
+          <JournalPreviewCard
+            variant="purchase"
+            payments={amountByMethod}
+            total={total}
+            shippingCost={+(values.shippingCost ?? 0)}
+          />
+        </div>
+      </div>
+
+      <ConfirmStockInDialog
+        isOpen={isOpenConfirm}
+        onClose={() => setIsOpenConfirm(false)}
+        onConfirm={handleSubmit}
+        saving={disabled}
+        supplier={values.supplier?.label}
+        itemCount={values.stockAdjustment.length}
+        newItemCount={values.stockAdjustment.filter((row) => row.isNew).length}
+        amountByMethod={amountByMethod}
+        total={total}
+        currentDebt={+(values.supplier?.data?.total_receivable ?? 0)}
+        creditThisTransaction={creditThisTransaction}
+      />
+    </form>
   );
 };
 
-export default AddStockPage;
+AddStockInPage.themeable = true;
+
+export default AddStockInPage;

@@ -46,8 +46,25 @@ export interface Item {
 export interface ItemResponse {
   item: Item;
 }
+/**
+ * Ringkasan persediaan seluruh barang — dihitung backend di samping halamannya.
+ *
+ * Penyaring tab tidak ikut menghitungnya: angka "stok habis" harus tetap sama saat tab
+ * mana pun dibuka.
+ */
+export interface ItemTotals {
+  /** Jumlah seluruh barang — dipakai tab "Semua" supaya angkanya tidak ikut berubah saat menyaring. */
+  count: number;
+  /** Σ stok × harga beli. */
+  value: number;
+  out_of_stock: number;
+  /** Barang yang belum punya harga jual — kasir tidak bisa menjualnya. */
+  unpriced: number;
+}
+
 export interface ItemsResponse {
   items: Items;
+  totals: ItemTotals;
 }
 
 export interface CreateItemsBody {

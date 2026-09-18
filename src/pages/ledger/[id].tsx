@@ -1,175 +1,42 @@
-import dayjs from 'dayjs';
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
 
-import { CardDashboard } from '@/components/Container';
-import { DateRangePicker, ThemedSelect } from '@/components/Form';
-import Pagination from '@/components/Pagination';
-import Table from '@/components/Table';
-import { useFetchUnpaginatedLedgerAccounts } from '@/hooks/query/useFetchLedgerAccount';
-import { useFetchLedgers } from '@/hooks/query/useFetchLedgers';
-import { useLedger } from '@/hooks/table/useLedger';
-import { Option } from '@/typings/common';
-import { formatDate, formatDateYYYYMMDDHHmmss, formatToIDR } from '@/utils/format';
+import LedgerView from '@/components/ledger/LedgerView';
+import useMounted from '@/hooks/useMounted';
+import { ThemeablePage } from '@/typings/page';
 
-function AuditPage() {
-  const { query, push } = useRouter();
-  const [fromDate, setFromDate] = React.useState(new Date());
-  const [toDate, setToDate] = React.useState(new Date());
-  const { data: dataResLedger } = useFetchUnpaginatedLedgerAccounts();
-  const [paginationUrl, setPaginationUrl] = React.useState('');
-  const [pageSize, setPageSize] = useState(10);
-  const [type, setType] = useState<Option | null>();
+/**
+ * Buku besar satu akun, dikenali dari NAMA akunnya di rute (`/ledger/Kas`) — bentuk yang
+ * sama dengan halaman lama, jadi tautan dan bookmark yang sudah ada tetap hidup.
+ *
+ * Namanya dibaca dari `router.query` KALAU ada, kalau tidak dari alamat di bilah alamat.
+ * Cadangan itu bukan kehati-hatian berlebih: di aplikasi ini `router.query` tidak pernah
+ * terisi ketika sebuah rute dinamis dibuka LANGSUNG (reload atau bookmark) — `isReady`
+ * tetap `false` dan `asPath` berhenti di pola `/ledger/[id]`. Berlaku untuk semua rute
+ * dinamis, bukan hanya halaman ini; halaman lama diam-diam memuat buku besar akun kosong
+ * karena itu. `window.location` selalu tahu jawabannya.
+ *
+ * `key` sengaja dipasang: berpindah akun tidak melepas komponennya, padahal `forceUrl`
+ * paginasi menyimpan URL halaman ke-N milik akun SEBELUMNYA. Dengan key, tiap akun
+ * memulai dari state yang bersih.
+ */
+const LedgerPage: NextPage & ThemeablePage = () => {
+  const { query } = useRouter();
+  const mounted = useMounted();
 
-  const typeOptions = useMemo(
-    () =>
-      dataResLedger?.data?.ledger_accounts?.map?.(({ name, id, ...props }) => ({
-        label: name,
-        value: id,
-        data: props,
-      })) ?? [],
-    [dataResLedger]
-  );
+  const dariQuery = typeof query.id === 'string' ? query.id : undefined;
+  const dariAlamat = mounted ? window.location.pathname.split('/')[2] : undefined;
+  const ruas = dariQuery ?? dariAlamat;
 
-  const { data: resLedgers } = useFetchLedgers({
-    order_by: {
-      created_at: 'desc',
-      type: 'desc',
-      sequence: 'desc',
-    },
-    where: {
-      name: type?.label ?? '',
-    },
-    where_greater_equal: {
-      created_at: formatDateYYYYMMDDHHmmss(dayjs(fromDate).startOf('day')) ?? '',
-    },
-    where_lower_equal: {
-      created_at: formatDateYYYYMMDDHHmmss(dayjs(toDate).endOf('day')) ?? '',
-    },
-    forceUrl: paginationUrl,
-    per_page: pageSize,
-  });
+  // Render pertama (di server dan sebelum efek jalan) sengaja kosong: tanpa nama akun,
+  // merender tampilannya akan menembakkan satu request jurnal umum yang langsung dibuang.
+  if (!ruas) return null;
 
-  const {
-    data: dataLedger = [],
-    from,
-    to,
-    total,
-    links,
-    next_page_url,
-    last_page_url,
-    prev_page_url,
-  } = resLedgers?.data?.ledgers ?? {};
+  const akun = decodeURIComponent(ruas);
 
-  const { columns, data = [] } = useLedger(dataLedger);
+  return <LedgerView key={akun} akun={akun} />;
+};
 
-  useEffect(() => {
-    setType(typeOptions.find((val) => val.label === query.id));
-  }, [query.id, typeOptions]);
+LedgerPage.themeable = true;
 
-  const getPeriodBalance = () => {
-    // total bisa belum ada di respons; tanpa fallback, aritmetikanya menghasilkan NaN
-    // yang langsung tampil sebagai saldo periode.
-    const debit = +(resLedgers?.data?.total?.debit ?? 0);
-    const credit = +(resLedgers?.data?.total?.credit ?? 0);
-
-    return type?.data?.type === 'debit' ? debit - credit : credit - debit;
-  };
-
-  const periodBalance = getPeriodBalance();
-  return (
-    <div>
-      <section>
-        <CardDashboard>
-          <Table
-            withoutStripe
-            search={() => (
-              <div>
-                <div className="mt-2 mb-4 flex justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-1">Buku Besar</h2>
-                    <span className="text-xl font-bold">Saldo : {formatToIDR(type?.data?.balance ?? 0)}</span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="flex flex-wrap mb-4 gap-4">
-                      {typeOptions?.length > 1 && (
-                        <ThemedSelect
-                          value={type}
-                          onChange={(val) => {
-                            const option = val as Option | null;
-                            if (option) push(`/ledger/${option.label}`);
-                          }}
-                          options={typeOptions}
-                          className="w-52"
-                        />
-                      )}
-                      <DateRangePicker
-                        values={[fromDate, toDate]}
-                        onChangeFrom={(date) => {
-                          setFromDate(date);
-                        }}
-                        onChangeTo={(date) => {
-                          setToDate(date);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between">
-                    <span className="text-lg font-bold">
-                      Periode : {formatDate(fromDate)} - {formatDate(toDate)}
-                    </span>
-                    <span className="flex gap-4">
-                      <span>
-                        Tipe akun : <b>{type?.data?.type}</b>
-                      </span>
-                      <span>Total debit : {formatToIDR(resLedgers?.data.total.debit ?? 0)}</span>
-                      <span>Total credit : {formatToIDR(resLedgers?.data.total.credit ?? 0)}</span>
-                      {resLedgers && (
-                        <span>
-                          Penambahan saldo :{' '}
-                          <span className={periodBalance > 0 ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>
-                            {formatToIDR(periodBalance)}
-                          </span>
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-            columns={columns}
-            data={data}
-          />
-          <Pagination
-            stats={{
-              from: `${from ?? '0'}`,
-              to: `${to ?? '0'}`,
-              total: `${total ?? '0'}`,
-            }}
-            onClickPageButton={(url) => {
-              setPaginationUrl(url);
-            }}
-            links={links ?? []}
-            onClickNext={() => {
-              setPaginationUrl(next_page_url ?? '');
-            }}
-            onClickPrevious={() => {
-              setPaginationUrl(prev_page_url ?? '');
-            }}
-            onClickGoToPage={(val) => {
-              setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
-            }}
-            onChangePerPage={(page) => {
-              setPaginationUrl('');
-              setPageSize(page?.value ?? 0);
-            }}
-          />
-        </CardDashboard>
-      </section>
-    </div>
-  );
-}
-
-export default AuditPage;
+export default LedgerPage;

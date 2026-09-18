@@ -67,3 +67,21 @@ export function formatPaymentMethod(payment: string) {
 
   return 'Kas';
 }
+
+/**
+ * Nomor HP Indonesia dikelompokkan supaya bisa dibaca dan dicocokkan sekilas.
+ *
+ * `6281210008007` → `62 812-1000-8007`. Disimpan tetap sebagai satu deretan angka;
+ * pengelompokan ini hanya untuk dilihat. Nomor yang bentuknya di luar dugaan
+ * dikembalikan apa adanya — lebih baik tampil mentah daripada tampil salah potong.
+ */
+export function formatPhoneNumber(phone?: string | null): string {
+  const angka = `${phone ?? ''}`.replace(/\D/g, '');
+  if (!angka) return '';
+  if (!angka.startsWith('62') || angka.length < 9) return angka;
+
+  const sisa = angka.slice(2);
+  const bagian = [sisa.slice(0, 3), sisa.slice(3, 7), sisa.slice(7)].filter(Boolean);
+
+  return `62 ${bagian.join('-')}`;
+}

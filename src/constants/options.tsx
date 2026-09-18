@@ -253,6 +253,20 @@ export const SALES_DEBIT_ACCOUNT: Record<string, string> = {
 };
 
 /**
+ * Akun yang DIKREDIT untuk tiap metode bayar pada barang masuk.
+ *
+ * Diambil dari `match` di TransactionObserver::updated saat status naik ke `on-review`.
+ * Bedanya dengan penjualan cuma satu, tapi menentukan: `debt` di sini jatuh ke Utang
+ * (kita yang berutang ke supplier), bukan Piutang.
+ */
+export const PURCHASE_CREDIT_ACCOUNT: Record<string, string> = {
+  cash: 'Kas',
+  bank: 'Bank',
+  debt: 'Utang',
+  current_account: 'Giro',
+};
+
+/**
  * Warna pill metode bayar. Dipilih menurut akibatnya pada piutang, bukan selera:
  * Kas dan Bank menutup transaksi di tempat, Giro menundanya sampai jatuh tempo,
  * Utang meninggalkannya sepenuhnya sebagai piutang.

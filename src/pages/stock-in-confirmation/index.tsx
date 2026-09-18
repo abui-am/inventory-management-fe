@@ -1,14 +1,11 @@
-import React, { PropsWithChildren } from 'react';
+import { NextPage } from 'next';
 
-import { CardDashboard } from '@/components/Container';
-import TableStockIn from '@/components/table/TableStockIn';
+import StockInPage from '@/components/stock-in/StockInPage';
+import { ThemeablePage } from '@/typings/page';
 
-const ConfirmationPage: React.FC<PropsWithChildren<unknown>> = () => {
-  return (
-    <CardDashboard>
-      <TableStockIn variant="pending" />
-    </CardDashboard>
-  );
-};
+/** Antrean konfirmasi: barang masuk yang masih berstatus Menunggu. */
+const StockInConfirmationPage: NextPage & ThemeablePage = () => <StockInPage fixedStatus="pending" />;
 
-export default ConfirmationPage;
+StockInConfirmationPage.themeable = true;
+
+export default StockInConfirmationPage;

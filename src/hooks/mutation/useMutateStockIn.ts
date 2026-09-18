@@ -3,8 +3,8 @@ import { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 
 import { BackendRes, BackendResError } from '@/typings/request';
-import { CreateStockInBody, TransactionData } from '@/typings/stock-in';
-import { getApiBasedOnRoles } from '@/utils/api';
+import { CreateStockInBody, ReturnStockInBody, TransactionData } from '@/typings/stock-in';
+import { apiInstanceAdmin, getApiBasedOnRoles } from '@/utils/api';
 
 import keys from '../keys';
 import { useFetchMyself } from '../query/useFetchEmployee';
@@ -82,6 +82,48 @@ export const useUpdateStockIn = (): UseMutationResult<
         toast.success(data.message);
         queryClient.invalidateQueries(['transactions']);
         queryClient.invalidateQueries([keys.items]);
+      },
+      onError: (data: AxiosError<BackendResError<unknown>>) => {
+        toast.error(data.response?.data.message ?? '');
+      },
+    }
+  );
+  return mutator;
+};
+
+/**
+ * Retur barang masuk — sebagian atau seluruh barang dikembalikan ke supplier.
+ *
+ * Hanya lewat instance superadmin: seperti pembatalan penjualan, aksinya mengurangi stok
+ * dan menulis jurnal, jadi rutenya memang hanya ada di prefix superadmin.
+ */
+export const useReturnStockIn = (): UseMutationResult<
+  Omit<BackendRes<unknown>, 'data'>,
+  unknown,
+  { transactionId: string } & ReturnStockInBody,
+  unknown
+> => {
+  const queryClient = useQueryClient();
+
+  const mutator = useMutation(
+    [keys.transactions, 'return'],
+    async ({ transactionId, ...body }: { transactionId: string } & ReturnStockInBody) => {
+      const res = await apiInstanceAdmin().patch<ReturnStockInBody, AxiosResponse<BackendRes<unknown>>>(
+        `/transactions/${transactionId}/return`,
+        body
+      );
+      return res.data;
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message);
+        queryClient.invalidateQueries([keys.transactions]);
+        queryClient.invalidateQueries([keys.items]);
+        queryClient.invalidateQueries([keys.ledgers]);
+        queryClient.invalidateQueries([keys.ledgerAccounts]);
+        queryClient.invalidateQueries([keys.debts]);
+        queryClient.invalidateQueries([keys.incomeReport]);
+        queryClient.invalidateQueries([keys.capitalReport]);
       },
       onError: (data: AxiosError<BackendResError<unknown>>) => {
         toast.error(data.response?.data.message ?? '');

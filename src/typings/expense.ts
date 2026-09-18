@@ -13,6 +13,9 @@ export interface Expense {
   amount: number;
   payment_method: string;
   date: string;
+  /** Pencatat beban — `Expense::defaultView` mengirim keduanya. */
+  user_id?: string | null;
+  user_name?: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -39,6 +42,24 @@ export interface Expenses {
   total: number;
 }
 
+/**
+ * Ringkasan untuk rentang tanggal yang sedang dibuka — dihitung `ExpenseController::totals`,
+ * bukan dijumlah dari halaman yang sedang tampil.
+ */
+export interface ExpenseTotals {
+  total: number;
+  count: number;
+  cash: number;
+  cash_count: number;
+  bank: number;
+  bank_count: number;
+}
+
 export interface ExpensesResponse {
   expenses: Expenses;
+  totals: ExpenseTotals;
+}
+
+export interface ExpenseNamesResponse {
+  expense_names: { name: string }[];
 }

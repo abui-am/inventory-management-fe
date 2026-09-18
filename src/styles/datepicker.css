@@ -147,3 +147,36 @@
   background-color: hsl(var(--surface));
   border-left-color: hsl(var(--border));
 }
+
+/* Popover rentang: daftar preset di kiri, kalender di kanan.
+   react-datepicker menaruh `children` di `__children-container` SETELAH bulannya, dengan
+   lebar tetap 250px dan margin sendiri. `order: -1` memindahkannya ke kiri tanpa harus
+   menulis ulang tata letak kalendernya, dan lebarnya diserahkan ke komponennya. */
+.datepicker-kalender {
+  --lebar-preset: 152px;
+
+  display: flex;
+  align-items: stretch;
+  /* Latar pilihan aktif penuh sampai tepi kolomnya, jadi baris teratas dan terbawah
+     menyentuh sudut popover. Tanpa ini sudutnya yang membulat jadi terpotong persegi. */
+  overflow: hidden;
+}
+
+/* Panah ganti bulan diposisikan absolut terhadap `.react-datepicker`, jadi begitu daftar
+   preset menempati sisi kiri, panah "bulan sebelumnya" mendarat di atas item teratasnya.
+   Digeser sepanjang lebar daftar itu — satu angka, disimpan sebagai variabel di atas. */
+.datepicker-kalender .react-datepicker__navigation--previous {
+  left: calc(var(--lebar-preset) + 10px);
+}
+
+.datepicker-kalender .react-datepicker__children-container {
+  order: -1;
+  width: var(--lebar-preset);
+  margin: 0;
+  padding: 0;
+  /* `display: flex` DIBUTUHKAN, bukan hiasan: wadah ini ikut meregang setinggi kalender,
+     tapi daftar di dalamnya hanya setinggi isinya — dan garis pemisahnya, yang menempel
+     pada daftar itu, berhenti di tengah jalan. Dengan flex, daftarnya meregang penuh. */
+  display: flex;
+  border-right: 1px solid hsl(var(--border));
+}

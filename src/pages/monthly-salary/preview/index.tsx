@@ -40,7 +40,6 @@ function CreateNewPayrollList({ date }: { date: Date }) {
     links,
     next_page_url,
     prev_page_url,
-    last_page_url,
   } = dataRes?.data?.employees ?? {};
   const { columns, data } = useSalaryPreview(dataPreview);
   const router = useRouter();
@@ -86,9 +85,6 @@ function CreateNewPayrollList({ date }: { date: Date }) {
           from: `${from ?? '0'}`,
           to: `${to ?? '0'}`,
           total: `${total ?? '0'}`,
-        }}
-        onClickGoToPage={(val) => {
-          setPaginationUrl(`${(last_page_url as string).split('?')[0]}?page=${val}`);
         }}
         onChangePerPage={(page) => {
           setPaginationUrl('');

@@ -10,13 +10,13 @@ import toast from 'react-hot-toast';
 import { CurrencyTextField, DatePickerComponent, TextField, WithLabelAndError } from '@/components/Form';
 import Modal from '@/components/Modal';
 import { SelectCustomer, SelectSender } from '@/components/Select';
-import CustomerReceivableCard from '@/components/transaction/CustomerReceivableCard';
 import ItemTable, { ItemRow } from '@/components/transaction/ItemTable';
 import JournalPreviewCard from '@/components/transaction/JournalPreviewCard';
-import { Payment } from '@/components/transaction/PaymentMethod';
-import PaymentRow from '@/components/transaction/PaymentRow';
+import PartyBalanceCard from '@/components/transaction/PartyBalanceCard';
+import PaymentRow, { Payment } from '@/components/transaction/PaymentRow';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DialogDivider, DialogHeading, DialogRow } from '@/components/ui/dialog-summary';
 import { Label } from '@/components/ui/label';
 import { METHODS_ON_CREDIT, METHODS_WITH_DUE_DATE, PAYMENT_METHOD_OPTIONS } from '@/constants/options';
 import { useCreateSale } from '@/hooks/mutation/useMutateSale';
@@ -193,15 +193,23 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
    * termasuk kalau lebih. Menyerahkannya ke server berarti cashier baru tahu setelah
    * menekan simpan dan menerima pesan yang tidak menyebutkan bagian mana yang salah.
    */
-  const blockers: string[] = [];
-  if (!values.customer) blockers.push('Customer belum dipilih');
-  if (!values.sender) blockers.push('Pengirim belum dipilih');
-  if (values.stockAdjustment.length === 0) blockers.push('Belum ada barang');
+  // Isinya ReactNode, bukan string: nominal di dalamnya ditulis mono dan tabular seperti
+  // setiap angka lain di halaman ini. `id` yang dipakai sebagai key, bukan isinya.
+  const blockers: { id: string; isi: React.ReactNode }[] = [];
+  const halangan = (id: string, isi: React.ReactNode = id) => blockers.push({ id, isi });
+
+  if (!values.customer) halangan('Customer belum dipilih');
+  if (!values.sender) halangan('Pengirim belum dipilih');
+  if (values.stockAdjustment.length === 0) halangan('Belum ada barang');
   else if (totalPaid !== totalPriceAfterDiscount) {
-    blockers.push(
-      totalPaid < totalPriceAfterDiscount
-        ? `Pembayaran kurang ${formatNumber(totalPriceAfterDiscount - totalPaid)}`
-        : `Pembayaran lebih ${formatNumber(totalPaid - totalPriceAfterDiscount)}`
+    const kurang = totalPaid < totalPriceAfterDiscount;
+    const selisih = Math.abs(totalPriceAfterDiscount - totalPaid);
+    halangan(
+      `Pembayaran ${kurang ? 'kurang' : 'lebih'}`,
+      <>
+        Pembayaran {kurang ? 'kurang' : 'lebih'}{' '}
+        <span className="font-mono font-semibold tabular-nums">{formatNumber(selisih)}</span>
+      </>
     );
   }
 
@@ -478,8 +486,8 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
             <Tippy
               content={
                 <div className="flex flex-col gap-0.75">
-                  {blockers.map((h) => (
-                    <span key={h}>{h}</span>
+                  {blockers.map(({ id, isi }) => (
+                    <span key={id}>{isi}</span>
                   ))}
                 </div>
               }
@@ -495,7 +503,8 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
             </Tippy>
           </div>
 
-          <CustomerReceivableCard
+          <PartyBalanceCard
+            variant="customer"
             name={values.customer?.label}
             currentDebt={+(values.customer?.data?.total_debt ?? 0)}
             creditThisTransaction={creditThisTransaction}
@@ -585,46 +594,6 @@ const invoiceFromForm = (
 };
 
 /**
- * Satu baris label–nilai di dalam dialog.
- *
- * Metode bayar sempat tampil sebagai pill berwarna di sini dan dicabut lagi: di form,
- * warna itu berguna karena barisnya banyak dan perlu dipindai; di dialog yang isinya
- * cuma satu-dua baris, ia jadi noda warna yang menarik perhatian ke tempat yang salah.
- * Warna disisakan untuk yang benar-benar punya arti — total, selisih, dan peringatan.
- */
-function DialogRow({
-  label,
-  value,
-  strong,
-  tone,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-  tone?: 'accent' | 'warning' | 'success';
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-foreground-muted">{label}</span>
-      <span
-        className={cn(
-          'font-mono tabular-nums',
-          strong ? 'font-semibold' : 'font-medium',
-          tone === 'accent' && 'text-accent',
-          tone === 'warning' && 'text-warning',
-          tone === 'success' && 'text-success'
-        )}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-/** Garis pemisah tipis di dalam blok ringkasan dialog. */
-const DialogDivider = () => <div className="my-0.5 h-px bg-border" />;
-
-/**
  * Konfirmasi sebelum transaksi disimpan.
  *
  * Bukan sekadar "yakin?" — dialognya mengulang apa yang akan tersimpan, dan menyebut
@@ -649,17 +618,14 @@ const ModalConfirm: React.FC<
   return (
     <Modal isOpen={isOpen} onRequestClose={saving ? undefined : onClose} bodyClassName="p-4">
       <div className="flex flex-col gap-2.5">
-        <div>
-          <h2 className="text-lg font-semibold">Simpan transaksi?</h2>
-          <p className="mt-0.5 text-sm leading-[17px] text-foreground-muted">
-            Jurnalnya ditulis begitu tersimpan dan stok barang langsung berkurang.
-          </p>
-        </div>
+        <DialogHeading title="Simpan transaksi?">
+          Jurnalnya ditulis setelah tersimpan dan stok barang langsung berkurang.
+        </DialogHeading>
 
         {/* Satu blok, bukan tiga: identitas, pembayaran, dan total dulu berdiri sebagai
             kotak terpisah dan dialognya jadi tinggi tanpa menambah informasi apa pun. */}
         <div className="flex flex-col gap-1.25 rounded-lg bg-surface-raised px-3.25 py-2.5">
-          <DialogRow label="Customer" value={values.customer?.label ?? 'Umum'} />
+          <DialogRow label="Customer" value={values.customer?.label ?? 'Umum'} mono={false} />
           <DialogRow label="Barang" value={`${values.stockAdjustment.length}`} />
           <DialogDivider />
           {amountByMethod.map(({ method, amount }) => (
@@ -676,8 +642,16 @@ const ModalConfirm: React.FC<
 
         {creditThisTransaction > 0 && (
           <p className="rounded-lg bg-warning-subtle px-3.25 py-2 text-sm leading-[17px] text-warning">
-            Piutang {values.customer?.label ?? 'customer'} bertambah {formatNumber(creditThisTransaction)} menjadi{' '}
-            {formatNumber(currentDebt + creditThisTransaction)}.
+            {/* Nominalnya mono dan tabular seperti setiap angka lain di dialog ini —
+                ditulis dengan huruf teks biasa, ia satu-satunya angka yang lebarnya
+                tidak seragam dan terbaca sebagai bagian dari kalimat, bukan sebagai
+                nilai yang perlu diperiksa. */}
+            Piutang {values.customer?.label ?? 'customer'} bertambah{' '}
+            <span className="font-mono font-semibold tabular-nums">{formatNumber(creditThisTransaction)}</span> menjadi{' '}
+            <span className="font-mono font-semibold tabular-nums">
+              {formatNumber(currentDebt + creditThisTransaction)}
+            </span>
+            .
           </p>
         )}
 
@@ -747,7 +721,7 @@ const ModalSummary: React.FC<
         </div>
 
         <div className="flex flex-col gap-1.25 rounded-lg bg-surface-raised px-3.25 py-2.5">
-          <DialogRow label="Customer" value={values.customer?.label ?? 'Umum'} />
+          <DialogRow label="Customer" value={values.customer?.label ?? 'Umum'} mono={false} />
           <DialogDivider />
           {amountByMethod.map(({ method, amount }) => (
             <DialogRow key={method} label={formatPaymentMethod(method)} value={formatNumber(amount)} />

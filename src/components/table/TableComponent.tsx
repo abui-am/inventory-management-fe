@@ -1,14 +1,12 @@
 import { Form, Formik } from 'formik';
-import React, { PropsWithChildren, useMemo } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { Download } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
 import { useUpdateItem } from '@/hooks/mutation/useMutateItems';
-import { useUpdateStockIn } from '@/hooks/mutation/useMutateStockIn';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import useFetchInvoice from '@/hooks/query/useFetchInvoice';
 import { useFetchItemById } from '@/hooks/query/useFetchItem';
-import { useFetchTransactionById } from '@/hooks/query/useFetchStockIn';
 import { useDetailSaleAdaptor } from '@/hooks/table/useDetailSale';
 import { useDetailStockInAdaptor } from '@/hooks/table/useDetailStockin';
 import useItemPriceAdjustment from '@/hooks/table/useItemPriceAdjustment';
@@ -226,46 +224,6 @@ const ItemInfo: React.FC<
         </div>
       )}
     </>
-  );
-};
-
-export const SellPriceAdjustment: React.FC<PropsWithChildren<{ transactionId: string; onClose: () => void }>> = ({
-  transactionId,
-  onClose,
-}) => {
-  const { data: dataTrans, isFetching } = useFetchTransactionById(transactionId, { enabled: !!transactionId });
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const { items = [] } = useMemo(() => dataTrans?.data.transaction ?? { items: [] }, [isFetching]);
-  const { columns, data, initialValues } = useDetailStockInAdaptor(items, true);
-  const { mutateAsync, isLoading } = useUpdateStockIn();
-  return (
-    <Modal isOpen={!!transactionId} onRequestClose={onClose} variant="screen">
-      <h2 className="text-2xl font-bold mt-2 max">Tentukan Harga Jual</h2>
-      <Formik
-        initialValues={initialValues}
-        enableReinitialize
-        onSubmit={(values) => {
-          mutateAsync({
-            transactionId: transactionId ?? '',
-            data: {
-              status: 'accepted',
-              items: values.data,
-            },
-          });
-          onClose();
-        }}
-      >
-        <Form>
-          <ResponsiveTable columns={columns} data={data} />
-          <div className="mt-4 flex justify-end">
-            <Button disabled={isLoading} variant="primary" type="submit">
-              Simpan Harga
-            </Button>
-          </div>
-        </Form>
-      </Formik>
-    </Modal>
   );
 };
 

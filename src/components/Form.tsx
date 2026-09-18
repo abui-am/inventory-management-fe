@@ -63,6 +63,9 @@ const ValueContainer: React.FC<PropsWithChildren<ValueContainerProps<SelectOptio
 };
 
 export type ThemedSelectProps = Partial<AsyncProps<SelectOption, boolean, SelectGroup>> & {
+  /** Diteruskan ke CreatableSelect — dipakai SelectItems untuk menawarkan barang baru. */
+  formatCreateLabel?: (input: string) => React.ReactNode;
+  isValidNewOption?: (input: string) => boolean;
   variant?: SelectVariant;
   additionalStyle?: AdditionalStyle;
   disableMargin?: boolean;
@@ -250,41 +253,65 @@ const formatItemsToOption = (items: ItemData[] = []) =>
     data: { name, id, item_id, ...rest },
   })) ?? [];
 
-const SelectItems: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
-  variant = 'outlined',
-  additionalStyle,
-  ...props
-}) => {
-  const { mutateAsync: search } = useSearchItems();
-  // Tanpa filter quantity: select ini hanya dipakai di halaman Barang Masuk, dan barang yang
-  // stoknya habis justru yang paling perlu bisa dipilih untuk direstock. Filter
-  // `where_greater_equal: { quantity: 1 }` menyembunyikannya dan memaksa operator membuat
-  // barang duplikat. (SelectItemsDetail — dipakai untuk penjualan — tetap memfilter.)
-  const { data } = useFetchItems();
+const SelectItems = forwardRef(
+  (
+    { variant = 'outlined', additionalStyle, ...props }: PropsWithChildren<ThemedSelectProps>,
+    ref: Ref<SelectInstance<SelectOption, boolean, SelectGroup>>
+  ): JSX.Element => {
+    const { mutateAsync: search } = useSearchItems();
+    const animation = useMenuAnimation();
+    const [portal, setPortal] = useState<HTMLElement>();
+    useEffect(() => {
+      setPortal(document.getElementById('__next') ?? document.body);
+    }, []);
+    // Tanpa filter quantity: select ini hanya dipakai di halaman Barang Masuk, dan barang yang
+    // stoknya habis justru yang paling perlu bisa dipilih untuk direstock. Filter
+    // `where_greater_equal: { quantity: 1 }` menyembunyikannya dan memaksa operator membuat
+    // barang duplikat. (SelectItemsDetail — dipakai untuk penjualan — tetap memfilter.)
+    const { data } = useFetchItems();
 
-  // debounce() menyimpan timer-nya di closure. Kalau dipanggil langsung di dalam render,
-  // tiap re-render menghasilkan closure baru dengan timer baru, sehingga clearTimeout tidak
-  // pernah membatalkan timer render sebelumnya dan request tidak benar-benar ter-debounce.
-  const loadOptions = useMemo(
-    () =>
-      debounce(async (val: string) => {
-        if (!val) return [];
-        const { data: searchData } = await search({ search: val });
-        return formatItemsToOption(searchData?.items?.data ?? []);
-      }, 300),
-    [search]
-  );
+    // debounce() menyimpan timer-nya di closure. Kalau dipanggil langsung di dalam render,
+    // tiap re-render menghasilkan closure baru dengan timer baru, sehingga clearTimeout tidak
+    // pernah membatalkan timer render sebelumnya dan request tidak benar-benar ter-debounce.
+    const loadOptions = useMemo(
+      () =>
+        debounce(async (val: string) => {
+          if (!val) return [];
+          const { data: searchData } = await search({ search: val });
+          return formatItemsToOption(searchData?.items?.data ?? []);
+        }, 300),
+      [search]
+    );
 
-  return (
-    <CreatableAsyncSelect
-      {...props}
-      styles={getThemedSelectStyle(variant, additionalStyle)}
-      defaultOptions={formatItemsToOption(data?.data.items.data ?? [])}
-      loadOptions={loadOptions}
-      isClearable
-    />
-  );
-};
+    return (
+      <CreatableAsyncSelect
+        {...props}
+        ref={ref}
+        instanceId={props.instanceId ?? props.name}
+        // Menu dipindahkan keluar dari kartunya, alasan yang sama dengan SelectItemsDetail:
+        // kotak cari ini duduk di dasar kartu `overflow-hidden`, jadi tanpa portal menunya
+        // terbuka tapi terpotong habis.
+        menuPortalTarget={portal}
+        menuShouldScrollIntoView
+        styles={getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle })}
+        defaultOptions={formatItemsToOption(data?.data.items.data ?? [])}
+        loadOptions={loadOptions}
+        components={{
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          Option: ItemOption as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          SingleValue: ItemSingleValue as any,
+        }}
+        menuIsOpen={animation.menuIsOpen}
+        onMenuOpen={animation.onMenuOpen}
+        onMenuClose={animation.onMenuClose}
+        isClearable
+      />
+    );
+  }
+);
+
+SelectItems.displayName = 'SelectItems';
 
 /**
  * Option barang dua baris: nama di atas, kode barang di bawah.
@@ -294,20 +321,50 @@ const SelectItems: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
  * dengan baris yang sudah masuk ke tabel.
  */
 function ItemOption(props: OptionProps<{ label: string; value: string; data: Item }>) {
-  const { data, isSelected } = props;
+  const { data, isSelected, children } = props;
+
+  // Option "Barang baru: …" milik CreatableSelect tidak punya data master. Tanpa cabang
+  // ini ia dibaca sebagai barang berstok nol dan tampil dengan lencana "Stok habis".
+  if (!data.data) return <components.Option {...props}>{children}</components.Option>;
+
+  const stok = data.data?.quantity ?? 0;
+  const habis = stok < 1;
+
+  /*
+    Option terpilih berlatar aksen penuh. `foreground-subtle` di atasnya nyaris
+    tidak terbaca — di tema terang rasio kontrasnya jatuh ke bawah 3:1. Di keadaan
+    itu keterangannya memakai warna teks aksen, dan hierarkinya tetap terjaga lewat
+    ukuran dan huruf mono, bukan lewat warna yang dipudarkan.
+  */
+  const redup = isSelected ? 'text-accent-foreground' : 'text-foreground-subtle';
+
   return (
     <components.Option {...props}>
-      <div className="flex flex-col">
-        <span className="text-base">{data.data?.name ?? data.label}</span>
-        {/*
-          Option terpilih berlatar aksen penuh. `foreground-subtle` di atasnya nyaris
-          tidak terbaca — di tema terang rasio kontrasnya jatuh ke bawah 3:1. Di keadaan
-          itu kodenya memakai warna teks aksen, dan hierarkinya tetap terjaga lewat
-          ukuran 10px dan huruf mono, bukan lewat warna yang dipudarkan.
-        */}
-        <span className={cn('font-mono text-2xs', isSelected ? 'text-accent-foreground' : 'text-foreground-subtle')}>
-          {data.data?.item_id ?? '-'}
-        </span>
+      {/* Stok dan harga ditampilkan SEBELUM barangnya dipilih. Sebelumnya keduanya baru
+          terlihat setelah masuk daftar, jadi "ada stoknya tidak?" hanya bisa dijawab
+          dengan mencoba memilih dulu. */}
+      <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-base">{data.data?.name ?? data.label}</span>
+          <span className={cn('font-mono text-2xs', redup)}>
+            {data.data?.item_id ?? '-'}
+            {stok > 0 && ` · stok ${stok} ${data.data?.unit ?? ''}`.trimEnd()}
+          </span>
+        </div>
+        {habis ? (
+          <span className="shrink-0 rounded-md bg-destructive-subtle px-1.5 text-xs font-semibold text-destructive">
+            Stok habis
+          </span>
+        ) : (
+          <span
+            className={cn(
+              'shrink-0 font-mono text-sm tabular-nums',
+              isSelected ? 'text-accent-foreground' : 'text-foreground-muted'
+            )}
+          >
+            {formatToIDR(data.data?.sell_price ?? 0)}
+          </span>
+        )}
       </div>
     </components.Option>
   );
@@ -342,11 +399,10 @@ export const SelectItemsDetail = forwardRef(
     ref: Ref<SelectInstance<SelectOption, boolean, SelectGroup>>
   ): JSX.Element => {
     const { mutateAsync: search } = useSearchItems();
-    const { data } = useFetchItems({
-      where_greater_equal: {
-        quantity: 1,
-      },
-    });
+    // Barang berstok nol IKUT diambil, lalu dimatikan di daftarnya (isOptionDisabled).
+    // Sebelumnya ia disaring habis di sini — dan barang yang dicari tapi tidak muncul
+    // terbaca sebagai "barangnya belum didaftarkan", bukan "stoknya habis".
+    const { data } = useFetchItems();
 
     // Menu dipindahkan ke <body>. Select ini dipakai di dalam sel tabel yang wadahnya
     // `overflow-x-auto` di dalam kartu `overflow-hidden`; tanpa portal, menunya benar-benar
@@ -365,12 +421,7 @@ export const SelectItemsDetail = forwardRef(
     const loadOptions = useMemo(
       () =>
         debounce(async (val: string) => {
-          const { data: searchData } = await search({
-            search: val,
-            where_greater_equal: {
-              quantity: 1,
-            },
-          });
+          const { data: searchData } = await search({ search: val });
 
           return formatItemsToOption(searchData?.items?.data ?? []);
         }, 300),
@@ -388,6 +439,8 @@ export const SelectItemsDetail = forwardRef(
         // hilang, klik tidak menghasilkan apa-apa. `instanceId` memasang id yang tetap.
         instanceId={props.instanceId ?? props.name}
         defaultOptions={defaultOptions}
+        // Barang berstok nol tetap terlihat, tapi tidak bisa dipilih.
+        isOptionDisabled={(opsi) => (((opsi as { data?: Item })?.data?.quantity ?? 0) as number) < 1}
         menuPortalTarget={portal}
         menuShouldScrollIntoView
         ref={ref}
