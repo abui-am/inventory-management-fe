@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:11px;font-weight:700;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:11px;font-weight:700;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="min-height:720px">
+    <style>.root *{box-sizing:border-box}</style>
+  <div style="padding:22px 24px;display:flex;flex-direction:column;gap:22px">
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Audit belum dibuat</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">yang dilihat petugas saat membuka tanggal kosong</span>
+      </div>
+      <div style="display:flex;gap:18px;align-items:flex-start">
+      <div class="card" style="width:640px;padding:0;overflow:hidden">
+        <div style="padding:34px 30px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px">
+          <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-subtle);color:var(--accent);
+            display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4.5" width="12" height="16" rx="2"/><path d="M9.5 4.5h5v2.5h-5z"/><path d="M9.5 11h5M9.5 15h3"/></svg></span>
+          <div style="font-size:14px;font-weight:700">Audit 15 Sep 2026 belum dibuat</div>
+          <div style="font-size:12px;color:var(--foreground-muted);max-width:400px;line-height:1.55">
+            Memulai audit memasukkan seluruh barang ke daftar hitung, berikut stok sistemnya saat ini sebagai
+            pembanding. Barang yang masuk setelah audit dibuat tidak ikut terhitung.
+          </div>
+          <div style="display:flex;gap:7px;margin-top:5px">
+            <span class="btn sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4.5" width="12" height="16" rx="2"/><path d="M9.5 4.5h5v2.5h-5z"/><path d="M9.5 11h5M9.5 15h3"/></svg>Mulai audit</span>
+            <span class="btn ghost sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg>Pilih tanggal lain</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);background:var(--surface-raised);padding:9px 14px;
+          font-size:11px;color:var(--foreground-subtle)">
+          Audit terakhir: <span class="mono" style="color:var(--foreground-muted)">14 Sep 2026</span> ·
+          35 barang · 2 selisih disetujui
+        </div>
+      </div>
+      <div class="card" style="width:420px;padding:16px;display:flex;flex-direction:column;gap:10px;
+        box-shadow:var(--shadow-md)">
+        <div>
+          <div style="font-size:14px;font-weight:700">Mulai audit hari ini?</div>
+          <div style="font-size:12px;color:var(--foreground-muted);margin-top:8px;line-height:1.5">Seluruh barang masuk daftar hitung sekarang, berikut stok sistemnya saat ini sebagai pembanding. Pastikan tidak ada barang masuk yang belum dicatat — barang yang masuk setelah ini tidak ikut terhitung.</div>
+        </div>
+<div style="display:flex;flex-direction:column;gap:5px;border-radius:9px;background:var(--surface-raised);padding:10px 13px">        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Tanggal</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--foreground)">15 Sep 2026</span>
+        </div>        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Barang yang dihitung</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--foreground)">35</span>
+        </div>        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Petugas</span>
+          <span class="" style="font-size:12px;font-weight:600;color:var(--foreground)">Kepala Gudang</span>
+        </div></div>
+        <div style="display:flex;justify-content:flex-end;gap:7px;margin-top:2px"><span class="btn ghost sm">Batal</span><span class="btn sm" style="">Mulai audit</span></div>
+      </div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Dua konfirmasi yang sekarang tidak ada</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">keduanya menghapus atau mengunci sesuatu</span>
+      </div>
+      <div style="display:flex;gap:18px;align-items:flex-start">
+      <div class="card" style="width:420px;padding:16px;display:flex;flex-direction:column;gap:10px;
+        box-shadow:var(--shadow-md)">
+        <div>
+          <div style="font-size:14px;font-weight:700">Buat ulang audit 15 Sep 2026?</div>
+          <div style="font-size:12px;color:var(--foreground-muted);margin-top:8px;line-height:1.5">Seluruh baris audit tanggal ini dihapus lalu dibuat ulang dari stok sistem terbaru. Hitungan yang sudah dikirim hari ini hilang dan tidak bisa dikembalikan.</div>
+        </div>
+<div style="display:flex;flex-direction:column;gap:5px;border-radius:9px;background:var(--surface-raised);padding:10px 13px">        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Tanggal</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--foreground)">15 Sep 2026</span>
+        </div>        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Sudah dihitung</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--warning)">12 barang</span>
+        </div>        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Akan hilang</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--destructive)">12 hitungan</span>
+        </div></div>
+        <div style="display:flex;justify-content:flex-end;gap:7px;margin-top:2px"><span class="btn ghost sm">Kembali</span><span class="btn sm" style="background:var(--destructive);color:var(--destructive-foreground);border-color:var(--destructive)">Ya, buat ulang</span></div>
+      </div>
+      <div class="card" style="width:400px;padding:16px;display:flex;flex-direction:column;gap:10px;
+        box-shadow:var(--shadow-md)">
+        <div>
+          <div style="font-size:14px;font-weight:700">Kesempatan terakhir untuk barang ini</div>
+          <div style="font-size:12px;color:var(--foreground-muted);margin-top:8px;line-height:1.5">Setelah kiriman ini, hitungan Minyak Goreng 2 L terkunci untuk hari ini. Perbaikan hanya bisa dilakukan pemilik lewat Laporan Audit.</div>
+        </div>
+<div style="display:flex;flex-direction:column;gap:5px;border-radius:9px;background:var(--surface-raised);padding:10px 13px">        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Barang</span>
+          <span class="" style="font-size:12px;font-weight:600;color:var(--foreground)">Minyak Goreng 2 L</span>
+        </div>        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Hitungan dikirim</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--foreground)">6 dus</span>
+        </div>        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Kesempatan</span>
+          <span class="mono" style="font-size:12px;font-weight:600;color:var(--warning)">3 dari 3</span>
+        </div></div>
+        <div style="display:flex;justify-content:flex-end;gap:7px;margin-top:2px"><span class="btn ghost sm">Hitung ulang dulu</span><span class="btn sm" style="">Kirim hitungan</span></div>
+      </div>
+      <div style="width:360px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;color:var(--foreground-subtle)">Layar sempit — 360px</div>
+        <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:600;color:var(--foreground)">Beras Premium 5 kg</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">karung</div>
+            </div>
+            <span class="pill" style="background:var(--surface-raised);color:var(--foreground-muted)">Belum dihitung</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-flex;gap:3px"><span style="width:6px;height:6px;border-radius:50%;border:1px solid var(--border-strong)"></span><span style="width:6px;height:6px;border-radius:50%;border:1px solid var(--border-strong)"></span><span style="width:6px;height:6px;border-radius:50%;border:1px solid var(--border-strong)"></span></span><span style="font-size:11px;color:var(--foreground-subtle)">3 tersisa</span></span>
+            <div style="display:flex;align-items:center;gap:6px"><span class="field mono" style="width:96px;justify-content:flex-end;font-size:14px;font-weight:600;color:var(--foreground-subtle);border-color:var(--border-strong)">0</span><span class="ico" style="display:inline-flex;background:var(--accent);border-color:var(--accent);color:var(--accent-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></span></div>
+          </div>
+        </div>
+        <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:600;color:var(--foreground)">Gula Pasir 1 kg</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">pak</div>
+            </div>
+            <span class="pill" style="background:var(--destructive-subtle);color:var(--destructive)">Selisih −2</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-flex;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--foreground-subtle)"></span><span style="width:6px;height:6px;border-radius:50%;border:1px solid var(--border-strong)"></span><span style="width:6px;height:6px;border-radius:50%;border:1px solid var(--border-strong)"></span></span><span style="font-size:11px;color:var(--foreground-subtle)">2 tersisa</span></span>
+            <div style="display:flex;align-items:center;gap:6px"><span class="mono" style="display:inline-flex;align-items:center;justify-content:flex-end;width:96px;height:32px;font-size:14px;font-weight:600;color:var(--foreground-muted)">9</span><span class="ico" style="display:inline-flex;border-color:transparent;color:var(--accent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8l-4-4L4 16z"/></svg></span></div>
+          </div>
+        </div>
+        <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:600;color:var(--foreground-subtle)">Susu Bubuk 400 g</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">kotak</div>
+            </div>
+            <span class="pill" style="background:var(--surface-raised);color:var(--foreground-muted)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>Terkunci</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-flex;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--foreground-subtle)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--foreground-subtle)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--foreground-subtle)"></span></span><span style="font-size:11px;color:var(--foreground-subtle)">habis</span></span>
+            <div style="display:flex;align-items:center;gap:6px"><span class="mono" style="display:inline-flex;align-items:center;justify-content:flex-end;width:96px;height:32px;font-size:14px;font-weight:600;color:var(--foreground-muted)">19</span><span class="ico" style="display:inline-flex;border-color:transparent;color:var(--foreground-subtle);opacity:.45"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg></span></div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Gelap","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Gelap';
+    return { theme: t === 'Gelap' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>

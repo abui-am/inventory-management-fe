@@ -1,0 +1,336 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:11px;font-weight:700;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:11px;font-weight:700;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="min-height:1120px">
+    <style>.root *{box-sizing:border-box}</style>
+  <div style="padding:22px 24px;display:flex;flex-direction:column;gap:22px">
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Catat beban</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">nama beban dibantu daftar yang pernah dipakai</span>
+      </div>
+      <div style="display:flex;gap:18px;align-items:flex-start">
+      <div class="card" style="width:460px;padding:16px;display:flex;flex-direction:column;gap:10px;
+        box-shadow:var(--shadow-md)">
+        <div>
+          <div style="font-size:14px;font-weight:700">Catat beban</div>
+          <div style="font-size:12px;color:var(--foreground-muted);margin-top:8px;line-height:1.5">Uangnya dianggap keluar saat disimpan: jurnal di bawah langsung ditulis, dan saldo sumber dananya berkurang sebesar itu.</div>
+        </div>
+        <div style="width:100%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Nama beban</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="flex:1;color:var(--foreground);font-size:13px">Beban List</span>
+          </div>
+          <div style="font-size:11px;color:var(--foreground-subtle);margin-top:5px">Pilih dari daftar atau ketik nama baru.</div>
+        </div>
+        <div style="width:100%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Keterangan</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="flex:1;color:var(--foreground);font-size:13px">Tagihan September</span>
+          </div>
+          
+        </div>
+        <div style="display:flex;gap:10px">
+        <div style="width:50%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Jumlah</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="flex:1;color:var(--foreground);font-size:13px">486.000</span>
+          </div>
+          
+        </div>
+        <div style="width:50%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Sumber dana</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="display:flex;color:var(--foreground-subtle)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg></span><span style="flex:1;color:var(--foreground);font-size:13px">Kas</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          
+        </div>
+        </div>
+        <div style="width:100%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Tanggal</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="display:flex;color:var(--foreground-subtle)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg></span><span style="flex:1;color:var(--foreground);font-size:13px">16 Sep 2026 09.12</span>
+          </div>
+          <div style="font-size:11px;color:var(--foreground-subtle);margin-top:5px">Kosongkan untuk memakai waktu sekarang.</div>
+        </div>
+        <div style="border-radius:9px;background:var(--surface-raised);padding:10px 13px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Jurnal yang ditulis</div>
+          <table style="width:100%;border-collapse:collapse">
+            <tr>
+              <th class="th" style="padding:0 0 4px;border:0">Akun</th>
+              <th class="th" style="padding:0 0 4px;border:0;text-align:right">Debit</th>
+              <th class="th" style="padding:0 0 4px;border:0;text-align:right">Kredit</th>
+            </tr>
+            <tr>
+              <td style="padding:5px 0;font-size:12px">Beban</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:600;
+                color:var(--destructive)">486.000</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;
+                color:var(--foreground-subtle)">—</td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0;font-size:12px">Kas</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;
+                color:var(--foreground-subtle)">—</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:600;
+                color:var(--success)">486.000</td>
+            </tr>
+            <tr><td colspan="3" style="border-top:1px solid var(--border)"></td></tr>
+            <tr>
+              <td style="padding:5px 0;font-size:12px;font-weight:600">Balance</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:700;
+                color:var(--destructive)">486.000</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:700;
+                color:var(--success)">486.000</td>
+            </tr>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:7px;margin-top:2px"><span class="btn ghost sm">Batal</span><span class="btn sm" style="">Simpan beban</span></div>
+      </div>
+      <div class="card" style="width:460px;padding:16px;display:flex;flex-direction:column;gap:10px;
+        box-shadow:var(--shadow-md)">
+        <div>
+          <div style="font-size:14px;font-weight:700">Catat beban</div>
+          <div style="font-size:12px;color:var(--foreground-muted);margin-top:8px;line-height:1.5">Uangnya dianggap keluar saat disimpan: jurnal di bawah langsung ditulis, dan saldo sumber dananya berkurang sebesar itu.</div>
+        </div>
+        <div style="width:100%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Nama beban</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--accent);box-shadow:0 0 0 3px hsl(256 82% 70% / 0.18)">
+            <span style="flex:1;color:var(--foreground);font-size:13px">Beban List</span>
+          </div>
+          
+        </div>
+        <div class="card" style="margin-top:5px;padding:4px;box-shadow:var(--shadow-md)">
+          <div style="font-size:11px;color:var(--foreground-subtle);padding:4px 9px 5px">Nama yang pernah dipakai</div>
+          <div style="display:flex;align-items:center;height:26px;padding:0 9px;border-radius:6px;font-size:12px;background:var(--accent-subtle);color:var(--accent)">Beban Listrik</div><div style="display:flex;align-items:center;height:26px;padding:0 9px;border-radius:6px;font-size:12px;color:var(--foreground-muted)">Beban Air</div><div style="display:flex;align-items:center;height:26px;padding:0 9px;border-radius:6px;font-size:12px;color:var(--foreground-muted)">Beban Sewa</div><div style="display:flex;align-items:center;height:26px;padding:0 9px;border-radius:6px;font-size:12px;color:var(--foreground-muted)">Beban Telepon</div><div style="display:flex;align-items:center;height:26px;padding:0 9px;border-radius:6px;font-size:12px;color:var(--foreground-muted)">Beban Bahan Habis Pakai</div>
+        </div>
+        <div style="width:100%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Keterangan</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="flex:1;color:var(--foreground);font-size:13px">Tagihan September</span>
+          </div>
+          
+        </div>
+        <div style="display:flex;gap:10px">
+        <div style="width:50%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Jumlah</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="flex:1;color:var(--foreground);font-size:13px">486.000</span>
+          </div>
+          
+        </div>
+        <div style="width:50%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Sumber dana</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="display:flex;color:var(--foreground-subtle)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg></span><span style="flex:1;color:var(--foreground);font-size:13px">Kas</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          
+        </div>
+        </div>
+        <div style="width:100%">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Tanggal</div>
+          <div class="field" style="width:100%;gap:8px;border-color:var(--border-strong)">
+            <span style="display:flex;color:var(--foreground-subtle)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg></span><span style="flex:1;color:var(--foreground);font-size:13px">16 Sep 2026 09.12</span>
+          </div>
+          <div style="font-size:11px;color:var(--foreground-subtle);margin-top:5px">Kosongkan untuk memakai waktu sekarang.</div>
+        </div>
+        <div style="border-radius:9px;background:var(--surface-raised);padding:10px 13px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px">Jurnal yang ditulis</div>
+          <table style="width:100%;border-collapse:collapse">
+            <tr>
+              <th class="th" style="padding:0 0 4px;border:0">Akun</th>
+              <th class="th" style="padding:0 0 4px;border:0;text-align:right">Debit</th>
+              <th class="th" style="padding:0 0 4px;border:0;text-align:right">Kredit</th>
+            </tr>
+            <tr>
+              <td style="padding:5px 0;font-size:12px">Beban</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:600;
+                color:var(--destructive)">486.000</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;
+                color:var(--foreground-subtle)">—</td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0;font-size:12px">Kas</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;
+                color:var(--foreground-subtle)">—</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:600;
+                color:var(--success)">486.000</td>
+            </tr>
+            <tr><td colspan="3" style="border-top:1px solid var(--border)"></td></tr>
+            <tr>
+              <td style="padding:5px 0;font-size:12px;font-weight:600">Balance</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:700;
+                color:var(--destructive)">486.000</td>
+              <td class="mono" style="padding:5px 0;font-size:12px;text-align:right;font-weight:700;
+                color:var(--success)">486.000</td>
+            </tr>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:7px;margin-top:2px"><span class="btn ghost sm">Batal</span><span class="btn sm" style="">Simpan beban</span></div>
+      </div>
+      <div style="width:360px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;color:var(--foreground-subtle)">Layar sempit — 360px</div>
+        <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:600">Beban Listrik</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">Tagihan September</div>
+            </div>
+            <span class="mono" style="font-size:14px;font-weight:700">486.000</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;
+            border-top:1px solid var(--border-subtle);padding-top:6px">
+            <span class="mono" style="font-size:11px;color:var(--foreground-subtle)">16 Sep 09.12</span>
+            <span style="display:flex;align-items:center;gap:7px"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--foreground-muted)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>Kas</span></span>
+          </div>
+        </div>
+        <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:600">Beban Gaji</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">Gaji September — 4 karyawan</div>
+            </div>
+            <span class="mono" style="font-size:14px;font-weight:700">2.450.000</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;
+            border-top:1px solid var(--border-subtle);padding-top:6px">
+            <span class="mono" style="font-size:11px;color:var(--foreground-subtle)">14 Sep 16.20</span>
+            <span style="display:flex;align-items:center;gap:7px"><span class="pill" style="background:var(--surface-raised);color:var(--foreground-subtle)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"/></svg>otomatis</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--foreground-muted)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"/><path d="M5 10v8M19 10v8M9 10v8M15 10v8"/><path d="m12 3 9 5H3z"/><path d="M3 21h18"/></svg>Bank</span></span>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Belum ada beban</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">periode yang dipilih kosong</span>
+      </div>
+      <div class="card" style="width:520px;padding:32px 28px;display:flex;flex-direction:column;
+        align-items:center;text-align:center;gap:9px">
+        <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-subtle);color:var(--accent);
+          display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5.5A2.5 2.5 0 0 1 3 16.5z"/><path d="M16 12h3"/></svg></span>
+        <div style="font-size:14px;font-weight:700">Belum ada beban di periode ini</div>
+        <div style="font-size:12px;color:var(--foreground-muted);max-width:360px;line-height:1.55">
+          Listrik, sewa, ongkir, bahan habis pakai — semua uang keluar yang bukan pembelian barang dicatat di sini
+          supaya laporan pendapatan tidak berlebih.
+        </div>
+        <span class="btn sm" style="margin-top:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Catat beban</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Gelap","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Gelap';
+    return { theme: t === 'Gelap' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>

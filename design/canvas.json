@@ -36,13 +36,6 @@
       "h": 900
     },
     {
-      "file": "BarangMasuk.dc.html",
-      "x": 1480,
-      "y": 2320,
-      "w": 1360,
-      "h": 900
-    },
-    {
       "file": "Keuangan.dc.html",
       "x": 0,
       "y": 3340,
@@ -83,6 +76,248 @@
       "y": 5500,
       "w": 1360,
       "h": 900
+    },
+    {
+      "file": "BukuBesar.dc.html",
+      "x": 0,
+      "y": 6700,
+      "w": 1360,
+      "h": 900
+    },
+    {
+      "file": "TransaksiBarang.dc.html",
+      "x": 1480,
+      "y": 6700,
+      "w": 900,
+      "h": 1280
+    },
+    {
+      "file": "Faktur.dc.html",
+      "x": 0,
+      "y": 8200,
+      "w": 1500,
+      "h": 900
+    },
+    {
+      "file": "BarangMasukDaftar.dc.html",
+      "x": 0,
+      "y": 9300,
+      "w": 1360,
+      "h": 900
+    },
+    {
+      "file": "BarangMasukBaru.dc.html",
+      "x": 1480,
+      "y": 9300,
+      "w": 1360,
+      "h": 940
+    },
+    {
+      "file": "BarangMasukDetail.dc.html",
+      "x": 0,
+      "y": 10360,
+      "w": 1360,
+      "h": 900
+    },
+    {
+      "file": "HargaJual.dc.html",
+      "x": 1480,
+      "y": 10360,
+      "w": 1360,
+      "h": 900,
+      "title": "Terima barang & harga jual"
+    },
+    {
+      "file": "Customer.dc.html",
+      "x": 0,
+      "y": 11460,
+      "w": 1360,
+      "h": 900,
+      "title": "Customer"
+    },
+    {
+      "file": "CustomerForm.dc.html",
+      "x": 1480,
+      "y": 11460,
+      "w": 1500,
+      "h": 760,
+      "title": "Dialog customer"
+    },
+    {
+      "file": "LayarSempit.dc.html",
+      "x": 0,
+      "y": 12520,
+      "w": 1400,
+      "h": 900,
+      "title": "Layar sempit"
+    },
+    {
+      "file": "Piutang.dc.html",
+      "x": 1480,
+      "y": 12520,
+      "w": 1400,
+      "h": 900,
+      "title": "Piutang"
+    },
+    {
+      "file": "PiutangTerima.dc.html",
+      "x": 0,
+      "y": 13600,
+      "w": 1520,
+      "h": 820,
+      "title": "Terima piutang"
+    },
+    {
+      "file": "Supplier.dc.html",
+      "x": 1640,
+      "y": 13600,
+      "w": 1360,
+      "h": 900,
+      "title": "Supplier"
+    },
+    {
+      "file": "Utang.dc.html",
+      "x": 0,
+      "y": 14620,
+      "w": 1400,
+      "h": 900,
+      "title": "Utang"
+    },
+    {
+      "file": "BayarUtang.dc.html",
+      "x": 1520,
+      "y": 14620,
+      "w": 1020,
+      "h": 820,
+      "title": "Bayar utang"
+    },
+    {
+      "file": "Barang.dc.html",
+      "x": 0,
+      "y": 15660,
+      "w": 1400,
+      "h": 900,
+      "title": "Barang"
+    },
+    {
+      "file": "BarangHarga.dc.html",
+      "x": 1520,
+      "y": 15660,
+      "w": 1480,
+      "h": 820,
+      "title": "Ubah harga jual"
+    },
+    {
+      "file": "Audit.dc.html",
+      "x": 0,
+      "y": 16680,
+      "w": 1400,
+      "h": 1000
+    },
+    {
+      "file": "AuditMulai.dc.html",
+      "x": 1520,
+      "y": 16680,
+      "w": 1320,
+      "h": 780
+    },
+    {
+      "file": "LaporanAudit.dc.html",
+      "x": 0,
+      "y": 17800,
+      "w": 1400,
+      "h": 1000
+    },
+    {
+      "file": "LaporanAuditSetujui.dc.html",
+      "x": 1520,
+      "y": 17800,
+      "w": 1420,
+      "h": 960
+    },
+    {
+      "file": "MenuAkun.dc.html",
+      "x": 0,
+      "y": 18920,
+      "w": 1200,
+      "h": 560
+    },
+    {
+      "file": "Login.dc.html",
+      "x": 1320,
+      "y": 18920,
+      "w": 1680,
+      "h": 700
+    },
+    {
+      "file": "Beban.dc.html",
+      "x": 0,
+      "y": 19760,
+      "w": 1400,
+      "h": 1000
+    },
+    {
+      "file": "BebanCatat.dc.html",
+      "x": 1520,
+      "y": 19760,
+      "w": 1440,
+      "h": 1180
+    },
+    {
+      "file": "Konversi.dc.html",
+      "x": 0,
+      "y": 21060,
+      "w": 1400,
+      "h": 1000
+    },
+    {
+      "file": "KonversiSaldo.dc.html",
+      "x": 1520,
+      "y": 21060,
+      "w": 1420,
+      "h": 780
+    },
+    {
+      "file": "LaporanPendapatan.dc.html",
+      "x": 0,
+      "y": 22180,
+      "w": 1400,
+      "h": 900
+    },
+    {
+      "file": "LaporanRugi.dc.html",
+      "x": 1520,
+      "y": 22180,
+      "w": 1280,
+      "h": 1240
+    },
+    {
+      "file": "LaporanKasir.dc.html",
+      "x": 0,
+      "y": 23400,
+      "w": 1400,
+      "h": 820
+    },
+    {
+      "file": "LaporanKasirKeadaan.dc.html",
+      "x": 1520,
+      "y": 23400,
+      "w": 1180,
+      "h": 760
+    },
+    {
+      "file": "PerubahanModal.dc.html",
+      "x": 0,
+      "y": 24500,
+      "w": 1400,
+      "h": 860
+    },
+    {
+      "file": "PerubahanModalKeadaan.dc.html",
+      "x": 1520,
+      "y": 24500,
+      "w": 1180,
+      "h": 1160
     }
   ],
   "annotations": [
@@ -92,6 +327,55 @@
       "y": -160,
       "w": 640,
       "text": "Rombak total — shadcn/ui + Tremor, rasa linear.app\nPalet di artboard Fondasi dibangkitkan dari src/styles/tokens.css, jadi selalu sama dengan kode.\nTiap layar punya tombol Terang/Gelap di atas artboard. POS dan Buku Besar sengaja dibuka gelap."
+    },
+    {
+      "id": "gabung-bukubesar",
+      "x": 1480,
+      "y": 6700,
+      "w": 300,
+      "text": "Usul: Jurnal Umum dan Buku Besar jadi SATU halaman.\n\nKeduanya sudah memakai endpoint yang sama (POST /ledgers) dan kolom yang sama; bedanya cuma penyaringan. Artboard ini adalah halaman yang sama begitu satu akun dipilih.\n\nYang pindah dari halaman Buku Besar lama:\n1. Kartu Penambahan saldo periode (debit - kredit, arahnya ikut tipe akun)\n2. Tipe akun, jadi lencana di kartu Saldo\n\nYang berubah dari Jurnal Umum:\n- Kolom Akun hilang saat satu akun dipilih (lencananya sama di tiap baris)\n- Panel Saldo akun jadi jalan pindah antar buku besar\n- Akun masuk ke URL (?akun=Kas) supaya bisa di-bookmark dan jadi tujuan menu Buku Besar\n\nMenu tetap dua: Jurnal Umum -> tanpa filter, Buku Besar -> akun terpilih."
+    },
+    {
+      "id": "barang-alur",
+      "x": 2500,
+      "y": 6700,
+      "w": 300,
+      "text": "Usul: hapus baris draf di /transaction/add.\n\nSekarang barang dipilih di baris yang bentuknya SAMA dengan baris yang sudah masuk, lalu harus ditekan '+'. Baris itu berbohong - ia terlihat seperti sudah tercatat. Itu sebabnya barang terakhir sering hilang, dan pada transaksi satu barang seluruh isinya hilang.\n\nAlurnya diganti: memilih barang = barang masuk daftar. Tidak ada lagi keadaan 'belum masuk', jadi tidak ada yang bisa lupa ditekan.\n\nIkutannya:\n- Kotak cari 36px, selalu di bawah daftar, siap untuk barang berikutnya\n- Stok dan harga terlihat SEBELUM memilih; stok habis tidak bisa dipilih\n- Qty jadi stepper di barisnya sendiri, dan qty baris baru langsung terpilih\n- Enter kembali ke kotak cari, jadi menambah banyak barang tidak perlu mouse\n- Baris yang baru masuk disorot sebentar supaya terlihat apa yang barusan terjadi\n- Subtotal pindah ke kaki kartu"
+    },
+    {
+      "id": "faktur-baru",
+      "x": 1600,
+      "y": 8200,
+      "w": 300,
+      "text": "Faktur A5 - dua usulan berdampingan.\n\nYang diminta sudah dikerjakan di keduanya: jumlah pindah ke paling kiri, nomor urut dibuang, dan barisnya dipadatkan dari 46px jadi 19px sehingga delapan barang muat di ruang yang dulu menampung tiga.\n\nJumlah dipecah jadi dua kolom (angka | satuan). Dengan satu kolom '5 pak', angkanya bergeser-geser mengikuti panjang satuan dan kolomnya berhenti terbaca sebagai kolom angka.\n\nB memakai kisi penuh sesuai pertanyaanmu, tapi aku tidak menyarankannya: garis tegak menggandakan tinta, memaksa padding di tiap sel - jadi melawan kepadatan yang diminta - dan pada printer kasir garis rambut tegak sering putus-putus. Perataan kolom sudah melakukan tugas yang sama tanpa satu garis pun."
+    },
+    {
+      "id": "barang-masuk",
+      "x": 2960,
+      "y": 9300,
+      "w": 300,
+      "text": "Barang Masuk - daftar dan form baru.\n\nYang membedakannya dari penjualan, dan yang dulu tidak terbaca di UI lama:\n\n1. Statusnya bertingkat - Menunggu, Ditinjau, Diterima. Jurnal ditulis saat naik ke Ditinjau, stok bertambah saat Diterima. Jadi halaman daftar ini sebenarnya ANTREAN KERJA, bukan arsip: tab status ada di depan, barisnya diberi pita tipis di tepi kiri saat menunggu tindakan, dan tombol di kolom Aksi berubah mengikuti status - konfirmasi, atur harga jual, batalkan.\n\n2. Harga BELI diisi per baris, bukan datang dari master barang. Karena itu ia berupa input di dalam tabel, bukan teks.\n\n3. Kolom Stok menunjukkan 8 -> 20: akibat dari transaksi ini, sebelum disimpan.\n\n4. Barang yang belum terdaftar boleh dibuat di tempat (Ctrl N) - ini satu-satunya layar yang boleh melakukannya, karena barang memang lahir dari pembelian.\n\nSel 'detail' di tabel lama - yang menumpuk supplier, pembayaran, dan tanggal dalam satu sel - dipecah jadi kolom sendiri. Form satu kolom sepanjang layar diganti dua kolom seperti /transaction/add, supaya ringkasan dan jurnalnya terlihat sambil mengisi."
+    },
+    {
+      "id": "laporan-informatif",
+      "x": 2820,
+      "y": 22180,
+      "w": 320,
+      "text": "Laporan Pendapatan — rentang bawaan HARI INI, dan tiga hal yang selama ini tidak pernah ditampilkan.\n\n1. Rentang bawaan satu hari + preset 7 hari / 30 hari / Bulan ini. Laporan yang paling sering dibuka adalah laporan tutup toko sore hari; rentang lebar membuat angka hari ini tenggelam. Karena itu keadaan kosong ikut dirancang — jam delapan pagi laporan hari ini memang masih kosong, dan ia menawarkan kemarin / 7 hari.\n\n2. Uang masuk per metode bayar (Kas, Bank, Piutang, Giro) dari POST /income-report/user-report — payment_methods-nya sudah dikirim backend tapi tidak pernah dipakai. 'Penjualan 6.240.000' tidak menjawab berapa yang ada di laci; piutang dan giro ikut terhitung penjualan padahal uangnya belum masuk.\n\n3. Pembelian barang (stock_ins di POST /income-report — juga sudah dikirim, tidak pernah ditampilkan). Menjawab pertanyaan 'laba katanya 1,4 juta, kenapa kas berkurang?': uangnya jadi Persediaan, masuk laporan sebagai HPP saat barangnya terjual.\n\n4. Pembanding kemarin menempel di tiap KPI, bukan kartu terpisah saja. Satu panggilan kedua ke /income-report dengan rentang digeser mundur sepanjang rentang yang dibuka.\n\nTidak ada endpoint baru. Rasio dan komposisi beban dihitung di klien dari angka yang sama."
+    },
+    {
+      "id": "kasir-matriks",
+      "x": 2820,
+      "y": 23400,
+      "w": 320,
+      "text": "Laporan per Kasir — matriksnya dibalik, tabnya dilebur.\n\nLayar lama menaruh UKURAN sebagai baris (Penjualan, Diskon, Ongkir, Total, Kas, Bank, Utang, Giro) dan ORANG sebagai kolom. Artinya tiap karyawan baru menambah satu kolom, tabelnya harus digulir ke samping, dan kolom pertamanya dipaku supaya tidak hilang. Di sini orang jadi baris dan ukuran jadi kolom — bentuk yang tidak melebar ke samping berapa pun jumlah orangnya.\n\nEmpat tab lama (Pendapatan / Pembelian / Beban / Total Balance) dilebur jadi satu tabel dengan baris yang bisa dibuka. Keempatnya sejak awal datang dari SATU permintaan yang sama (POST /income-report/user-report tanpa `type`), jadi memecahnya jadi empat layar tidak pernah menghemat apa pun — ia hanya memaksa membandingkan empat halaman untuk menjawab satu pertanyaan: uang siapa, sebanyak apa, sekarang ada di mana.\n\nKolomnya dinamai Saldo, bukan Setoran: untuk yang tugasnya membeli barang angkanya negatif — ia memakai uang toko, bukan memegangnya.\n\nTemuan yang ikut digambar: `balance.payment_methods.debt` di backend adalah piutang penjualan DIKURANGI utang pembelian — dua hal berbeda dijumlahkan jadi satu angka. Di rincian keduanya dipisah lagi dari sumbernya masing-masing, dan angka gabungan itu tidak dipakai."
+    },
+    {
+      "id": "modal-tutupbuku",
+      "x": 2820,
+      "y": 24500,
+      "w": 320,
+      "text": "Perubahan Modal — tiga route, satu cerita.\n\nLayar lama memperlakukan /laporan-perubahan-modal, /create, dan /[id] sebagai tiga halaman lepas: daftarnya tiga kolom (Nama, Tanggal, tombol mata), dan halaman create menampilkan lima baris angka lalu satu tombol yang berubah jadi 'Konfirmasi' — tanpa pernah menyebut apa yang terjadi saat ditekan.\n\nYang sebenarnya terjadi di storeReport(): laba periode ditulis sebagai baris Laba Ditahan, laba yang diambil pemilik jadi baris Laba Diambil Owner, CreateLedgerFromCapitalReportsJob menulis jurnalnya, saldo periode pindah ke akun Modal — dan periode itu TERKUNCI. Sesudahnya void penjualan, retur barang masuk, dan penolakan barang masuk semuanya ditolak backend dengan 'period_closed'. Itu akibat paling besar dari tombol ini dan sebelumnya tidak tertulis di mana pun; di sini ia jadi peringatan merah di dialognya.\n\nKartu periode berjalan disusun seperti laporan perubahan modal sungguhan: modal awal, lalu yang menambah (+ modal disetor, + laba ditahan), lalu yang mengurangi (− prive, − laba diambil), baru modal akhir. Daftar datar tanpa tanda di layar lama membuat Prive terbaca seolah menambah modal.\n\nSatu keputusan implementasi yang perlu disepakati: kolom 'Modal akhir' di tabel periode tersimpan TIDAK ada di GET /capital-report/report-date (endpoint itu hanya mengirim start_date dan end_date), jadi angkanya butuh satu POST /capital-report per baris. Kalau itu dianggap mahal, kolomnya dibuang dan barisnya cukup periode + tombol Lihat."
     }
   ],
   "launch": {

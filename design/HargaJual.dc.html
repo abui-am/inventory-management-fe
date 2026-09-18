@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:11px;font-weight:700;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:11px;font-weight:700;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="min-height:900px;position:relative;display:flex;align-items:center;justify-content:center;
+  background:var(--background)">
+
+  <!-- Halaman di belakangnya, diredupkan -->
+  <div style="position:absolute;inset:0;padding:14px 18px;opacity:.28;pointer-events:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;gap:3px;padding:3px;border-radius:8px;background:var(--surface-raised)">
+        <span style="height:26px;padding:0 9px;border-radius:6px;font-size:12px;background:var(--surface);
+          box-shadow:var(--shadow-sm);font-weight:600;display:flex;align-items:center">Ditinjau</span>
+      </div>
+      <button class="btn">Barang masuk</button>
+    </div>
+    <div class="card" style="height:300px"></div>
+  </div>
+  <div style="position:absolute;inset:0;background:hsl(240 15% 12% / .45)"></div>
+
+  <!-- SPEC-01: modal 880px, bukan layar penuh -->
+  <div class="card" style="position:relative;width:880px;max-height:820px;display:flex;flex-direction:column;
+    box-shadow:var(--shadow-md);overflow:hidden">
+
+    <!-- SPEC-02: kepala -->
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:15px 16px 13px;
+      border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:17px;font-weight:600;letter-spacing:-.01em">Terima barang</span>
+          <span class="pill" style="background:var(--info-subtle);color:var(--info)">Ditinjau
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            Diterima</span>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--foreground-muted)">
+          Tentukan harga jual dulu — harga inilah yang dipakai kasir begitu barangnya masuk stok.
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="mono" style="font-size:12px;font-weight:600">TRDO2609001</div>
+        <div style="font-size:11px;color:var(--foreground-subtle)">PT Boga Nusantara</div>
+      </div>
+      <span class="ico" style="border-color:transparent">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
+    </div>
+
+    <!-- SPEC-03: pita markup masal -->
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 16px;background:var(--surface-raised);
+      border-bottom:1px solid var(--border)">
+      <span style="font-size:12px;color:var(--foreground-muted)">Isi semua dengan markup</span>
+      <span class="field mono" style="width:76px;height:28px;font-size:12px;justify-content:space-between">
+        20<span style="color:var(--foreground-subtle)">%</span></span>
+      <button class="btn sm ghost">Terapkan</button>
+      <span style="font-size:11px;color:var(--foreground-subtle)">dari harga beli rata-rata, dibulatkan ke 500 terdekat</span>
+      <span style="flex:1"></span>
+      <span style="font-size:11px;color:var(--warning);display:flex;align-items:center;gap:5px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        1 barang belum berharga jual</span>
+    </div>
+
+    <!-- SPEC-04: tabel -->
+    <div style="flex:1;overflow:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0">Barang</th>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0;width:104px">Masuk</th>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0;text-align:right;width:96px">Harga beli</th>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0;text-align:right;width:112px">Beli rata-rata</th>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0;text-align:right;width:104px">Jual sekarang</th>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0;text-align:right;width:140px">Harga jual baru</th>
+          <th class="th" style="padding-top:10px;background:var(--surface);position:sticky;top:0;text-align:right;width:76px">Margin</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="td">
+              <div style="font-weight:500">Beras Ketan 1 kg</div>
+              <div class="mono" style="font-size:10px;color:var(--foreground-subtle)">BRK-001</div>
+            </td>
+            <td class="td">
+              <div class="mono">12 kg</div>
+              <div style="font-size:11px;color:var(--foreground-subtle);display:flex;align-items:center;gap:3px">
+                <span class="mono">39</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                <span class="mono" style="font-weight:600;color:var(--foreground-muted)">51</span>
+              </div>
+            </td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">18.000</td>
+            <td class="td mono" style="text-align:right">18.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">21.000</td>
+            <td class="td" style="text-align:right">
+              <span class="field mono" style="width:124px;height:30px;justify-content:flex-end;gap:0;
+                margin-left:auto;border-color:var(--border-strong)">
+                <span style="color:var(--foreground-subtle);font-size:11px;margin-right:auto">Rp</span><span class="mono" style="font-weight:600">22.000</span>
+              </span>
+            </td>
+            <td class="td" style="text-align:right"><span class="pill" style="background:var(--success-subtle);color:var(--success)">18%</span></td>
+          </tr>
+          <tr>
+            <td class="td">
+              <div style="font-weight:500">Susu Kental Manis</div>
+              <div class="mono" style="font-size:10px;color:var(--foreground-subtle)">SKM-002</div>
+            </td>
+            <td class="td">
+              <div class="mono">20 kaleng</div>
+              <div style="font-size:11px;color:var(--foreground-subtle);display:flex;align-items:center;gap:3px">
+                <span class="mono">59</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                <span class="mono" style="font-weight:600;color:var(--foreground-muted)">79</span>
+              </div>
+            </td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">12.000</td>
+            <td class="td mono" style="text-align:right">12.200</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">15.000</td>
+            <td class="td" style="text-align:right">
+              <span class="field mono" style="width:124px;height:30px;justify-content:flex-end;gap:0;
+                margin-left:auto;border-color:var(--border-strong)">
+                <span style="color:var(--foreground-subtle);font-size:11px;margin-right:auto">Rp</span><span class="mono" style="font-weight:600">15.500</span>
+              </span>
+            </td>
+            <td class="td" style="text-align:right"><span class="pill" style="background:var(--success-subtle);color:var(--success)">21%</span></td>
+          </tr>
+          <tr>
+            <td class="td">
+              <div style="font-weight:500">Deterjen Bubuk 900 g</div>
+              <div class="mono" style="font-size:10px;color:var(--foreground-subtle)">DTB-003</div>
+            </td>
+            <td class="td">
+              <div class="mono">22 pak</div>
+              <div style="font-size:11px;color:var(--foreground-subtle);display:flex;align-items:center;gap:3px">
+                <span class="mono">7</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                <span class="mono" style="font-weight:600;color:var(--foreground-muted)">29</span>
+              </div>
+            </td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">21.000</td>
+            <td class="td mono" style="text-align:right">21.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td" style="text-align:right">
+              <span class="field mono" style="width:124px;height:30px;justify-content:flex-end;gap:0;
+                margin-left:auto;border-color:var(--border-strong)">
+                <span style="color:var(--foreground-subtle);font-size:11px;margin-right:auto">Rp</span><span class="mono" style="font-weight:600">26.000</span>
+              </span>
+            </td>
+            <td class="td" style="text-align:right"><span class="pill" style="background:var(--success-subtle);color:var(--success)">19%</span></td>
+          </tr>
+          <tr>
+            <td class="td">
+              <div style="font-weight:500">Mie Instan Goreng</div>
+              <div class="mono" style="font-size:10px;color:var(--foreground-subtle)">MIG-004</div>
+            </td>
+            <td class="td">
+              <div class="mono">15 dus</div>
+              <div style="font-size:11px;color:var(--foreground-subtle);display:flex;align-items:center;gap:3px">
+                <span class="mono">22</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                <span class="mono" style="font-weight:600;color:var(--foreground-muted)">37</span>
+              </div>
+            </td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">105.000</td>
+            <td class="td mono" style="text-align:right">104.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">125.000</td>
+            <td class="td" style="text-align:right">
+              <span class="field mono" style="width:124px;height:30px;justify-content:flex-end;gap:0;
+                margin-left:auto;border-color:var(--warning);box-shadow:0 0 0 2px hsl(36 85% 94% / .9)">
+                <span style="color:var(--foreground-subtle);font-size:11px;margin-right:auto">Rp</span><span style="color:var(--foreground-subtle);font-size:12px">0</span>
+              </span>
+            </td>
+            <td class="td" style="text-align:right"><span style="font-size:11px;color:var(--foreground-subtle)">—</span></td>
+          </tr>
+          <tr>
+            <td class="td">
+              <div style="font-weight:500">Kecap Manis 600 ml</div>
+              <div class="mono" style="font-size:10px;color:var(--foreground-subtle)">KCP-005</div>
+            </td>
+            <td class="td">
+              <div class="mono">15 botol</div>
+              <div style="font-size:11px;color:var(--foreground-subtle);display:flex;align-items:center;gap:3px">
+                <span class="mono">18</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                <span class="mono" style="font-weight:600;color:var(--foreground-muted)">33</span>
+              </div>
+            </td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">17.000</td>
+            <td class="td mono" style="text-align:right">17.000</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-subtle)">19.000</td>
+            <td class="td" style="text-align:right">
+              <span class="field mono" style="width:124px;height:30px;justify-content:flex-end;gap:0;
+                margin-left:auto;border-color:var(--border-strong)">
+                <span style="color:var(--foreground-subtle);font-size:11px;margin-right:auto">Rp</span><span class="mono" style="font-weight:600">17.500</span>
+              </span>
+            </td>
+            <td class="td" style="text-align:right"><span class="pill" style="background:var(--warning-subtle);color:var(--warning)">3%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SPEC-05: kaki -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0;
+      padding:11px 16px;border-top:1px solid var(--border);background:var(--surface-raised)">
+      <div style="display:flex;gap:18px">
+        <div style="display:flex;flex-direction:column">
+          <span style="font-size:11px;color:var(--foreground-subtle)">Nilai barang masuk</span>
+          <span class="mono" style="font-size:14px;font-weight:700">2.856.000</span>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <span style="font-size:11px;color:var(--foreground-subtle)">Proyeksi laba bila habis terjual</span>
+          <span class="mono" style="font-size:14px;font-weight:700;color:var(--success)">+ 331.000</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn ghost">Batal</button>
+        <button class="btn" style="opacity:.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"/></svg>
+          Terima barang</button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Terang","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Terang';
+    return { theme: t === 'Gelap' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>

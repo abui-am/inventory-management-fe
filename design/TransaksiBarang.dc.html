@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:11px;font-weight:700;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:11px;font-weight:700;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="min-height:1280px">
+    <style>.root *{box-sizing:border-box}</style>
+    <div style="padding:20px 22px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;align-items:baseline;gap:9px;margin:0 0 9px">
+      <span class="pill" style="background:var(--accent-subtle);color:var(--accent)">1</span>
+      <span style="font-size:14px;font-weight:700">Kosong</span>
+      <span style="font-size:12px;color:var(--foreground-subtle)">kotak cari langsung siap — tidak ada baris yang menunggu ditekan</span>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;font-weight:600">Barang</span>
+        <span class="mono" style="font-size:12px;color:var(--foreground-subtle)">0</span>
+      </div>
+      <div style="padding:12px 14px">
+        <div class="field" style="height:36px;width:100%;gap:9px;box-sizing:border-box;border-color:var(--accent);box-shadow:0 0 0 3px hsl(256 68% 54% / 0.18)">
+          <span style="color:var(--foreground-subtle);display:flex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+          <span style="color:var(--foreground-subtle);flex:1">Ketik nama atau kode barang…</span>
+          <span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">F2</span>
+        </div>
+      </div>
+      <div style="padding:6px 14px 26px;text-align:center;color:var(--foreground-subtle)">
+        <div style="display:flex;justify-content:center;margin-bottom:7px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg></div>
+        <div style="font-size:13px;color:var(--foreground-muted)">Belum ada barang</div>
+        <div style="font-size:12px;margin-top:2px">Pilih barang di dropdown di atas — begitu dipilih, barang
+          langsung masuk daftar.</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:9px;margin:0 0 9px">
+      <span class="pill" style="background:var(--accent-subtle);color:var(--accent)">2</span>
+      <span style="font-size:14px;font-weight:700">Sedang mencari</span>
+      <span style="font-size:12px;color:var(--foreground-subtle)">stok dan harga terlihat sebelum memilih</span>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;font-weight:600">Barang</span>
+        <span class="mono" style="font-size:12px;color:var(--foreground-subtle)">0</span>
+      </div>
+      <div style="padding:12px 14px 0">
+        <div class="field" style="height:36px;width:100%;gap:9px;box-sizing:border-box;border-color:var(--accent);box-shadow:0 0 0 3px hsl(256 68% 54% / 0.18)">
+          <span style="color:var(--foreground-subtle);display:flex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+          <span style="color:var(--foreground);flex:1">gar</span>
+          <span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">F2</span>
+        </div>
+        <div class="card" style="margin-top:5px;padding:4px 0;box-shadow:var(--shadow-md)">
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--accent-subtle)">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;color:var(--foreground)">Garam Halus 500 g</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">Stok 107 pak</div>
+            </div>
+            <span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">Enter</span><span class="mono" style="font-size:12px;color:var(--foreground-muted)">5.500</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 12px;">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;color:var(--foreground)">Garam Kasar 1 kg</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">Stok 42 pak</div>
+            </div>
+            <span class="mono" style="font-size:12px;color:var(--foreground-muted)">8.000</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 12px;">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500;color:var(--foreground-subtle)">Gula Pasir 1 kg</div>
+              <div style="font-size:11px;color:var(--foreground-subtle)">Stok 0 pak</div>
+            </div>
+            <span class="pill" style="background:var(--destructive-subtle);color:var(--destructive)">Stok habis</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:11px 14px 12px;font-size:11px">
+        <span style="display:inline-flex;align-items:center;gap:5px"><span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">↑ ↓</span><span style="color:var(--foreground-subtle)">pilih</span></span><span style="display:inline-flex;align-items:center;gap:5px"><span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">Enter</span><span style="color:var(--foreground-subtle)">tambahkan</span></span><span style="display:inline-flex;align-items:center;gap:5px"><span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">Esc</span><span style="color:var(--foreground-subtle)">tutup</span></span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:9px;margin:0 0 9px">
+      <span class="pill" style="background:var(--accent-subtle);color:var(--accent)">3</span>
+      <span style="font-size:14px;font-weight:700">Terisi</span>
+      <span style="font-size:12px;color:var(--foreground-subtle)">barang terakhir sudah masuk tanpa tombol tambahan</span>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;font-weight:600">Barang</span>
+        <span class="mono" style="font-size:12px;color:var(--foreground-subtle)">3</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th class="th" style="padding-top:9px">Nama</th>
+            <th class="th" style="padding-top:9px;text-align:center;width:110px">Qty</th>
+            <th class="th" style="padding-top:9px;width:80px">Satuan</th>
+            <th class="th" style="padding-top:9px;text-align:right;width:110px">Harga</th>
+            <th class="th" style="padding-top:9px;text-align:right;width:120px">Subtotal</th>
+            <th class="th" style="padding-top:9px;width:44px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="">
+            <td class="td">Kacang Kulit 200 g</td>
+            <td class="td" style="text-align:center"><span style="display:inline-flex;align-items:center;border:1px solid var(--border-strong);border-radius:7px;
+      overflow:hidden;height:28px">
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+        color:var(--foreground-subtle)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></span>
+      <span class="mono" style="width:34px;text-align:center;font-size:13px;font-weight:600">2</span>
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+        color:var(--foreground-subtle)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
+    </span></td>
+            <td class="td" style="color:var(--foreground-muted)">pak</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">13.500</td>
+            <td class="td mono" style="text-align:right;font-weight:600">27.000</td>
+            <td class="td" style="text-align:right">
+              <span class="ico" style="display:inline-flex;border-color:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></td>
+          </tr>
+          <tr style="">
+            <td class="td">Garam Halus 500 g</td>
+            <td class="td" style="text-align:center"><span style="display:inline-flex;align-items:center;border:1px solid var(--border-strong);border-radius:7px;
+      overflow:hidden;height:28px">
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+        color:var(--foreground-subtle)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></span>
+      <span class="mono" style="width:34px;text-align:center;font-size:13px;font-weight:600">1</span>
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+        color:var(--foreground-subtle)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
+    </span></td>
+            <td class="td" style="color:var(--foreground-muted)">pak</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">5.500</td>
+            <td class="td mono" style="text-align:right;font-weight:600">5.500</td>
+            <td class="td" style="text-align:right">
+              <span class="ico" style="display:inline-flex;border-color:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></td>
+          </tr>
+          <tr style="background:var(--accent-subtle)">
+            <td class="td">Tepung Beras 500 g<span class="pill" style="background:var(--accent);color:var(--accent-foreground);margin-left:7px">baru</span></td>
+            <td class="td" style="text-align:center"><span style="display:inline-flex;align-items:center;border:1px solid var(--accent);border-radius:7px;
+      overflow:hidden;height:28px">
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+        color:var(--foreground-subtle)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></span>
+      <span class="mono" style="width:34px;text-align:center;font-size:13px;font-weight:600">3</span>
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+        color:var(--foreground-subtle)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
+    </span></td>
+            <td class="td" style="color:var(--foreground-muted)">pak</td>
+            <td class="td mono" style="text-align:right;color:var(--foreground-muted)">13.000</td>
+            <td class="td mono" style="text-align:right;font-weight:600">39.000</td>
+            <td class="td" style="text-align:right">
+              <span class="ico" style="display:inline-flex;border-color:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 14px">
+        <div class="field" style="height:36px;width:100%;gap:9px;box-sizing:border-box;border-color:var(--border-strong)">
+          <span style="color:var(--foreground-subtle);display:flex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+          <span style="color:var(--foreground-subtle);flex:1">Ketik nama atau kode barang…</span>
+          <span class="mono" style="font-size:11px;line-height:16px;padding:0 5px;border-radius:5px;border:1px solid var(--border);background:var(--surface-raised);color:var(--foreground-muted)">F2</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;
+          color:var(--foreground-subtle)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.5"/></svg>Qty barang yang baru masuk langsung terpilih — ketik angkanya,
+          lalu Enter untuk kembali mencari barang berikutnya.
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+        background:var(--surface-raised);border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--foreground-muted)">3 barang</span>
+        <span style="display:flex;align-items:baseline;gap:8px">
+          <span style="font-size:12px;color:var(--foreground-muted)">Subtotal</span>
+          <span class="mono" style="font-size:16px;font-weight:700">71.500</span></span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:9px;margin:0 0 9px">
+      <span class="pill" style="background:var(--accent-subtle);color:var(--accent)">✕</span>
+      <span style="font-size:14px;font-weight:700">Yang dibuang</span>
+      <span style="font-size:12px;color:var(--foreground-subtle)">baris draf — bentuknya sama dengan baris yang sudah masuk</span>
+    </div>
+    <div class="card" style="overflow:hidden;opacity:.75">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th class="th" style="padding-top:9px">Nama</th>
+            <th class="th" style="padding-top:9px;text-align:center;width:110px">Qty</th>
+            <th class="th" style="padding-top:9px;width:80px">Satuan</th>
+            <th class="th" style="padding-top:9px;text-align:right;width:110px">Harga</th>
+            <th class="th" style="padding-top:9px;text-align:right;width:120px">Subtotal</th>
+            <th class="th" style="padding-top:9px;width:44px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:var(--accent-subtle)">
+            <td class="td" style="color:var(--foreground-subtle)">Ketik nama atau kode barang…</td>
+            <td class="td" style="text-align:center"><span class="field" style="width:52px;height:28px;
+              justify-content:center">1</span></td>
+            <td class="td" style="color:var(--foreground-subtle)">—</td>
+            <td class="td" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td" style="text-align:right;color:var(--foreground-subtle)">—</td>
+            <td class="td" style="text-align:right">
+              <span class="ico" style="display:inline-flex;border-color:var(--accent);color:var(--accent)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:7px;margin-top:8px;font-size:12px;color:var(--destructive)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.5"/></svg>
+      <span style="color:var(--foreground-muted)">Barang yang sudah dipilih di baris ini BELUM tercatat sampai
+        "+" ditekan, padahal barisnya sudah terlihat seperti baris lain. Satu barang terlewat pada transaksi
+        dua barang; seluruh isinya hilang pada transaksi satu barang.</span>
+    </div>
+    </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Terang","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Terang';
+    return { theme: t === 'Gelap' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>
