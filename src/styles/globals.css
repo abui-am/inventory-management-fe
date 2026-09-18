@@ -280,3 +280,33 @@ input:checked + div svg {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Cetakan.
+ *
+ * Yang dicetak adalah LAPORANNYA, bukan aplikasinya. Sidebar, topbar, dan toolbar
+ * penyaring disembunyikan di komponennya masing-masing lewat `print:hidden`; yang diatur
+ * di sini hanya yang menyangkut dokumennya secara keseluruhan.
+ */
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+
+  /*
+   * Tanpa ini browser membuang latar kartu dan warna angka (merah untuk rugi, hijau untuk
+   * laba) demi menghemat tinta — dan laporan yang kehilangan warna angkanya kehilangan
+   * separuh artinya.
+   */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { LogOut, User } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,19 +10,26 @@ import { useCollapse } from 'react-collapsed';
 
 import { Button } from '@/components/Button';
 import Popup from '@/components/Dropdown';
-import Avatar from '@/components/Image';
 import CommandPalette from '@/components/ui/command-palette';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import MENU_LIST, { MENU_GROUPS } from '@/constants/menu';
 import { useApp } from '@/context/app-context';
 import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
+import { cn } from '@/lib/cn';
 import { removeCookie } from '@/utils/cookies';
 // ssr: false. Dengan SSR menyala, server merender isi menu sementara render pertama di
 // client masih memuat chunk-nya dan merender kosong — teksnya tidak cocok, dan sejak
 // React 18 itu membuat seluruh pohon SSR dibuang lalu di-render ulang.
 // Ini juga penyebab sidebar "muncul terlambat" yang tercatat di audit Fase 1.
 const Menu = dynamic(() => import('@/components/menu/Menu'), { ssr: false });
+
+/** Baris menu akun: 30px, sama dengan baris menu di sidebar. */
+const MENU_ITEM = cn(
+  'flex h-[30px] w-full items-center gap-2.25 rounded-control px-2.25 text-base text-foreground',
+  'transition-colors duration-fast hover:bg-surface-raised',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/35'
+);
 
 const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: string }>> = ({
   title,
@@ -63,24 +71,28 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
     push('/login');
   }
 
-  function keyHandler(event: KeyboardEvent<HTMLDivElement>): void {
-    switch (event.key) {
-      case 'Enter':
-        logout();
-        break;
-      default:
+  /** Panah atas/bawah berpindah antar baris, Esc menutup — perilaku menu yang wajar. */
+  function menuKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+    if (event.key === 'Escape') {
+      setShowMenu(false);
+      return;
     }
-  }
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
 
-  const keyHandlerAccount = useKeyPressEnter(() => {
-    setShowMenu(false);
-    push(`/employee/${id}`);
-  });
+    event.preventDefault();
+    const items = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitem"]'));
+    if (items.length === 0) return;
+
+    const sekarang = items.indexOf(document.activeElement as HTMLButtonElement);
+    const langkah = event.key === 'ArrowDown' ? 1 : -1;
+    const berikut = (sekarang + langkah + items.length) % items.length;
+    items[sekarang === -1 ? 0 : berikut].focus();
+  }
   const handleKeyUp = useKeyPressEnter(() => setShowMenu((show) => !show));
 
   return (
     <>
-      <div className="flex h-14 items-center justify-between border-b border-border bg-surface px-4 sm:hidden">
+      <div className="flex h-14 items-center justify-between border-b border-border bg-surface px-4 print:hidden sm:hidden">
         <Link href="/">
           <h3 className="cursor-pointer font-semibold">Putra Pribumi</h3>
         </Link>
@@ -96,7 +108,7 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
       </div>
 
       <div className="min-h-screen max-w-screen overflow-hidden">
-        <section id="MenuSmall" className="sm:hidden">
+        <section id="MenuSmall" className="print:hidden sm:hidden">
           <div {...getCollapseProps()}>
             <Menu onMenuClick={setShowNavbar} hideLabel={false} />
           </div>
@@ -112,7 +124,7 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
               left: 0,
               flexDirection: 'column',
             }}
-            className="hidden flex-shrink-0 flex-grow-0 border-r border-border bg-surface-raised sm:flex"
+            className="hidden flex-shrink-0 flex-grow-0 border-r border-border bg-surface-raised print:!hidden sm:flex"
           >
             <div className="relative px-3 py-3">
               <Link href="/">
@@ -153,10 +165,10 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
             </section>
           </div>
 
-          <div className={clsx('flex w-0 flex-1 flex-col', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
+          <div className={clsx('flex w-0 flex-1 flex-col print:!ml-0', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
             {/* SPEC-01: bar 50px, border-bawah membentang penuh lebar konten — karena itu
                 ia berada DI LUAR padding isi, bukan di dalamnya. */}
-            <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-5">
+            <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-5 print:hidden">
               {/* Breadcrumb, bukan judul telanjang: dengan menu dikelompokkan, nama halaman
                   saja tidak memberi tahu di cabang mana pengguna berada. */}
               {/* SPEC-02..05: 13px, gap 7px; "Penjualan" dan "/" foreground-subtle,
@@ -219,36 +231,58 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
                     }}
                     placement="bottom-end"
                   >
-                    <div className="flex w-64 flex-col divide-y divide-border py-1">
-                      <div className="px-4 py-4">
-                        <div className="flex">
-                          <Avatar url="/images/employee.png" className="object-cover" />
-                          <div className="pl-3">
-                            <span className="block text-base font-medium">{`${first_name} ${last_name}`}</span>
-                            <span className="block text-sm text-foreground-muted">{`${(
-                              dataUser?.user?.roles.map(({ name }) => name) ?? []
-                            ).toString()}`}</span>
+                    {/* SPEC-M1: menu 232px, padding 4px. Kepalanya memakai inisial yang
+                        sama dengan avatar di topbar — foto stok abu-abu yang dipakai
+                        sebelumnya sama untuk semua orang, jadi tidak memberi tahu siapa
+                        yang sedang masuk. */}
+                    <div
+                      role="menu"
+                      aria-label="Menu akun"
+                      // Panahnya ditangkap di pembungkus, jadi pembungkusnya sendiri harus
+                      // bisa menerima fokus — tabIndex -1: dijangkau lewat kode, bukan Tab.
+                      tabIndex={-1}
+                      className="flex w-[232px] flex-col p-1 focus:outline-none"
+                      onKeyDown={menuKeyDown}
+                    >
+                      <div className="flex items-center gap-2.25 px-2.25 pb-2.25 pt-1.75">
+                        <span className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-accent-subtle text-xs font-extrabold text-accent">
+                          {initials}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="truncate text-base font-semibold leading-4">
+                            {[first_name, last_name].filter(Boolean).join(' ') || 'Pengguna'}
+                          </div>
+                          <div className="truncate font-mono text-xs leading-[15px] text-foreground-subtle">
+                            {dataUser?.user?.username ?? '—'}
                           </div>
                         </div>
                       </div>
-                      <div
-                        className="cursor-pointer px-4 py-2 text-base transition-colors duration-fast hover:bg-surface-raised"
-                        onClick={() => push(`/employee/${id}`)}
-                        onKeyUp={keyHandlerAccount}
-                        tabIndex={0}
-                        role="button"
+
+                      <div className="-mx-1 mb-1 h-px bg-border-subtle" aria-hidden />
+
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className={MENU_ITEM}
+                        onClick={() => {
+                          setShowMenu(false);
+                          push(`/employee/${id}`);
+                        }}
                       >
+                        <User size={14} strokeWidth={1.8} aria-hidden className="text-foreground-subtle" />
                         Akun
-                      </div>
-                      <div
-                        className="cursor-pointer px-4 py-2 text-base transition-colors duration-fast hover:bg-surface-raised"
-                        tabIndex={0}
-                        role="button"
-                        onKeyUp={keyHandler}
+                      </button>
+
+                      {/* Log out menutup sesi — tidak boleh terbaca sederajat dengan Akun. */}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className={cn(MENU_ITEM, 'text-destructive hover:bg-destructive-subtle hover:text-destructive')}
                         onClick={logout}
                       >
+                        <LogOut size={14} strokeWidth={1.8} aria-hidden />
                         Log out
-                      </div>
+                      </button>
                     </div>
                   </Popup>
                 </div>
@@ -257,7 +291,7 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
 
             {/* SPEC-10: padding isi 14px atas-bawah, 18px kiri-kanan. Sebelumnya 32px
                 seragam — angka lama yang tidak berasal dari desain mana pun. */}
-            <div className="min-w-0 flex-1 px-4.5 py-3.5">{children}</div>
+            <div className="min-w-0 flex-1 px-4.5 py-3.5 print:!p-0">{children}</div>
           </div>
         </div>
       </div>
