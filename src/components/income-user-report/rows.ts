@@ -37,11 +37,10 @@ export type BarisMetode = {
 /**
  * Susun satu baris per orang, beserta pecahannya menurut cara bayar.
  *
- * Piutang dan Utang sengaja jadi dua baris terpisah meski backend menjumlahkannya jadi satu
- * angka di `balance.payment_methods.debt` (piutang penjualan DIKURANGI utang pembelian).
- * Piutang adalah uang yang belum diterima dari customer, utang adalah uang yang belum
- * dibayar ke supplier — satu angka gabungan dari keduanya tidak menjawab pertanyaan apa pun,
- * jadi angka itu tidak dipakai di sini.
+ * Piutang dan Utang jadi dua baris terpisah, dan diambil dari sumbernya masing-masing
+ * (`income.payment_methods.debt` dan `stock_in.payment_methods.debt`), bukan dari
+ * `balance.payment_methods` — bentuk baris di sini per DOKUMEN (penjualan, pembelian,
+ * beban), sementara balance sudah berupa sisa.
  */
 export const susunBaris = (perUser: IncomeUserReportChild[]): BarisOrang[] =>
   perUser

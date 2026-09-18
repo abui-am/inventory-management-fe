@@ -82,7 +82,22 @@ export interface ExpenseItem {
   amount: number;
 }
 
+/**
+ * Sisa uang yang dipegang seseorang: penjualan − pembelian − beban.
+ *
+ * `payment_methods` di sini TIDAK sama bentuknya dengan yang lain: piutang dan utang
+ * dipisah (`receivable` dan `payable`) karena mengurangkan yang satu dari yang lain
+ * menghasilkan angka yang tidak menjawab pertanyaan apa pun.
+ */
 export interface Balance {
   total_balance: number;
-  payment_methods: PaymentMethods;
+  payment_methods: {
+    cash: number;
+    bank: number;
+    /** Piutang penjualan — belum diterima dari customer. */
+    receivable: number;
+    /** Utang pembelian — belum dibayar ke supplier. */
+    payable: number;
+    current_account: number;
+  };
 }
