@@ -159,7 +159,25 @@ Ikutannya:
 - **Menu dropdown beranimasi** buka DAN tutup, lewat `useMenuAnimasi` + `buatMenu` di
   `components/Form`. Ringan saja — hanya opacity dan transform, di bawah 120ms.
 
-**8. Empty state harus sesuai konteks.** Bedakan "data memang belum ada" dari "filter
+**8. Bahasa Indonesia yang wajar — tidak kaku, tidak gaul.** Teks antarmuka ditulis
+seperti orang menjelaskan ke rekan kerjanya: kalimat biasa, bukan bahasa dokumen, tapi juga
+bukan bahasa percakapan santai.
+
+> Wajar: `dibayar dari uang yang dipegang`, `harusnya masih dipegang`, `Dari 2 orang`,
+> `uang toko yang dipakai beli barang`, `Dibayar melalui`
+> Terlalu kaku: `dibayar dari uang di tangan`, `mestinya ada di tangannya`, `Cara bayar`
+> Terlalu santai: `dibayar pakai uang yang dipegang`, `dia lagi pegang uang toko`,
+> `2 orang yang jualan`, `buat beli barang`, `cuma cara bayarnya`
+
+Istilah akuntansi (Debit, Kredit, Persediaan, Saldo, Piutang) tetap seperti adanya —
+yang dibuat luwes kalimat penjelasnya, bukan nama akunnya. Untuk header kolom dan label dipakai `Dibayar melalui`;
+`Dibayar lewat` / `Diterima lewat` di dialog Utang dan Piutang belum ikut disamakan.
+
+Ikutannya: **selalu "periode", tidak pernah "rentang"** untuk teks yang dilihat pengguna.
+`Belum ada beban di periode ini`, `Coba pilih tanggal yang lain`. Kata `rentang` boleh
+tetap dipakai di nama variabel dan komentar kode.
+
+**9. Empty state harus sesuai konteks.** Bedakan "data memang belum ada" dari "filter
 tidak menemukan apa-apa". Jangan menyuruh mengubah filter kepada orang yang tidak
 sedang memakai filter.
 
