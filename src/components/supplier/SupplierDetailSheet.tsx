@@ -131,8 +131,10 @@ export function SupplierDetailSheet({
         <Seksi title="Utang belum lunas" count={utang.length}>
           <div className="flex flex-col gap-1.75">
             {utang.map((baris) => {
-              const jatuhTempo = dayjs(baris.due_date);
-              const lewat = jatuhTempo.isBefore(dayjs(), 'day');
+              // `due_date` boleh kosong — tagihan saldo awal tidak membawa tenggat.
+              // Tanpa penjagaan ini barisnya berbunyi "Jatuh tempo Invalid Date".
+              const jatuhTempo = baris.due_date ? dayjs(baris.due_date) : null;
+              const lewat = jatuhTempo?.isBefore(dayjs(), 'day') ?? false;
               const sisa = +(baris.amount ?? 0) - +(baris.paid_amount ?? 0);
 
               return (
@@ -140,9 +142,12 @@ export function SupplierDetailSheet({
                   <div className="min-w-0">
                     <div className="truncate font-mono text-sm">{baris.description || '—'}</div>
                     <div className={`text-xs ${lewat ? 'text-destructive' : 'text-foreground-subtle'}`}>
+                      {/* eslint-disable-next-line no-nested-ternary */}
                       {lewat
                         ? `Lewat ${dayjs().diff(jatuhTempo, 'day')} hari`
-                        : `Jatuh tempo ${jatuhTempo.format('DD MMM YYYY')}`}
+                        : jatuhTempo
+                        ? `Jatuh tempo ${jatuhTempo.format('DD MMM YYYY')}`
+                        : 'Tanpa jatuh tempo'}
                     </div>
                   </div>
                   <span className="whitespace-nowrap font-mono text-base font-semibold tabular-nums">

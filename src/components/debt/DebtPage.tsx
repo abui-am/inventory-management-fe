@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { Banknote, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
-import DebtCardList, { keteranganTagihan, statusTagihan } from '@/components/debt/DebtCardList';
+import DebtCardList, { keteranganTagihan, statusTagihan, tanggalTempo } from '@/components/debt/DebtCardList';
 import PayDebtDialog from '@/components/debt/PayDebtDialog';
 import { ThemedSelect } from '@/components/Form';
 import Pagination from '@/components/Pagination';
@@ -425,12 +425,10 @@ export function DebtPage({ variant }: { variant: Varian }): JSX.Element {
                       <td className={cn(TD, 'whitespace-nowrap font-mono')}>
                         {status.lewat > 0 ? (
                           <Tippy content={`Lewat ${status.lewat} hari`} placement="top" delay={[350, 0]}>
-                            <span className="cursor-help text-destructive">
-                              {dayjs(row.due_date).format('DD MMM YYYY')}
-                            </span>
+                            <span className="cursor-help text-destructive">{tanggalTempo(row.due_date)}</span>
                           </Tippy>
                         ) : (
-                          dayjs(row.due_date).format('DD MMM YYYY')
+                          tanggalTempo(row.due_date)
                         )}
                       </td>
 

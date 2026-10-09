@@ -21,6 +21,16 @@ export const statusTagihan = (
 };
 
 /**
+ * Tanggal jatuh tempo, atau "—" kalau tagihannya memang tidak punya.
+ *
+ * `due_date` boleh kosong — saldo awal pindahan dari pembukuan lama tidak membawa
+ * tenggat, dan mengarangkannya lebih buruk daripada mengosongkannya. Tanpa penjagaan
+ * ini `dayjs(undefined).format(...)` menghasilkan tulisan "Invalid Date" di kolom
+ * tabel, bukan sel kosong.
+ */
+export const tanggalTempo = (due?: Date | string | null): string => (due ? dayjs(due).format('DD MMM YYYY') : '—');
+
+/**
  * Keterangan tagihan memuat kode transaksi ("Transaksi TRDO2609008"). Kodenya dibedakan
  * dengan huruf mono, sama seperti kode di tabel mana pun — angka dan huruf besar yang
  * berdempetan hampir tidak terbaca dengan huruf biasa.
@@ -68,9 +78,12 @@ export function DebtCardList({
             utama={row.related_model?.name ?? '—'}
             pendamping={[
               keteranganTagihan(row.description),
+              // eslint-disable-next-line no-nested-ternary
               status.lewat > 0
                 ? `Lewat ${status.lewat} hari`
-                : `Jatuh tempo ${dayjs(row.due_date).format('DD MMM YYYY')}`,
+                : row.due_date
+                ? `Jatuh tempo ${tanggalTempo(row.due_date)}`
+                : 'Tanpa jatuh tempo',
             ]}
             nilaiLabel="Sisa"
             nilai={sisa > 0 ? formatNumber(sisa) : '—'}
