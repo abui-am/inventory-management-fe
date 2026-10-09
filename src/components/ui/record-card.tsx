@@ -43,45 +43,41 @@ export function RecordCard({
   status?: React.ReactNode;
   meta?: React.ReactNode;
   aksi?: React.ReactNode;
-  onOpen: () => void;
+  /**
+   * Dibuka saat kartunya disentuh. Boleh kosong untuk daftar yang barisnya memang tidak
+   * punya rincian — prive, misalnya. Tanpa `onOpen`, kartunya bukan sasaran sentuh: tidak
+   * ber-role button, tidak bisa difokus, dan tidak menyala saat disentuh.
+   */
+  onOpen?: () => void;
   /** Baris yang dibatalkan — diredupkan, bukan disembunyikan. */
   redup?: boolean;
-  ariaLabel: string;
+  ariaLabel?: string;
 }): JSX.Element {
   const baris = (pendamping ?? []).filter(Boolean);
+  const kelas = cn(
+    'flex flex-col gap-1.75 rounded-card border border-border bg-surface px-3 py-2.5 shadow-sm',
+    onOpen &&
+      'cursor-pointer transition-colors duration-fast hover:bg-surface-raised active:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
+    redup && 'opacity-55'
+  );
 
-  return (
-    // `div` dengan role=button, bukan <button>: di dalamnya ada tombol aksi, dan tombol
-    // di dalam tombol bukan HTML yang sah.
-    <div
-      role="button"
-      tabIndex={0}
-      aria-label={ariaLabel}
-      onClick={onOpen}
-      onKeyDown={(e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        onOpen();
-      }}
-      className={cn(
-        'flex cursor-pointer flex-col gap-1.75 rounded-card border border-border bg-surface px-3 py-2.5 shadow-sm',
-        'transition-colors duration-fast hover:bg-surface-raised active:bg-surface-raised',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
-        redup && 'opacity-55'
-      )}
-    >
+  // Dua cabang, bukan satu div dengan atribut bersyarat: kartu yang tidak membuka apa-apa
+  // TIDAK boleh ber-role button maupun bisa difokus — dan aturan lint a11y memang hanya
+  // bisa memastikannya kalau rolenya ditulis harfiah.
+  const isi = (
+    <>
       <div className="flex items-start gap-2.25">
         {avatar}
 
         <div className="min-w-0 flex-1">
           <div className="truncate font-semibold">{utama}</div>
-          {baris.map((isi, i) => (
+          {baris.map((teks, i) => (
             <div
               // eslint-disable-next-line react/no-array-index-key
               key={i}
               className={cn('truncate text-xs', i === 0 ? 'text-foreground-muted' : 'text-foreground-subtle')}
             >
-              {isi}
+              {teks}
             </div>
           ))}
         </div>
@@ -115,6 +111,27 @@ export function RecordCard({
           </span>
         </div>
       )}
+    </>
+  );
+
+  if (!onOpen) return <div className={kelas}>{isi}</div>;
+
+  return (
+    // `div` dengan role=button, bukan <button>: di dalamnya ada tombol aksi, dan tombol
+    // di dalam tombol bukan HTML yang sah.
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        onOpen();
+      }}
+      className={kelas}
+    >
+      {isi}
     </div>
   );
 }

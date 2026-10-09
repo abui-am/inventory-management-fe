@@ -5,6 +5,7 @@ import React, { PropsWithChildren, useEffect, useState } from 'react';
 import ProgressBar from '@/components/ui/progress-bar';
 import MENU_LIST from '@/constants/menu';
 
+import { CrumbProvider } from './crumb';
 import DashboardLayout from './DashboardLayout';
 
 const Layout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
@@ -56,9 +57,13 @@ const Layout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
           putih dengan spinner 80px, yang membuang konteks dan menyilaukan di mode gelap. */}
       <ProgressBar active={loading} />
       <div aria-busy={loading || undefined}>
-        <DashboardLayout titleHref={title?.slug} title={title?.title ?? title?.displayName}>
-          {children}
-        </DashboardLayout>
+        {/* Penyedia ruas breadcrumb ada DI ATAS DashboardLayout: yang menulisnya adalah
+            halaman di dalam `children`, yang membacanya breadcrumb di dalam Layout. */}
+        <CrumbProvider>
+          <DashboardLayout titleHref={title?.slug} title={title?.title ?? title?.displayName}>
+            {children}
+          </DashboardLayout>
+        </CrumbProvider>
       </div>
     </div>
   );

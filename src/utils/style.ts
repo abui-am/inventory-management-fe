@@ -26,16 +26,24 @@ const t = (name: string, alpha?: number) => (alpha == null ? `hsl(var(${name}))`
 /** Tinggi lama 36px — masih dipakai halaman yang belum dipindahkan ke design system. */
 const LEGACY_CONTROL_HEIGHT = 36;
 
+/** Garis kontrol: mati → `border`, fokus → `accent`, selebihnya `border-strong`. */
+const warnaGaris = (mati: boolean, fokus: boolean) => {
+  if (mati) return t('--border');
+  return fokus ? t('--accent') : t('--border-strong');
+};
+
 const base: Partial<StylesConfig<SelectOption, boolean, SelectGroup>> = {
   control: (provided, state) => ({
     ...provided,
     // Kotaknya bisa diklik untuk membuka menu, jadi kursornya harus mengatakan begitu.
     // Bawaan react-select `default` membuatnya terlihat seperti teks mati.
-    cursor: 'pointer',
+    // Keadaan mati punya tampilannya sendiri: react-select bawaannya memakai abu-abu
+    // tetap (#f2f2f2) yang tidak ikut tema dan tidak sewarna kontrol mati lainnya.
+    cursor: state.isDisabled ? 'not-allowed' : 'pointer',
     minHeight: LEGACY_CONTROL_HEIGHT,
     height: LEGACY_CONTROL_HEIGHT,
-    backgroundColor: t('--surface'),
-    borderColor: state.isFocused ? t('--accent') : t('--border-strong'),
+    backgroundColor: state.isDisabled ? t('--surface-raised') : t('--surface'),
+    borderColor: warnaGaris(state.isDisabled, state.isFocused),
     boxShadow: state.isFocused ? `0 0 0 2px ${t('--ring', 0.25)}` : 'none',
     borderRadius: 6,
     transition: 'border-color 120ms, box-shadow 120ms',

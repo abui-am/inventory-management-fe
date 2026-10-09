@@ -28,6 +28,9 @@ export type EmployeeData = {
   last_name?: string;
   position?: string;
   has_dashboard_account: boolean;
+  /** Dikirim `Employee::simpleView()`; opsional karena backend lama belum mengirimnya. */
+  salary?: number | null;
+  active?: boolean;
   created_at: Date;
   updated_at: Date;
 };
@@ -46,8 +49,14 @@ export type CreateEmployeePutBody = {
   first_name: string;
   last_name: string;
   nik: string;
-  birth_date: string;
-  gender: string;
+  /**
+   * Dihilangkan sama sekali kalau tidak diisi, bukan dikirim sebagai string kosong:
+   * `ConvertEmptyStringsToNull` dimatikan di `app/Http/Kernel.php`, jadi `''` sampai ke
+   * validator apa adanya dan `nullable|before_or_equal:now` menolaknya. Sama untuk `gender`
+   * terhadap `in:male,female`.
+   */
+  birth_date?: string;
+  gender?: string;
   email: string;
   phone_number: string;
   position: string;
@@ -111,6 +120,12 @@ export interface Employee {
   salary: number;
   debt: number | null;
   active: boolean;
+  /**
+   * Dikirim `Employee::fullView()` di backend sejak awal, hanya belum pernah dicantumkan
+   * di sini. `created_at` dipakai halaman detail sebagai tanggal bergabung.
+   */
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface EmployeeDetailRes {

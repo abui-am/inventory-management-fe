@@ -74,19 +74,28 @@ const Checkbox: React.FC<PropsWithChildren<InputHTMLAttributes<HTMLInputElement>
 
 const PhoneNumberTextField: React.FC<
   PropsWithChildren<
-    Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange'> & {
+    Omit<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, 'onChange' | 'size'> & {
       hasError: boolean;
       onChange: (phoneNumber: string) => void;
+      /** Ikut skala Input. `sm` = 32px, tinggi kontrol halaman yang sudah dipindahkan. */
+      ukuran?: 'sm' | 'default';
     }
   >
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-> = ({ onChange, className, hasError, value, size: _size, ...props }) => (
+> = ({ onChange, className, hasError, value, ukuran = 'default', ...props }) => (
   <div className="flex">
-    <span className="inline-flex h-9 items-center rounded-l-md border border-r-0 border-border-strong bg-surface-raised px-2.5 text-base text-foreground-muted">
+    {/* Kotak awalan mengikuti tinggi inputnya; kalau tidak, +62 jadi 36px di sebelah
+        kolom 32px dan tidak ada satu garis pun yang sejajar. */}
+    <span
+      className={cn(
+        'inline-flex items-center border border-r-0 border-border-strong bg-surface-raised px-2.5 text-base text-foreground-muted',
+        ukuran === 'sm' ? 'h-8 rounded-l-control' : 'h-9 rounded-l-md'
+      )}
+    >
       +62
     </span>
     <Input
       id={props.id ?? props.name}
+      size={ukuran}
       aria-invalid={hasError || undefined}
       aria-describedby={hasError && props.name ? `${props.name}-error` : undefined}
       {...props}

@@ -14,7 +14,7 @@ import NormalSelect, {
 import Select, { AsyncProps } from 'react-select/async';
 import CreatableAsyncSelect from 'react-select/async-creatable';
 
-import { inputClass } from '@/components/ui/input';
+import { inputClass, inputVariants } from '@/components/ui/input';
 import { SORT_TYPE_OPTIONS } from '@/constants/options';
 import {
   useSearchCity,
@@ -91,10 +91,12 @@ const CustomTimeInput = ({ value, onChange }: { value: string; onChange: (e: str
   <input value={value} onChange={(e) => onChange(e.target.value)} className={inputClass} />
 );
 
-const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = ({
+const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps & { size?: 'sm' | 'default' }>> = ({
   className,
   showTimeSelect,
   selected,
+  size = 'default',
+  customInput,
   ...props
 }) => {
   // Tanggal baru ditampilkan setelah mount. Halaman-halaman ini dibangkitkan jadi HTML
@@ -105,8 +107,11 @@ const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = (
   const mounted = useMounted();
 
   return (
-    <div className="relative customDatePickerWidth">
+    // Dengan `customInput` pemanggil memberi kontrolnya sendiri — kotak input bawaan,
+    // lebarnya, dan ikon kalender di dalamnya tidak dipakai.
+    <div className={cn('relative', !customInput && 'customDatePickerWidth')}>
       <DatePicker
+        customInput={customInput}
         selected={mounted ? selected : null}
         dateFormat={showTimeSelect ? 'dd/MM/yyy HH:mm:ss' : 'dd/MM/yyyy'}
         // Kalendernya dirender ke #__next, bukan di tempat.
@@ -133,14 +138,21 @@ const DatePickerComponent: React.FC<PropsWithChildren<ReactDatePickerProps>> = (
         // Kotaknya membuka kalender saat diklik, jadi kursornya pointer — seragam dengan
         // select. Mengetik tanggal langsung tetap bisa; yang ditandai adalah aksi yang
         // dilakukan orang hampir setiap kali.
-        className={cn(inputClass, 'cursor-pointer pl-8', className)}
+        // Tingginya mengikuti skala Input, bukan angka yang diketik pemanggil: halaman
+        // yang sudah dipindahkan memakai satu tinggi kontrol (32px) untuk semua input,
+        // select, dan tombolnya. Tanpa prop ini datepicker tetap 36px dan jadi satu-
+        // satunya kontrol yang lebih tinggi dari tetangganya — persis yang terjadi di
+        // pemilih bulan Gaji Karyawan.
+        className={customInput ? className : cn(inputVariants({ size }), 'cursor-pointer pl-8', className)}
         customTimeInput={<CustomTimeInput value="" onChange={() => undefined} />}
         showTimeSelect={showTimeSelect}
         {...props}
       />
-      <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-foreground-subtle">
-        <Calendar size={16} aria-hidden />
-      </div>
+      {!customInput && (
+        <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-foreground-subtle">
+          <Calendar size={16} aria-hidden />
+        </div>
+      )}
     </div>
   );
 };
@@ -175,11 +187,58 @@ const DateRangePicker: React.FC<
   );
 };
 
+/**
+ * Pembungkus bertema untuk select ASINKRON (yang memuat opsinya dari server).
+ *
+ * `ThemedSelect` memakai `NormalSelect`, jadi select wilayah di bawah memakai
+ * `react-select/async` langsung — dan karena `additionalStyle` bukan prop milik
+ * react-select, ia DIABAIKAN diam-diam: keempatnya tampil dengan gaya bawaan
+ * react-select (tinggi 38px, pemisah indikator, abu-abu bawaan saat disabled) di
+ * sebelah select lain yang sudah 32px dan ikut token. Itu yang membuat seksi Tempat
+ * tinggal terlihat tidak seragam.
+ *
+ * Penggabungan `styles`-nya sama persis dengan ThemedSelect, termasuk alasan kenapa
+ * `styles` dikeluarkan dari sebaran props.
+ */
+const ThemedAsyncSelect: React.FC<PropsWithChildren<ThemedSelectProps>> = ({
+  variant = 'outlined',
+  additionalStyle = {},
+  styles,
+  ...props
+}) => {
+  const [portal, setPortal] = useState<HTMLElement>();
+  const animation = useMenuAnimation();
+
+  useEffect(() => {
+    setPortal(document.getElementById('__next') ?? document.body);
+  }, []);
+
+  const merged = {
+    menuPortal: (base: Record<string, unknown>) => ({ ...base, zIndex: 9999 }),
+    ...getThemedSelectStyle(variant, { ...additionalStyle, ...animation.menuAnimationStyle }),
+    ...(styles ?? {}),
+  } as ThemedSelectProps['styles'];
+
+  return (
+    <Select
+      menuShouldScrollIntoView
+      instanceId={props.instanceId ?? props.name}
+      menuPortalTarget={portal}
+      inputId={props.inputId ?? props.name}
+      styles={merged}
+      {...props}
+      menuIsOpen={animation.menuIsOpen}
+      onMenuOpen={animation.onMenuOpen}
+      onMenuClose={animation.onMenuClose}
+    />
+  );
+};
+
 const SelectProvince: React.FC<PropsWithChildren<ThemedSelectProps>> = (props) => {
   const { mutateAsync } = useSearchProvince();
 
   return (
-    <Select
+    <ThemedAsyncSelect
       {...props}
       loadOptions={async (val) => {
         const { data } = await mutateAsync({ search: val });
@@ -194,7 +253,7 @@ const SelectCity: React.FC<PropsWithChildren<ThemedSelectProps & { provinceId: s
   const { mutateAsync } = useSearchCity();
   const { provinceId } = props;
   return (
-    <Select
+    <ThemedAsyncSelect
       {...props}
       isDisabled={!provinceId}
       loadOptions={async (val) => {
@@ -210,7 +269,7 @@ const SelectSubdistrict: React.FC<PropsWithChildren<ThemedSelectProps & { cityId
   const { mutateAsync } = useSearchSubdistrict();
   const { cityId } = props;
   return (
-    <Select
+    <ThemedAsyncSelect
       {...props}
       isDisabled={!cityId}
       loadOptions={async (val) => {
@@ -226,7 +285,7 @@ const SelectVillage: React.FC<PropsWithChildren<ThemedSelectProps & { subdistric
   const { mutateAsync } = useSearchVillage();
   const { subdistrictId } = props;
   return (
-    <Select
+    <ThemedAsyncSelect
       {...props}
       isDisabled={!subdistrictId}
       loadOptions={async (val) => {

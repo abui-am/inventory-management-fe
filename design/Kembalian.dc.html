@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    .light{
+      --background:hsl(240 20% 99%);
+      --surface:hsl(0 0% 100%);
+      --surface-raised:hsl(240 20% 97%);
+      --surface-sunken:hsl(240 16% 95%);
+      --border:hsl(240 12% 89%);
+      --border-subtle:hsl(240 14% 94%);
+      --border-strong:hsl(240 10% 80%);
+      --foreground:hsl(240 15% 12%);
+      --foreground-muted:hsl(240 8% 42%);
+      --foreground-subtle:hsl(240 7% 58%);
+      --accent:hsl(256 68% 54%);
+      --accent-foreground:hsl(0 0% 100%);
+      --accent-subtle:hsl(256 70% 96%);
+      --accent-hover:hsl(256 68% 47%);
+      --success:hsl(152 62% 28%);
+      --success-foreground:hsl(0 0% 100%);
+      --success-subtle:hsl(152 48% 95%);
+      --warning:hsl(30 90% 31%);
+      --warning-foreground:hsl(0 0% 100%);
+      --warning-subtle:hsl(36 85% 94%);
+      --destructive:hsl(2 72% 45%);
+      --destructive-foreground:hsl(0 0% 100%);
+      --destructive-subtle:hsl(2 72% 96%);
+      --info:hsl(212 72% 45%);
+      --info-foreground:hsl(0 0% 100%);
+      --info-subtle:hsl(212 70% 95%);
+      --ring:hsl(256 68% 54%);
+      --shadow-sm:0 1px 2px 0 hsl(240 15% 12% / 0.05);
+      --shadow-md:0 4px 12px -2px hsl(240 15% 12% / 0.10), 0 2px 4px -2px hsl(240 15% 12% / 0.06);
+    }
+    .dark{
+      --background:hsl(240 12% 8%);
+      --surface:hsl(240 11% 11%);
+      --surface-raised:hsl(240 10% 15%);
+      --surface-sunken:hsl(240 13% 6%);
+      --border:hsl(240 8% 21%);
+      --border-subtle:hsl(240 8% 16%);
+      --border-strong:hsl(240 7% 32%);
+      --foreground:hsl(240 18% 96%);
+      --foreground-muted:hsl(240 8% 67%);
+      --foreground-subtle:hsl(240 7% 50%);
+      --accent:hsl(256 82% 70%);
+      --accent-foreground:hsl(250 30% 10%);
+      --accent-subtle:hsl(256 38% 20%);
+      --accent-hover:hsl(256 82% 77%);
+      --success:hsl(152 52% 56%);
+      --success-foreground:hsl(152 40% 9%);
+      --success-subtle:hsl(152 32% 17%);
+      --warning:hsl(36 84% 62%);
+      --warning-foreground:hsl(36 50% 10%);
+      --warning-subtle:hsl(36 40% 18%);
+      --destructive:hsl(2 80% 69%);
+      --destructive-foreground:hsl(2 40% 10%);
+      --destructive-subtle:hsl(2 36% 18%);
+      --info:hsl(212 78% 66%);
+      --info-foreground:hsl(212 45% 10%);
+      --info-subtle:hsl(212 38% 20%);
+      --ring:hsl(256 82% 70%);
+      --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / 0.30);
+      --shadow-md:0 4px 12px -2px hsl(0 0% 0% / 0.45), 0 2px 4px -2px hsl(0 0% 0% / 0.30);
+    }
+
+    body{margin:0}
+    .root{background:var(--background);color:var(--foreground);
+      font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+      font-size:13px;line-height:1.45}
+    a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    /* Tautan pelengkap: seredup judul seksinya, menguat saat disentuh. Warna aksen
+       disimpan untuk aksi, bukan untuk jalan keluar yang sifatnya tambahan. */
+    .tautan-tenang{color:var(--foreground-muted)}
+    .tautan-tenang:hover{color:var(--foreground);opacity:1;text-decoration:underline;text-underline-offset:2px}
+    .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
+      letter-spacing:-0.01em}
+    .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-sm)}
+    .nav{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;
+      font-size:13px;font-weight:500;color:var(--foreground-muted);cursor:pointer}
+    .nav:hover{background:var(--surface-raised);color:var(--foreground)}
+    .nav.on{background:var(--accent-subtle);color:var(--accent);font-weight:600}
+    .navsec{font-size:11px;font-weight:700;
+      color:var(--foreground-subtle);padding:0 9px;margin:12px 0 4px}
+    .th{font-size:11px;font-weight:700;color:var(--foreground-subtle);
+      text-align:left;padding:0 10px 7px;border-bottom:1px solid var(--border)}
+    .td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .pill{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;display:inline-flex;align-items:center;
+      gap:4px;white-space:nowrap;line-height:18px}
+    .btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid transparent;background:var(--accent);
+      color:var(--accent-foreground);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn.ghost{background:var(--surface);border-color:var(--border-strong);color:var(--foreground)}
+    .btn.sm{height:28px;padding:0 9px;font-size:12px;border-radius:6px}
+    .field{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:13px;
+      font-family:inherit;color:var(--foreground);background:var(--surface);display:flex;align-items:center;gap:7px}
+    .ico{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;
+      align-items:center;justify-content:center;cursor:pointer;color:var(--foreground-muted)}
+  </style>
+</helmet>
+<div class="root {{theme}}" style="min-height:1240px">
+    <style>.root *{box-sizing:border-box}</style>
+  <div style="padding:22px 24px;display:flex;flex-direction:column;gap:24px">
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Empat keadaan kartu Ringkasan</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">barisnya ada di satu keadaan saja</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:8px">
+  <div style="display:flex;flex-direction:column;gap:1px;max-width:270px">
+    <span style="font-size:12px;font-weight:700">Pas</span>
+    <span style="font-size:11px;color:var(--foreground-subtle);line-height:15px">tidak ada yang dikembalikan, barisnya tidak ada</span>
+  </div>
+  <div class="card" style="width:270px;padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+  <span style="font-size:13px;font-weight:600">Ringkasan</span>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Subtotal</span><span class="mono" style="font-weight:500">942.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Diskon</span><span class="mono" style="font-weight:500">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Ongkos kirim</span><span class="mono" style="font-weight:500">0</span></div>
+  </div>
+  <div style="height:1px;background:var(--border)"></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:13px;font-weight:600">Total</span>
+    <span class="mono" style="font-size:22px;font-weight:700;letter-spacing:-0.025em;color:var(--accent)">942.000</span>
+  </div>
+  <div style="background:var(--surface-raised);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Dibayarkan</span><span class="mono" style="font-weight:500">942.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Selisih</span><span class="mono" style="font-weight:700;color:var(--success)">0</span></div>
+    
+  </div>
+  <button class="btn" style="justify-content:center;width:100%">Simpan transaksi</button>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+  <div style="display:flex;flex-direction:column;gap:1px;max-width:270px">
+    <span style="font-size:12px;font-weight:700">Kurang bayar</span>
+    <span style="font-size:11px;color:var(--foreground-subtle);line-height:15px">Selisih sudah mengatakannya; Kembalian tidak ikut muncul</span>
+  </div>
+  <div class="card" style="width:270px;padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+  <span style="font-size:13px;font-weight:600">Ringkasan</span>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Subtotal</span><span class="mono" style="font-weight:500">942.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Diskon</span><span class="mono" style="font-weight:500">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Ongkos kirim</span><span class="mono" style="font-weight:500">0</span></div>
+  </div>
+  <div style="height:1px;background:var(--border)"></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:13px;font-weight:600">Total</span>
+    <span class="mono" style="font-size:22px;font-weight:700;letter-spacing:-0.025em;color:var(--accent)">942.000</span>
+  </div>
+  <div style="background:var(--surface-raised);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Dibayarkan</span><span class="mono" style="font-weight:500">884.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Selisih</span><span class="mono" style="font-weight:700;color:var(--destructive)">−58.000</span></div>
+    
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px"><button class="btn" style="justify-content:center;width:100%;opacity:.45">Simpan transaksi</button><span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--destructive)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.4 17.1A2 2 0 0 0 4.1 20h15.8a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Pembayaran kurang <span class="mono" style="font-weight:600">58.000</span></span></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+  <div style="display:flex;flex-direction:column;gap:1px;max-width:270px">
+    <span style="font-size:12px;font-weight:700">Lebih bayar, ada Kas</span>
+    <span style="font-size:11px;color:var(--foreground-subtle);line-height:15px">satu-satunya keadaan Kembalian tampil</span>
+  </div>
+  <div class="card" style="width:270px;padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+  <span style="font-size:13px;font-weight:600">Ringkasan</span>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Subtotal</span><span class="mono" style="font-weight:500">942.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Diskon</span><span class="mono" style="font-weight:500">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Ongkos kirim</span><span class="mono" style="font-weight:500">0</span></div>
+  </div>
+  <div style="height:1px;background:var(--border)"></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:13px;font-weight:600">Total</span>
+    <span class="mono" style="font-size:22px;font-weight:700;letter-spacing:-0.025em;color:var(--accent)">942.000</span>
+  </div>
+  <div style="background:var(--surface-raised);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Dibayarkan</span><span class="mono" style="font-weight:500">1.000.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Selisih</span><span class="mono" style="font-weight:700;color:var(--success)">58.000</span></div>
+    <div style="border-top:1px solid var(--border);margin-top:2px;padding-top:8px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+  <span style="font-size:13px;font-weight:600">Kembalian</span>
+  <span class="mono" style="font-size:18px;font-weight:700;letter-spacing:-0.02em;color:var(--accent)">58.000</span>
+</div>
+  </div>
+  <button class="btn" style="justify-content:center;width:100%">Simpan transaksi</button>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+  <div style="display:flex;flex-direction:column;gap:1px;max-width:270px">
+    <span style="font-size:12px;font-weight:700">Lebih bayar, tanpa Kas</span>
+    <span style="font-size:11px;color:var(--foreground-subtle);line-height:15px">tidak ada uang tunai di meja, jadi tidak ada yang bisa dikembalikan</span>
+  </div>
+  <div class="card" style="width:270px;padding:13px 15px;display:flex;flex-direction:column;gap:10px">
+  <span style="font-size:13px;font-weight:600">Ringkasan</span>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Subtotal</span><span class="mono" style="font-weight:500">942.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Diskon</span><span class="mono" style="font-weight:500">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Ongkos kirim</span><span class="mono" style="font-weight:500">0</span></div>
+  </div>
+  <div style="height:1px;background:var(--border)"></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:13px;font-weight:600">Total</span>
+    <span class="mono" style="font-size:22px;font-weight:700;letter-spacing:-0.025em;color:var(--accent)">942.000</span>
+  </div>
+  <div style="background:var(--surface-raised);border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Dibayarkan</span><span class="mono" style="font-weight:500">1.000.000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Selisih</span><span class="mono" style="font-weight:700;color:var(--destructive)">58.000</span></div>
+    
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px"><button class="btn" style="justify-content:center;width:100%;opacity:.45">Simpan transaksi</button><span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--destructive)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.4 17.1A2 2 0 0 0 4.1 20h15.8a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Pembayaran lebih <span class="mono" style="font-weight:600">58.000</span></span></div>
+</div>
+</div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Dari mana angkanya, dan ke mana ia tidak pergi</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">tidak ada field baru, tidak ada kolom baru</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div class="card" style="width:330px;padding:0;overflow:hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;
+    background:var(--surface-raised);border-bottom:1px solid var(--border)">
+    <span style="font-size:13px;font-weight:600">Pembayaran</span>
+    <span style="font-size:11px;color:var(--foreground-subtle)">angka yang diketik kasir</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:9px;padding:7px 13px;
+  border-bottom:1px solid var(--border-subtle)">
+  <span class="pill" style="background:var(--success-subtle);color:var(--success);width:52px;justify-content:center">Kas</span>
+  <div class="field mono" style="height:28px;flex:1;justify-content:flex-end;font-weight:600">1.000.000</div>
+  <div style="width:84px;text-align:right"><span style="font-size:11px;color:var(--foreground-subtle)">—</span></div>
+  <div class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+</div>
+  <div style="padding:10px 13px;background:var(--surface-raised);display:flex;justify-content:space-between;
+    align-items:baseline;font-size:12px">
+    <span style="color:var(--foreground-muted)">Total dibayarkan</span>
+    <span class="mono" style="font-size:14px;font-weight:700;color:var(--accent)">1.000.000</span>
+  </div>
+</div>
+<div class="card" style="width:330px;padding:14px 15px;display:flex;flex-direction:column;gap:11px">
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <span style="font-size:14px;font-weight:700">Yang dikirim</span>
+    <span style="font-size:11px;color:var(--foreground-muted);line-height:16px">
+      Kasir mengetik 1.000.000. Yang berangkat tetap 942.000.
+    </span>
+  </div>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span style="color:var(--foreground-muted)">di layar — Kas</span><span class="mono" style="font-weight:600;">1.000.000</span></div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span style="color:var(--foreground-muted)">payments[0].cash</span><span class="mono" style="font-weight:600;;color:var(--success)">942.000</span></div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span style="color:var(--foreground-muted)">payments[0].change</span><span class="mono" style="font-weight:600;text-decoration:line-through;color:var(--foreground-subtle)">tidak dikirim</span></div>
+  </div>
+  <div style="display:flex;align-items:flex-start;gap:7px;padding:9px 11px;border-radius:9px;
+    background:var(--surface-raised);color:var(--foreground-muted);font-size:11px;line-height:16px">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>
+    <span>Kembalian tidak punya akun dan tidak punya kolom. Ia dihitung ulang tiap render
+    dari baris pembayaran, tidak disimpan di state mana pun.</span>
+  </div>
+</div>
+<div class="card" style="width:300px;padding:14px 15px;display:flex;flex-direction:column;gap:10px">
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <span style="font-size:14px;font-weight:700">Preview jurnal</span>
+    <span style="font-size:11px;color:var(--foreground-muted);line-height:16px">
+      Sama persis dengan sebelum ada Kembalian.
+    </span>
+  </div>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" title="Debit" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--destructive-subtle);color:var(--destructive);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">D</span><span style="flex:1;font-size:12px">Kas</span><span class="mono" style="font-size:12px;font-weight:600">942.000</span></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-subtle)"><span class="mono" title="Kredit" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:var(--success-subtle);color:var(--success);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">K</span><span style="flex:1;font-size:12px">Penjualan</span><span class="mono" style="font-size:12px;font-weight:600">942.000</span></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">
+    <span style="color:var(--foreground-muted)">Balance</span>
+    <span class="mono" style="color:var(--success);font-weight:600">942.000 = 942.000</span>
+  </div>
+</div>
+<div class="card" style="width:300px;padding:14px 15px;display:flex;flex-direction:column;gap:8px">
+  <span style="font-size:14px;font-weight:700">Lima batasnya</span>
+  <div style="display:flex;flex-direction:column"><div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-size:12px;font-weight:600">Hanya di sini</span><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">/transaction/add. Tidak di barang masuk, utang, beban, gaji, atau prive.</span></div><div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-size:12px;font-weight:600">Tidak diketik</span><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">Turunan dari baris pembayaran yang sudah ada. Tidak ada field baru.</span></div><div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-size:12px;font-weight:600">Hanya saat lebih</span><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">Kurang bayar memakai Selisih dan halangan yang sudah ada.</span></div><div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-size:12px;font-weight:600">Hanya kalau ada Kas</span><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">Lebih bayar lewat Bank/Giro/Utang tetap diblokir seperti sekarang.</span></div><div style="display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-size:12px;font-weight:600">Tidak dikirim</span><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">Payload tetap sebesar total. Jurnal, buku besar, dan laporan tidak tersentuh.</span></div></div>
+</div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:9px">
+        <span style="font-size:14px;font-weight:700">Satu aturan yang berubah</span>
+        <span style="font-size:12px;color:var(--foreground-subtle)">tanpa ini Kembalian hanya tampil saat simpan mati</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:330px;display:flex;flex-direction:column;gap:7px">
+  <span class="pill" style="background:var(--destructive-subtle);color:var(--destructive);align-self:flex-start">Sekarang</span>
+  <div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:7px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Kas diketik</span><span class="mono" style="font-weight:500">1.000.000</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Selisih</span><span class="mono" style="font-weight:700;color:var(--warning)">58.000</span></div><div style="height:1px;background:var(--border-subtle)"></div><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--destructive)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.4 17.1A2 2 0 0 0 4.1 20h15.8a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Simpan mati — "Pembayaran lebih 58.000"</div><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">Kasir harus mengetik ulang 942.000 supaya bisa disimpan, lalu menghitung kembaliannya di kepala atau di kalkulator.</span></div>
+</div>
+<div style="width:330px;display:flex;flex-direction:column;gap:7px">
+  <span class="pill" style="background:var(--success-subtle);color:var(--success);align-self:flex-start">Sesudah</span>
+  <div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:7px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Kas diketik</span><span class="mono" style="font-weight:500">1.000.000</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Selisih</span><span class="mono" style="font-weight:700;color:var(--success)">58.000</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px"><span style="color:var(--foreground-muted)">Kembalian</span><span class="mono" style="font-weight:700;color:var(--accent)">58.000</span></div><div style="height:1px;background:var(--border-subtle)"></div><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--success)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>Simpan hidup — terkirim 942.000</div><span style="font-size:11px;color:var(--foreground-muted);line-height:16px">Halangan "Pembayaran lebih" hanya dicabut kalau ada baris Kas. Kurang bayar tetap memblokir seperti sekarang.</span></div>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"tema":{"editor":"enum","options":["Terang","Gelap"],"default":"Gelap","section":"Tampilan"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.state?.tema ?? this.props.tema ?? 'Gelap';
+    return { theme: t === 'Gelap' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>

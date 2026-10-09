@@ -1,16 +1,15 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
-import { CardDashboard } from '@/components/Container';
 import CreateEmployeeForm from '@/components/form/CreateEmployeeForm';
+import { ThemeablePage } from '@/typings/page';
 
-const Home: NextPage<unknown> = () => {
+/** Ubah karyawan — formulir yang sama dengan Tambah, ditambah kendali status. */
+const EditEmployeePage: NextPage & ThemeablePage = () => {
   const { query } = useRouter();
-  return (
-    <CardDashboard title="Edit Karyawan">
-      <CreateEmployeeForm editId={query.id as string} isEdit />
-    </CardDashboard>
-  );
+  return <CreateEmployeeForm isEdit editId={query.id as string} />;
 };
 
-export default Home;
+EditEmployeePage.themeable = true;
+
+export default EditEmployeePage;

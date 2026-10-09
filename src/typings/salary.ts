@@ -74,6 +74,17 @@ export interface SalaryResponse {
   payrolls: Payrolls;
 }
 
+/**
+ * Bentuk jawaban `POST /payrolls` saat `paginated: false`.
+ *
+ * `PayrollController::index` memetakan koleksi biasa di cabang itu, jadi `payrolls`
+ * datang sebagai array — bukan objek paginasi. Dipakai untuk menjumlahkan gaji satu
+ * bulan penuh, yang tidak bisa dibaca dari satu halaman tabel.
+ */
+export interface SalaryUnpaginatedResponse {
+  payrolls: Datum[];
+}
+
 export type UpdatePayrollPayload = {
   amount: number;
 };

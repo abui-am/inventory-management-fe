@@ -36,12 +36,26 @@ export function Seksi({
   );
 }
 
-/** Sepasang label–nilai; nilainya mono dan tabular supaya angkanya sejajar antar baris. */
-export function BarisNilai({ label, value }: { label: string; value: string }): JSX.Element {
+/**
+ * Sepasang label–nilai; nilainya mono dan tabular supaya angkanya sejajar antar baris.
+ *
+ * `mono={false}` untuk nilai yang bukan angka — nama jabatan, email, jenis kelamin.
+ * Huruf mono di teks biasa melebarkan barisnya tanpa memberi keuntungan apa pun, dan
+ * pembandingan kolom per kolom yang jadi alasan mono tidak berlaku di sana.
+ */
+export function BarisNilai({
+  label,
+  value,
+  mono = true,
+}: {
+  label: string;
+  value: React.ReactNode;
+  mono?: boolean;
+}): JSX.Element {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-foreground-muted">{label}</span>
-      <span className="font-mono font-medium tabular-nums">{value}</span>
+      <span className="shrink-0 text-foreground-muted">{label}</span>
+      <span className={cn('min-w-0 text-right font-medium', mono && 'font-mono tabular-nums')}>{value}</span>
     </div>
   );
 }

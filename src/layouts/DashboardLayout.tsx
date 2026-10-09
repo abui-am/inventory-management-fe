@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { LogOut, User } from 'lucide-react';
+import { ChevronLeft, LogOut, User } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { KeyboardEvent, LegacyRef, PropsWithChildren, useRef, useState } from 'react';
-import { ArrowLeft, List } from 'react-bootstrap-icons';
+import { List } from 'react-bootstrap-icons';
 import { useCollapse } from 'react-collapsed';
 
 import { Button } from '@/components/Button';
@@ -18,6 +18,8 @@ import { useFetchMyself } from '@/hooks/query/useFetchEmployee';
 import { useKeyPressEnter } from '@/hooks/useKeyHandler';
 import { cn } from '@/lib/cn';
 import { removeCookie } from '@/utils/cookies';
+
+import { useCrumb } from './crumb';
 // ssr: false. Dengan SSR menyala, server merender isi menu sementara render pertama di
 // client masih memuat chunk-nya dan merender kosong — teksnya tidak cocok, dan sejak
 // React 18 itu membuat seluruh pohon SSR dibuang lalu di-render ulang.
@@ -54,7 +56,11 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
   // tiap halaman baru ikut dapat tanpa menambah prop; yang tidak dikenali dilewati
   // supaya id mentah seperti /employee/8f3a... tidak bocor ke breadcrumb.
   const SUB_ROUTE: Record<string, string> = { add: 'Baru', edit: 'Ubah', preview: 'Pratinjau', report: 'Laporan' };
-  const subLabel = SUB_ROUTE[useRouter().pathname.split('/')[2] ?? ''];
+  const ruas = useRouter().pathname.split('/');
+  // Ruas yang dikirim halaman menang: rute berisi id (`/employee/[id]`) tidak punya kata
+  // apa pun yang bisa dibaca di sini, dan nama orangnya hanya diketahui halaman itu.
+  const crumbHalaman = useCrumb();
+  const subLabel = crumbHalaman ?? SUB_ROUTE[ruas[2] ?? ''] ?? SUB_ROUTE[ruas[3] ?? ''];
   const { state, dispatch: dispatchApp } = useApp();
   const { hideLabel } = state;
   const { data: dataUser } = data ?? {};
@@ -124,34 +130,58 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
               left: 0,
               flexDirection: 'column',
             }}
-            className="hidden flex-shrink-0 flex-grow-0 border-r border-border bg-surface-raised print:!hidden sm:flex"
+            // Lebarnya diubah lewat style inline, transisinya lewat kelas — keduanya
+            // bekerja bersama: yang satu menentukan nilai, yang satu cara menujunya.
+            // Durasi `slow` (200ms) sama dengan menu dropdown dan kalender, supaya
+            // seluruh aplikasi terasa punya satu kecepatan.
+            className="hidden flex-shrink-0 flex-grow-0 border-r border-border bg-surface-raised transition-[width] duration-slow ease-out print:!hidden sm:flex"
           >
             <div className="relative px-3 py-3">
               <Link href="/">
-                <div className="flex cursor-pointer items-center gap-2 px-2">
-                  <img src="/logo.png" width={24} height={24} className="h-6 w-6" alt="" />
-                  {!hideLabel && <h3 className="truncate text-base font-semibold tracking-tight">Putra Pribumi</h3>}
+                <div className="flex cursor-pointer items-center px-2">
+                  <img src="/logo.png" width={24} height={24} className="h-6 w-6 shrink-0" alt="" />
+                  {/* Tetap dirender, lebarnya yang menyusut — teks yang dilepas dari DOM
+                      tidak bisa beranimasi, dan kepergiannya yang mendadak itulah yang
+                      membuat penciutan terasa patah. */}
+                  <h3
+                    className={clsx(
+                      'overflow-hidden whitespace-nowrap text-base font-semibold tracking-tight',
+                      'transition-[max-width,opacity,margin] duration-slow ease-out',
+                      hideLabel ? 'ml-0 max-w-0 opacity-0' : 'ml-2 max-w-[160px] opacity-100'
+                    )}
+                  >
+                    Putra Pribumi
+                  </h3>
                 </div>
               </Link>
-              <div className="absolute right-0 h-full top-0">
-                <div className="flex gap-2 flex-col justify-center items-center h-full">
-                  <button
-                    onClick={() => dispatchApp({ type: 'setHideLabel', payload: !hideLabel })}
-                    type="button"
-                    aria-label={hideLabel ? 'Lebarkan menu' : 'Ciutkan menu'}
-                    className="-mr-3 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface text-foreground-muted shadow-sm transition-colors duration-fast hover:text-foreground"
-                  >
-                    <ArrowLeft
-                      size={12}
-                      className="transition-transform"
-                      style={{
-                        // rotate if hideLabel is true
-                        transitionDuration: '0.3s',
-                        transform: hideLabel ? 'rotate(180deg)' : 'rotate(0deg)',
-                      }}
-                    />
-                  </button>
-                </div>
+              {/* Pemicu ciut/lebar.
+                  Duduk TEPAT di garis tepi sidebar (setengahnya menggantung keluar lewat
+                  -mr-3), karena di situlah batas yang sedang digeser — bukan di dalam menu.
+                  Ukurannya 24px, bukan 20px: 20px di bawah ambang sasaran sentuh yang
+                  nyaman, dan tombol ini satu-satunya yang mengubah tata letak halaman.
+                  Anak panahnya berputar, bukan berganti ikon, supaya perpindahannya
+                  terbaca sebagai arah — menutup ke kiri, membuka ke kanan. */}
+              <div className="absolute right-0 top-0 flex h-full items-center">
+                <button
+                  onClick={() => dispatchApp({ type: 'setHideLabel', payload: !hideLabel })}
+                  type="button"
+                  aria-label={hideLabel ? 'Lebarkan menu' : 'Ciutkan menu'}
+                  aria-expanded={!hideLabel}
+                  title={hideLabel ? 'Lebarkan menu' : 'Ciutkan menu'}
+                  className={cn(
+                    '-mr-3 flex h-6 w-6 items-center justify-center rounded-full border border-border-strong bg-surface',
+                    'text-foreground-subtle shadow-sm transition-[color,background-color,box-shadow] duration-fast',
+                    'hover:bg-surface-raised hover:text-foreground hover:shadow-md',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/35'
+                  )}
+                >
+                  <ChevronLeft
+                    size={14}
+                    strokeWidth={2.2}
+                    aria-hidden
+                    className={cn('transition-transform duration-slow ease-out', hideLabel && 'rotate-180')}
+                  />
+                </button>
               </div>
             </div>
             <section
@@ -165,7 +195,12 @@ const DashboardLayout: React.FC<PropsWithChildren<{ title: string; titleHref: st
             </section>
           </div>
 
-          <div className={clsx('flex w-0 flex-1 flex-col print:!ml-0', hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]')}>
+          <div
+            className={clsx(
+              'flex w-0 flex-1 flex-col transition-[margin-left] duration-slow ease-out print:!ml-0',
+              hideLabel ? 'sm:ml-[120px]' : 'sm:ml-[240px]'
+            )}
+          >
             {/* SPEC-01: bar 50px, border-bawah membentang penuh lebar konten — karena itu
                 ia berada DI LUAR padding isi, bukan di dalamnya. */}
             <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-5 print:hidden">

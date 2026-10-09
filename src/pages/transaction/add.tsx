@@ -135,22 +135,39 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
             shipping_cost: +(data.shippingCost ?? 0),
           };
 
-          const cashIndex = payload.payments.findIndex((val) => val.payment_method === 'cash');
+          // Kembalian adalah hitungan di layar, bukan angka yang dikirim.
+          //
+          // Yang berangkat tetap persis sebesar totalnya: kelebihan uang tunai yang
+          // disodorkan customer dipotong dari baris Kas, dan `change` dibiarkan nol.
+          // Dua alasan, keduanya di backend: `TransactionRepository` menolak dengan 400
+          // (`total_price_not_equal`) kalau jumlah pembayaran tidak persis sama dengan
+          // totalnya, dan `change` yang dikirim pun tidak pernah benar-benar dikurangkan
+          // karena `$payment["cash"] ?? 0 - $payment["change"] ?? 0` mengikat `-` lebih
+          // erat daripada `??`.
+          const kelebihan = calculateChange(
+            payload.payments.reduce((acc, val) => acc + val.cash, 0),
+            data.totalPrice,
+            +(data?.discount ?? 0),
+            +(data?.shippingCost ?? 0)
+          );
 
-          if (cashIndex !== -1) {
-            const change = calculateChange(
-              payload.payments.reduce((acc, val) => acc + val.cash, 0),
-              data.totalPrice,
-              +(data?.discount ?? 0),
-              +(data?.shippingCost ?? 0)
-            );
+          if (kelebihan < 0) {
+            toast.error('Uang yang dibayarkan kurang dari total harga');
+            return;
+          }
 
-            if (change < 0) {
-              toast.error('Uang yang dibayarkan kurang dari total harga');
+          if (kelebihan > 0) {
+            const cashIndex = payload.payments.findIndex((val) => val.payment_method === 'cash');
+
+            // Tanpa baris Kas tidak ada uang tunai yang bisa dikembalikan, jadi kelebihannya
+            // tidak boleh dipotong diam-diam dari Bank/Giro/Utang. Tombolnya sudah mati di
+            // keadaan ini; penjagaan ini untuk jalur yang melewatinya.
+            if (cashIndex === -1) {
+              toast.error('Pembayaran lebih dari total harga');
               return;
             }
 
-            payload.payments[cashIndex].change = change;
+            payload.payments[cashIndex].cash -= kelebihan;
           }
 
           // Bukan `data`: nama itu sudah dipakai parameter onSubmit untuk isi form.
@@ -174,11 +191,24 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
 
   const change = calculateChange(totalPaid, values.totalPrice, +(values?.discount ?? 0), +(values?.shippingCost ?? 0));
 
+  // Lebih bayar hanya masuk akal kalau ada uang tunai di meja. Kelebihan lewat
+  // Bank/Giro/Utang tidak bisa dikembalikan ke tangan siapa pun, jadi ia tetap salah isi.
+  const adaKas = values.payments.some((p) => p.paymentMethod?.value === 'cash');
+  const kembalian = change > 0 && adaKas ? change : 0;
+
+  // Baris Kas yang akan menanggung pemotongan kembalian saat submit. Dipakai di sini
+  // supaya preview jurnal menggambarkan yang BENAR-BENAR dikirim, bukan yang diketik:
+  // tanpa ini kartu jurnal menunjukkan debit Kas 1.000.000 melawan kredit Penjualan
+  // 942.000 — tidak balance, dan bukan yang akan dicatat backend.
+  const indeksKas = values.payments.findIndex((p) => p.paymentMethod?.value === 'cash');
+
   // Bahan preview jurnal dan kartu piutang: nominal per metode, sudah memperhitungkan
   // "Seluruhnya" yang jumlahnya baru ditentukan saat simpan.
   const amountByMethod = values.payments.map((p, i) => ({
     method: p.paymentMethod?.value as string,
-    amount: values.payFull && i === 0 ? totalPriceAfterDiscount : +(p.payAmount ?? 0),
+    amount:
+      // eslint-disable-next-line no-nested-ternary
+      values.payFull && i === 0 ? totalPriceAfterDiscount : +(p.payAmount ?? 0) - (i === indeksKas ? kembalian : 0),
   }));
 
   const creditThisTransaction = amountByMethod
@@ -188,10 +218,13 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
   /**
    * Apa saja yang masih menghalangi transaksi ini disimpan.
    *
-   * Tiga yang pertama diminta Yup, yang keempat diminta backend: `TransactionRepository`
-   * menolak dengan 400 kalau jumlah pembayaran tidak PERSIS sama dengan totalnya —
-   * termasuk kalau lebih. Menyerahkannya ke server berarti cashier baru tahu setelah
-   * menekan simpan dan menerima pesan yang tidak menyebutkan bagian mana yang salah.
+   * Tiga yang pertama diminta Yup, dua terakhir diminta backend: `TransactionRepository`
+   * menolak dengan 400 kalau jumlah pembayaran tidak PERSIS sama dengan totalnya.
+   * Menyerahkannya ke server berarti cashier baru tahu setelah menekan simpan dan
+   * menerima pesan yang tidak menyebutkan bagian mana yang salah.
+   *
+   * Lebih bayar TUNAI tidak termasuk: kelebihannya dipotong dari baris Kas saat submit
+   * dan muncul di layar sebagai Kembalian, sehingga yang dikirim tetap persis totalnya.
    */
   // Isinya ReactNode, bukan string: nominal di dalamnya ditulis mono dan tabular seperti
   // setiap angka lain di halaman ini. `id` yang dipakai sebagai key, bukan isinya.
@@ -201,14 +234,13 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
   if (!values.customer) halangan('Customer belum dipilih');
   if (!values.sender) halangan('Pengirim belum dipilih');
   if (values.stockAdjustment.length === 0) halangan('Belum ada barang');
-  else if (totalPaid !== totalPriceAfterDiscount) {
-    const kurang = totalPaid < totalPriceAfterDiscount;
-    const selisih = Math.abs(totalPriceAfterDiscount - totalPaid);
+  else if (change !== 0 && kembalian === 0) {
+    const kurang = change < 0;
     halangan(
       `Pembayaran ${kurang ? 'kurang' : 'lebih'}`,
       <>
         Pembayaran {kurang ? 'kurang' : 'lebih'}{' '}
-        <span className="font-mono font-semibold tabular-nums">{formatNumber(selisih)}</span>
+        <span className="font-mono font-semibold tabular-nums">{formatNumber(Math.abs(change))}</span>
       </>
     );
   }
@@ -459,21 +491,36 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-foreground-muted">Selisih</span>
                 {/*
-                  Hijau HANYA saat nol. Backend menolak pembayaran yang tidak persis sama
-                  dengan totalnya — termasuk yang lebih — jadi selisih positif sama-sama
-                  menghalangi simpan, dan menandainya hijau bertentangan dengan tombol
-                  yang justru mati di keadaan itu.
+                  Warnanya mengikuti tombol simpan, bukan tanda angkanya. Nol dan lebih
+                  bayar tunai sama-sama boleh disimpan, jadi keduanya hijau; kurang bayar
+                  dan lebih bayar non-tunai sama-sama mengunci, jadi keduanya merah.
+                  Menandai selisih positif sebagai peringatan akan bertentangan dengan
+                  tombol yang justru hidup di keadaan itu.
                 */}
                 <span
                   className={cn(
                     'font-mono font-semibold tabular-nums',
-                    // eslint-disable-next-line no-nested-ternary
-                    change === 0 ? 'text-success' : change < 0 ? 'text-destructive' : 'text-warning'
+                    change === 0 || kembalian > 0 ? 'text-success' : 'text-destructive'
                   )}
                 >
                   {formatNumber(change)}
                 </span>
               </div>
+
+              {/*
+                Selisih menjawab "apakah hitungannya cocok"; kembalian menjawab "berapa
+                yang harus saya serahkan balik". Pertanyaan kedua itu yang dibawa tangan
+                cashier, jadi ia dicetak lebih besar — dan hanya ada saat memang ada uang
+                yang kembali. Kurang bayar sudah dikatakan Selisih dan halangannya.
+              */}
+              {kembalian > 0 && (
+                <div className="mt-0.5 flex items-baseline justify-between gap-2 border-t border-border pt-2">
+                  <span className="text-base font-semibold">Kembalian</span>
+                  <span className="font-mono text-lg font-bold tabular-nums tracking-[-0.02em] text-accent">
+                    {formatNumber(kembalian)}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/*
@@ -527,6 +574,7 @@ const AddTransactionPage: NextPage & ThemeablePage = () => {
         total={totalPriceAfterDiscount}
         amountByMethod={amountByMethod}
         creditThisTransaction={creditThisTransaction}
+        kembalian={kembalian}
       />
 
       <ModalSummary
@@ -559,6 +607,15 @@ const invoiceFromForm = (
 ): SaleTransactionsData => {
   const totalAfterDiscount = values.totalPrice + +(values.shippingCost ?? 0) - +(values?.discount ?? 0);
 
+  // Faktur mencetak yang TERSIMPAN, bukan yang diketik. Kelebihan uang tunai dipotong
+  // dari baris Kas persis seperti saat dikirim — kalau tidak, strukyang dipegang customer
+  // menyebut Kas 1.000.000 sementara buku besar mencatat 942.000.
+  const dibayar = values.payments.reduce((total, p, i) => {
+    return total + (values.payFull && i === 0 ? totalAfterDiscount : +(p.payAmount ?? 0));
+  }, 0);
+  const indeksKas = values.payments.findIndex((p) => p.paymentMethod?.value === 'cash');
+  const kembalian = indeksKas === -1 ? 0 : Math.max(0, dibayar - totalAfterDiscount);
+
   return {
     id: created.id,
     invoice_number: created.invoice_number,
@@ -584,7 +641,9 @@ const invoiceFromForm = (
       payment_method: p.paymentMethod?.value as string,
       // "Seluruhnya" tidak menyimpan angkanya di form — sama seperti saat dikirim,
       // nilainya diambil dari total.
-      payment_price: values.payFull && i === 0 ? totalAfterDiscount : +(p.payAmount ?? 0),
+      payment_price:
+        // eslint-disable-next-line no-nested-ternary
+        values.payFull && i === 0 ? totalAfterDiscount : +(p.payAmount ?? 0) - (i === indeksKas ? kembalian : 0),
       maturity_date: METHODS_WITH_DUE_DATE.includes(p.paymentMethod?.value as string)
         ? (p.paymentDue as Date)
         : undefined,
@@ -611,8 +670,9 @@ const ModalConfirm: React.FC<
     total: number;
     amountByMethod: { method: string; amount: number }[];
     creditThisTransaction: number;
+    kembalian: number;
   }>
-> = ({ isOpen, onClose, onConfirm, saving, values, total, amountByMethod, creditThisTransaction }) => {
+> = ({ isOpen, onClose, onConfirm, saving, values, total, amountByMethod, creditThisTransaction, kembalian }) => {
   const currentDebt = +(values.customer?.data?.total_debt ?? 0);
 
   return (
@@ -639,6 +699,21 @@ const ModalConfirm: React.FC<
             </span>
           </div>
         </div>
+
+        {/*
+          DI LUAR blok abu, bukan di dalamnya. Blok itu berisi yang akan tersimpan —
+          nominal per metode sudah dipotong kembaliannya dan Total adalah yang
+          benar-benar dikirim. Kembalian justru satu-satunya angka di dialog ini yang
+          TIDAK tersimpan; menaruhnya di sana akan membuatnya terbaca sebagai bagian
+          dari transaksi. Bentuknya mengikuti pita piutang di bawah: satu kalimat,
+          nominalnya mono dan tabular.
+        */}
+        {kembalian > 0 && (
+          <p className="rounded-lg bg-accent-subtle px-3.25 py-2 text-sm leading-[17px] text-accent">
+            Kembalikan <span className="font-mono font-semibold tabular-nums">{formatNumber(kembalian)}</span> ke{' '}
+            {values.customer?.label ?? 'customer'}.
+          </p>
+        )}
 
         {creditThisTransaction > 0 && (
           <p className="rounded-lg bg-warning-subtle px-3.25 py-2 text-sm leading-[17px] text-warning">

@@ -111,6 +111,17 @@
   position: absolute;
 }
 
+/* Ikutan dari aturan di atas, dan ini yang membuat pemilih BULAN tampil gepeng.
+   Begitu tab-loop jadi absolut, lebarnya menyusut ke 0, dan popper di dalamnya —
+   yang ukurannya shrink-to-fit — ikut menyusut ke 83px. Nama bulan lebarnya 64px,
+   jadi tiga per baris tidak muat dan semuanya jatuh jadi satu kolom memanjang.
+   Kalender harian kebetulan selamat karena lebarnya sudah ditetapkan stylesheet
+   vendor; grid bulan tidak.
+   `max-content` membuat popper selebar isinya, bukan selebar wadah yang sudah nol. */
+.react-datepicker-popper {
+  width: max-content;
+}
+
 /* Panah ganti bulan sejajar dengan garis teks bulannya. Bawaan react-datepicker
    menaruhnya di top:2px sementara labelnya punya padding sendiri, jadi keduanya
    tidak pernah segaris. */
@@ -152,7 +163,7 @@
    react-datepicker menaruh `children` di `__children-container` SETELAH bulannya, dengan
    lebar tetap 250px dan margin sendiri. `order: -1` memindahkannya ke kiri tanpa harus
    menulis ulang tata letak kalendernya, dan lebarnya diserahkan ke komponennya. */
-.datepicker-kalender {
+.datepicker-preset {
   --lebar-preset: 152px;
 
   display: flex;
@@ -165,11 +176,11 @@
 /* Panah ganti bulan diposisikan absolut terhadap `.react-datepicker`, jadi begitu daftar
    preset menempati sisi kiri, panah "bulan sebelumnya" mendarat di atas item teratasnya.
    Digeser sepanjang lebar daftar itu — satu angka, disimpan sebagai variabel di atas. */
-.datepicker-kalender .react-datepicker__navigation--previous {
+.datepicker-preset .react-datepicker__navigation--previous {
   left: calc(var(--lebar-preset) + 10px);
 }
 
-.datepicker-kalender .react-datepicker__children-container {
+.datepicker-preset .react-datepicker__children-container {
   order: -1;
   width: var(--lebar-preset);
   margin: 0;
@@ -179,4 +190,58 @@
      pada daftar itu, berhenti di tengah jalan. Dengan flex, daftarnya meregang penuh. */
   display: flex;
   border-right: 1px solid hsl(var(--border));
+}
+
+/* Pemilih BULAN dan TAHUN (`showMonthYearPicker`). Stylesheet vendor mewarnainya
+   sendiri dengan biru literal, jadi bulan terpilih tidak pernah ikut warna aksen dan
+   tidak ikut berganti di mode gelap — sama persis dengan yang dulu terjadi pada
+   kalender harian. */
+.react-datepicker__month-text,
+.react-datepicker__quarter-text,
+.react-datepicker__year-text {
+  width: 60px;
+  padding: 5px 0;
+  margin: 2px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: hsl(var(--foreground));
+  transition: background-color 120ms ease-out;
+}
+
+.react-datepicker__month-text:hover,
+.react-datepicker__quarter-text:hover,
+.react-datepicker__year-text:hover {
+  background-color: hsl(var(--surface-raised));
+}
+
+.react-datepicker__month--selected,
+.react-datepicker__month-text--selected,
+.react-datepicker__quarter-text--selected,
+.react-datepicker__year-text--selected {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+  font-weight: 600;
+}
+
+/* Sama alasannya dengan `--keyboard-selected` di kalender harian: ini bulan yang
+   sedang disorot papan ketik, bukan bulan yang dipilih. Cukup garis tipis. */
+.react-datepicker__month-text--keyboard-selected,
+.react-datepicker__quarter-text--keyboard-selected,
+.react-datepicker__year-text--keyboard-selected {
+  background-color: transparent;
+  color: inherit;
+  box-shadow: inset 0 0 0 1px hsl(var(--accent));
+}
+
+.react-datepicker__month-text--disabled,
+.react-datepicker__year-text--disabled {
+  color: hsl(var(--foreground-subtle));
+}
+
+/* Wadah bulan butuh napas sendiri; bawaannya menempel ke tepi popover. */
+.react-datepicker__monthPicker,
+.react-datepicker__quarterPicker,
+.react-datepicker__year {
+  padding: 6px 4px 8px;
 }

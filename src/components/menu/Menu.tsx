@@ -36,7 +36,10 @@ function MenuLink({ item, hideLabel, onNavigate }: { item: MenuItem; hideLabel: 
         aria-current={active ? 'page' : undefined}
         title={hideLabel ? displayName : undefined}
         className={cn(
-          'group relative flex items-center gap-2.5 rounded-md px-2 py-1.5 text-base transition-colors duration-fast',
+          // Jarak ikon–label diatur lewat margin label, bukan `gap`: saat label menyusut
+          // jadi nol, gap tetap menyisakan ruang dan ikonnya terlihat meleset dari tengah.
+          'group relative flex items-center rounded-md px-2 py-1.5 text-base',
+          'transition-[background-color,color,padding] duration-fast',
           hideLabel && 'justify-center px-0',
           active
             ? 'bg-accent-subtle font-semibold text-accent'
@@ -44,7 +47,16 @@ function MenuLink({ item, hideLabel, onNavigate }: { item: MenuItem; hideLabel: 
         )}
       >
         {icon({ size: 16, strokeWidth: active ? 2.25 : 1.75, 'aria-hidden': true, className: 'shrink-0' })}
-        {!hideLabel && <span className="truncate">{displayName}</span>}
+        {/* Label tetap ada di DOM saat menu diciutkan — yang berubah lebarnya. Melepasnya
+            dari DOM membuat penciutan tidak bisa dianimasikan sama sekali. */}
+        <span
+          className={cn(
+            'overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-slow ease-out',
+            hideLabel ? 'ml-0 max-w-0 opacity-0' : 'ml-2.5 max-w-[150px] opacity-100'
+          )}
+        >
+          {displayName}
+        </span>
         <Bubble id={id} hideLabel={hideLabel} />
       </a>
     </Link>
@@ -75,15 +87,27 @@ const Menu: React.FC<{ hideLabel: boolean; onMenuClick: (menu: boolean) => void 
 
         return (
           <div key={id} className="flex flex-col gap-0.5">
-            {hideLabel ? (
-              // Saat label disembunyikan, judul grup diganti garis: teks 11px yang terpotong
-              // jadi dua huruf tidak memberi tahu apa pun.
-              <div className="mx-2 mb-1 border-t border-border-subtle" role="presentation" />
-            ) : (
-              <div className="px-2 pb-0.5 text-xs font-bold uppercase tracking-[0.07em] text-foreground-subtle">
+            {/* Saat menu diciutkan, judul grup diganti garis: teks 11px yang terpotong jadi
+                dua huruf tidak memberi tahu apa pun. Keduanya menempati petak yang sama
+                supaya pergantiannya memudar di tempat, bukan mendorong isi menu naik-turun. */}
+            <div className="relative mb-1 h-4">
+              <div
+                role="presentation"
+                className={cn(
+                  'absolute inset-x-2 top-1/2 border-t border-border-subtle transition-opacity duration-slow',
+                  hideLabel ? 'opacity-100' : 'opacity-0'
+                )}
+              />
+              <div
+                className={cn(
+                  'absolute inset-x-2 top-0 truncate text-xs font-bold tracking-[0.04em] text-foreground-subtle',
+                  'transition-opacity duration-slow',
+                  hideLabel ? 'opacity-0' : 'opacity-100'
+                )}
+              >
                 {label}
               </div>
-            )}
+            </div>
             {items.map((item) => (
               <MenuLink key={item.id} item={item} hideLabel={hideLabel} onNavigate={close} />
             ))}

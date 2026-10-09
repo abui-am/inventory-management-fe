@@ -17,7 +17,8 @@ export function DialogRow({
   mono = true,
 }: {
   label: string;
-  value: string;
+  /** Biasanya teks; menerima simpul supaya nilainya bisa berupa lencana peran. */
+  value: React.ReactNode;
   strong?: boolean;
   tone?: 'accent' | 'warning' | 'success';
   /** Matikan untuk nilai yang bukan angka — nama orang atau toko tidak dibaca kolom per kolom. */

@@ -1,7 +1,7 @@
 import { UseQueryResult } from '@tanstack/react-query';
 
 import { BackendRes } from '@/typings/request';
-import { SalaryResponse } from '@/typings/salary';
+import { SalaryResponse, SalaryUnpaginatedResponse } from '@/typings/salary';
 import { apiInstanceWithoutBaseUrl, getApiBasedOnRoles } from '@/utils/api';
 
 import keys from '../keys';
@@ -33,4 +33,30 @@ export const useFetchSalary = (
   );
 
   return fetcher;
+};
+
+/**
+ * Seluruh baris gaji satu bulan, tanpa paginasi.
+ *
+ * Dipakai hanya untuk angka ringkasan di kepala halaman: total gaji, yang sudah dibayar,
+ * dan sisanya. Menjumlahkannya dari tabel yang berpaginasi hanya akan menjumlahkan
+ * halaman yang sedang dilihat, dan itu angka yang salah.
+ */
+export const useFetchUnpaginatedSalary = (
+  data: Partial<{
+    where_payroll_month: string;
+    order_by: Record<string, string>;
+  }> = {}
+): UseQueryResult<BackendRes<SalaryUnpaginatedResponse>> => {
+  const { data: dataSelf } = useFetchMyself();
+  const roles = dataSelf?.data.user.roles.map(({ name }) => name) ?? [];
+
+  return useMyQuery(
+    [keys.salary, 'semua', data, roles],
+    async () => {
+      const res = await getApiBasedOnRoles(roles, ['superadmin']).post('/payrolls', { ...data, paginated: false });
+      return res.data;
+    },
+    { enabled: (roles?.length ?? 0) > 0 }
+  );
 };

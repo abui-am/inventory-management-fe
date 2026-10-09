@@ -186,7 +186,11 @@ export function DateRangeFilter({
       popperClassName="!z-20"
       // Animasi buka yang sama dengan datepicker di form — tanpa ini kalender muncul
       // seketika sementara semua menu lain di aplikasi meluncur masuk.
-      calendarClassName="datepicker-kalender"
+      // `datepicker-preset`: tata letak dua kolom (daftar preset di kiri) hanya milik
+      // popover ini. Dipisah dari `datepicker-kalender` karena aturan di dalamnya
+      // menggeser panah "sebelumnya" sejauh lebar daftar preset — di pemilih bulan,
+      // geseran itu melempar panah tahun keluar dari panelnya.
+      calendarClassName="datepicker-kalender datepicker-preset"
       customInput={<Trigger label={labelOf(value)} />}
     >
       {/* Daftar preset hidup DI DALAM popover kalender, bukan sebagai tombol terpisah di

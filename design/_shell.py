@@ -76,6 +76,10 @@ BASE = '''
       font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
       font-size:13px;line-height:1.45}
     a{color:var(--accent);text-decoration:none} a:hover{opacity:.8}
+    /* Tautan pelengkap: seredup judul seksinya, menguat saat disentuh. Warna aksen
+       disimpan untuk aksi, bukan untuk jalan keluar yang sifatnya tambahan. */
+    .tautan-tenang{color:var(--foreground-muted)}
+    .tautan-tenang:hover{color:var(--foreground);opacity:1;text-decoration:underline;text-underline-offset:2px}
     .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums;
       letter-spacing:-0.01em}
     .eyebrow{font-size:11px;font-weight:700;color:var(--foreground-subtle)}
